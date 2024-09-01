@@ -16,8 +16,6 @@ type ContactListProps = {
 };
 
 export function ContactList({ contacts }: ContactListProps) {
-  console.log(contacts);
-
   return (
     <Table>
       <TableCaption className="p-4 text-green-500">

@@ -3,6 +3,7 @@ export const propertyNameMap: Record<
   { friendlyName: string; step: number }
 > = {
   country_us_ca: { friendlyName: "Country", step: 1 },
+  email: { friendlyName: "Email", step: 1 },
   firstname: { friendlyName: "Name", step: 1 },
   hs_lead_status: { friendlyName: "Lead Status", step: 1 },
   hs_object_id: { friendlyName: "ID", step: 1 },
@@ -30,6 +31,28 @@ export const propertyNameMap: Record<
   estimated_time_for_buying: {
     friendlyName: "Is the timing right with this lead?",
     step: 2,
+  },
+  project_summary_user: {
+    friendlyName: "Project Summary",
+    step: 3,
+  },
+  installation_type: {
+    friendlyName: "Installation type:",
+    step: 3,
+  },
+
+  already_have_a_system_in_mind: {
+    friendlyName: "Already have a system in mind?",
+    step: 3,
+  },
+
+  prospect_valued_benefits: {
+    friendlyName: "Prospect Valued Benefits",
+    step: 3,
+  },
+  prior_attempts: {
+    friendlyName: "Prior Attempts",
+    step: 3,
   },
 };
 

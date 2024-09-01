@@ -7,9 +7,6 @@ export async function searchContact(
   try {
     const apiKey = process.env.HUBSPOT_API_KEY;
 
-    console.log("Email:", value);
-    console.log("API Key:", apiKey);
-
     const response = await fetch(
       `https://api.hubapi.com/crm/v3/objects/contacts/search`,
       {

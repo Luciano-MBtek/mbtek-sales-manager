@@ -11,7 +11,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-
+import { propertyNameMap } from "./utils";
 import {
   Table,
   TableBody,
@@ -37,11 +37,16 @@ export function DataTable<TData, TValue>({
   const [sorting, setSorting] = useState<SortingState>([
     { id: "step", desc: false },
   ]);
-  const [stepFilters, setStepFilters] = useState<string[]>([]);
-  const uniqueSteps = Array.from(
-    new Set(data.map((item: any) => item.step))
-  ).sort((a, b) => a - b);
+
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+
+  const [selectedSteps, setSelectedSteps] = useState<number[]>([]);
+
+  // Get unique steps from propertyNameMap
+  const uniqueSteps = Array.from(
+    new Set(Object.values(propertyNameMap).map((item) => item.step))
+  ).sort();
+
   const table = useReactTable({
     data,
     columns,
@@ -55,17 +60,14 @@ export function DataTable<TData, TValue>({
       sorting,
       columnFilters,
     },
-    filterFns: {
-      stepFilter: (row, columnId, filterValue: string[]) => {
-        if (filterValue.length === 0) return true;
-        return filterValue.includes(row.getValue(columnId));
-      },
-    },
   });
-
   useEffect(() => {
-    table.getColumn("step")?.setFilterValue(stepFilters);
-  }, [stepFilters, table]);
+    if (selectedSteps.length > 0) {
+      table.getColumn("step")?.setFilterValue(selectedSteps);
+    } else {
+      table.getColumn("step")?.setFilterValue(undefined);
+    }
+  }, [selectedSteps, table]);
 
   return (
     <div className="w-[90%]">
@@ -81,19 +83,19 @@ export function DataTable<TData, TValue>({
           className="max-w-sm"
         />
         <div className="flex items-center justify-between gap-3">
-          <p>Filter by Step:</p>
+          <p>Filter by:</p>
           {uniqueSteps.map((step) => (
-            <div key={step} className="flex items-center gap-1">
-              <label htmlFor={`step-${step}`}>{step}</label>
+            <div key={step} className="flex items-center space-x-2">
               <Checkbox
                 id={`step-${step}`}
-                checked={stepFilters.includes(step)}
+                checked={selectedSteps.includes(step)}
                 onCheckedChange={(checked) => {
-                  setStepFilters((prev) =>
+                  setSelectedSteps((prev) =>
                     checked ? [...prev, step] : prev.filter((s) => s !== step)
                   );
                 }}
               />
+              <label htmlFor={`step-${step}`}>Step {step}</label>
             </div>
           ))}
         </div>

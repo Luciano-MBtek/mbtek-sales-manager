@@ -3,7 +3,7 @@ import { getToken } from "next-auth/jwt";
 import { NextRequest } from "next/server";
 
 // Define routes as constants
-const DASHBOARD = "/dashboard";
+const CONTACTS = "/contacts";
 const METRICS = "/metrics";
 const HOME = "/";
 
@@ -20,11 +20,11 @@ const userEmails = parseEmails(process.env.USER_EMAILS);
 const accessControl: Record<string, string[]> = {};
 
 adminEmails.forEach((email) => {
-  accessControl[email] = [DASHBOARD, METRICS];
+  accessControl[email] = [CONTACTS, METRICS];
 });
 
 userEmails.forEach((email) => {
-  accessControl[email] = [DASHBOARD];
+  accessControl[email] = [CONTACTS];
 });
 
 export async function middleware(req: NextRequest) {
@@ -39,13 +39,17 @@ export async function middleware(req: NextRequest) {
   }
 
   // Check if this is a protected route
-  if (path.startsWith(DASHBOARD) || path.startsWith(METRICS)) {
+  if (path.startsWith(CONTACTS) || path.startsWith(METRICS)) {
     const token = await getToken({ req });
     const userEmail = token?.email as string | undefined;
 
     if (!userEmail) {
       console.error("User email not found in token");
-      return NextResponse.redirect(new URL("/api/auth/signin", req.url));
+      // Store the original path in the URL to redirect after login
+      const callbackUrl = encodeURIComponent(req.url);
+      return NextResponse.redirect(
+        new URL(`/api/auth/signin?callbackUrl=${callbackUrl}`, req.url)
+      );
     }
 
     // Check if the user has access
@@ -63,5 +67,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: [HOME, DASHBOARD, METRICS],
+  matcher: ["/contacts", "/metrics", "/"],
 };
