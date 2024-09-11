@@ -2,7 +2,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-
+import { useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -13,32 +13,57 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-
+import { useToast } from "@/components/ui/use-toast";
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
+import { patchContactProperty } from "@/actions/patchContactProperty";
 
-type optionsProps = {
+type OptionProps = {
+  value: string;
   label: string;
-  options: { value: string; label: string }[];
+};
+
+type RadioFormProps = {
+  label: string;
+  options: OptionProps[];
   property: string;
   id: string;
 };
 
-export function RadioForm({ label, options, property, id }: optionsProps) {
-  const formSchema = z.object({
-    selection: z.string().min(1, { message: "Please select an option." }),
-  });
+const formSchema = z.object({
+  selection: z.string().min(1, { message: "Please select an option." }),
+});
 
-  const form = useForm<z.infer<typeof formSchema>>({
+type FormSchema = z.infer<typeof formSchema>;
+
+export function RadioForm({ label, options, property, id }: RadioFormProps) {
+  const [isPending, startTransition] = useTransition();
+  const { toast } = useToast();
+
+  const form = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       selection: "",
     },
   });
 
-  // 2. Define a submit handler.
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
-  }
+  const onSubmit = (values: FormSchema) => {
+    startTransition(() => {
+      patchContactProperty(id, property, values.selection)
+        .then(() => {
+          toast({
+            title: `${property} updated successfully`,
+            description: <p className="text-primary">{values.selection}</p>,
+          });
+        })
+        .catch((error) => {
+          toast({
+            title: "Error updating property",
+            description: <p className="text-destructive">{error.message}</p>,
+            variant: "destructive",
+          });
+        });
+    });
+  };
 
   return (
     <Form {...form}>
@@ -78,7 +103,9 @@ export function RadioForm({ label, options, property, id }: optionsProps) {
             </FormItem>
           )}
         />
-        <Button type="submit">Submit</Button>
+        <Button type="submit" disabled={isPending}>
+          {isPending ? "Submitting..." : "Submit"}
+        </Button>
       </form>
     </Form>
   );

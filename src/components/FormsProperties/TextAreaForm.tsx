@@ -1,9 +1,9 @@
 "use client";
-import { Textarea } from "../ui/textarea";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-
+import { useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -14,39 +14,58 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/components/ui/use-toast";
+import { patchContactProperty } from "@/actions/patchContactProperty";
 
-type TextFormProps = {
+type TextAreaFormProps = {
   label: string;
   property: string;
   id: string;
 };
 
-export function TextAreaForm({ label, property, id }: TextFormProps) {
-  // 1. Define your form.
-  const formSchema = z.object({
-    text: z
-      .string()
-      .min(2, { message: "Text must be at least 2 characters." })
-      .max(1000, { message: "Text must not exceed 1000 characters." })
-      .trim()
-      .refine((value) => value.split("\n").length <= 10, {
-        message: "Text must not exceed 10 lines.",
-      }),
-  });
+const formSchema = z.object({
+  text: z
+    .string()
+    .min(2, { message: "Text must be at least 2 characters." })
+    .max(1000, { message: "Text must not exceed 1000 characters." })
+    .trim()
+    .refine((value) => value.split("\n").length <= 10, {
+      message: "Text must not exceed 10 lines.",
+    }),
+});
 
-  const form = useForm<z.infer<typeof formSchema>>({
+type FormSchema = z.infer<typeof formSchema>;
+
+export function TextAreaForm({ label, property, id }: TextAreaFormProps) {
+  const [isPending, startTransition] = useTransition();
+  const { toast } = useToast();
+
+  const form = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       text: "",
     },
   });
 
-  // 2. Define a submit handler.
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    console.log(values);
-  }
+  const onSubmit = (values: FormSchema) => {
+    startTransition(() => {
+      patchContactProperty(id, property, values.text)
+        .then(() => {
+          toast({
+            title: `${property} updated successfully`,
+            description: <p className="text-primary">{values.text}</p>,
+          });
+        })
+        .catch((error) => {
+          toast({
+            title: "Error updating property",
+            description: <p className="text-destructive">{error.message}</p>,
+            variant: "destructive",
+          });
+        });
+    });
+  };
 
   return (
     <Form {...form}>
@@ -68,7 +87,9 @@ export function TextAreaForm({ label, property, id }: TextFormProps) {
             </FormItem>
           )}
         />
-        <Button type="submit">Submit</Button>
+        <Button type="submit" disabled={isPending}>
+          {isPending ? "Submitting..." : "Submit"}
+        </Button>
       </form>
     </Form>
   );

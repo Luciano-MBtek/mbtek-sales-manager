@@ -83,10 +83,26 @@ export function DialogCloseButton({
           id={id}
         />
       ),
-      radio: <RadioForm options={options ?? []} label={label ?? ""} />,
-      text: <TextForm label={label ?? ""} />,
-      textArea: <TextAreaForm label={label ?? ""} />,
-      checkBox: <CheckboxForm options={options ?? []} label={label ?? ""} />,
+      radio: (
+        <RadioForm
+          options={options ?? []}
+          label={label ?? ""}
+          property={property}
+          id={id}
+        />
+      ),
+      text: <TextForm label={label ?? ""} property={property} id={id} />,
+      textArea: (
+        <TextAreaForm label={label ?? ""} property={property} id={id} />
+      ),
+      checkBox: (
+        <CheckboxForm
+          options={options ?? []}
+          label={label ?? ""}
+          property={property}
+          id={id}
+        />
+      ),
     };
 
     return Object.entries(propertyFieldTypes)
