@@ -7,7 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import type { Contact } from "../../types";
+import type { Contact } from "../types";
 import { Button } from "./ui/button";
 import Link from "next/link";
 

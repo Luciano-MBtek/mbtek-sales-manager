@@ -1,4 +1,4 @@
-import { ProgressProperties } from "../../types";
+import { ProgressProperties } from "../types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { User, MapPin, Calendar, BarChart2 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";

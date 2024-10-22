@@ -9,7 +9,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { GetPropertyDetail } from "@/actions/getPropertyDetail";
-import { PropertyDetail } from "../../types";
+import { PropertyDetail } from "../types";
 
 import { TextForm } from "./FormsProperties/TextForm";
 import { TextAreaForm } from "./FormsProperties/TextAreaForm";
