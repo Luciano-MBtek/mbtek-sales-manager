@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-
+import { useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -15,6 +15,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useToast } from "@/components/ui/use-toast";
+import { patchContactProperty } from "@/actions/patchContactProperty";
 
 type TextFormProps = {
   label: string;
@@ -28,21 +30,37 @@ const formSchema = z.object({
   }),
 });
 
+type FormSchema = z.infer<typeof formSchema>;
+
 export function TextForm({ label, property, id }: TextFormProps) {
-  // 1. Define your form.
-  const form = useForm<z.infer<typeof formSchema>>({
+  const [isPending, startTransition] = useTransition();
+  const { toast } = useToast();
+
+  const form = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       text: "",
     },
   });
 
-  // 2. Define a submit handler.
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    console.log(values);
-  }
+  const onSubmit = (values: FormSchema) => {
+    startTransition(() => {
+      patchContactProperty(id, property, values.text)
+        .then(() => {
+          toast({
+            title: `${property} updated successfully`,
+            description: <p className="text-primary">{values.text}</p>,
+          });
+        })
+        .catch((error) => {
+          toast({
+            title: "Error updating property",
+            description: <p className="text-destructive">{error.message}</p>,
+            variant: "destructive",
+          });
+        });
+    });
+  };
 
   return (
     <Form {...form}>
@@ -64,7 +82,9 @@ export function TextForm({ label, property, id }: TextFormProps) {
             </FormItem>
           )}
         />
-        <Button type="submit">Submit</Button>
+        <Button type="submit" disabled={isPending}>
+          {isPending ? "Submitting..." : "Submit"}
+        </Button>
       </form>
     </Form>
   );

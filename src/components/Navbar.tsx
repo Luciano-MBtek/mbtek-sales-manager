@@ -57,6 +57,7 @@ const components: { title: string; href: string; description: string }[] = [
 
 export function Navbar() {
   const { data: session, status } = useSession();
+
   return (
     <NavigationMenu>
       <NavigationMenuList>
