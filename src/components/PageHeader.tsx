@@ -7,7 +7,7 @@ export default function PageHeader({
 }) {
   return (
     <div className="w-full flex flex-col items-start ml-4 p-4">
-      <h1 className="mb-2 text-2xl font-semibold text-black md:text-7xl">
+      <h1 className="mb-2 text-2xl font-semibold text-black md:text-4xl">
         {title}
       </h1>
       {subtitle && (

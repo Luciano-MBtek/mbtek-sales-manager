@@ -1,5 +1,5 @@
 "use server";
-import { stepThreeSchema } from "@/schemas";
+import { stepThreeSchemaB2C } from "@/schemas";
 import { collectDataRoutes, FormErrors } from "@/types";
 import { redirect } from "next/navigation";
 
@@ -8,8 +8,10 @@ export const stepThreeFormAction = (
   formData: FormData
 ): FormErrors | undefined => {
   const data = Object.fromEntries(formData.entries());
-  const validated = stepThreeSchema.safeParse(data);
-  console.log(validated.success);
+
+  console.log(data);
+  const validated = stepThreeSchemaB2C.safeParse(data);
+
   if (!validated.success) {
     const errors = validated.error.issues.reduce((acc: FormErrors, issue) => {
       const path = issue.path[0] as string;

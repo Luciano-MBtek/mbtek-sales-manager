@@ -8,18 +8,20 @@ import {
   useState,
 } from "react";
 import {
-  NewDealInitialValuesType, 
+  NewDealInitialValuesType,
   NewDealType,
   newDealInitialValuesSchema,
 } from "@/schemas";
 
 const defaultDeal: NewDealInitialValuesType = {
   name: "",
-  link: "",
-  coupon: "",
-  discount: undefined,
-  contactName: "",
-  contactEmail: "",
+  lastname: "",
+  email: "",
+  phone: "",
+  country: "",
+  state: "",
+  province: "",
+  leadType: "",
 };
 
 const LOCAL_STORAGE_KEY = "multi-page-form-demo-newDealData";
@@ -104,7 +106,7 @@ export const AddDealContextProvider = ({
 
 export function useAddDealContext() {
   const context = useContext(AddDealContext);
-  if (context === null) {
+  if (!context) {
     throw new Error(
       "useAddDealContext must be used within a AddDealContextProvider"
     );

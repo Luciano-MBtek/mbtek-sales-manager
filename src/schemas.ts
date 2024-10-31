@@ -39,6 +39,17 @@ export const stepTwoSchema = z.discriminatedUnion("country", [
   }),
 ]);
 
+export const stepThreeSchemaB2C = z.object({
+  projectSummary: z
+    .string()
+    .min(5, "Please enter at least 3 characters")
+    .max(300, "Please enter no more than 300 characters"),
+  reasonForCalling: z
+    .string()
+    .min(5, "Please enter at least 3 characters")
+    .max(300, "Please enter no more than 300 characters"),
+});
+
 export const stepThreeSchema = z.object({
   contactName: z
     .string()
@@ -55,11 +66,15 @@ export const newDealSchema = z.object({
 
 export const newDealInitialValuesSchema = z.object({
   name: z.string().optional(),
-  link: z.string().optional(),
-  coupon: z.string().optional(),
-  discount: z.coerce.number().optional(),
-  contactName: z.string().optional(),
-  contactEmail: z.string().optional(),
+  lastname: z.string().optional(),
+  email: z.string().optional(),
+  phone: z.string().optional(),
+  country: z.string().optional(),
+  state: z.string().optional(),
+  province: z.string().optional(),
+  leadType: z.union([z.string(), z.array(z.string())]).optional(),
+  projectSummary: z.string().optional(),
+  reasonForCalling: z.string().optional(),
 });
 
 export type NewDealType = z.infer<typeof newDealSchema>;

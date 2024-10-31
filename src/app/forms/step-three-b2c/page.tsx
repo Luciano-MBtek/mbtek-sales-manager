@@ -3,7 +3,7 @@ import StepThreeForm from "./stepThreeForm";
 
 export default function StepThree() {
   return (
-    <div>
+    <div className="p-4">
       <StepThreeForm />
     </div>
   );

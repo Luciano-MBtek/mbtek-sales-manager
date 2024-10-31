@@ -51,7 +51,7 @@ export default function StepNavigation() {
   }, [currentPath]);
 
   return (
-    <div className="mb-12 mt-4 lg:mb-0 min-w-60 p-4">
+    <div className="mb-12 lg:mb-0 min-w-60 p-4">
       {/* back button */}
       <Link
         href={(() => {
