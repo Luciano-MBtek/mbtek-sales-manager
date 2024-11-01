@@ -19,5 +19,5 @@ export const stepThreeFormAction = (
     return errors;
   }
 
-  redirect(collectDataRoutes.REVIEW_DEAL);
+  redirect(collectDataRoutes.LEAD_QUALIFICATION_B2C_2);
 };

@@ -1,7 +1,7 @@
 import React from "react";
 import PageHeader from "@/components/PageHeader";
 import StepNavigation from "@/components/StepNavigation";
-import { AddDealContextProvider } from "@/contexts/addDealContext";
+import { AddLeadContextProvider } from "@/contexts/addDealContext";
 
 export default function DealsLayout({
   children,
@@ -15,11 +15,11 @@ export default function DealsLayout({
         subtitle="Form process to collect lead's information."
       />
 
-      <div className="mt-20 mb-28 flex flex-col gap-x-16 text-white lg:flex-row">
+      <div className="mt-5 mb-28 flex flex-col gap-x-16 text-white lg:flex-row">
         <StepNavigation />
-        <AddDealContextProvider>
+        <AddLeadContextProvider>
           <div className="w-full">{children}</div>
-        </AddDealContextProvider>
+        </AddLeadContextProvider>
       </div>
     </div>
   );

@@ -5,12 +5,8 @@ import SelectInput from "@/components/SelectStepForm";
 import CheckboxInput from "@/components/CheckboxStepForm";
 import { stepTwoFormAction } from "@/app/forms/step-two/actions";
 import { useFormState } from "react-dom";
-import { useState } from "react";
 import { FormErrors, canadaProvinces, USStates, leadType } from "@/types";
-
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import { useAddDealContext } from "@/contexts/addDealContext";
+import { useAddLeadContext } from "@/contexts/addDealContext";
 
 const initialState: FormErrors = {};
 
@@ -19,8 +15,7 @@ export default function StepTwoForm() {
     stepTwoFormAction,
     initialState
   );
-  const { newDealData } = useAddDealContext();
-  const [selectedStateOrProvince, setSelectedStateOrProvince] = useState("");
+  const { newLeadData } = useAddLeadContext();
 
   const countryOptions = [
     { label: "USA", value: "USA" },
@@ -56,7 +51,7 @@ export default function StepTwoForm() {
           errorMsg={serverErrors?.country}
         />
 
-        {newDealData.country === "USA" && (
+        {newLeadData.country === "USA" && (
           <SelectInput
             label="State"
             id="state"
@@ -66,7 +61,7 @@ export default function StepTwoForm() {
           />
         )}
 
-        {newDealData.country === "Canada" && (
+        {newLeadData.country === "Canada" && (
           <SelectInput
             label="Province"
             id="province"
@@ -80,29 +75,8 @@ export default function StepTwoForm() {
           id="leadType"
           options={leadType}
           errorMsg={serverErrors?.leadType}
-          isMulti={false} // Cambia a true si deseas permitir múltiples selecciones
+          isMulti={false}
         />
-        {/* <div className="space-y-2">
-          <h3 className="text-lg font-medium text-black">
-            Are you calling for a business or for yourself?
-          </h3>
-          <div className="space-y-2">
-            {leadType.map((option) => (
-              <div
-                key={option}
-                className="flex items-center space-x-2 text-black"
-              >
-                <Checkbox id={option} name="leadType" value={option} />
-                <Label htmlFor={option}>{option}</Label>
-              </div>
-            ))}
-          </div>
-          {serverErrors?.leadType && (
-            <span className="text-red-500 text-sm block">
-              {serverErrors.leadType}
-            </span>
-          )}
-        </div> */}
 
         <SubmitButton text="Continue" />
       </div>

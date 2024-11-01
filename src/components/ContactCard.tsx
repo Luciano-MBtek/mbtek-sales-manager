@@ -9,7 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-import type { Contact } from "@/../types";
+import type { Contact } from "@/types";
 import { Button } from "./ui/button";
 import Link from "next/link";
 

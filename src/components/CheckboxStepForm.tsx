@@ -1,9 +1,8 @@
-// components/CheckboxInput.tsx
 "use client";
 
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { useAddDealContext } from "@/contexts/addDealContext";
+import { useAddLeadContext } from "@/contexts/addDealContext";
 
 interface CheckboxInputProps {
   label: string;
@@ -20,12 +19,12 @@ export default function CheckboxInput({
   errorMsg,
   isMulti = true,
 }: CheckboxInputProps) {
-  const { updateNewDealDetails, newDealData } = useAddDealContext();
+  const { updateNewLeadDetails, newLeadData } = useAddLeadContext();
 
-  const selectedValues = newDealData[id as keyof typeof newDealData]
-    ? typeof newDealData[id as keyof typeof newDealData] === "string"
-      ? (newDealData[id as keyof typeof newDealData] as string).split(",")
-      : (newDealData[id as keyof typeof newDealData] as string[])
+  const selectedValues = newLeadData[id as keyof typeof newLeadData]
+    ? typeof newLeadData[id as keyof typeof newLeadData] === "string"
+      ? (newLeadData[id as keyof typeof newLeadData] as string).split(",")
+      : (newLeadData[id as keyof typeof newLeadData] as string[])
     : [];
 
   const handleChange = (checked: boolean, value: string) => {
@@ -41,7 +40,7 @@ export default function CheckboxInput({
       updatedValues = checked ? [value] : [];
     }
 
-    updateNewDealDetails({
+    updateNewLeadDetails({
       [id]: isMulti ? updatedValues.join(",") : updatedValues[0] || "",
     });
   };

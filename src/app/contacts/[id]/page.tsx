@@ -3,7 +3,7 @@ import ContactStepProgress from "@/components/ContactStepProgress";
 import { Properties, columns } from "@/components/steps/columns";
 import { DataTable } from "@/components/steps/data-table";
 import { propertyNameMap, dateProperties } from "@/components/steps/utils";
-import { ProgressProperties } from "@/../types";
+import { ProgressProperties } from "@/types";
 import Stepper from "@/components/Stepper";
 
 type Props = {

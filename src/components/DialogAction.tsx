@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { GetPropertyDetail } from "@/actions/getPropertyDetail";
 import { PropertyDetail } from "../types";
-
+import { DatePickerForm } from "./FormsProperties/DatePickerForm";
 import { TextForm } from "./FormsProperties/TextForm";
 import { TextAreaForm } from "./FormsProperties/TextAreaForm";
 import { SelectForm } from "./FormsProperties/SelectForm";
@@ -57,6 +57,7 @@ export function DialogCloseButton({
       text: propertyDetails?.fieldType === "text",
       textArea: propertyDetails?.fieldType === "textarea",
       checkBox: propertyDetails?.fieldType === "checkbox",
+      date: propertyDetails?.fieldType === "date",
     }),
     [propertyDetails]
   );
@@ -103,6 +104,7 @@ export function DialogCloseButton({
           id={id}
         />
       ),
+      date: <DatePickerForm label={label ?? ""} property={property} id={id} />,
     };
 
     return Object.entries(propertyFieldTypes)
@@ -124,7 +126,9 @@ export function DialogCloseButton({
         </DialogDescription>
       </DialogHeader>
       {!isLoading && propertyDetails && (
-        <div className="flex items-center space-x-2">{renderInputField()}</div>
+        <div className="flex justify-center items-center space-x-2">
+          {renderInputField()}
+        </div>
       )}
       <DialogFooter className="sm:justify-start">
         {/* <DialogClose asChild>

@@ -9,8 +9,6 @@ export const stepTwoFormAction = (
 ): FormErrors | undefined => {
   const data = Object.fromEntries(formData.entries());
 
-  console.log(data);
-
   const validated = stepTwoSchema.safeParse(data);
   if (!validated.success) {
     const errors = validated.error.issues.reduce((acc: FormErrors, issue) => {
@@ -20,6 +18,6 @@ export const stepTwoFormAction = (
     }, {});
     return errors;
   }
-  console.log(collectDataRoutes.LEAD_QUALIFICATION_B2C);
+
   redirect(collectDataRoutes.LEAD_QUALIFICATION_B2C);
 };

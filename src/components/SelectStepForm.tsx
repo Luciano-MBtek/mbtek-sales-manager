@@ -8,8 +8,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { useAddDealContext } from "@/contexts/addDealContext";
-import { useEffect, useState } from "react";
+import { useAddLeadContext } from "@/contexts/addDealContext";
+import { useState } from "react";
 
 interface SelectInputProps {
   label: string;
@@ -26,24 +26,18 @@ export default function SelectInput({
   placeholder,
   errorMsg,
 }: SelectInputProps) {
-  const { updateNewDealDetails, newDealData, dataLoaded } = useAddDealContext();
+  const { updateNewLeadDetails, newLeadData } = useAddLeadContext();
   const [selectedValue, setSelectedValue] = useState<string>(() => {
     // Inicializar con el valor del contexto si está disponible
-    return String(newDealData[id as keyof typeof newDealData]) || "";
+    return String(newLeadData[id as keyof typeof newLeadData]) || "";
   });
-  /*  useEffect(() => {
-    if (dataLoaded) {
-      const value = String(newDealData[id as keyof typeof newDealData]) || "";
-      setSelectedValue(value);
-    }
-  }, [dataLoaded, newDealData, id]); */
 
   const handleChange = (value: string) => {
     setSelectedValue(value);
-    updateNewDealDetails({ [id]: value });
+    updateNewLeadDetails({ [id]: value });
   };
   const currentValue =
-    String(newDealData[id as keyof typeof newDealData]) || "";
+    String(newLeadData[id as keyof typeof newLeadData]) || "";
   return (
     <div>
       <Label className="block text-black text-lg" htmlFor={id}>

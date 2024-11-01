@@ -1,6 +1,6 @@
 "use client";
 
-import { useAddDealContext } from "@/contexts/addDealContext";
+import { useAddLeadContext } from "@/contexts/addDealContext";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import React from "react";
@@ -26,12 +26,12 @@ export default function TextAreaInput({
   maxLength,
   description,
 }: TextAreaInputProps) {
-  const { updateNewDealDetails, newDealData } = useAddDealContext();
+  const { updateNewLeadDetails, newLeadData } = useAddLeadContext();
 
-  const currentValue = newDealData[id as keyof typeof newDealData] || "";
+  const currentValue = newLeadData[id as keyof typeof newLeadData] || "";
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    updateNewDealDetails({ [id]: e.target.value });
+    updateNewLeadDetails({ [id]: e.target.value });
   };
 
   return (

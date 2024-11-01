@@ -59,7 +59,8 @@ export enum collectDataRoutes {
   DISCOVERY_CALL_2 = "/forms/step-two",
   LEAD_QUALIFICATION_B2C = "/forms/step-three-b2c",
   LEAD_QUALIFICATION_B2B = "/forms/step-three-b2b",
-  REVIEW_DEAL = "/forms/review",
+  LEAD_QUALIFICATION_B2C_2 = "/forms/step-four",
+  REVIEW_LEAD = "/forms/review",
 }
 
 export const canadaProvinces = [
@@ -138,6 +139,12 @@ export const USStates = [
   "Wyoming",
 ] as const;
 
+export const LeadBuyingIntention = [
+  "Ready to buy",
+  "having a look",
+  "no intention",
+] as const;
+
 export type USState = (typeof USStates)[number];
 
 export const leadType = [
@@ -145,3 +152,4 @@ export const leadType = [
   "B2B (business related)",
   "Not sales related",
 ];
+export const YesOrNo = ["Yes", "No"] as const;

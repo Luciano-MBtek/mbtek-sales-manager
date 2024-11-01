@@ -1,6 +1,5 @@
 "use client";
-import Icon from "@/components/Icon";
-import { useRouter } from "next/navigation";
+
 import clsx from "clsx";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -28,11 +27,16 @@ const steps: Array<{
     title: "Step Three",
     route: ["step-three-b2c", "step-three-b2b"],
     link: (pathname: string) =>
-      pathname.includes("b2c")
-        ? collectDataRoutes.LEAD_QUALIFICATION_B2C
-        : collectDataRoutes.LEAD_QUALIFICATION_B2B,
+      pathname.includes("b2b")
+        ? collectDataRoutes.LEAD_QUALIFICATION_B2B
+        : collectDataRoutes.LEAD_QUALIFICATION_B2C,
   },
-  { title: "Review", route: "review", link: collectDataRoutes.REVIEW_DEAL },
+  {
+    title: "Step Four",
+    route: "step-four",
+    link: collectDataRoutes.LEAD_QUALIFICATION_B2C_2,
+  },
+  { title: "Review", route: "review", link: collectDataRoutes.REVIEW_LEAD },
 ];
 
 export default function StepNavigation() {

@@ -8,12 +8,12 @@ import {
   useState,
 } from "react";
 import {
-  NewDealInitialValuesType,
-  NewDealType,
-  newDealInitialValuesSchema,
+  newLeadInitialValuesType,
+  newLeadType,
+  newLeadInitialValuesSchema,
 } from "@/schemas";
 
-const defaultDeal: NewDealInitialValuesType = {
+const defaultDeal: newLeadInitialValuesType = {
   name: "",
   lastname: "",
   email: "",
@@ -22,26 +22,33 @@ const defaultDeal: NewDealInitialValuesType = {
   state: "",
   province: "",
   leadType: "",
+  projectSummary: "",
+  reasonForCalling: "",
+  wantCompleteSystem: "",
+  allocatedBudget: "",
+  stepsForDecision: "",
+  leadBuyingIntention: "",
+  expectedETA: "",
 };
 
-const LOCAL_STORAGE_KEY = "multi-page-form-demo-newDealData";
+const LOCAL_STORAGE_KEY = "multi-page-form-demo-newLeadData";
 
-type AddDealContextType = {
-  newDealData: NewDealInitialValuesType;
-  updateNewDealDetails: (dealDetails: Partial<NewDealType>) => void;
+type AddLeadContextType = {
+  newLeadData: newLeadInitialValuesType;
+  updateNewLeadDetails: (leadDetails: Partial<newLeadType>) => void;
   dataLoaded: boolean;
   resetLocalStorage: () => void;
 };
 
-export const AddDealContext = createContext<AddDealContextType | null>(null);
+export const AddLeadContext = createContext<AddLeadContextType | null>(null);
 
-export const AddDealContextProvider = ({
+export const AddLeadContextProvider = ({
   children,
 }: {
   children: React.ReactNode;
 }) => {
-  const [newDealData, setNewDealData] =
-    useState<NewDealInitialValuesType>(defaultDeal);
+  const [newLeadData, setnewLeadData] =
+    useState<newLeadInitialValuesType>(defaultDeal);
   const [dataLoaded, setDataLoaded] = useState(false);
 
   useEffect(() => {
@@ -51,64 +58,64 @@ export const AddDealContextProvider = ({
 
   useEffect(() => {
     if (dataLoaded) {
-      saveDataToLocalStorage(newDealData);
+      saveDataToLocalStorage(newLeadData);
     }
-  }, [newDealData, dataLoaded]);
+  }, [newLeadData, dataLoaded]);
 
-  const updateNewDealDetails = useCallback(
-    (dealDetails: Partial<NewDealType>) => {
-      setNewDealData({ ...newDealData, ...dealDetails });
+  const updateNewLeadDetails = useCallback(
+    (leadDetails: Partial<newLeadType>) => {
+      setnewLeadData({ ...newLeadData, ...leadDetails });
     },
-    [newDealData]
+    [newLeadData]
   );
 
   const saveDataToLocalStorage = (
-    currentDealData: NewDealInitialValuesType
+    currentDealData: newLeadInitialValuesType
   ) => {
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(currentDealData));
   };
 
   const readFromLocalStorage = () => {
     const loadedDataString = localStorage.getItem(LOCAL_STORAGE_KEY);
-    if (!loadedDataString) return setNewDealData(defaultDeal);
-    const validated = newDealInitialValuesSchema.safeParse(
+    if (!loadedDataString) return setnewLeadData(defaultDeal);
+    const validated = newLeadInitialValuesSchema.safeParse(
       JSON.parse(loadedDataString)
     );
 
     if (validated.success) {
-      setNewDealData(validated.data);
+      setnewLeadData(validated.data);
     } else {
-      setNewDealData(defaultDeal);
+      setnewLeadData(defaultDeal);
     }
   };
 
   const resetLocalStorage = () => {
     localStorage.removeItem(LOCAL_STORAGE_KEY);
-    setNewDealData(defaultDeal);
+    setnewLeadData(defaultDeal);
   };
 
   const contextValue = useMemo(
     () => ({
-      newDealData,
+      newLeadData,
       dataLoaded,
-      updateNewDealDetails,
+      updateNewLeadDetails,
       resetLocalStorage,
     }),
-    [newDealData, dataLoaded, updateNewDealDetails]
+    [newLeadData, dataLoaded, updateNewLeadDetails]
   );
 
   return (
-    <AddDealContext.Provider value={contextValue}>
+    <AddLeadContext.Provider value={contextValue}>
       {children}
-    </AddDealContext.Provider>
+    </AddLeadContext.Provider>
   );
 };
 
-export function useAddDealContext() {
-  const context = useContext(AddDealContext);
+export function useAddLeadContext() {
+  const context = useContext(AddLeadContext);
   if (!context) {
     throw new Error(
-      "useAddDealContext must be used within a AddDealContextProvider"
+      "useAddLeadContext must be used within a AddLeadContextProvider"
     );
   }
   return context;

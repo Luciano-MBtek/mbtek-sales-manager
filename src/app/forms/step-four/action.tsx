@@ -1,16 +1,15 @@
 "use server";
-import { stepThreeSchemaB2C } from "@/schemas";
+import { stepFourSchema } from "@/schemas";
 import { collectDataRoutes, FormErrors } from "@/types";
 import { redirect } from "next/navigation";
 
-export const stepThreeFormAction = (
+export const stepFourFormAction = (
   prevState: FormErrors | undefined,
   formData: FormData
 ): FormErrors | undefined => {
   const data = Object.fromEntries(formData.entries());
-  console.log(data);
-  const validated = stepThreeSchemaB2C.safeParse(data);
-
+  const validated = stepFourSchema.safeParse(data);
+  console.log(validated.success);
   if (!validated.success) {
     const errors = validated.error.issues.reduce((acc: FormErrors, issue) => {
       const path = issue.path[0] as string;
@@ -20,5 +19,5 @@ export const stepThreeFormAction = (
     return errors;
   }
 
-  redirect(collectDataRoutes.LEAD_QUALIFICATION_B2C_2);
+  redirect(collectDataRoutes.REVIEW_LEAD);
 };
