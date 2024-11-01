@@ -47,7 +47,7 @@ export default function CheckboxInput({
 
   return (
     <div>
-      <Label className="block text-black text-lg mb-2">{label}</Label>
+      <Label className="block text-zinc-700 text-md mb-2">{label}</Label>
       <div className="space-y-2">
         {options.map((option) => (
           <div key={option} className="flex items-center space-x-2">

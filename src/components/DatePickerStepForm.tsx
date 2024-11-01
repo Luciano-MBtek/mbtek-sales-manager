@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { Label } from "./ui/label";
@@ -22,15 +22,23 @@ interface DatePickerProps {
 // formato que entra es YYYY-MM-DD
 export function DatePickerForm({ label, id, errorMsg }: DatePickerProps) {
   const { updateNewLeadDetails, newLeadData } = useAddLeadContext();
-  const [date, setDate] = useState<Date | undefined>(() => {
+  const [date, setDate] = useState<Date | undefined>(undefined);
+
+  useEffect(() => {
     const contextDate = newLeadData[id as keyof typeof newLeadData];
     if (typeof contextDate === "string") {
-      const parsedDate = new Date(contextDate);
-      // Check if the date is valid before returning it
-      return !isNaN(parsedDate.getTime()) ? parsedDate : undefined;
+      try {
+        const parsedDate = new Date(contextDate);
+        if (!isNaN(parsedDate.getTime())) {
+          setDate(parsedDate);
+        } else {
+          setDate(undefined);
+        }
+      } catch {
+        setDate(undefined);
+      }
     }
-    return undefined;
-  });
+  }, [newLeadData, id]);
 
   const handleSelect = (newDate: Date | undefined) => {
     setDate(newDate);
@@ -39,7 +47,7 @@ export function DatePickerForm({ label, id, errorMsg }: DatePickerProps) {
 
   return (
     <div>
-      <Label className="block text-black text-lg" htmlFor={id}>
+      <Label className="block text-black text-md" htmlFor={id}>
         {label}
       </Label>
       <Popover>
@@ -65,6 +73,7 @@ export function DatePickerForm({ label, id, errorMsg }: DatePickerProps) {
           />
         </PopoverContent>
       </Popover>
+      <input type="hidden" name={id} value={date ? date.toISOString() : ""} />
       <div className="min-h-8 mt-1">
         {errorMsg && (
           <span className="text-red-500 text-sm block">{errorMsg}</span>

@@ -39,7 +39,7 @@ export const stepTwoSchema = z.discriminatedUnion("country", [
   z.object({
     phone: phoneSchema,
     country: z.literal("Canada"),
-    state: z.enum(canadaProvinceValues, {
+    province: z.enum(canadaProvinceValues, {
       errorMap: () => ({ message: "Please select a valid province" }),
     }),
     leadType: z.enum(leadTypeTuple, {
@@ -96,17 +96,48 @@ export const stepThreeSchema = z.object({
 });
 
 export const stepFourSchema = z.object({
-  state: z.enum(LeadBuyingIntention, {
+  leadBuyingIntention: z.enum(LeadBuyingIntention, {
     errorMap: () => ({ message: "Please select a valid intention" }),
   }),
+  expectedETA: z
+    .string()
+    .min(1, "Expected ETA is required.")
+    .refine((dateStr) => {
+      const date = new Date(dateStr);
+      return !isNaN(date.getTime());
+    }, "You must choose a date. If there's no date, pick the current date."),
 });
 
-export const newLeadSchema = stepOneSchema
-  .extend(stepTwoSchema.options[0].omit({ country: true }).shape)
-  .extend(stepTwoSchema.options[1].omit({ country: true }).shape)
-  .extend(stepThreeBaseSchema.shape)
+export const newLeadSchema = z
+  .discriminatedUnion("country", [
+    z.object({
+      ...stepOneSchema.shape,
+      phone: phoneSchema,
+      country: z.literal("USA"),
+      state: z.enum(USStates, {
+        errorMap: () => ({ message: "Please select a valid state" }),
+      }),
+      leadType: z.enum(leadTypeTuple, {
+        errorMap: () => ({ message: "Please select a valid lead type" }),
+      }),
+      ...stepThreeBaseSchema.shape,
+      ...stepFourSchema.shape,
+    }),
+    z.object({
+      ...stepOneSchema.shape,
+      phone: phoneSchema,
+      country: z.literal("Canada"),
+      province: z.enum(canadaProvinceValues, {
+        errorMap: () => ({ message: "Please select a valid province" }),
+      }),
+      leadType: z.enum(leadTypeTuple, {
+        errorMap: () => ({ message: "Please select a valid lead type" }),
+      }),
+      ...stepThreeBaseSchema.shape,
+      ...stepFourSchema.shape,
+    }),
+  ])
   .superRefine((data, ctx) => {
-    // Include any additional validation logic here
     if (data.wantCompleteSystem === "Yes") {
       if (!data.allocatedBudget) {
         ctx.addIssue({

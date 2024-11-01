@@ -25,7 +25,6 @@ export default function StepThreeForm() {
         <TextAreaInput
           id="projectSummary"
           label="Project Summary"
-          required
           maxLength={300}
           minLength={5}
           description="Little summary of the project"
@@ -37,7 +36,6 @@ export default function StepThreeForm() {
           label="Reason for calling us"
           maxLength={300}
           minLength={3}
-          required
           description="Why did you reach to us?"
           errorMsg={serverErrors?.reasonForCalling}
         />

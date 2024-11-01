@@ -41,7 +41,7 @@ export default function Input({
 
   return (
     <div>
-      <Label htmlFor={id} className="block text-black text-lg mb-2">
+      <Label htmlFor={id} className="block text-zinc-700 text-md mb-2">
         {label}
       </Label>
       {description && (

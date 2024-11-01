@@ -9,7 +9,8 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { useAddLeadContext } from "@/contexts/addDealContext";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { Skeleton } from "./ui/skeleton";
 
 interface SelectInputProps {
   label: string;
@@ -26,10 +27,11 @@ export default function SelectInput({
   placeholder,
   errorMsg,
 }: SelectInputProps) {
-  const { updateNewLeadDetails, newLeadData } = useAddLeadContext();
+  const { updateNewLeadDetails, newLeadData, dataLoaded } = useAddLeadContext();
+
   const [selectedValue, setSelectedValue] = useState<string>(() => {
-    // Inicializar con el valor del contexto si está disponible
-    return String(newLeadData[id as keyof typeof newLeadData]) || "";
+    const contextValue = String(newLeadData[id as keyof typeof newLeadData]);
+    return contextValue && contextValue !== "undefined" ? contextValue : "";
   });
 
   const handleChange = (value: string) => {
@@ -38,33 +40,36 @@ export default function SelectInput({
   };
   const currentValue =
     String(newLeadData[id as keyof typeof newLeadData]) || "";
+  const value =
+    currentValue && currentValue !== "undefined"
+      ? currentValue.toString()
+      : undefined;
   return (
-    <div>
-      <Label className="block text-black text-lg" htmlFor={id}>
+    <div className="flex flex-col gap-2">
+      <Label className="block text-zinc-700 text-md" htmlFor={id}>
         {label}
       </Label>
-      <Select
-        onValueChange={handleChange}
-        name={id}
-        defaultValue={currentValue}
-        value={selectedValue}
-      >
-        <SelectTrigger
-          id={id}
-          className={`w-full rounded-md py-4 px-2 text-slate-900 border-2 ${
-            errorMsg ? "border-red-500" : "border-slate-300"
-          }`}
-        >
-          <SelectValue placeholder={placeholder} />
-        </SelectTrigger>
-        <SelectContent>
-          {options.map((option) => (
-            <SelectItem key={option.value} value={option.value}>
-              {option.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      {!dataLoaded && <Skeleton className="w-full h-12 rounded-md" />}
+      {dataLoaded && (
+        <Select onValueChange={handleChange} name={id} value={value}>
+          <SelectTrigger
+            id={id}
+            className={`w-full rounded-md py-4 px-2 text-slate-900 border-2 ${
+              errorMsg ? "border-red-500" : "border-slate-300"
+            }`}
+          >
+            <SelectValue placeholder={placeholder} />
+          </SelectTrigger>
+          <SelectContent>
+            {options.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )}
+
       <div className="min-h-8 mt-1">
         {errorMsg && (
           <span className="text-red-500 text-sm block">{errorMsg}</span>

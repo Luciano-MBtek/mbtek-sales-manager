@@ -7,6 +7,7 @@ import { stepTwoFormAction } from "@/app/forms/step-two/actions";
 import { useFormState } from "react-dom";
 import { FormErrors, canadaProvinces, USStates, leadType } from "@/types";
 import { useAddLeadContext } from "@/contexts/addDealContext";
+import FormQuestion from "@/components/FormQuestion";
 
 const initialState: FormErrors = {};
 
@@ -32,12 +33,11 @@ export default function StepTwoForm() {
   }));
 
   return (
-    <form action={formAction} className="flex flex-1 flex-col items-center">
+    <form action={formAction} className="flex flex-1 flex-col items-center p-4">
       <div className="flex w-full flex-col gap-8 lg:max-w-[700px]">
         <Input
           label="Phone Number"
           id="phone"
-          required
           type="tel"
           description="Please enter a valid phone number (10 digits)"
           placeholder="123-456-7890"
@@ -70,8 +70,10 @@ export default function StepTwoForm() {
             errorMsg={serverErrors?.province}
           />
         )}
+
+        <FormQuestion question="Are you calling for a business of for yourself?" />
         <CheckboxInput
-          label="Are you calling for a business or for yourself?"
+          label="Lead Type"
           id="leadType"
           options={leadType}
           errorMsg={serverErrors?.leadType}
