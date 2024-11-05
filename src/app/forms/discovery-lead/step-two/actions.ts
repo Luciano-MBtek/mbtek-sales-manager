@@ -1,5 +1,5 @@
 "use server";
-import { stepTwoSchema } from "@/schemas";
+import { stepTwoSchema } from "@/schemas/newLeadSchema";
 import { collectDataRoutes, FormErrors } from "@/types";
 import { redirect } from "next/navigation";
 

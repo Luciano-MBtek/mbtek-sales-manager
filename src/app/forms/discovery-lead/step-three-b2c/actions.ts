@@ -1,5 +1,5 @@
 "use server";
-import { stepThreeSchemaB2C } from "@/schemas";
+import { stepThreeSchemaB2C } from "@/schemas/newLeadSchema";
 import { collectDataRoutes, FormErrors } from "@/types";
 import { redirect } from "next/navigation";
 

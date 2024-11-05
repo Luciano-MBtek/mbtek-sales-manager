@@ -1,9 +1,19 @@
 "use client";
 import Input from "@/components/Input";
-import SubmitButton from "../../../components/SubmitButton";
+import {
+  createHandleSelectChange,
+  createHandleInputChange,
+  createHandleCheckboxChange,
+} from "@/app/forms/utils/createHandlers";
+import {
+  countryOptions,
+  stateOptions,
+  provinceOptions,
+} from "@/app/forms/utils/options";
+import SubmitButton from "@/components/SubmitButton";
 import SelectInput from "@/components/SelectStepForm";
 import CheckboxInput from "@/components/CheckboxStepForm";
-import { stepTwoFormAction } from "@/app/forms/step-two/actions";
+import { stepTwoFormAction } from "@/app/forms/discovery-lead/step-two/actions";
 import { useFormState } from "react-dom";
 import { FormErrors, canadaProvinces, USStates, leadType } from "@/types";
 import { useAddLeadContext } from "@/contexts/addDealContext";
@@ -16,21 +26,13 @@ export default function StepTwoForm() {
     stepTwoFormAction,
     initialState
   );
-  const { newLeadData } = useAddLeadContext();
+  const { newLeadData, updateNewLeadDetails, dataLoaded } = useAddLeadContext();
 
-  const countryOptions = [
-    { label: "USA", value: "USA" },
-    { label: "Canada", value: "Canada" },
-  ];
+  const handleInputChange = createHandleInputChange(updateNewLeadDetails);
 
-  const stateOptions = USStates.map((state) => ({
-    label: state,
-    value: state,
-  }));
-  const provinceOptions = canadaProvinces.map(({ label, value }) => ({
-    label,
-    value,
-  }));
+  const handleSelectChange = createHandleSelectChange(updateNewLeadDetails);
+
+  const handleCheckboxChange = createHandleCheckboxChange(updateNewLeadDetails);
 
   return (
     <form action={formAction} className="flex flex-1 flex-col items-center p-4">
@@ -42,6 +44,8 @@ export default function StepTwoForm() {
           description="Please enter a valid phone number (10 digits)"
           placeholder="123-456-7890"
           errorMsg={serverErrors?.phone}
+          onChange={handleInputChange}
+          value={newLeadData.phone || ""}
         />
         <SelectInput
           label="Country"
@@ -49,6 +53,9 @@ export default function StepTwoForm() {
           options={countryOptions}
           placeholder="Select a country"
           errorMsg={serverErrors?.country}
+          value={newLeadData.country || ""}
+          onChange={handleSelectChange("country")}
+          dataLoaded={dataLoaded}
         />
 
         {newLeadData.country === "USA" && (
@@ -58,6 +65,9 @@ export default function StepTwoForm() {
             options={stateOptions}
             placeholder="Select a state"
             errorMsg={serverErrors?.state}
+            value={newLeadData.state || ""}
+            onChange={handleSelectChange("state")}
+            dataLoaded={dataLoaded}
           />
         )}
 
@@ -68,6 +78,9 @@ export default function StepTwoForm() {
             options={provinceOptions}
             placeholder="Select a province"
             errorMsg={serverErrors?.province}
+            value={newLeadData.province || ""}
+            onChange={handleSelectChange("province")}
+            dataLoaded={dataLoaded}
           />
         )}
 
@@ -78,6 +91,8 @@ export default function StepTwoForm() {
           options={leadType}
           errorMsg={serverErrors?.leadType}
           isMulti={false}
+          value={newLeadData.leadType || ""}
+          onChange={handleCheckboxChange("leadType")}
         />
 
         <SubmitButton text="Continue" />

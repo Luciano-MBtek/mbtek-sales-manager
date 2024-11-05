@@ -1,13 +1,17 @@
 "use client";
 import SelectInput from "@/components/SelectStepForm";
-import SubmitButton from "../../../components/SubmitButton";
+import SubmitButton from "@/components/SubmitButton";
 import { stepFourFormAction } from "./action";
 import { FormErrors, LeadBuyingIntention } from "@/types";
 import { useFormState } from "react-dom";
 import { DatePickerForm } from "@/components/DatePickerStepForm";
 import { useAddLeadContext } from "@/contexts/addDealContext";
-import { MessageCircleMore } from "lucide-react";
 import FormQuestion from "@/components/FormQuestion";
+import {
+  createHandleDateChange,
+  createHandleSelectChange,
+  getDateValue,
+} from "@/app/forms/utils/createHandlers";
 
 const buyingIntentionOptions = LeadBuyingIntention.map((option) => ({
   label: option,
@@ -21,7 +25,11 @@ export default function StepFourForm() {
     stepFourFormAction,
     initialState
   );
-  const { newLeadData } = useAddLeadContext();
+  const { newLeadData, updateNewLeadDetails, dataLoaded } = useAddLeadContext();
+
+  const handleSelectChange = createHandleSelectChange(updateNewLeadDetails);
+
+  const handleDateChange = createHandleDateChange(updateNewLeadDetails);
 
   const name = newLeadData.name;
   return (
@@ -34,11 +42,16 @@ export default function StepFourForm() {
           options={buyingIntentionOptions}
           placeholder="Select buying intention"
           errorMsg={serverErrors?.leadBuyingIntention}
+          value={newLeadData.leadBuyingIntention || ""}
+          onChange={handleSelectChange("leadBuyingIntention")}
+          dataLoaded={dataLoaded}
         />
         <FormQuestion question="When do you plan to start your project?" />
         <DatePickerForm
           label="Expected ETA"
           id="expectedETA"
+          value={getDateValue(newLeadData, "expectedETA")}
+          onChange={handleDateChange("expectedETA")}
           errorMsg={serverErrors?.expectedETA}
         />
         <FormQuestion

@@ -11,7 +11,7 @@ import {
   newLeadInitialValuesType,
   newLeadType,
   newLeadInitialValuesSchema,
-} from "@/schemas";
+} from "@/schemas/newLeadSchema";
 
 const defaultDeal: newLeadInitialValuesType = {
   name: "",

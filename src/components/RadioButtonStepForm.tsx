@@ -2,12 +2,13 @@
 
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { useAddLeadContext } from "@/contexts/addDealContext";
 
 interface RadioInputProps {
   label: string;
   id: string;
   options: string[];
+  value: string;
+  onChange: (value: string) => void;
   errorMsg?: string;
 }
 
@@ -15,23 +16,14 @@ export default function RadioInput({
   label,
   id,
   options,
+  value,
+  onChange,
   errorMsg,
 }: RadioInputProps) {
-  const { updateNewLeadDetails, newLeadData } = useAddLeadContext();
-
-  const selectedValue =
-    (newLeadData[id as keyof typeof newLeadData] as string) || "";
-
-  const handleChange = (value: string) => {
-    updateNewLeadDetails({
-      [id]: value,
-    });
-  };
-
   return (
     <div>
       <Label className="block text-black text-lg mb-2">{label}</Label>
-      <RadioGroup value={selectedValue} onValueChange={handleChange} name={id}>
+      <RadioGroup value={value} onValueChange={onChange} name={id}>
         <div className="space-y-2">
           {options.map((option) => (
             <div key={option} className="flex items-center space-x-2">

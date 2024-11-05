@@ -3,11 +3,12 @@ import { Button } from "./ui/button";
 
 interface SubmitButtonProps {
   text: string;
+  width?: string;
 }
 
-const SubmitButton = ({ text }: SubmitButtonProps) => {
+const SubmitButton = ({ text, width = "auto" }: SubmitButtonProps) => {
   const { pending } = useFormStatus();
-  return <Button> {pending ? <Loader /> : text}</Button>;
+  return <Button style={{ width }}> {pending ? <Loader /> : text}</Button>;
 };
 
 function Loader() {

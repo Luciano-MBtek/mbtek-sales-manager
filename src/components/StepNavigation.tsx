@@ -5,41 +5,25 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import path from "path";
 import { useEffect, useState } from "react";
-import { collectDataRoutes } from "@/types";
-type StepLink = collectDataRoutes | ((pathname: string) => collectDataRoutes);
 
-const steps: Array<{
+type StepLink<T> = T | ((pathname: string) => T);
+
+type Step<T> = {
   title: string;
   route: string | string[];
-  link: StepLink;
-}> = [
-  {
-    title: "Step One",
-    route: "step-one",
-    link: collectDataRoutes.DISCOVERY_CALL,
-  },
-  {
-    title: "Step Two",
-    route: "step-two",
-    link: collectDataRoutes.DISCOVERY_CALL_2,
-  },
-  {
-    title: "Step Three",
-    route: ["step-three-b2c", "step-three-b2b"],
-    link: (pathname: string) =>
-      pathname.includes("b2b")
-        ? collectDataRoutes.LEAD_QUALIFICATION_B2B
-        : collectDataRoutes.LEAD_QUALIFICATION_B2C,
-  },
-  {
-    title: "Step Four",
-    route: "step-four",
-    link: collectDataRoutes.LEAD_QUALIFICATION_B2C_2,
-  },
-  { title: "Review", route: "review", link: collectDataRoutes.REVIEW_LEAD },
-];
+  link?: StepLink<T>;
+  routeType?: "b2b" | "b2c";
+  links?: {
+    b2b: StepLink<T>;
+    b2c: StepLink<T>;
+  };
+};
 
-export default function StepNavigation() {
+interface StepNavigationProps<T> {
+  steps: Step<T>[];
+}
+
+export default function StepNavigation({ steps }: StepNavigationProps<string>) {
   const pathname = usePathname();
   const currentPath = path.basename(pathname);
   const [currentStep, setCurrentStep] = useState(1);
@@ -52,19 +36,22 @@ export default function StepNavigation() {
           : step.route === currentPath
       )
     );
-  }, [currentPath]);
+  }, [currentPath, steps]);
+
+  const getStepLink = (step: Step<string>) => {
+    const link =
+      step.link ||
+      (step.links &&
+        (pathname.includes("b2b") ? step.links.b2b : step.links.b2c)) ||
+      steps[0].link;
+    return typeof link === "function" ? link(pathname) : link || "/";
+  };
 
   return (
     <div className="mb-12 lg:mb-0 min-w-60 p-4">
       {/* back button */}
       <Link
-        href={(() => {
-          const link = steps[currentStep - 1]?.link;
-          if (typeof link === "function") {
-            return link(pathname);
-          }
-          return link || steps[0].link;
-        })()}
+        href={getStepLink(steps[currentStep - 1] || steps[0])}
         className="mb-4 flex items-center gap-2 text-xl text-black disabled:text-white/50 lg:mb-12 lg:gap-5"
       >
         Back
@@ -74,10 +61,8 @@ export default function StepNavigation() {
       <div className="relative flex flex-row justify-between lg:flex-col lg:justify-start lg:gap-8">
         {steps.map((step, i) => (
           <Link
-            href={
-              typeof step.link === "function" ? step.link(pathname) : step.link
-            }
-            key={typeof step.link === "function" ? `step-${i}` : step.link}
+            href={getStepLink(step)}
+            key={`step-${i}`}
             className="group z-20 flex items-center gap-3 text-2xl"
             prefetch={true}
           >

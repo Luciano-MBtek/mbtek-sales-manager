@@ -42,7 +42,6 @@ export function DataTable<TData, TValue>({
 
   const [selectedSteps, setSelectedSteps] = useState<number[]>([]);
 
-  // Get unique steps from propertyNameMap
   const uniqueSteps = Array.from(
     new Set(Object.values(propertyNameMap).map((item) => item.step))
   ).sort();

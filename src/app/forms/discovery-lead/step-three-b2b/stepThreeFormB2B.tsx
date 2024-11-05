@@ -1,6 +1,6 @@
 "use client";
 import Input from "@/components/Input";
-import SubmitButton from "../../../components/SubmitButton";
+import SubmitButton from "../../../../components/SubmitButton";
 import { stepThreeFormAction } from "./action";
 import { FormErrors } from "@/types";
 import { useFormState } from "react-dom";

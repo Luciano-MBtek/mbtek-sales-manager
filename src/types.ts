@@ -55,12 +55,17 @@ export interface FormErrors {
 }
 
 export enum collectDataRoutes {
-  DISCOVERY_CALL = "/forms/step-one",
-  DISCOVERY_CALL_2 = "/forms/step-two",
-  LEAD_QUALIFICATION_B2C = "/forms/step-three-b2c",
-  LEAD_QUALIFICATION_B2B = "/forms/step-three-b2b",
-  LEAD_QUALIFICATION_B2C_2 = "/forms/step-four",
-  REVIEW_LEAD = "/forms/review",
+  DISCOVERY_CALL = "/forms/discovery-lead/step-one",
+  DISCOVERY_CALL_2 = "/forms/discovery-lead/step-two",
+  LEAD_QUALIFICATION_B2C = "/forms/discovery-lead/step-three-b2c",
+  LEAD_QUALIFICATION_B2B = "/forms/discovery-lead/step-three-b2b",
+  LEAD_QUALIFICATION_B2C_2 = "/forms/discovery-lead/step-four",
+  REVIEW_LEAD = "/forms/discovery-lead/review",
+}
+
+export enum singleProductRoutes {
+  SHIPPING_DATA = "/forms/single-product/step-one",
+  PRODUCT_DATA = "/forms/single-product/step-two",
 }
 
 export const canadaProvinces = [
@@ -153,3 +158,9 @@ export const leadType = [
   "Not sales related",
 ];
 export const YesOrNo = ["Yes", "No"] as const;
+
+const YesOrNoArray = ["Yes", "No"];
+
+export const leadTypeTuple = leadType as [string, ...string[]];
+
+export const yesOrNoTuple = YesOrNoArray as [string, ...string[]];

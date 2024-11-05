@@ -7,18 +7,21 @@ import SubmitButton from "@/components/SubmitButton";
 import FormQuestion from "@/components/FormQuestion";
 import { useSession } from "next-auth/react";
 import { useAddLeadContext } from "@/contexts/addDealContext";
+import { createHandleInputChange } from "@/app/forms/utils/createHandlers";
 
 const initialState: FormErrors = {};
 
 export default function StepOneForm() {
   const { data: session, status } = useSession();
-  const { newLeadData } = useAddLeadContext();
+  const { newLeadData, updateNewLeadDetails } = useAddLeadContext();
   const [serverErrors, formAction] = useFormState(
     stepOneFormAction,
     initialState
   );
   const userName = session?.user?.name ?? "";
   const leadName = newLeadData.name;
+
+  const handleInputChange = createHandleInputChange(updateNewLeadDetails);
   return (
     <form action={formAction} className="flex flex-1 flex-col items-center p-4">
       <div className="flex w-full flex-col gap-8 lg:max-w-[700px] ">
@@ -30,12 +33,16 @@ export default function StepOneForm() {
           id="name"
           type="text"
           errorMsg={serverErrors?.name}
+          onChange={handleInputChange}
+          value={newLeadData.name || ""}
         />
         <Input
           label="Lastname"
           id="lastname"
           type="text"
-          errorMsg={serverErrors?.name}
+          errorMsg={serverErrors?.lastname}
+          onChange={handleInputChange}
+          value={newLeadData.lastname || ""}
         />
         <FormQuestion
           question={`Hello ${leadName}, how can I help you today?`}
@@ -46,6 +53,8 @@ export default function StepOneForm() {
           id="email"
           type="email"
           errorMsg={serverErrors?.email}
+          onChange={handleInputChange}
+          value={newLeadData.email || ""}
         />
 
         <SubmitButton text="Continue" />

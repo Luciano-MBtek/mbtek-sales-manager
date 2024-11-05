@@ -1,5 +1,9 @@
 "use client";
-import SubmitButton from "../../../components/SubmitButton";
+import SubmitButton from "../../../../components/SubmitButton";
+import {
+  createHandleInputChange,
+  createHandleRadioChange,
+} from "../../utils/createHandlers";
 import { stepThreeFormAction } from "./actions";
 import { FormErrors, YesOrNo } from "@/types";
 import { useFormState } from "react-dom";
@@ -18,7 +22,11 @@ export default function StepThreeForm() {
     initialState
   );
 
-  const { newLeadData } = useAddLeadContext();
+  const { newLeadData, updateNewLeadDetails } = useAddLeadContext();
+
+  const handleInputChange = createHandleInputChange(updateNewLeadDetails);
+  const handleRadioChange = createHandleRadioChange(updateNewLeadDetails);
+
   return (
     <form action={formAction} className="flex flex-1 flex-col items-center">
       <div className="flex w-full flex-col gap-8 lg:max-w-[700px] ">
@@ -29,6 +37,8 @@ export default function StepThreeForm() {
           minLength={5}
           description="Little summary of the project"
           errorMsg={serverErrors?.projectSummary}
+          value={newLeadData.projectSummary || ""}
+          onChange={handleInputChange}
         />
 
         <TextAreaInput
@@ -38,6 +48,8 @@ export default function StepThreeForm() {
           minLength={3}
           description="Why did you reach to us?"
           errorMsg={serverErrors?.reasonForCalling}
+          value={newLeadData.reasonForCalling || ""}
+          onChange={handleInputChange}
         />
 
         <RadioInput
@@ -45,6 +57,10 @@ export default function StepThreeForm() {
           id="wantCompleteSystem"
           options={options}
           errorMsg={serverErrors?.wantCompleteSystem}
+          value={newLeadData.wantCompleteSystem || ""}
+          onChange={(value) =>
+            updateNewLeadDetails({ wantCompleteSystem: value })
+          }
         />
 
         {newLeadData.wantCompleteSystem === "Yes" && (
@@ -56,6 +72,8 @@ export default function StepThreeForm() {
               description="What budget have you planned to achieve your project?"
               placeholder="$2000"
               errorMsg={serverErrors?.allocatedBudget}
+              onChange={handleInputChange}
+              value={newLeadData.allocatedBudget || ""}
             />
 
             <Input
@@ -65,6 +83,8 @@ export default function StepThreeForm() {
               description="Is there extra steps need to be taken for a decision?"
               placeholder="Yes/No: ..."
               errorMsg={serverErrors?.stepsForDecision}
+              onChange={handleInputChange}
+              value={newLeadData.stepsForDecision || ""}
             />
           </>
         )}

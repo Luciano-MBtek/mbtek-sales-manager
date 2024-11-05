@@ -1,5 +1,3 @@
-"use client";
-
 import {
   Select,
   SelectContent,
@@ -8,8 +6,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { useAddLeadContext } from "@/contexts/addDealContext";
-import { useState, useEffect } from "react";
 import { Skeleton } from "./ui/skeleton";
 
 interface SelectInputProps {
@@ -18,6 +14,9 @@ interface SelectInputProps {
   options: { label: string; value: string }[];
   placeholder: string;
   errorMsg?: string;
+  value: string;
+  onChange: (value: string) => void;
+  dataLoaded?: boolean;
 }
 
 export default function SelectInput({
@@ -26,24 +25,10 @@ export default function SelectInput({
   options,
   placeholder,
   errorMsg,
+  value,
+  onChange,
+  dataLoaded = true,
 }: SelectInputProps) {
-  const { updateNewLeadDetails, newLeadData, dataLoaded } = useAddLeadContext();
-
-  const [selectedValue, setSelectedValue] = useState<string>(() => {
-    const contextValue = String(newLeadData[id as keyof typeof newLeadData]);
-    return contextValue && contextValue !== "undefined" ? contextValue : "";
-  });
-
-  const handleChange = (value: string) => {
-    setSelectedValue(value);
-    updateNewLeadDetails({ [id]: value });
-  };
-  const currentValue =
-    String(newLeadData[id as keyof typeof newLeadData]) || "";
-  const value =
-    currentValue && currentValue !== "undefined"
-      ? currentValue.toString()
-      : undefined;
   return (
     <div className="flex flex-col gap-2">
       <Label className="block text-zinc-700 text-md" htmlFor={id}>
@@ -51,7 +36,7 @@ export default function SelectInput({
       </Label>
       {!dataLoaded && <Skeleton className="w-full h-12 rounded-md" />}
       {dataLoaded && (
-        <Select onValueChange={handleChange} name={id} value={value}>
+        <Select onValueChange={onChange} name={id} value={value}>
           <SelectTrigger
             id={id}
             className={`w-full rounded-md py-4 px-2 text-slate-900 border-2 ${

@@ -17,32 +17,27 @@ import { useAddLeadContext } from "@/contexts/addDealContext";
 interface DatePickerProps {
   label: string;
   id: string;
+  value: Date | undefined;
+  onChange: (date: Date | undefined) => void;
   errorMsg?: string;
 }
-// formato que entra es YYYY-MM-DD
-export function DatePickerForm({ label, id, errorMsg }: DatePickerProps) {
-  const { updateNewLeadDetails, newLeadData } = useAddLeadContext();
+
+export function DatePickerForm({
+  label,
+  id,
+  value,
+  onChange,
+  errorMsg,
+}: DatePickerProps) {
   const [date, setDate] = useState<Date | undefined>(undefined);
 
   useEffect(() => {
-    const contextDate = newLeadData[id as keyof typeof newLeadData];
-    if (typeof contextDate === "string") {
-      try {
-        const parsedDate = new Date(contextDate);
-        if (!isNaN(parsedDate.getTime())) {
-          setDate(parsedDate);
-        } else {
-          setDate(undefined);
-        }
-      } catch {
-        setDate(undefined);
-      }
-    }
-  }, [newLeadData, id]);
+    setDate(value);
+  }, [value]);
 
   const handleSelect = (newDate: Date | undefined) => {
     setDate(newDate);
-    updateNewLeadDetails({ [id]: newDate?.toISOString() });
+    onChange(newDate);
   };
 
   return (

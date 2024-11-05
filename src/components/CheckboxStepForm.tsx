@@ -2,12 +2,13 @@
 
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { useAddLeadContext } from "@/contexts/addDealContext";
 
 interface CheckboxInputProps {
   label: string;
   id: string;
   options: string[];
+  value: string | string[];
+  onChange: (updatedValue: string | string[]) => void;
   errorMsg?: string;
   isMulti?: boolean;
 }
@@ -16,33 +17,32 @@ export default function CheckboxInput({
   label,
   id,
   options,
+  value,
+  onChange,
   errorMsg,
   isMulti = true,
 }: CheckboxInputProps) {
-  const { updateNewLeadDetails, newLeadData } = useAddLeadContext();
-
-  const selectedValues = newLeadData[id as keyof typeof newLeadData]
-    ? typeof newLeadData[id as keyof typeof newLeadData] === "string"
-      ? (newLeadData[id as keyof typeof newLeadData] as string).split(",")
-      : (newLeadData[id as keyof typeof newLeadData] as string[])
+  const selectedValues: string[] = value
+    ? Array.isArray(value)
+      ? value
+      : value.split(",")
     : [];
 
-  const handleChange = (checked: boolean, value: string) => {
+  const handleChange = (checked: boolean, optionValue: string) => {
     let updatedValues: string[] = [];
 
     if (isMulti) {
       if (checked) {
-        updatedValues = [...selectedValues, value];
+        updatedValues = [...selectedValues, optionValue];
       } else {
-        updatedValues = selectedValues.filter((item) => item !== value);
+        updatedValues = selectedValues.filter((item) => item !== optionValue);
       }
     } else {
-      updatedValues = checked ? [value] : [];
+      updatedValues = checked ? [optionValue] : [];
     }
 
-    updateNewLeadDetails({
-      [id]: isMulti ? updatedValues.join(",") : updatedValues[0] || "",
-    });
+    const finalValue = isMulti ? updatedValues : updatedValues[0] || "";
+    onChange(finalValue);
   };
 
   return (

@@ -1,6 +1,5 @@
 "use client";
 
-import { useAddLeadContext } from "@/contexts/addDealContext";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import React from "react";
@@ -14,6 +13,8 @@ interface TextAreaInputProps {
   minLength?: number;
   maxLength?: number;
   description?: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
 }
 
 export default function TextAreaInput({
@@ -25,15 +26,9 @@ export default function TextAreaInput({
   minLength,
   maxLength,
   description,
+  value,
+  onChange,
 }: TextAreaInputProps) {
-  const { updateNewLeadDetails, newLeadData } = useAddLeadContext();
-
-  const currentValue = newLeadData[id as keyof typeof newLeadData] || "";
-
-  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    updateNewLeadDetails({ [id]: e.target.value });
-  };
-
   return (
     <div>
       <Label htmlFor={id} className="block text-black text-lg mb-2">
@@ -49,8 +44,8 @@ export default function TextAreaInput({
         required={required}
         minLength={minLength}
         maxLength={maxLength}
-        value={currentValue}
-        onChange={handleChange}
+        value={value}
+        onChange={onChange}
         className={`w-full rounded-md py-4 px-2 text-slate-900 border-2 ${
           errorMsg ? "border-red-500" : "border-slate-300"
         }`}

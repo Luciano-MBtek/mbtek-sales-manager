@@ -2,7 +2,6 @@
 
 import { Input as ShadcnInput } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useAddLeadContext } from "@/contexts/addDealContext";
 
 interface InputProps {
   label: string;
@@ -16,6 +15,8 @@ interface InputProps {
   max?: number;
   errorMsg?: string;
   placeholder?: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 export default function Input({
@@ -30,15 +31,9 @@ export default function Input({
   description,
   errorMsg,
   placeholder = "",
+  value,
+  onChange,
 }: InputProps) {
-  const { updateNewLeadDetails, newLeadData } = useAddLeadContext();
-
-  const currentValue = newLeadData[id as keyof typeof newLeadData] || "";
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    updateNewLeadDetails({ [e.target.name]: e.target.value });
-  };
-
   return (
     <div>
       <Label htmlFor={id} className="block text-zinc-700 text-md mb-2">
@@ -57,8 +52,8 @@ export default function Input({
         minLength={minLength}
         min={min}
         max={max}
-        value={currentValue}
-        onChange={handleInputChange}
+        value={value}
+        onChange={onChange}
         className={`w-full rounded-md py-4 px-2 text-slate-900 border-2 ${
           errorMsg ? "border-red-500" : "border-slate-300"
         }`}

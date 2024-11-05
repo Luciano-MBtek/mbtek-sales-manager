@@ -1,6 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import {
   Card,
   CardContent,
@@ -12,66 +12,26 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { searchContact } from "@/actions/searchContact";
 import ContactCard from "./ContactCard";
 import NoContactCard from "./NoContactCard";
-import { searchContacts } from "@/actions/searchContactsByName";
 import { ContactList } from "./ContactList";
+import { useContactSearch } from "@/hooks/useContactSearch";
 
 export function SearchContactTab() {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [firstname, setFirstname] = useState("");
   const [lastname, setLastname] = useState("");
-  const [contacts, setContacts] = useState(null);
   const [selectedTab, setSelectedTab] = useState("email");
-  const [contact, setContact] = useState(null);
-  const [isPending, startTransition] = useTransition();
-  const [error, setError] = useState<string | null>(null);
+  const {
+    contact,
+    contacts,
+    isPending,
+    error,
+    handleSearch,
+    handleContactsSearch,
+  } = useContactSearch();
 
-  const handleSearch = () => {
-    setError(null);
-    setContacts(null);
-    const searchValue = selectedTab === "email" ? email : phone;
-    const propertyType = selectedTab === "email" ? "email" : "phone";
-    startTransition(async () => {
-      try {
-        const result = await searchContact(searchValue, propertyType);
-        setContact(result);
-      } catch (err: unknown) {
-        if (err instanceof Error) {
-          setError(err.message);
-        } else {
-          setError("An unknown error occurred");
-        }
-      }
-    });
-  };
-
-  const handleContactsSearch = () => {
-    setError(null);
-    setContact(null);
-    startTransition(async () => {
-      try {
-        if (firstname && lastname) {
-          const result = await searchContacts(firstname, lastname);
-          setContacts(result);
-        } else if (firstname) {
-          const result = await searchContacts(firstname);
-          setContacts(result);
-        } else if (lastname) {
-          const result = await searchContacts(firstname, lastname);
-          setContacts(result);
-        }
-      } catch (err: unknown) {
-        if (err instanceof Error) {
-          setError(err.message);
-        } else {
-          setError("An unknown error occurred");
-        }
-      }
-    });
-  };
   const handleKeyDown = (
     e: React.KeyboardEvent<HTMLInputElement>,
     searchFunction: () => void
@@ -115,13 +75,18 @@ export function SearchContactTab() {
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      onKeyDown={(e) => handleKeyDown(e, handleSearch)}
+                      onKeyDown={(e) =>
+                        handleKeyDown(e, () => handleSearch(email, "email"))
+                      }
                     />
                   </div>
                 </CardContent>
 
                 <CardFooter>
-                  <Button onClick={handleSearch} disabled={isPending || !email}>
+                  <Button
+                    onClick={() => handleSearch(email, "email")}
+                    disabled={isPending || !email}
+                  >
                     {isPending ? "Searching..." : "Search"}
                   </Button>
                 </CardFooter>
@@ -155,7 +120,11 @@ export function SearchContactTab() {
                   type="text"
                   value={firstname}
                   onChange={(e) => setFirstname(e.target.value)}
-                  onKeyDown={(e) => handleKeyDown(e, handleContactsSearch)}
+                  onKeyDown={(e) =>
+                    handleKeyDown(e, () =>
+                      handleContactsSearch(firstname, lastname)
+                    )
+                  }
                   className="w-[250px]"
                 />
               </div>
@@ -166,14 +135,18 @@ export function SearchContactTab() {
                   type="text"
                   value={lastname}
                   onChange={(e) => setLastname(e.target.value)}
-                  onKeyDown={(e) => handleKeyDown(e, handleContactsSearch)}
+                  onKeyDown={(e) =>
+                    handleKeyDown(e, () =>
+                      handleContactsSearch(firstname, lastname)
+                    )
+                  }
                   className="w-[250px]"
                 />
               </div>
             </CardContent>
             <CardFooter>
               <Button
-                onClick={handleContactsSearch}
+                onClick={() => () => handleContactsSearch(firstname, lastname)}
                 disabled={isPending || (!firstname && !lastname)}
               >
                 {isPending ? "Searching..." : "Search"}
@@ -199,12 +172,17 @@ export function SearchContactTab() {
                       type="tel"
                       value={phone}
                       onChange={handlePhoneChange}
-                      onKeyDown={(e) => handleKeyDown(e, handleSearch)}
+                      onKeyDown={(e) =>
+                        handleKeyDown(e, () => handleSearch(phone, "phone"))
+                      }
                     />
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Button onClick={handleSearch} disabled={isPending || !phone}>
+                  <Button
+                    onClick={() => handleSearch(phone, "phone")}
+                    disabled={isPending || !phone}
+                  >
                     {isPending ? "Searching..." : "Search"}
                   </Button>
                 </CardFooter>

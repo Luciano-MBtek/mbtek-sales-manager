@@ -112,9 +112,9 @@ export function Navbar() {
           </NavigationMenuContent>
         </NavigationMenuItem>
         <NavigationMenuItem>
-          <Link href="/forms" legacyBehavior passHref>
+          <Link href="/forms/discovery-lead" legacyBehavior passHref>
             <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-              Forms
+              New Process
             </NavigationMenuLink>
           </Link>
         </NavigationMenuItem>

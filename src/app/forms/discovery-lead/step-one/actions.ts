@@ -1,19 +1,14 @@
 "use server";
-import { stepFourSchema } from "@/schemas";
+import { stepOneSchema } from "@/schemas/newLeadSchema";
 import { collectDataRoutes, FormErrors } from "@/types";
 import { redirect } from "next/navigation";
 
-export const stepFourFormAction = (
+export const stepOneFormAction = (
   prevState: FormErrors | undefined,
   formData: FormData
 ): FormErrors | undefined => {
-  const rawData = formData;
-  console.log("RAW DATA:", rawData);
   const data = Object.fromEntries(formData.entries());
-
-  const validated = stepFourSchema.safeParse(data);
-  console.log(validated.error);
-  console.log(validated.success);
+  const validated = stepOneSchema.safeParse(data);
   if (!validated.success) {
     const errors = validated.error.issues.reduce((acc: FormErrors, issue) => {
       const path = issue.path[0] as string;
@@ -23,5 +18,5 @@ export const stepFourFormAction = (
     return errors;
   }
 
-  redirect(collectDataRoutes.REVIEW_LEAD);
+  redirect(collectDataRoutes.DISCOVERY_CALL_2);
 };

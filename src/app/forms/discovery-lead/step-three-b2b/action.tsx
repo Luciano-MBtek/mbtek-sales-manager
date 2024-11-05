@@ -1,5 +1,5 @@
 "use server";
-import { stepThreeSchema } from "@/schemas";
+import { stepThreeSchema } from "@/schemas/newLeadSchema";
 import { collectDataRoutes, FormErrors } from "@/types";
 import { redirect } from "next/navigation";
 

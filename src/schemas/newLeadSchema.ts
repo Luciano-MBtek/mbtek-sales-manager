@@ -1,22 +1,13 @@
 import z from "zod";
+
 import {
   USStates,
   canadaProvinceValues,
   leadType,
   LeadBuyingIntention,
-} from "./types";
-
-const YesOrNo = ["Yes", "No"];
-
-const leadTypeTuple = leadType as [string, ...string[]];
-
-const yesOrNoTuple = YesOrNo as [string, ...string[]];
-
-export const stepOneSchema = z.object({
-  name: z.string().min(1, "Please enter lead's name."),
-  lastname: z.string().min(1, "Please enter lead's lastname."),
-  email: z.string().email("Please enter a valid email"),
-});
+  yesOrNoTuple,
+  leadTypeTuple,
+} from "@/types";
 
 const phoneSchema = z
   .string()
@@ -24,6 +15,12 @@ const phoneSchema = z
     /^\d{10}$/,
     "Please enter a valid 10-digit phone number (e.g., 6163354521)"
   );
+
+export const stepOneSchema = z.object({
+  name: z.string().min(1, "Please enter lead's name."),
+  lastname: z.string().min(1, "Please enter lead's lastname."),
+  email: z.string().email("Please enter a valid email"),
+});
 
 export const stepTwoSchema = z.discriminatedUnion("country", [
   z.object({
