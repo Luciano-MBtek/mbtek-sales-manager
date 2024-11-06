@@ -20,6 +20,7 @@ import { useSearchParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import InfoItem from "@/components/InfoItem";
 import { MailIcon, UserIcon } from "lucide-react";
+import { useEffect } from "react";
 
 const initialState: FormErrors = {};
 
@@ -32,6 +33,25 @@ export default function StepSingleProductOneForm() {
   );
 
   const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const paramsData = {
+      name: searchParams.get("name"),
+      lastname: searchParams.get("lastname"),
+      email: searchParams.get("email"),
+      country: searchParams.get("country"),
+      state: searchParams.get("state"),
+    };
+
+    const validParamsData = Object.fromEntries(
+      Object.entries(paramsData).filter(([_, value]) => value !== null)
+    );
+
+    if (Object.keys(validParamsData).length > 0) {
+      updateSingleProductDetails(validParamsData);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const formData = {
     ...singleProductData,
@@ -53,7 +73,7 @@ export default function StepSingleProductOneForm() {
         <Card className="shadow-lg w-full  lg:max-w-[700px]">
           <CardHeader>
             <CardTitle className="text-2xl font-bold">
-              Lead Information
+              Lead Information - Shipping information
             </CardTitle>
           </CardHeader>
           <CardContent className="grid gap-6 ">
