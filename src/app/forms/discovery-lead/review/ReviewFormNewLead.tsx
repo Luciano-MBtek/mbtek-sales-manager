@@ -72,6 +72,9 @@ export default function ReviewForm() {
       const params = new URLSearchParams();
       params.set("country", country ? country : "");
       params.set("state", state ? state : "");
+      params.set("name", name ? name : "");
+      params.set("lastname", lastname ? lastname : "");
+      params.set("email", email ? email : "");
 
       setRedirectOptions({
         redirect1: redirect1 ? `${redirect1}?${params.toString()}` : undefined,

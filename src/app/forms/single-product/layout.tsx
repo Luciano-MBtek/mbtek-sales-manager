@@ -3,6 +3,7 @@ import PageHeader from "@/components/PageHeader";
 import StepNavigation from "@/components/StepNavigation";
 import { singleProductRoutes } from "@/types";
 import { SingleProductContextProvider } from "@/contexts/singleProductContext";
+import { Quote } from "lucide-react";
 
 const steps = [
   {
@@ -24,11 +25,12 @@ export default function SingleProductLayout({
   return (
     <div className="w-full px-2 lg:px-0">
       <PageHeader
-        title="Single Product - Quote Generator"
-        subtitle="Form process to generate a single product Quote."
+        title="Single product Quote creation"
+        subtitle="Fill the form to generate a single product Quote."
+        icon={Quote}
       />
 
-      <div className="mt-5 mb-28 flex flex-col gap-x-16 text-white lg:flex-row">
+      <div className="mt-1 mb-28 flex flex-col gap-x-16 text-white lg:flex-row">
         <StepNavigation steps={steps} />
         <SingleProductContextProvider>
           <div className="w-full">{children}</div>

@@ -48,7 +48,7 @@ export default function DealsLayout({
         subtitle="Form process to collect lead's information."
       />
 
-      <div className="mt-5 mb-28 flex flex-col gap-x-16 text-white lg:flex-row">
+      <div className="mt-1 mb-28 flex flex-col gap-x-16 text-white lg:flex-row">
         <StepNavigation steps={steps} />
         <AddLeadContextProvider>
           <div className="w-full">{children}</div>
