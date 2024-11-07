@@ -68,9 +68,9 @@ export default function StepSingleProductOneForm() {
   );
 
   return (
-    <div>
-      <div className="p-4">
-        <Card className="shadow-lg w-full  lg:max-w-[700px]">
+    <div className="w-full flex flex-col items-center">
+      <div className="w-full p-4">
+        <Card className="shadow-lg w-full">
           <CardHeader>
             <CardTitle className="text-2xl font-bold">
               Lead Information - Shipping information
@@ -92,12 +92,11 @@ export default function StepSingleProductOneForm() {
           </CardContent>
         </Card>
       </div>
-
       <form
         action={formAction}
-        className="flex flex-1 flex-col items-center p-4"
+        className="flex flex-1 flex-col items-center p-4 w-full"
       >
-        <div className="flex w-full flex-col gap-4 lg:max-w-[700px] ">
+        <div className="flex w-full flex-col gap-4  ">
           <FormQuestion question="For preparing a quote and calculating shipping fees, I need your complete delivery address" />
           <Input
             label="Street address"

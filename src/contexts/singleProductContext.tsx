@@ -23,6 +23,8 @@ const defaultSingleProduct: singleProductInitialValuesType = {
   province: "",
   city: "",
   zip: "",
+  products: [],
+  splitPayment: "",
 };
 
 const LOCAL_STORAGE_KEY = "multi-page-form-single-product";

@@ -6,6 +6,15 @@ export type Contact = {
   updatedAt: string;
 };
 
+export type Product = {
+  id: string;
+  name: string;
+  sku: string;
+  price: number;
+  image?: string;
+  selected?: boolean;
+};
+
 type ContactProperties = {
   createdate: string;
   email: string;

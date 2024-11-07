@@ -1,8 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Sheet,
@@ -25,54 +24,105 @@ import {
 import {
   Pagination,
   PaginationContent,
-  PaginationEllipsis,
   PaginationItem,
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { useQuery } from "@tanstack/react-query";
+import { getAllProducts } from "@/actions/getAllProducts";
+import { Product } from "@/types";
 
-interface Product {
-  id: string;
-  name: string;
-  price: number;
-  selected?: boolean;
+interface SideProductSheetProps {
+  selectedProducts: Product[];
+  setSelectedProducts: (products: Product[]) => void;
 }
 
-export function SideProductSheet() {
-  const [products, setProducts] = useState<Product[]>([
-    { id: "1", name: "APOLLO Whole Home Dehumidifier", price: 749 },
-    {
-      id: "2",
-      name: "APOLLO BF - Stainless Buffer Tank - 175/250gal - BF250",
-      price: 3449,
-    },
-    {
-      id: "3",
-      name: "APOLLO Wi-Fi Fan Coil Thermostat - 12 to 24VAC/DC",
-      price: 212,
-    },
-    { id: "4", name: "APOLLO Ceiling Fan Coil FCU - 4 Ton", price: 1117 },
-    {
-      id: "5",
-      name: 'Motorized Mixing Valve - 3/4" 2-ways / 12-24VAC/DC / ON/OFF',
-      price: 284,
-    },
-  ]);
+export function SideProductSheet({
+  selectedProducts,
+  setSelectedProducts,
+}: SideProductSheetProps) {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [localSelectedProducts, setLocalSelectedProducts] =
+    useState<Product[]>(selectedProducts);
   const [search, setSearch] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+  const maxPageButtons = 8;
 
-  const filteredProducts = products.filter((product) =>
-    product.name.toLowerCase().includes(search.toLowerCase())
+  const { isLoading, data } = useQuery({
+    queryKey: ["allProducts"],
+    queryFn: async () => {
+      const allProducts = await getAllProducts();
+      return allProducts;
+    },
+  });
+
+  useEffect(() => {
+    setLocalSelectedProducts(selectedProducts);
+  }, [selectedProducts]);
+
+  useEffect(() => {
+    if (data && "data" in data) {
+      const mappedProducts = data.data.map((product: any) => ({
+        id: product.id,
+        name: product.properties.name || "",
+        sku: product.properties.hs_sku || "",
+        image: product.properties.hs_images || "",
+        price: parseFloat(product.properties.price) || 0,
+        selected: false,
+      }));
+      setProducts(mappedProducts);
+    }
+  }, [data]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search]);
+
+  const filteredProducts = products.filter((product) => {
+    const searchTerm = search.toLowerCase();
+    return (
+      (product.name || "").toLowerCase().includes(searchTerm) ||
+      (product.sku || "").toLowerCase().includes(searchTerm) ||
+      product.price.toString().includes(searchTerm)
+    );
+  });
+
+  const indexOfLastProduct = currentPage * itemsPerPage;
+  const indexOfFirstProduct = indexOfLastProduct - itemsPerPage;
+  const currentProducts = filteredProducts.slice(
+    indexOfFirstProduct,
+    indexOfLastProduct
   );
 
+  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+
+  const startPage = Math.max(1, currentPage - Math.floor(maxPageButtons / 2));
+  const endPage = Math.min(totalPages, startPage + maxPageButtons - 1);
+  const displayedPages = [];
+  for (let i = startPage; i <= endPage; i++) {
+    displayedPages.push(i);
+  }
+
+  const handlePageChange = (pageNumber: number) => {
+    setCurrentPage(pageNumber);
+  };
+
   const toggleProduct = (productId: string) => {
-    setProducts(
-      products.map((product) =>
-        product.id === productId
-          ? { ...product, selected: !product.selected }
-          : product
-      )
-    );
+    const product = products.find((p) => p.id === productId);
+    if (product) {
+      const isCurrentlySelected = localSelectedProducts.some(
+        (p) => p.id === productId
+      );
+      if (!isCurrentlySelected) {
+        setLocalSelectedProducts((prev) => [...prev, product]);
+      } else {
+        setLocalSelectedProducts(
+          localSelectedProducts.filter((p) => p.id !== productId)
+        );
+      }
+    }
   };
 
   return (
@@ -92,79 +142,124 @@ export function SideProductSheet() {
             </SheetDescription>
           </SheetHeader>
           <div className="w-full max-w-6xl mx-auto p-4 space-y-4">
-            {/* Campo de búsqueda */}
+            {/* Search Field */}
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
               <Input
                 className="pl-10"
-                placeholder="Search the product library by name, description, SKU, or folder"
+                placeholder="Search the product library by name, SKU or price"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
             </div>
 
-            {/* Tabla de productos */}
+            {/* Products Table */}
             <div className="border rounded-lg">
               <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead className="w-12"></TableHead>
                     <TableHead>NAME</TableHead>
+                    <TableHead>SKU</TableHead>
                     <TableHead className="text-right">PRICE</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredProducts.map((product) => (
-                    <TableRow key={product.id}>
-                      <TableCell>
-                        <Checkbox
-                          checked={product.selected}
-                          onCheckedChange={() => toggleProduct(product.id)}
-                        />
-                      </TableCell>
-                      <TableCell>{product.name}</TableCell>
-                      <TableCell className="text-right">
-                        ${product.price.toLocaleString()}
-                      </TableCell>
+                  {isLoading ? (
+                    <TableRow>
+                      <TableCell colSpan={4}>Loading...</TableCell>
                     </TableRow>
-                  ))}
+                  ) : currentProducts.length > 0 ? (
+                    currentProducts.map((product) => (
+                      <TableRow key={product.id}>
+                        <TableCell>
+                          <Checkbox
+                            checked={localSelectedProducts.some(
+                              (p) => p.id === product.id
+                            )}
+                            onCheckedChange={() => toggleProduct(product.id)}
+                          />
+                        </TableCell>
+                        <TableCell>{product.name}</TableCell>
+                        <TableCell>{product.sku}</TableCell>
+                        <TableCell className="text-right">
+                          ${product.price.toLocaleString()}
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={4}>No products found</TableCell>
+                    </TableRow>
+                  )}
                 </TableBody>
               </Table>
             </div>
 
-            {/* Paginación */}
+            {/* Pagination */}
             <Pagination>
               <PaginationContent>
                 <PaginationItem>
-                  <PaginationPrevious href="#" />
+                  <PaginationPrevious
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      if (currentPage > 1) {
+                        setCurrentPage(currentPage - 1);
+                      }
+                    }}
+                  />
                 </PaginationItem>
+                {displayedPages.map((number) => (
+                  <PaginationItem key={number}>
+                    <PaginationLink
+                      href="#"
+                      isActive={number === currentPage}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handlePageChange(number);
+                      }}
+                    >
+                      {number}
+                    </PaginationLink>
+                  </PaginationItem>
+                ))}
                 <PaginationItem>
-                  <PaginationLink href="#" isActive>
-                    1
-                  </PaginationLink>
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationLink href="#">2</PaginationLink>
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationLink href="#">3</PaginationLink>
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationEllipsis />
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationNext href="#" />
+                  <PaginationNext
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      if (currentPage < totalPages) {
+                        setCurrentPage(currentPage + 1);
+                      }
+                    }}
+                  />
                 </PaginationItem>
               </PaginationContent>
             </Pagination>
           </div>
 
-          {/* Botones de acción */}
+          {/* Action Buttons */}
           <SheetFooter>
             <div className="flex justify-start gap-2">
-              <Button>Add</Button>
               <SheetClose asChild>
-                <Button variant="outline">Cancel</Button>
+                <Button
+                  onClick={() => {
+                    setSelectedProducts(localSelectedProducts);
+                  }}
+                >
+                  Add
+                </Button>
+              </SheetClose>
+              <SheetClose asChild>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setLocalSelectedProducts(selectedProducts);
+                  }}
+                >
+                  Cancel
+                </Button>
               </SheetClose>
             </div>
           </SheetFooter>

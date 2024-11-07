@@ -4,6 +4,9 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/app/Providers";
 import { Toaster } from "@/components/ui/toaster";
+import { getQueryClient } from "@/lib/query";
+import { getAllProducts } from "@/actions/getAllProducts";
+import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -12,11 +15,17 @@ export const metadata: Metadata = {
   description: "Sales Manager for MBtek",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const queryClient = getQueryClient();
+  await queryClient.prefetchQuery({
+    queryKey: ["allProducts"],
+    queryFn: getAllProducts,
+  });
+
   return (
     <html lang="en">
       <body className={inter.className}>
@@ -24,7 +33,9 @@ export default function RootLayout({
           <div className="flex w-full items-center justify-center">
             <Navbar />
           </div>
-          {children}
+          <HydrationBoundary state={dehydrate(queryClient)}>
+            {children}
+          </HydrationBoundary>
         </Providers>
         <Toaster />
       </body>

@@ -1,6 +1,7 @@
 "use server";
 
 import { propertyNameMap } from "@/components/steps/utils";
+import { revalidatePath } from "next/cache";
 
 const properties = Object.keys(propertyNameMap);
 
@@ -24,6 +25,7 @@ export async function GetContactById(id: string) {
     }
 
     const data = await response.json();
+    revalidatePath(`/contacts/${id}`);
     return data || null;
   } catch (error) {
     console.error("Error fetching contact:", error);

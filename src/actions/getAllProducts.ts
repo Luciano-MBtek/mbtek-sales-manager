@@ -4,6 +4,7 @@ type ProductProperties = {
   price: number;
   name: string;
   hs_sku: string;
+  hs_images: string;
 };
 
 type Product = {
@@ -16,14 +17,23 @@ type Product = {
 
 type ProductsArray = Product[];
 
-export async function getAllProducts() {
+export async function getAllProducts(): Promise<
+  | {
+      message: string;
+      quantity: number;
+      data: ProductsArray;
+    }
+  | {
+      error: string;
+    }
+> {
   let after = "";
   let allResults: ProductsArray = [];
   const limit = 100;
 
   try {
     do {
-      const url = `https://api.hubapi.com/crm/v3/objects/products?properties=price,name,hs_sku&limit=${limit}${
+      const url = `https://api.hubapi.com/crm/v3/objects/products?properties=price,name,hs_sku,hs_images&limit=${limit}${
         after ? `&after=${after}` : ""
       }`;
 
@@ -42,7 +52,7 @@ export async function getAllProducts() {
       } else {
         const errorData = await response.json();
         console.error("Error al recuperar los datos:", errorData);
-        break; // Salir del bucle en caso de error
+        break;
       }
     } while (after);
 

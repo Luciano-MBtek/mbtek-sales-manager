@@ -21,7 +21,7 @@ export default function RadioInput({
   errorMsg,
 }: RadioInputProps) {
   return (
-    <div>
+    <>
       <Label className="block text-black text-lg mb-2">{label}</Label>
       <RadioGroup value={value} onValueChange={onChange} name={id}>
         <div className="space-y-2">
@@ -40,6 +40,6 @@ export default function RadioInput({
           <span className="text-red-500 text-sm block">{errorMsg}</span>
         )}
       </div>
-    </div>
+    </>
   );
 }

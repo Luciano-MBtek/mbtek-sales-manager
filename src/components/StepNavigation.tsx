@@ -1,6 +1,8 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import clsx from "clsx";
+import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import path from "path";
@@ -48,61 +50,71 @@ export default function StepNavigation({ steps }: StepNavigationProps<string>) {
   };
 
   return (
-    <div className="mb-12 lg:mb-0 min-w-60 p-4">
-      {/* back button */}
+    <div className="mb-12 lg:mb-0 min-w-80 p-4 bg-white rounded-lg shadow-md">
       <Link
         href={getStepLink(steps[currentStep - 1] || steps[0])}
-        className="mb-4 flex items-center gap-2 text-xl text-black disabled:text-white/50 lg:mb-12 lg:gap-5"
+        className="mb-4 inline-flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-gray-800 transition-colors duration-200 lg:mb-8"
       >
+        <ChevronLeft className="w-4 h-4" />
         Back
       </Link>
 
-      {/* list of form steps */}
-      <div className="relative flex flex-row justify-between lg:flex-col lg:justify-start lg:gap-8">
-        {steps.map((step, i) => (
-          <Link
-            href={getStepLink(step)}
-            key={`step-${i}`}
-            className="group z-20 flex items-center gap-3 text-2xl"
-            prefetch={true}
-          >
-            <span
-              className={clsx(
-                "flex h-10 w-10 items-center justify-center rounded-full border  text-sm  transition-colors duration-200  lg:h-12 lg:w-12 lg:text-lg",
-                {
-                  "border-none bg-teal-500 text-black group-hover:border-none group-hover:text-black":
-                    Array.isArray(step.route)
-                      ? step.route.includes(currentPath)
-                      : currentPath === step.route,
-                  "border-white/75 bg-gray-900 group-hover:border-white group-hover:text-white text-white/75":
-                    Array.isArray(step.route)
-                      ? !step.route.includes(currentPath)
-                      : currentPath !== step.route,
-                }
-              )}
-            >
-              {i + 1}
-            </span>
-            <span
-              className={clsx(
-                "hidden text-black/75 transition-colors duration-200 group-hover:text-black lg:block",
-                {
-                  "font-light": Array.isArray(step.route)
-                    ? !step.route.includes(currentPath)
-                    : currentPath !== step.route,
-                  "font-semibold text-black": Array.isArray(step.route)
-                    ? step.route.includes(currentPath)
-                    : currentPath === step.route,
-                }
-              )}
-            >
-              {step.title}
-            </span>
-          </Link>
-        ))}
-        {/* mobile background dashes */}
-        <div className="absolute top-4 flex h-1 w-full border-b border-dashed lg:hidden" />
-      </div>
+      <nav className="relative lg:flex lg:justify-center" aria-label="Progress">
+        <ol className="flex flex-row justify-between lg:flex-col lg:space-y-6">
+          {steps.map((step, i) => {
+            const isCurrentStep = Array.isArray(step.route)
+              ? step.route.includes(currentPath)
+              : currentPath === step.route;
+
+            return (
+              <li key={`step-${i}`} className="relative flex items-start">
+                <Link
+                  href={getStepLink(step)}
+                  className={cn(
+                    "group z-20 flex items-center gap-3",
+                    isCurrentStep ? "pointer-events-none" : ""
+                  )}
+                  prefetch={true}
+                >
+                  <span
+                    className={cn(
+                      "flex h-10 w-10 items-center justify-center rounded-full border text-sm transition-colors duration-200 lg:h-12 lg:w-12 lg:text-base",
+                      {
+                        "border-primary bg-primary text-primary-foreground":
+                          isCurrentStep,
+                        "border-gray-300 bg-white text-gray-500 group-hover:border-gray-400 group-hover:bg-gray-50":
+                          !isCurrentStep,
+                      }
+                    )}
+                  >
+                    {i + 1}
+                  </span>
+                  <span
+                    className={cn(
+                      "hidden text-sm font-medium transition-colors duration-200 lg:block",
+                      {
+                        "text-primary": isCurrentStep,
+                        "text-gray-500 group-hover:text-gray-700":
+                          !isCurrentStep,
+                      }
+                    )}
+                  >
+                    {step.title}
+                  </span>
+                </Link>
+                {i < steps.length - 1 && (
+                  <div
+                    className={cn(
+                      "absolute top-5 left-5 h-0.5 w-full lg:top-16 lg:left-6 lg:h-full lg:w-0.5",
+                      isCurrentStep ? "bg-primary" : "bg-gray-300"
+                    )}
+                  />
+                )}
+              </li>
+            );
+          })}
+        </ol>
+      </nav>
     </div>
   );
 }

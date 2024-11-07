@@ -1,5 +1,5 @@
 "use server";
-import { newSingleProductSchema } from "@/schemas/singleProductSchema";
+import { stepOneProductSchema } from "@/schemas/singleProductSchema";
 import { singleProductRoutes, FormErrors } from "@/types";
 import { redirect } from "next/navigation";
 
@@ -8,7 +8,7 @@ export const stepOneFormSingleProductAction = (
   formData: FormData
 ): FormErrors | undefined => {
   const data = Object.fromEntries(formData.entries());
-  const validated = newSingleProductSchema.safeParse(data);
+  const validated = stepOneProductSchema.safeParse(data);
 
   console.log(validated);
   if (!validated.success) {
