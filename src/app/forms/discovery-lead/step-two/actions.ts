@@ -3,10 +3,10 @@ import { stepTwoSchema } from "@/schemas/newLeadSchema";
 import { collectDataRoutes, FormErrors } from "@/types";
 import { redirect } from "next/navigation";
 
-export const stepTwoFormAction = (
+export const stepTwoFormAction = async (
   prevState: FormErrors | undefined,
   formData: FormData
-): FormErrors | undefined => {
+): Promise<FormErrors | undefined> => {
   const rawData = Object.fromEntries(formData);
 
   console.log("RawData:", rawData);

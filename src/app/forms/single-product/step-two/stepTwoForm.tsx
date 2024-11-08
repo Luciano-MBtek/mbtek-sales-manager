@@ -1,17 +1,16 @@
 "use client";
-import { useFormState } from "react-dom";
 import { stepTwoFormSingleProductAction } from "./actions";
 import { FormErrors, Product, YesOrNo } from "@/types";
 import SubmitButton from "@/components/SubmitButton";
 import { useSingleProductContext } from "@/contexts/singleProductContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import InfoItem from "@/components/InfoItem";
-import { MailIcon, UserIcon } from "lucide-react";
+
 import { SideProductSheet } from "@/components/SideProductSheet";
-import { useEffect, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import RadioInput from "@/components/RadioButtonStepForm";
 
 import ProductCard from "@/components/ProductCard";
+import ContactFormCard from "@/components/StepForm/ContactFormCard";
 
 const options = YesOrNo.map((option) => option);
 
@@ -20,7 +19,7 @@ const initialState: FormErrors = {};
 export default function StepSingleProductTwoForm() {
   const { singleProductData, updateSingleProductDetails, dataLoaded } =
     useSingleProductContext();
-  const [serverErrors, formAction] = useFormState(
+  const [serverErrors, formAction] = useActionState(
     stepTwoFormSingleProductAction,
     initialState
   );
@@ -67,27 +66,13 @@ export default function StepSingleProductTwoForm() {
     <>
       <div className="w-full flex flex-col  items-center">
         <div className="flex flex-col w-full lg:flex-row gap-2 p-4">
-          <Card className="shadow-lg w-full ">
-            <CardHeader>
-              <CardTitle className="text-2xl font-bold">
-                Lead Information - Select Products
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="flex w-full ">
-              <div className="flex w-full justify-around ">
-                <InfoItem
-                  icon={<UserIcon className="h-5 w-5" />}
-                  label="Name"
-                  value={`${formData.name} ${formData.lastname}`}
-                />
-                <InfoItem
-                  icon={<MailIcon className="h-5 w-5" />}
-                  label="Email"
-                  value={formData.email}
-                />
-              </div>
-            </CardContent>
-          </Card>
+          <ContactFormCard
+            title={"Lead Information - Select Products"}
+            name={formData.name}
+            lastname={formData.lastname}
+            email={formData.email}
+          />
+
           <Card className="shadow-lg w-full ">
             <CardHeader>
               <CardTitle className="text-2xl font-bold">

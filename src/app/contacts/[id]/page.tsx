@@ -7,10 +7,16 @@ import { ProgressProperties } from "@/types";
 import Stepper from "@/components/Stepper";
 
 type Props = {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 };
 
-const contactFullData = async ({ params: { id } }: Props) => {
+const contactFullData = async (props: Props) => {
+  const params = await props.params;
+
+  const {
+    id
+  } = params;
+
   const contact = await GetContactById(id);
 
   const formattedProperties: Properties[] = Object.entries(contact.properties)

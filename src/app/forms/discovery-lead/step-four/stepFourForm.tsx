@@ -1,10 +1,10 @@
 "use client";
-import SelectInput from "@/components/SelectStepForm";
+import { useActionState } from "react";
+import SelectInput from "@/components/StepForm/SelectStepForm";
 import SubmitButton from "@/components/SubmitButton";
 import { stepFourFormAction } from "./action";
 import { FormErrors, LeadBuyingIntention } from "@/types";
-import { useFormState } from "react-dom";
-import { DatePickerForm } from "@/components/DatePickerStepForm";
+import { DatePickerForm } from "@/components/StepForm/DatePickerStepForm";
 import { useAddLeadContext } from "@/contexts/addDealContext";
 import FormQuestion from "@/components/FormQuestion";
 import {
@@ -21,7 +21,7 @@ const buyingIntentionOptions = LeadBuyingIntention.map((option) => ({
 const initialState: FormErrors = {};
 
 export default function StepFourForm() {
-  const [serverErrors, formAction] = useFormState(
+  const [serverErrors, formAction] = useActionState(
     stepFourFormAction,
     initialState
   );

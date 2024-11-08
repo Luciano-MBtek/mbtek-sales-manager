@@ -3,10 +3,10 @@ import { stepFourSchema } from "@/schemas/newLeadSchema";
 import { collectDataRoutes, FormErrors } from "@/types";
 import { redirect } from "next/navigation";
 
-export const stepFourFormAction = (
+export const stepFourFormAction = async (
   prevState: FormErrors | undefined,
   formData: FormData
-): FormErrors | undefined => {
+):  Promise<FormErrors | undefined> => {
   const data = Object.fromEntries(formData.entries());
 
   const validated = stepFourSchema.safeParse(data);

@@ -25,7 +25,7 @@ export async function GetContactById(id: string) {
     }
 
     const data = await response.json();
-    revalidatePath(`/contacts/${id}`);
+   
     return data || null;
   } catch (error) {
     console.error("Error fetching contact:", error);

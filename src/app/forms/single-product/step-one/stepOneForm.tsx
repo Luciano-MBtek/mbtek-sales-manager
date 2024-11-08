@@ -1,6 +1,5 @@
 "use client";
 import Input from "@/components/Input";
-import { useFormState } from "react-dom";
 import {
   createHandleSelectChange,
   createHandleInputChange,
@@ -10,24 +9,23 @@ import { FormErrors } from "@/types";
 import SubmitButton from "@/components/SubmitButton";
 import FormQuestion from "@/components/FormQuestion";
 import { useSingleProductContext } from "@/contexts/singleProductContext";
-import SelectInput from "@/components/SelectStepForm";
+import SelectInput from "@/components/StepForm/SelectStepForm";
 import {
   countryOptions,
   stateOptions,
   provinceOptions,
 } from "@/app/forms/utils/options";
 import { useSearchParams } from "next/navigation";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import InfoItem from "@/components/InfoItem";
-import { MailIcon, UserIcon } from "lucide-react";
-import { useEffect } from "react";
+
+import { useActionState, useEffect } from "react";
+import ContactFormCard from "@/components/StepForm/ContactFormCard";
 
 const initialState: FormErrors = {};
 
 export default function StepSingleProductOneForm() {
   const { singleProductData, updateSingleProductDetails, dataLoaded } =
     useSingleProductContext();
-  const [serverErrors, formAction] = useFormState(
+  const [serverErrors, formAction] = useActionState(
     stepOneFormSingleProductAction,
     initialState
   );
@@ -70,27 +68,12 @@ export default function StepSingleProductOneForm() {
   return (
     <div className="w-full flex flex-col items-center">
       <div className="w-full p-4">
-        <Card className="shadow-lg w-full">
-          <CardHeader>
-            <CardTitle className="text-2xl font-bold">
-              Lead Information - Shipping information
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="grid gap-6 ">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <InfoItem
-                icon={<UserIcon className="h-5 w-5" />}
-                label="Name"
-                value={`${formData.name} ${formData.lastname}`}
-              />
-              <InfoItem
-                icon={<MailIcon className="h-5 w-5" />}
-                label="Email"
-                value={formData.email}
-              />
-            </div>
-          </CardContent>
-        </Card>
+        <ContactFormCard
+          title={"Lead Information - Shipping information"}
+          name={formData.name}
+          lastname={formData.lastname}
+          email={formData.email}
+        />
       </div>
       <form
         action={formAction}

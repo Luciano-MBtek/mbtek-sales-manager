@@ -1,4 +1,5 @@
 "use client";
+import { useActionState } from "react";
 import Input from "@/components/Input";
 import {
   createHandleSelectChange,
@@ -11,18 +12,17 @@ import {
   provinceOptions,
 } from "@/app/forms/utils/options";
 import SubmitButton from "@/components/SubmitButton";
-import SelectInput from "@/components/SelectStepForm";
-import CheckboxInput from "@/components/CheckboxStepForm";
+import SelectInput from "@/components/StepForm/SelectStepForm";
+import CheckboxInput from "@/components/StepForm/CheckboxStepForm";
 import { stepTwoFormAction } from "@/app/forms/discovery-lead/step-two/actions";
-import { useFormState } from "react-dom";
-import { FormErrors, canadaProvinces, USStates, leadType } from "@/types";
+import { FormErrors, leadType } from "@/types";
 import { useAddLeadContext } from "@/contexts/addDealContext";
 import FormQuestion from "@/components/FormQuestion";
 
 const initialState: FormErrors = {};
 
 export default function StepTwoForm() {
-  const [serverErrors, formAction] = useFormState(
+  const [serverErrors, formAction] = useActionState(
     stepTwoFormAction,
     initialState
   );

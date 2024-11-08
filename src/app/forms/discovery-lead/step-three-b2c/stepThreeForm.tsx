@@ -1,4 +1,5 @@
 "use client";
+import { useActionState } from "react";
 import SubmitButton from "../../../../components/SubmitButton";
 import {
   createHandleInputChange,
@@ -6,8 +7,7 @@ import {
 } from "../../utils/createHandlers";
 import { stepThreeFormAction } from "./actions";
 import { FormErrors, YesOrNo } from "@/types";
-import { useFormState } from "react-dom";
-import TextAreaInput from "@/components/TextAreaStepForm";
+import TextAreaInput from "@/components/StepForm/TextAreaStepForm";
 import RadioInput from "@/components/RadioButtonStepForm";
 import { useAddLeadContext } from "@/contexts/addDealContext";
 import Input from "@/components/Input";
@@ -17,7 +17,7 @@ const initialState: FormErrors = {};
 const options = YesOrNo.map((option) => option);
 
 export default function StepThreeForm() {
-  const [serverErrors, formAction] = useFormState(
+  const [serverErrors, formAction] = useActionState(
     stepThreeFormAction,
     initialState
   );

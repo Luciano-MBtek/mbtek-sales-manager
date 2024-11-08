@@ -7,7 +7,7 @@ import {
   stepFourSchema,
 } from "@/schemas/newLeadSchema";
 import { collectDataRoutes } from "@/types";
-import { redirect } from "next/dist/server/api-utils";
+
 
 interface SubmitLeadActionReturnType {
   redirect1?: string;

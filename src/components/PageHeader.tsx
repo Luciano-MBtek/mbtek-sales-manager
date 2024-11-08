@@ -18,10 +18,13 @@ export default function PageHeader({
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ type: "spring", stiffness: 260, damping: 20 }}
-            className="flex-shrink-0"
+            {...{ className: "flex-shrink-0" }}
           >
             <Icon
-              className="w-12 h-12 text-gradient bg-gradient-to-br from-primary to-secondary rounded-full p-2 bg-clip-text "
+              {...{
+                className:
+                  "w-12 h-12 text-gradient bg-gradient-to-br from-primary to-secondary rounded-full p-2 bg-clip-text",
+              }}
               aria-hidden="true"
             />
           </motion.div>
@@ -31,7 +34,10 @@ export default function PageHeader({
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="text-4xl font-extrabold tracking-tight text-gray-900 bg-clip-text bg-gradient-to-r from-primary to-secondary"
+            {...{
+              className:
+                "text-4xl font-extrabold tracking-tight text-gray-900 bg-clip-text bg-gradient-to-r from-primary to-secondary",
+            }}
           >
             {title}
           </motion.h1>
@@ -40,7 +46,7 @@ export default function PageHeader({
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="mt-2 text-lg text-gray-600"
+              {...{ className: "mt-2 text-lg text-gray-600" }}
             >
               {subtitle}
             </motion.p>

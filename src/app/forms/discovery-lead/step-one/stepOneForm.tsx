@@ -1,6 +1,6 @@
 "use client";
+import { useActionState } from "react";
 import Input from "@/components/Input";
-import { useFormState } from "react-dom";
 import { stepOneFormAction } from "./actions";
 import { FormErrors } from "@/types";
 import SubmitButton from "@/components/SubmitButton";
@@ -14,7 +14,7 @@ const initialState: FormErrors = {};
 export default function StepOneForm() {
   const { data: session, status } = useSession();
   const { newLeadData, updateNewLeadDetails } = useAddLeadContext();
-  const [serverErrors, formAction] = useFormState(
+  const [serverErrors, formAction] = useActionState(
     stepOneFormAction,
     initialState
   );
