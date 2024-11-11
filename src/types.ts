@@ -10,6 +10,7 @@ export type Product = {
   id: string;
   name: string;
   sku: string;
+  quantity: number;
   price: number;
   image?: string;
   selected?: boolean;
@@ -75,6 +76,7 @@ export enum collectDataRoutes {
 export enum singleProductRoutes {
   SHIPPING_DATA = "/forms/single-product/step-one",
   PRODUCT_DATA = "/forms/single-product/step-two",
+  REVIEW_SINGLE_PRODUCT = "/forms/single-product/review",
 }
 
 export const canadaProvinces = [

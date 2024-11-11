@@ -3,19 +3,19 @@ import z from "zod";
 
 export const stepTwoSingleProductSchema = z.object({
   products: z
-    .string()
-    .min(3, "You must select at least one product")
-    .refine(
-      (value) => {
-        const requiredWords = ["sku", "id", "price"];
-        return requiredWords.every((word) =>
-          value.toLowerCase().includes(word)
-        );
-      },
-      {
-        message: "Must be a valid product",
-      }
-    ),
+    .array(
+      z.object({
+        id: z.string(),
+        image: z.string().optional(),
+        name: z.string(),
+        price: z.number(),
+        selected: z.boolean().optional(),
+        sku: z.string().min(1, "SKU is required, please inform Sales Director"),
+        quantity: z.number(),
+      })
+    )
+    .min(1, "You must select at least one product"),
+
   splitPayment: z.enum(yesOrNoTuple, {
     errorMap: () => ({ message: "Please select Yes or No" }),
   }),
@@ -71,6 +71,7 @@ export const newSingleProductSchema = z.discriminatedUnion("country", [
         price: z.number(),
         selected: z.boolean().optional(),
         sku: z.string(),
+        quantity: z.number(),
       })
     ),
     splitPayment: z.enum(yesOrNoTuple, {
@@ -97,6 +98,7 @@ export const newSingleProductSchema = z.discriminatedUnion("country", [
         price: z.number(),
         selected: z.boolean().optional(),
         sku: z.string(),
+        quantity: z.number(),
       })
     ),
     splitPayment: z.enum(yesOrNoTuple, {
@@ -124,6 +126,7 @@ export const singleProductInitialValuesSchema = z.object({
         price: z.number(),
         selected: z.boolean().optional(),
         sku: z.string(),
+        quantity: z.number(),
       })
     )
     .optional(),

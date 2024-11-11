@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/card";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { Trash2 } from "lucide-react";
+import { Trash2, Minus, Plus } from "lucide-react";
 
 interface ProductCardProps {
   selectedProducts: Product[];
@@ -18,6 +18,7 @@ interface ProductCardProps {
     products?: string;
   };
   onRemoveProduct: (productId: string) => void;
+  handleQuantity: (productId: string, string: string) => void;
 }
 
 export default function ProductCard({
@@ -25,6 +26,7 @@ export default function ProductCard({
   totalPrice,
   serverErrors,
   onRemoveProduct,
+  handleQuantity,
 }: ProductCardProps) {
   return (
     <Card className="w-full shadow-lg">
@@ -40,6 +42,7 @@ export default function ProductCard({
                   <th className="py-2 px-4 text-left">Image</th>
                   <th className="py-2 px-4 text-left">Product</th>
                   <th className="py-2 px-4 text-left">SKU</th>
+                  <th className="py-2 px-4 text-left">Quantity</th>
                   <th className="py-2 px-4 text-right">Price</th>
                   <th className="py-2 px-4 text-center">Action</th>
                 </tr>
@@ -61,6 +64,33 @@ export default function ProductCard({
                     <td className="py-2 px-4 font-semibold">{product.name}</td>
                     <td className="py-2 px-4 text-sm text-gray-500">
                       {product.sku}
+                    </td>
+                    <td className="py-2 px-4 text-sm text-black">
+                      <div className="flex items-center space-x-2">
+                        <Button
+                          type="button"
+                          size="icon"
+                          variant="outline"
+                          className="h-8 w-8 rounded-full"
+                          onClick={() => handleQuantity(product.id, "decrease")}
+                        >
+                          <Minus className="h-4 w-4" />
+                          <span className="sr-only">Decrease quantity</span>
+                        </Button>
+                        <span className="w-8 text-center">
+                          {product.quantity}
+                        </span>
+                        <Button
+                          type="button"
+                          size="icon"
+                          variant="outline"
+                          className="h-8 w-8 rounded-full"
+                          onClick={() => handleQuantity(product.id, "increase")}
+                        >
+                          <Plus className="h-4 w-4" />
+                          <span className="sr-only">Increase quantity</span>
+                        </Button>
+                      </div>
                     </td>
                     <td className="py-2 px-4 text-right font-semibold">
                       ${product.price?.toLocaleString()}

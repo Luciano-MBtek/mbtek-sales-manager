@@ -21,7 +21,11 @@ export async function searchContact(
           filterGroups: [
             {
               filters: [
-                { propertyName: propertyType, operator: "EQ", value: value },
+                {
+                  propertyName: propertyType,
+                  operator: "CONTAINS_TOKEN",
+                  value: `*${value}`,
+                },
               ],
             },
           ],

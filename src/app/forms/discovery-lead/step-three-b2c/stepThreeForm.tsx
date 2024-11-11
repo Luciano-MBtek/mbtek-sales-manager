@@ -1,6 +1,6 @@
 "use client";
 import { useActionState } from "react";
-import SubmitButton from "../../../../components/SubmitButton";
+import SubmitButton from "@/components/SubmitButton";
 import {
   createHandleInputChange,
   createHandleRadioChange,
@@ -8,7 +8,7 @@ import {
 import { stepThreeFormAction } from "./actions";
 import { FormErrors, YesOrNo } from "@/types";
 import TextAreaInput from "@/components/StepForm/TextAreaStepForm";
-import RadioInput from "@/components/RadioButtonStepForm";
+import RadioInput from "@/components/StepForm/RadioButtonStepForm";
 import { useAddLeadContext } from "@/contexts/addDealContext";
 import Input from "@/components/Input";
 
@@ -25,7 +25,6 @@ export default function StepThreeForm() {
   const { newLeadData, updateNewLeadDetails } = useAddLeadContext();
 
   const handleInputChange = createHandleInputChange(updateNewLeadDetails);
-  const handleRadioChange = createHandleRadioChange(updateNewLeadDetails);
 
   return (
     <form action={formAction} className="flex flex-1 flex-col items-center">

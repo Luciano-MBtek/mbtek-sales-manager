@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import { SideProductSheet } from "@/components/SideProductSheet";
 import { useActionState, useEffect, useState } from "react";
-import RadioInput from "@/components/RadioButtonStepForm";
+import RadioInput from "@/components/StepForm/RadioButtonStepForm";
 
 import ProductCard from "@/components/ProductCard";
 import ContactFormCard from "@/components/StepForm/ContactFormCard";
@@ -29,14 +29,12 @@ export default function StepSingleProductTwoForm() {
 
   const [totalPrice, setTotalPrice] = useState(0);
 
-  console.log("SelectedProducts:", selectedProducts);
-
   useEffect(() => {
     updateSingleProductDetails({
       products: selectedProducts,
     });
     const totalPrice = selectedProducts.reduce((acc, product) => {
-      return product.id ? acc + product.price : acc;
+      return product.id ? acc + product.price * product.quantity : acc;
     }, 0);
     setTotalPrice(totalPrice);
 
@@ -59,6 +57,19 @@ export default function StepSingleProductTwoForm() {
   const handleRemoveProduct = (productId: string) => {
     setSelectedProducts((prevProducts) =>
       prevProducts.filter((product) => product.id !== productId)
+    );
+  };
+
+  const handleQuantity = (productId: string, action: string) => {
+    setSelectedProducts((prevProducts) =>
+      prevProducts.map((product) => {
+        if (product.id === productId) {
+          const newQuantity =
+            action === "increase" ? product.quantity + 1 : product.quantity - 1;
+          return { ...product, quantity: Math.max(newQuantity, 1) };
+        }
+        return product;
+      })
     );
   };
 
@@ -102,6 +113,7 @@ export default function StepSingleProductTwoForm() {
             totalPrice={totalPrice}
             serverErrors={serverErrors}
             onRemoveProduct={handleRemoveProduct}
+            handleQuantity={handleQuantity}
           />
           <div className="w-full m-5">
             <RadioInput

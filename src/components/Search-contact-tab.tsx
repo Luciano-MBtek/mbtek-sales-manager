@@ -146,7 +146,7 @@ export function SearchContactTab() {
             </CardContent>
             <CardFooter>
               <Button
-                onClick={() => () => handleContactsSearch(firstname, lastname)}
+                onClick={() => handleContactsSearch(firstname, lastname)}
                 disabled={isPending || (!firstname && !lastname)}
               >
                 {isPending ? "Searching..." : "Search"}

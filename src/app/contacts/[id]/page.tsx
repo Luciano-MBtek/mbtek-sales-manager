@@ -13,9 +13,7 @@ type Props = {
 const contactFullData = async (props: Props) => {
   const params = await props.params;
 
-  const {
-    id
-  } = params;
+  const { id } = params;
 
   const contact = await GetContactById(id);
 
@@ -50,8 +48,8 @@ const contactFullData = async (props: Props) => {
   return (
     <div className="flex flex-col items-center justify-center">
       <div className="flex w-full items-center justify-between">
+        {/*  <Stepper /> */}
         <ContactStepProgress properties={progressProperties} />
-        <Stepper />
       </div>
       <DataTable columns={columns} data={formattedProperties} />
     </div>

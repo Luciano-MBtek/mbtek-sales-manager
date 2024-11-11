@@ -16,6 +16,11 @@ const steps = [
     route: "step-two",
     link: singleProductRoutes.PRODUCT_DATA,
   },
+  {
+    title: "Review",
+    route: "review",
+    link: singleProductRoutes.REVIEW_SINGLE_PRODUCT,
+  },
 ];
 export default function SingleProductLayout({
   children,
