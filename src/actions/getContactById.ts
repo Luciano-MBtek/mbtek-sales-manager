@@ -1,7 +1,6 @@
 "use server";
 
 import { propertyNameMap } from "@/components/steps/utils";
-import { revalidatePath } from "next/cache";
 
 const properties = Object.keys(propertyNameMap);
 
@@ -12,6 +11,7 @@ export async function GetContactById(id: string) {
     const response = await fetch(
       `https://api.hubapi.com/crm/v3/objects/contacts/${id}?properties=${propertiesQuery}`,
       {
+        cache: "force-cache",
         method: "GET",
         headers: {
           Authorization: `Bearer ${apiKey}`,
@@ -25,7 +25,7 @@ export async function GetContactById(id: string) {
     }
 
     const data = await response.json();
-   
+
     return data || null;
   } catch (error) {
     console.error("Error fetching contact:", error);

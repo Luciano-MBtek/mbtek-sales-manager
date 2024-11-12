@@ -31,7 +31,9 @@ const ContactCard = ({ contact }: { contact: Contact }) => {
         <p>Phone: {phone || "N/A"}</p>
       </CardContent>
       <CardFooter>
-        <Link href={`/contacts/${hs_object_id}`}>
+        <Link
+          href={`/contacts/${hs_object_id}?name=${firstname ? firstname : ""}&lastname=${lastname ? lastname : ""}`}
+        >
           <Button>Details</Button>
         </Link>
       </CardFooter>

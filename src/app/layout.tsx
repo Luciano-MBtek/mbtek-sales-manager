@@ -7,6 +7,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { getQueryClient } from "@/lib/query";
 import { getAllProducts } from "@/actions/getAllProducts";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/AppSidebar";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -30,11 +32,12 @@ export default async function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <Providers>
-          <div className="flex w-full items-center justify-center">
-            <Navbar />
-          </div>
           <HydrationBoundary state={dehydrate(queryClient)}>
-            {children}
+            <AppSidebar />
+            <main className="flex w-full ">
+              <SidebarTrigger />
+              {children}
+            </main>
           </HydrationBoundary>
         </Providers>
         <Toaster />

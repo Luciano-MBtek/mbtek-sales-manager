@@ -2,7 +2,6 @@
 
 import {
   ColumnDef,
-  ColumnFiltersState,
   flexRender,
   SortingState,
   getCoreRowModel,
@@ -23,7 +22,7 @@ import {
 import { Button } from "../ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -38,47 +37,48 @@ export function DataTable<TData, TValue>({
     { id: "step", desc: false },
   ]);
 
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-
   const [selectedSteps, setSelectedSteps] = useState<number[]>([]);
+  const [filterText, setFilterText] = useState("");
 
-  const uniqueSteps = Array.from(
-    new Set(Object.values(propertyNameMap).map((item) => item.step))
-  ).sort();
+  const uniqueSteps = useMemo(() => {
+    return Array.from(
+      new Set(Object.values(propertyNameMap).map((item) => item.step))
+    ).sort();
+  }, []);
+
+  // Calcula los filtros de columna basados en selectedSteps y filterText
+  const columnFilters = useMemo(() => {
+    const filters = [];
+    if (selectedSteps.length > 0) {
+      filters.push({ id: "step", value: selectedSteps });
+    }
+    if (filterText) {
+      filters.push({ id: "friendlyName", value: filterText });
+    }
+    return filters;
+  }, [selectedSteps, filterText]);
 
   const table = useReactTable({
     data,
     columns,
-    getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    onSortingChange: setSorting,
-    getSortedRowModel: getSortedRowModel(),
-    onColumnFiltersChange: setColumnFilters,
-    getFilteredRowModel: getFilteredRowModel(),
     state: {
       sorting,
       columnFilters,
     },
+    onSortingChange: setSorting,
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
   });
-  useEffect(() => {
-    if (selectedSteps.length > 0) {
-      table.getColumn("step")?.setFilterValue(selectedSteps);
-    } else {
-      table.getColumn("step")?.setFilterValue(undefined);
-    }
-  }, [selectedSteps, table]);
 
   return (
     <div className="w-[90%]">
       <div className="flex items-center py-4 justify-between">
         <Input
           placeholder="Filter Properties"
-          value={
-            (table.getColumn("friendlyName")?.getFilterValue() as string) ?? ""
-          }
-          onChange={(event) =>
-            table.getColumn("friendlyName")?.setFilterValue(event.target.value)
-          }
+          value={filterText}
+          onChange={(event) => setFilterText(event.target.value)}
           className="max-w-sm"
         />
         <div className="flex items-center justify-between gap-3">
@@ -104,28 +104,23 @@ export function DataTable<TData, TValue>({
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
-                  );
-                })}
+                {headerGroup.headers.map((header) => (
+                  <TableHead key={header.id}>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                  </TableHead>
+                ))}
               </TableRow>
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows?.length ? (
+            {table.getRowModel().rows.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                >
+                <TableRow key={row.id}>
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
                       {flexRender(
