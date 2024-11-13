@@ -27,9 +27,13 @@ type ContactProperties = {
 };
 
 export type ProgressProperties = {
+  id: string;
   firstname: string;
   lastname: string;
   leadStatus: string;
+  email: string;
+  state?: string;
+  province?: string;
   country_us_ca: string;
   totalProperties: number;
   emptyProperties: number;

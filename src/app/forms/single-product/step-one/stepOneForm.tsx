@@ -34,6 +34,7 @@ export default function StepSingleProductOneForm() {
 
   useEffect(() => {
     const paramsData = {
+      id: searchParams.get("id"),
       name: searchParams.get("name"),
       lastname: searchParams.get("lastname"),
       email: searchParams.get("email"),
@@ -58,6 +59,7 @@ export default function StepSingleProductOneForm() {
     email: singleProductData.email || searchParams.get("email") || "",
     country: singleProductData.country || searchParams.get("country") || "",
     state: singleProductData.state || searchParams.get("state") || "",
+    province: singleProductData.province || searchParams.get("province") || "",
   };
 
   const handleInputChange = createHandleInputChange(updateSingleProductDetails);

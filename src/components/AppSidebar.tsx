@@ -60,10 +60,14 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+        {/* Group for Contact Lead */}
         <SideBarContactGroup />
+        {/* --------- */}
       </SidebarContent>
       <SidebarFooter>
+        {/* User */}
         <NavUser />
+        {/* --------- */}
       </SidebarFooter>
     </Sidebar>
   );

@@ -3,6 +3,14 @@ export const propertyNameMap: Record<
   { friendlyName: string; step: number }
 > = {
   country_us_ca: { friendlyName: "Country", step: 1 },
+  state_usa: {
+    friendlyName: "State",
+    step: 1,
+  },
+  province_territory: {
+    friendlyName: "Province",
+    step: 1,
+  },
   email: { friendlyName: "Email", step: 1 },
   firstname: { friendlyName: "Name", step: 1 },
   hs_lead_status: { friendlyName: "Lead Status", step: 1 },

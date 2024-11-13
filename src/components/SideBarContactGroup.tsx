@@ -6,6 +6,9 @@ import {
   Table,
   UserRoundCheck,
   Box,
+  MoreHorizontal,
+  Star,
+  Trash,
 } from "lucide-react";
 import {
   Collapsible,
@@ -20,46 +23,82 @@ import {
   SidebarMenuAction,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubButton,
-  SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
+import { useContactStore } from "@/store/contact-store";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
 
 const SideBarContactGroup = () => {
+  const { contact, clear } = useContactStore();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const showContactGroup = pathname?.match(/^\/contacts\/[^/]+/);
-  if (!showContactGroup) return null;
+  const router = useRouter();
 
-  const contactPath = "/contacts/";
-  const id = pathname.slice(contactPath.length).split("/")[0];
-  const name = searchParams.get("name");
-  const lastname = searchParams.get("lastname");
+  if (!contact) return null;
+
+  const {
+    id,
+    firstname,
+    lastname,
+    email,
+    leadStatus,
+    country,
+    state,
+    province,
+  } = contact;
 
   const propertiesPath = `/contacts/${id}/properties`;
   const mainPath = `/contacts/${id}`;
+  const formPath = `/forms`;
   const isPropertiesActive = pathname === propertiesPath;
   const isMainActive = pathname === mainPath;
 
-  console.log(propertiesPath);
   const items = [
     {
       title: "Lead Qualification",
-      url: "/forms/discovery-lead",
+      url: "/forms/discovery-lead/step-one",
       icon: UserRoundCheck,
+      params: {
+        id,
+        name: firstname,
+        lastname,
+        email,
+        country,
+        state,
+        province,
+      },
     },
     {
       title: "Single Product Quote",
-      url: "/forms/single-product",
+      url: "/forms/single-product/step-one",
       icon: Box,
+      params: {
+        id,
+        name: firstname,
+        lastname,
+        email,
+        country,
+        state,
+        province,
+      },
     },
   ];
 
+  const handleClearContact = () => {
+    router.push("/contacts");
+    clear();
+  };
+
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Contact {`${name} ${lastname}`}</SidebarGroupLabel>
+      <SidebarGroupLabel>
+        Contact {`${firstname} ${lastname}`}
+      </SidebarGroupLabel>
 
       <SidebarMenu>
         <SidebarMenuItem>
@@ -73,7 +112,6 @@ const SideBarContactGroup = () => {
               <Link
                 href={{
                   pathname: mainPath,
-                  query: { name, lastname },
                 }}
               >
                 <CircleUser />
@@ -81,6 +119,28 @@ const SideBarContactGroup = () => {
               </Link>
             </SidebarMenuButton>
           )}
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <SidebarMenuAction>
+                <MoreHorizontal />
+              </SidebarMenuAction>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent side="right" align="start">
+              <DropdownMenuItem>
+                <div className="flex w-full items-center justify-between gap-2">
+                  <span>Add to Favourites</span>
+                  <Star width={15} />
+                </div>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleClearContact}>
+                <div className="flex w-full items-center justify-between gap-2">
+                  <span>Clear Contact</span>
+                  <Trash width={15} />
+                </div>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </SidebarMenuItem>
         <SidebarMenuItem>
           {isPropertiesActive ? (
@@ -93,7 +153,6 @@ const SideBarContactGroup = () => {
               <Link
                 href={{
                   pathname: propertiesPath,
-                  query: { name, lastname },
                 }}
               >
                 <Table />
@@ -120,7 +179,12 @@ const SideBarContactGroup = () => {
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <Link href={item.url}>
+                    <Link
+                      href={{
+                        pathname: item.url,
+                        query: item.params,
+                      }}
+                    >
                       <item.icon />
                       <span>{item.title}</span>
                     </Link>
