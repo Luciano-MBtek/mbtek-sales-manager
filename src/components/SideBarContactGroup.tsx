@@ -9,6 +9,7 @@ import {
   MoreHorizontal,
   Star,
   Trash,
+  Proportions,
 } from "lucide-react";
 import {
   Collapsible,
@@ -23,6 +24,8 @@ import {
   SidebarMenuAction,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
@@ -77,6 +80,20 @@ const SideBarContactGroup = () => {
       title: "Single Product Quote",
       url: "/forms/single-product/step-one",
       icon: Box,
+      params: {
+        id,
+        name: firstname,
+        lastname,
+        email,
+        country,
+        state,
+        province,
+      },
+    },
+    {
+      title: "Schematic Request",
+      url: "/forms/schematic-request",
+      icon: Proportions,
       params: {
         id,
         name: firstname,
@@ -175,9 +192,9 @@ const SideBarContactGroup = () => {
             </SidebarMenuItem>
           </CollapsibleTrigger>
           <CollapsibleContent asChild>
-            <SidebarMenu>
+            <SidebarMenuSub>
               {items.map((item) => (
-                <SidebarMenuItem key={item.title}>
+                <SidebarMenuSubItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <Link
                       href={{
@@ -189,9 +206,9 @@ const SideBarContactGroup = () => {
                       <span>{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
-                </SidebarMenuItem>
+                </SidebarMenuSubItem>
               ))}
-            </SidebarMenu>
+            </SidebarMenuSub>
           </CollapsibleContent>
         </Collapsible>
       </SidebarMenu>

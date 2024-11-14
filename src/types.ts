@@ -83,6 +83,11 @@ export enum singleProductRoutes {
   REVIEW_SINGLE_PRODUCT = "/forms/single-product/review",
 }
 
+export enum mainRoutes {
+  HOME = "/",
+  CONTACTS = "/contacts",
+}
+
 export const canadaProvinces = [
   { label: "Alberta", value: "AB" },
   { label: "British Columbia", value: "BC" },

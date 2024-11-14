@@ -62,6 +62,42 @@ export const propertyNameMap: Record<
     friendlyName: "Prior Attempts",
     step: 3,
   },
+  ammount_of_zones: {
+    friendlyName: "Ammount of zones connected to the system",
+    step: 4,
+  },
+  buildings_involved_data: {
+    friendlyName: "Buildings involved data",
+    step: 4,
+  },
+  who_is_the_installer_: {
+    friendlyName: "Who is the installer?",
+    step: 4,
+  },
+  interested_to_be_financed: {
+    friendlyName: "Interested to be financed",
+    step: 4,
+  },
+  address: {
+    friendlyName: "Street address",
+    step: 4,
+  },
+  city: {
+    friendlyName: "City",
+    step: 4,
+  },
+  zip: {
+    friendlyName: "zip/postal code",
+    step: 4,
+  },
+  special_requierments: {
+    friendlyName: "Special requierments",
+    step: 4,
+  },
+  access_computer: {
+    friendlyName: "Access computer",
+    step: 4,
+  },
 };
 
 export const dateProperties = {

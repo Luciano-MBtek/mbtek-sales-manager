@@ -23,6 +23,8 @@ import { Button } from "../ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useMemo, useState } from "react";
+import { Label } from "../ui/label";
+import { Card } from "../ui/card";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -72,32 +74,41 @@ export function DataTable<TData, TValue>({
     getFilteredRowModel: getFilteredRowModel(),
   });
 
+  const stepMap: Record<number, string> = {
+    1: "Discovery Call",
+    2: "Lead Qualification",
+    3: "Data Collection 1",
+    4: "Complete System",
+  };
+
   return (
-    <div className="w-[90%]">
-      <div className="flex items-center py-4 justify-between">
+    <div className="w-[95%]">
+      <div className="flex flex-col items-center py-4 justify-between gap-4">
         <Input
-          placeholder="Filter Properties"
+          placeholder="Filter Properties..."
           value={filterText}
           onChange={(event) => setFilterText(event.target.value)}
-          className="max-w-sm"
+          className="w-full"
         />
-        <div className="flex items-center justify-between gap-3">
-          <p>Filter by:</p>
-          {uniqueSteps.map((step) => (
-            <div key={step} className="flex items-center space-x-2">
-              <Checkbox
-                id={`step-${step}`}
-                checked={selectedSteps.includes(step)}
-                onCheckedChange={(checked) => {
-                  setSelectedSteps((prev) =>
-                    checked ? [...prev, step] : prev.filter((s) => s !== step)
-                  );
-                }}
-              />
-              <label htmlFor={`step-${step}`}>Step {step}</label>
-            </div>
-          ))}
-        </div>
+
+        <Card className=" w-full rounded-md border p-4">
+          <div className="flex flex-wrap gap-4">
+            {uniqueSteps.map((step) => (
+              <div key={step} className="flex items-center space-x-2">
+                <Checkbox
+                  id={`step-${step}`}
+                  checked={selectedSteps.includes(step)}
+                  onCheckedChange={(checked) => {
+                    setSelectedSteps((prev) =>
+                      checked ? [...prev, step] : prev.filter((s) => s !== step)
+                    );
+                  }}
+                />
+                <Label htmlFor={`step-${step}`}>{stepMap[step]}</Label>
+              </div>
+            ))}
+          </div>
+        </Card>
       </div>
       <div className="rounded-md border">
         <Table>

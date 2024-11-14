@@ -11,7 +11,7 @@ export default function PageHeader({
   icon?: React.ComponentType<LucideProps>;
 }) {
   return (
-    <div className="w-full px-4 py-8 bg-gradient-to-r from-gray-50 to-white shadow-md rounded-lg">
+    <div className="w-full px-4 py-8 ">
       <div className="flex flex-col items-center sm:flex-row sm:items-start sm:justify-start space-y-4 sm:space-y-0 sm:space-x-6">
         {Icon && (
           <motion.div
