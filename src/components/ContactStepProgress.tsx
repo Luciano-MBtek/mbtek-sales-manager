@@ -27,6 +27,9 @@ const ContactStepProgress = ({
     country_us_ca,
     state,
     province,
+    city,
+    zip,
+    address,
   } = properties;
   const fullName = `${firstname} ${lastname}`;
   const progressPercentage =
@@ -46,9 +49,16 @@ const ContactStepProgress = ({
       leadStatus,
       email,
       country: country_us_ca,
-      state,
-      province,
+      ...(country_us_ca === "USA"
+        ? { state }
+        : country_us_ca === "Canada"
+          ? { province }
+          : {}),
+      city,
+      zip,
+      address,
     };
+
     update(contactData);
   }, [
     id,
@@ -60,6 +70,9 @@ const ContactStepProgress = ({
     country_us_ca,
     state,
     province,
+    city,
+    zip,
+    address,
   ]);
 
   return (

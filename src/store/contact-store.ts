@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-type Contact = {
+export type Contact = {
   id: string;
   email: string;
   firstname: string;
@@ -10,6 +10,9 @@ type Contact = {
   country: string;
   state?: string;
   province?: string;
+  city: string;
+  zip: string;
+  address: string;
 };
 
 interface ContactStore {

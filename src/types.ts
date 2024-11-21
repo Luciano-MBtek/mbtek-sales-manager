@@ -34,6 +34,9 @@ export type ProgressProperties = {
   email: string;
   state?: string;
   province?: string;
+  city: string;
+  address: string;
+  zip: string;
   country_us_ca: string;
   totalProperties: number;
   emptyProperties: number;

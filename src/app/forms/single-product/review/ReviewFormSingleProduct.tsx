@@ -26,8 +26,6 @@ import {
   Home,
   Map,
   Hash,
-  Package,
-  ShoppingCart,
   CreditCard,
   Globe,
   Building,
@@ -36,9 +34,11 @@ import { useToast } from "@/components/ui/use-toast";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import ProductReviewCard from "@/components/ProductReviewCard";
+import { useContactStore } from "@/store/contact-store";
 
 const ReviewFormSingleProduct = () => {
   const { singleProductData, resetLocalStorage } = useSingleProductContext();
+  const { contact, update } = useContactStore();
   const [redirectOptions, setRedirectOptions] = useState<{
     redirect1?: string;
     redirect2?: string;
@@ -47,19 +47,20 @@ const ReviewFormSingleProduct = () => {
   const { toast } = useToast();
   const router = useRouter();
 
-  const {
-    name,
-    lastname,
-    email,
-    country,
-    city,
-    address,
-    province,
-    splitPayment,
-    state,
-    zip,
-    products,
-  } = singleProductData;
+  const { products } = singleProductData;
+
+  const formData = {
+    ...singleProductData,
+    name: contact?.firstname || singleProductData.name || "",
+    lastname: contact?.lastname || singleProductData.lastname || "",
+    email: contact?.email || singleProductData.email || "",
+    country: contact?.country || singleProductData.country || "",
+    city: contact?.city || singleProductData.city || "",
+    zip: contact?.zip || singleProductData.zip || "",
+    address: contact?.address || singleProductData.address || "",
+  };
+
+  console.log(contact);
 
   const handleFormSubmit = async (formData: FormData) => {
     const res = await submitSingleProductAction(
@@ -112,51 +113,51 @@ const ReviewFormSingleProduct = () => {
               <InfoItem
                 icon={<User className="h-5 w-5" />}
                 label="Name"
-                value={`${name} ${lastname}`}
+                value={`${formData.name} ${formData.lastname}`}
               />
               <InfoItem
                 icon={<Mail className="h-5 w-5" />}
                 label="Email"
-                value={email}
+                value={formData.email}
               />
               <InfoItem
                 icon={<Globe className="h-5 w-5" />}
                 label="Country"
-                value={country}
+                value={formData.country}
               />
-              {state && (
+              {formData.state && (
                 <InfoItem
                   icon={<Map className="h-5 w-5" />}
                   label="State"
-                  value={state}
+                  value={formData.state}
                 />
               )}
-              {province && (
+              {formData.province && (
                 <InfoItem
                   icon={<MapPin className="h-5 w-5" />}
                   label="Province"
-                  value={province}
+                  value={formData.province}
                 />
               )}
               <InfoItem
                 icon={<Building className="h-5 w-5" />}
                 label="City"
-                value={city}
+                value={formData.city}
               />
               <InfoItem
                 icon={<Home className="h-5 w-5" />}
                 label="Address"
-                value={address}
+                value={formData.address}
               />
               <InfoItem
                 icon={<Hash className="h-5 w-5" />}
                 label="ZIP Code"
-                value={zip}
+                value={formData.zip}
               />
               <InfoItem
                 icon={<CreditCard className="h-5 w-5" />}
                 label="Split Payment"
-                value={splitPayment ? "Yes" : "No"}
+                value={formData.splitPayment === "Yes" ? "Yes" : "No"}
               />
             </div>
 

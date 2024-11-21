@@ -19,7 +19,7 @@ const ContactFullData = async (props: Props) => {
     lastname: contact.properties.lastname || "N/A",
     leadStatus: contact.properties.hs_lead_status || "N/A",
     email: contact.properties.email || "N/A",
-
+    address: contact.properties.address || "N/A",
     country_us_ca: contact.properties.country_us_ca || "N/A",
     totalProperties: Object.keys(contact.properties).length,
     emptyProperties: Object.values(contact.properties).filter(
@@ -29,6 +29,8 @@ const ContactFullData = async (props: Props) => {
     lastModifiedDate: contact.properties.lastmodifieddate || "N/A",
     state: contact.properties.state_usa,
     province: contact.properties.province_territory,
+    city: contact.properties.city || "N/A",
+    zip: contact.properties.zip || "N/A",
   };
 
   return (

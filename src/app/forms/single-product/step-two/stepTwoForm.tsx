@@ -11,6 +11,7 @@ import RadioInput from "@/components/StepForm/RadioButtonStepForm";
 
 import ProductCard from "@/components/ProductCard";
 import ContactFormCard from "@/components/StepForm/ContactFormCard";
+import { useContactStore } from "@/store/contact-store";
 
 const options = YesOrNo.map((option) => option);
 
@@ -28,6 +29,7 @@ export default function StepSingleProductTwoForm() {
   );
 
   const [totalPrice, setTotalPrice] = useState(0);
+  const { contact, update } = useContactStore();
 
   useEffect(() => {
     updateSingleProductDetails({
@@ -49,9 +51,9 @@ export default function StepSingleProductTwoForm() {
 
   const formData = {
     ...singleProductData,
-    name: singleProductData.name || "",
-    lastname: singleProductData.lastname || "",
-    email: singleProductData.email || "",
+    name: contact?.firstname || singleProductData.name || "",
+    lastname: contact?.lastname || singleProductData.lastname || "",
+    email: contact?.email || singleProductData.email || "",
   };
 
   const handleRemoveProduct = (productId: string) => {

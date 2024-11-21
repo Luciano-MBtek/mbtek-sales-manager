@@ -1,6 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -16,6 +16,7 @@ import ContactCard from "./ContactCard";
 import NoContactCard from "./NoContactCard";
 import { ContactList } from "./ContactList";
 import { useContactSearch } from "@/hooks/useContactSearch";
+import { useSingleProductContext } from "@/contexts/singleProductContext";
 
 export function SearchContactTab() {
   const [email, setEmail] = useState("");
@@ -23,6 +24,7 @@ export function SearchContactTab() {
   const [firstname, setFirstname] = useState("");
   const [lastname, setLastname] = useState("");
   const [selectedTab, setSelectedTab] = useState("email");
+  const { resetLocalStorage } = useSingleProductContext();
   const {
     contact,
     contacts,
@@ -31,6 +33,10 @@ export function SearchContactTab() {
     handleSearch,
     handleContactsSearch,
   } = useContactSearch();
+
+  useEffect(() => {
+    resetLocalStorage();
+  }, [resetLocalStorage]);
 
   const handleKeyDown = (
     e: React.KeyboardEvent<HTMLInputElement>,

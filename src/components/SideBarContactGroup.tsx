@@ -38,7 +38,7 @@ import {
 } from "./ui/dropdown-menu";
 
 const SideBarContactGroup = () => {
-  const { contact, clear } = useContactStore();
+  const { contact, update, clear } = useContactStore();
   const pathname = usePathname();
   const router = useRouter();
 
