@@ -1,23 +1,86 @@
 "use client";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import SubmitButton from "@/components/SubmitButton";
 import { uploadFile } from "./action";
 import { FormErrors } from "@/types";
-import TextAreaInput from "@/components/StepForm/TextAreaStepForm";
-import RadioInput from "@/components/StepForm/RadioButtonStepForm";
+import {
+  heatElementValues,
+  schematicRequestSchema,
+  specialApplicationValues,
+} from "@/schemas/schematicRequestSchema";
+import CheckboxInput from "@/components/StepForm/CheckboxStepForm";
 
 import Input from "@/components/Input";
-import { useContactStore } from "@/store/contact-store";
+import { Contact, useContactStore } from "@/store/contact-store";
 import PageHeader from "@/components/PageHeader";
+
+import { useSchematicStore } from "@/store/schematic-store";
+import SelectInput from "@/components/StepForm/SelectStepForm";
+import TextAreaInput from "@/components/StepForm/TextAreaStepForm";
+import FileInput from "@/components/FileInput";
 
 const initialState: FormErrors = {};
 
 const SchematicRequestForm = () => {
   const [serverErrors, formAction] = useActionState(uploadFile, initialState);
   const { contact, update } = useContactStore();
+  const { schematic, update: updateSchematic } = useSchematicStore();
+  const [clientErrors, setClientErrors] = useState<FormErrors>({});
+  const handleCheckboxChange =
+    (fieldId: string) => (value: string | string[]) => {
+      updateSchematic({ [fieldId]: Array.isArray(value) ? value : [value] });
+    };
 
-  const handleInputChange = () => {
-    console.log("handle");
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { id, value } = e.target;
+
+    const contactFields = ["firstname", "lastname", "email"];
+
+    if (contactFields.includes(id)) {
+      update({ ...contact, [id]: value } as Contact);
+    } else {
+      updateSchematic({ [id]: value });
+    }
+  };
+
+  const handleSelectChange = (fieldId: string) => (value: string) => {
+    updateSchematic({ [fieldId]: value });
+  };
+
+  const handleFileUpload = async (file: File) => {
+    try {
+      // Convertir el File a Buffer
+      const buffer = await file.arrayBuffer().then(Buffer.from);
+
+      const fileData = {
+        name: file.name,
+        type: file.type,
+        size: file.size,
+        buffer: buffer,
+      };
+
+      // Validar solo el archivo usando el fileSchema
+      const validatedFile =
+        schematicRequestSchema.shape.documentation.parse(fileData);
+
+      // Si la validación es exitosa, actualizar el store
+      useSchematicStore.getState().update({
+        documentation: validatedFile,
+      });
+      setClientErrors((prev) => ({ ...prev, documentation: undefined }));
+    } catch (error) {
+      // Manejar el error de validación
+      const zodError = error as { issues?: { message: string }[] };
+      const errorMessage =
+        zodError.issues?.[0]?.message ||
+        "Invalid file. Please check the file requirements.";
+      setClientErrors((prev) => ({
+        ...prev,
+        documentation: errorMessage,
+      }));
+    }
   };
 
   return (
@@ -59,12 +122,21 @@ const SchematicRequestForm = () => {
           />
 
           <Input
+            label="Zip"
+            id="zip"
+            type="text"
+            errorMsg={serverErrors?.zip}
+            onChange={handleInputChange}
+            value={contact?.zip || ""}
+          />
+
+          <Input
             label="Total's house/building area"
             id="total_area"
             type="number"
             errorMsg={serverErrors?.total_area}
             onChange={handleInputChange}
-            value={""}
+            value={schematic?.total_area || ""}
           />
 
           <Input
@@ -73,7 +145,7 @@ const SchematicRequestForm = () => {
             type="number"
             errorMsg={serverErrors?.number_zones}
             onChange={handleInputChange}
-            value={""}
+            value={schematic?.number_zones || ""}
           />
 
           <Input
@@ -83,30 +155,53 @@ const SchematicRequestForm = () => {
             errorMsg={serverErrors?.square_feet_zone}
             placeholder="Bathroom: 100 sqft , Kitchen: 150 sqft ..."
             onChange={handleInputChange}
-            value={""}
+            value={schematic?.square_feet_zone || ""}
           />
 
-          {/* <TextAreaInput
-          id="reasonForCalling"
-          label="Reason for calling us"
-          maxLength={300}
-          minLength={3}
-          description="Why did you reach to us?"
-          errorMsg={serverErrors?.reasonForCalling}
-          value={newLeadData.reasonForCalling || ""}
-          onChange={handleInputChange}
-        /> */}
+          <CheckboxInput
+            label="Heat elements"
+            id="heat_elements"
+            options={heatElementValues}
+            errorMsg={serverErrors?.heat_elements}
+            isMulti={true}
+            value={schematic?.heat_elements || []}
+            onChange={handleCheckboxChange("heat_elements")}
+          />
 
-          {/*  <RadioInput
-          label="Want a complete System?"
-          id="wantCompleteSystem"
-          options={options}
-          errorMsg={serverErrors?.wantCompleteSystem}
-          value={newLeadData.wantCompleteSystem || ""}
-          onChange={(value) =>
-            updateNewLeadDetails({ wantCompleteSystem: value })
-          }
-        /> */}
+          <SelectInput
+            label="Special application"
+            id="special_application"
+            options={specialApplicationValues}
+            placeholder="Select an special application"
+            errorMsg={serverErrors?.special_application}
+            value={schematic?.special_application || ""}
+            onChange={handleSelectChange("special_application")}
+            dataLoaded={contact ? true : false}
+          />
+
+          <FileInput
+            label="Technical documentation received from the prospect"
+            id="documentation"
+            errorMsg={
+              clientErrors?.documentation || serverErrors?.documentation
+            }
+            value={
+              schematic?.documentation as
+                | { name: string; type: string; size: number; buffer: Buffer }
+                | undefined
+            }
+            onChange={handleFileUpload}
+          />
+
+          <TextAreaInput
+            label="Any extra note for the technical drawer"
+            placeholder="Extra notes..."
+            id="extra_notes"
+            value={schematic?.extra_notes || ""}
+            errorMsg={serverErrors?.extra_notes}
+            onChange={handleInputChange}
+            maxLength={300}
+          />
 
           <SubmitButton text="Request" />
         </div>
