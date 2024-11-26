@@ -1,19 +1,19 @@
-import NextAuth, { DefaultSession } from "next-auth";
+import NextAuth, { DefaultSession, Session } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
-import { PrismaClient } from "@prisma/client";
 import HubspotProvider from "next-auth/providers/hubspot";
+import { User } from "next-auth";
+import { db } from "@/lib/db";
 
 declare module "next-auth" {
   interface Session {
     user: {
       accessLevel?: string;
+      id?: string;
     } & DefaultSession["user"];
   }
 }
 
-const prisma = new PrismaClient();
-
-const handler = NextAuth({
+export const authOptions = {
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID as string,
@@ -25,43 +25,45 @@ const handler = NextAuth({
     }),
   ],
   callbacks: {
-    async signIn({ user }) {
-      const existingUser = await prisma.user.findUnique({
+    async signIn({ user }: { user: User }) {
+      const existingUser = await db.user.findUnique({
         where: { email: user.email ?? undefined },
       });
 
       if (existingUser) {
-        // Allow sign-in
         return true;
       } else {
-        // Deny sign-in
         return false;
       }
     },
-    async jwt({ token, user }) {
+    async jwt({ token, user }: { token: any; user: User }) {
       if (user) {
         token.email = user.email;
-        // Fetch the user's accessLevel from the database
-        const dbUser = await prisma.user.findUnique({
+
+        const dbUser = await db.user.findUnique({
           where: { email: user.email ?? undefined },
         });
         if (dbUser) {
+          console.log("DBUSER:", dbUser);
           token.accessLevel = dbUser.accessLevel;
+          token.id = dbUser.id.toString();
+          console.log("DBID:", token.id);
         }
       }
       return token;
     },
-    async session({ session, token }) {
+    async session({ session, token }: { session: Session; token: any }) {
       if (session.user && token.accessLevel) {
         session.user.accessLevel = token.accessLevel as string;
+      }
+      if (token.id) {
+        session.user.id = token.id.toString();
       }
       return session;
     },
   },
-  /*  pages: {
-    signIn: "/auth/signin", // Optional: Custom sign-in page
-    error: "/auth/error", // Optional: Error page
-  }, */
-});
+};
+
+const handler = NextAuth(authOptions);
 
 export { handler as GET, handler as POST };

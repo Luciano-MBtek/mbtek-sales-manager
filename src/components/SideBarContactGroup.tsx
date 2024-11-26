@@ -7,7 +7,6 @@ import {
   UserRoundCheck,
   Box,
   MoreHorizontal,
-  Star,
   Trash,
   Proportions,
 } from "lucide-react";
@@ -36,9 +35,27 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
+import SideBarAddToFavourite from "./SideBarAddToFavourite";
+import { useEffect, useState } from "react";
+import { checkContactFav } from "@/actions/contact/checkContactFav";
 
 const SideBarContactGroup = () => {
   const { contact, update, clear } = useContactStore();
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [isCheckingFav, setIsCheckingFav] = useState(true);
+
+  useEffect(() => {
+    const checkFavorite = async () => {
+      if (contact?.id) {
+        setIsCheckingFav(true);
+        const isContactFav = await checkContactFav(contact.id);
+        setIsFavorite(isContactFav);
+        setIsCheckingFav(false);
+      }
+    };
+    checkFavorite();
+  }, [contact?.id]);
+
   const pathname = usePathname();
   const router = useRouter();
 
@@ -57,7 +74,6 @@ const SideBarContactGroup = () => {
 
   const propertiesPath = `/contacts/${id}/properties`;
   const mainPath = `/contacts/${id}`;
-  const formPath = `/forms`;
   const isPropertiesActive = pathname === propertiesPath;
   const isMainActive = pathname === mainPath;
 
@@ -144,12 +160,12 @@ const SideBarContactGroup = () => {
               </SidebarMenuAction>
             </DropdownMenuTrigger>
             <DropdownMenuContent side="right" align="start">
-              <DropdownMenuItem>
-                <div className="flex w-full items-center justify-between gap-2">
-                  <span>Add to Favourites</span>
-                  <Star width={15} />
-                </div>
-              </DropdownMenuItem>
+              <SideBarAddToFavourite
+                contact={contact}
+                isFavorite={isFavorite}
+                setIsFavorite={setIsFavorite}
+                isLoading={isCheckingFav}
+              />
               <DropdownMenuItem onClick={handleClearContact}>
                 <div className="flex w-full items-center justify-between gap-2">
                   <span>Clear Contact</span>

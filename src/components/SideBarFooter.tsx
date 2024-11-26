@@ -22,7 +22,7 @@ import { useSession, signOut, signIn } from "next-auth/react";
 
 export default function NavUser() {
   const { data: session, status } = useSession();
-  console.log(session?.user);
+
   const userName = session?.user?.name;
   const userEmail = session?.user?.email;
   const userImage = session?.user?.image;

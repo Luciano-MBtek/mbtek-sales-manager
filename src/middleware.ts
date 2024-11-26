@@ -2,75 +2,87 @@ import { NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
 import { NextRequest } from "next/server";
 
-// Define routes as constants
-const CONTACTS = "/contacts";
-const FORMS = "/forms";
-const HOME = "/";
+const ROUTES = {
+  PUBLIC: {
+    HOME: "/",
+    AUTH: "/api/auth/signin",
+  },
+  PROTECTED: {
+    CONTACTS: "/contacts",
+    USERDASHBOARD: "/dashboard",
+    FORMS: "/forms",
+  },
+} as const;
 
-// Define access levels and their allowed routes
-const accessRoutes: Record<string, string[]> = {
-  owner: [CONTACTS, FORMS],
-  admin: [CONTACTS, FORMS],
-  manager: [CONTACTS],
+const ACCESS_LEVELS = {
+  owner: [
+    ROUTES.PROTECTED.CONTACTS,
+    ROUTES.PROTECTED.FORMS,
+    ROUTES.PROTECTED.USERDASHBOARD,
+  ],
+  admin: [
+    ROUTES.PROTECTED.CONTACTS,
+    ROUTES.PROTECTED.FORMS,
+    ROUTES.PROTECTED.USERDASHBOARD,
+  ],
+  manager: [
+    ROUTES.PROTECTED.CONTACTS,
+    ROUTES.PROTECTED.FORMS,
+    ROUTES.PROTECTED.USERDASHBOARD,
+  ],
+} as const;
+
+// Helper functions to improve readability
+const isProtectedRoute = (path: string): boolean => {
+  return Object.values(ROUTES.PROTECTED).some((route) =>
+    path.startsWith(route)
+  );
+};
+
+const hasRouteAccess = (accessLevel: string, path: string): boolean => {
+  const allowedRoutes =
+    ACCESS_LEVELS[accessLevel as keyof typeof ACCESS_LEVELS] || [];
+  return allowedRoutes.some((route) => path.startsWith(route));
 };
 
 export async function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname;
+  const token = await getToken({ req });
 
-  console.log(`Middleware executing for path: ${path}`);
-
-  if (path.startsWith("/api/auth/signin")) {
-    const token = await getToken({ req });
+  // Handle authentication routes
+  if (path.startsWith(ROUTES.PUBLIC.AUTH)) {
     if (token) {
-      console.log("Usuario ya autenticado, redirigiendo al home");
-      return NextResponse.redirect(new URL(HOME, req.url));
+      return NextResponse.redirect(new URL(ROUTES.PUBLIC.HOME, req.url));
     }
-  }
-
-  // Allow public access to the home page
-  if (path === HOME) {
-    console.log("Home page is public, allowing access");
     return NextResponse.next();
   }
 
-  // Check if this is a protected route
-  if (path.startsWith(CONTACTS) || path.startsWith(FORMS)) {
-    const token = await getToken({ req });
-    const userEmail = token?.email as string | undefined;
-    const accessLevel = token?.accessLevel as string | undefined;
+  // Allow public routes
+  if (path === ROUTES.PUBLIC.HOME) {
+    return NextResponse.next();
+  }
 
-    if (!userEmail) {
-      console.error("User email not found in token");
-      // Redirect to sign-in page
+  // Handle protected routes
+  if (isProtectedRoute(path)) {
+    if (!token?.email) {
       const callbackUrl = encodeURIComponent(req.url);
       return NextResponse.redirect(
-        new URL(`/api/auth/signin?callbackUrl=${callbackUrl}`, req.url)
+        new URL(`${ROUTES.PUBLIC.AUTH}?callbackUrl=${callbackUrl}`, req.url)
       );
     }
 
-    if (!accessLevel) {
-      console.error("Access level not found in token");
-      // Redirect to home page
-      return NextResponse.redirect(new URL(HOME, req.url));
+    if (!token.accessLevel) {
+      return NextResponse.redirect(new URL(ROUTES.PUBLIC.HOME, req.url));
     }
 
-    // Check if the user has access to the route
-    const allowedRoutes = accessRoutes[accessLevel] || [];
-    if (!allowedRoutes.some((route) => path.startsWith(route))) {
-      console.log(
-        `User ${userEmail} with access level ${accessLevel} does not have access to ${path}, redirecting to home`
-      );
-      return NextResponse.redirect(new URL(HOME, req.url));
+    if (!hasRouteAccess(token.accessLevel as string, path)) {
+      return NextResponse.redirect(new URL(ROUTES.PUBLIC.HOME, req.url));
     }
-
-    console.log(
-      `User ${userEmail} with access level ${accessLevel} has access to ${path}, proceeding`
-    );
   }
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/contacts/:path*", "/forms/:path*", "/", "/api/auth/signin"],
+  matcher: ["/((?!.+\\.[\\w]+$|_next).*)", "/", "/(api|trpc)(.*)"],
 };
