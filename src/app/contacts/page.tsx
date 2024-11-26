@@ -1,5 +1,11 @@
 import { SearchContactTab } from "@/components/Search-contact-tab";
 import { SingleProductContextProvider } from "@/contexts/singleProductContext";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Contacts",
+  description: "Search contacts in hubspot.",
+};
 
 const Contacts = () => {
   return (

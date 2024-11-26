@@ -20,7 +20,7 @@ import { UserNav } from "@/app/admin-dashboard/components/user-nav";
 
 export const metadata: Metadata = {
   title: "Dashboard",
-  description: "Example dashboard app built using the components.",
+  description: "Admin Dashboard for sales manager.",
 };
 
 export default function DashboardPage() {

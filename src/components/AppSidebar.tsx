@@ -1,10 +1,9 @@
 import {
-  Calendar,
   Home,
-  Inbox,
   Search,
-  Settings,
   LayoutDashboard,
+  MonitorCog,
+  UserPlus,
 } from "lucide-react";
 
 import {
@@ -32,7 +31,7 @@ const items = [
   {
     title: "New Process",
     url: "/forms/discovery-lead",
-    icon: Inbox,
+    icon: UserPlus,
   },
   {
     title: "Search Contacts",
@@ -43,6 +42,11 @@ const items = [
     title: "User Dashboard",
     url: "/dashboard",
     icon: LayoutDashboard,
+  },
+  {
+    title: "Admin Dashboard",
+    url: "/admin-dashboard",
+    icon: MonitorCog,
   },
 ];
 
