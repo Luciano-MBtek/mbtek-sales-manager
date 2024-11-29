@@ -11,9 +11,8 @@ import {
   stateOptions,
   provinceOptions,
 } from "@/app/forms/utils/options";
-import { useSearchParams } from "next/navigation";
 
-import { useActionState, useEffect } from "react";
+import { useActionState } from "react";
 import ContactFormCard from "@/components/StepForm/ContactFormCard";
 import { useContactStore, Contact } from "@/store/contact-store";
 
@@ -28,76 +27,32 @@ export default function StepSingleProductOneForm() {
   );
   const { contact, update } = useContactStore();
 
-  const searchParams = useSearchParams();
-
-  useEffect(() => {
-    const paramsData = {
-      id: searchParams.get("id"),
-      name: searchParams.get("name"),
-      lastname: searchParams.get("lastname"),
-      email: searchParams.get("email"),
-      country: searchParams.get("country"),
-      state: searchParams.get("state"),
-    };
-
-    const validParamsData = Object.fromEntries(
-      Object.entries(paramsData).filter(([_, value]) => value !== null)
-    );
-
-    if (Object.keys(validParamsData).length > 0) {
-      updateSingleProductDetails(validParamsData);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   const formData = {
     ...singleProductData,
-    name:
-      contact?.firstname ||
-      singleProductData.name ||
-      searchParams.get("name") ||
-      "",
-    lastname:
-      contact?.lastname ||
-      singleProductData.lastname ||
-      searchParams.get("lastname") ||
-      "",
-    email:
-      contact?.email ||
-      singleProductData.email ||
-      searchParams.get("email") ||
-      "",
-    country:
-      contact?.country ||
-      singleProductData.country ||
-      searchParams.get("country") ||
-      "",
-    state:
-      contact?.state ||
-      singleProductData.state ||
-      searchParams.get("state") ||
-      "",
-    province:
-      contact?.province ||
-      singleProductData.province ||
-      searchParams.get("province") ||
-      "",
-    address: contact?.address || singleProductData.address || "",
-    city: contact?.city || singleProductData.city || "",
-    zip: contact?.zip || singleProductData.zip || "",
+    name: singleProductData.name || contact?.firstname || "",
+    lastname: singleProductData.lastname || contact?.lastname || "",
+    email: singleProductData.email || contact?.email || "",
+    country: singleProductData.country || contact?.country || "",
+    state: singleProductData.state || contact?.state || "",
+    province: singleProductData.province || contact?.province || "",
+    address: singleProductData.address || contact?.address || "",
+    city: singleProductData.city || contact?.city || "",
+    zip: singleProductData.zip || contact?.zip || "",
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { id, value } = e.target;
-    updateSingleProductDetails({ [id]: value });
-    update({ ...contact, [id]: value } as Contact);
+    const { name, value } = e.target;
+    console.log("Input changed:", { name, value });
+    update({ ...contact, [name]: value } as Contact);
+    updateSingleProductDetails({ [name]: value });
+    console.log("Current singleProductData:", singleProductData);
   };
 
   const handleSelectChange = (field: string) => (value: string) => {
-    updateSingleProductDetails({ [field]: value });
     update({ ...contact, [field]: value } as Contact);
+    updateSingleProductDetails({ [field]: value });
   };
-
+  console.log(singleProductData);
   return (
     <div className="w-full flex flex-col items-center">
       <div className="w-full p-4">

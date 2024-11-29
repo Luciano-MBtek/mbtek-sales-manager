@@ -60,7 +60,7 @@ export function TextAreaForm({ label, property, id }: TextAreaFormProps) {
         .catch((error) => {
           toast({
             title: "Error updating property",
-            description: <p className="text-destructive">{error.message}</p>,
+            description: <p className="text-secondary">{error.message}</p>,
             variant: "destructive",
           });
         });

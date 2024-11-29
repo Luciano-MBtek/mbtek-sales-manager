@@ -77,6 +77,7 @@ export enum collectDataRoutes {
   LEAD_QUALIFICATION_B2C = "/forms/discovery-lead/step-three-b2c",
   LEAD_QUALIFICATION_B2B = "/forms/discovery-lead/step-three-b2b",
   LEAD_QUALIFICATION_B2C_2 = "/forms/discovery-lead/step-four",
+  QUALIFICATION = "/forms/discovery-lead/step-five",
   REVIEW_LEAD = "/forms/discovery-lead/review",
 }
 

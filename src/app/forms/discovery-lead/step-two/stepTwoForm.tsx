@@ -18,6 +18,7 @@ import { stepTwoFormAction } from "@/app/forms/discovery-lead/step-two/actions";
 import { FormErrors, leadType } from "@/types";
 import { useAddLeadContext } from "@/contexts/addDealContext";
 import FormQuestion from "@/components/FormQuestion";
+import PhoneInputForm from "@/components/StepForm/PhoneInputForm";
 
 const initialState: FormErrors = {};
 
@@ -28,6 +29,8 @@ export default function StepTwoForm() {
   );
   const { newLeadData, updateNewLeadDetails, dataLoaded } = useAddLeadContext();
 
+  console.log(newLeadData);
+
   const handleInputChange = createHandleInputChange(updateNewLeadDetails);
 
   const handleSelectChange = createHandleSelectChange(updateNewLeadDetails);
@@ -37,7 +40,7 @@ export default function StepTwoForm() {
   return (
     <form action={formAction} className="flex flex-1 flex-col items-center p-4">
       <div className="flex w-full flex-col gap-8 lg:max-w-[700px]">
-        <Input
+        {/* <Input
           label="Phone Number"
           id="phone"
           type="tel"
@@ -46,7 +49,7 @@ export default function StepTwoForm() {
           errorMsg={serverErrors?.phone}
           onChange={handleInputChange}
           value={newLeadData.phone || ""}
-        />
+        /> */}
         <SelectInput
           label="Country"
           id="country"
@@ -56,6 +59,13 @@ export default function StepTwoForm() {
           value={newLeadData.country || ""}
           onChange={handleSelectChange("country")}
           dataLoaded={dataLoaded}
+        />
+        <PhoneInputForm
+          id="phone"
+          name="phone"
+          errorMsg={serverErrors?.phone}
+          onChange={handleInputChange}
+          value={newLeadData.phone || ""}
         />
 
         {newLeadData.country === "USA" && (

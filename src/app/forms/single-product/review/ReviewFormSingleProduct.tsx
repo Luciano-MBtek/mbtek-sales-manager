@@ -51,18 +51,19 @@ const ReviewFormSingleProduct = () => {
 
   const formData = {
     ...singleProductData,
-    name: contact?.firstname || singleProductData.name || "",
-    lastname: contact?.lastname || singleProductData.lastname || "",
-    email: contact?.email || singleProductData.email || "",
-    country: contact?.country || singleProductData.country || "",
-    city: contact?.city || singleProductData.city || "",
-    zip: contact?.zip || singleProductData.zip || "",
-    address: contact?.address || singleProductData.address || "",
+    name: singleProductData.name || contact?.firstname || "",
+    lastname: singleProductData.lastname || contact?.lastname || "",
+    email: singleProductData.email || contact?.email || "",
+    country: singleProductData.country || contact?.country || "",
+    city: singleProductData.city || contact?.city || "",
+    zip: singleProductData.zip || contact?.zip || "",
+    address: singleProductData.address || contact?.address || "",
   };
 
   console.log(contact);
 
   const handleFormSubmit = async (formData: FormData) => {
+    console.log(singleProductData);
     const res = await submitSingleProductAction(
       singleProductData as newSingleProductType
     );

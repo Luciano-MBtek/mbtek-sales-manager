@@ -30,6 +30,11 @@ const steps = [
     link: collectDataRoutes.LEAD_QUALIFICATION_B2C_2,
   },
   {
+    title: "Step Five",
+    route: "step-five",
+    link: collectDataRoutes.QUALIFICATION,
+  },
+  {
     title: "Review",
     route: "review",
     link: collectDataRoutes.REVIEW_LEAD,

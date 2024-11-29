@@ -7,6 +7,7 @@ import UsaFlag from "./utils/UsaFlag";
 import CanadaFlag from "./utils/CanadaFlag";
 import { useContactStore } from "@/store/contact-store";
 import { useEffect } from "react";
+import { Contact } from "@/store/contact-store";
 
 const ContactStepProgress = ({
   properties,
@@ -42,7 +43,7 @@ const ContactStepProgress = ({
   });
 
   useEffect(() => {
-    const contactData = {
+    const initialContactData = {
       id,
       firstname,
       lastname,
@@ -59,7 +60,18 @@ const ContactStepProgress = ({
       address,
     };
 
-    update(contactData);
+    // Filtrar los valores que son "N/A"
+    const contactData = Object.entries(initialContactData).reduce(
+      (acc, [key, value]) => {
+        if (value !== "N/A") {
+          acc[key as keyof Contact] = value;
+        }
+        return acc;
+      },
+      {} as Partial<Contact>
+    );
+
+    update(contactData as Contact);
   }, [
     id,
     firstname,

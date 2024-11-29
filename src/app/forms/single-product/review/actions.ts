@@ -16,7 +16,10 @@ interface SubmitLeadActionReturnType {
 export const submitSingleProductAction = async (
   singleProduct: newSingleProductType
 ): Promise<SubmitLeadActionReturnType> => {
+  console.log("Single Product:", singleProduct);
   const stepOneValidated = stepOneProductSchema.safeParse(singleProduct);
+
+  console.log(stepOneValidated.error);
   if (!stepOneValidated.success) {
     return {
       redirect2: singleProductRoutes.SHIPPING_DATA,

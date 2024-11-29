@@ -3,12 +3,14 @@ import GoogleProvider from "next-auth/providers/google";
 import HubspotProvider from "next-auth/providers/hubspot";
 import { User } from "next-auth";
 import { db } from "@/lib/db";
+import { getHubspotOwnerId } from "@/actions/getOwnerId";
 
 declare module "next-auth" {
   interface Session {
     user: {
       accessLevel?: string;
       id?: string;
+      hubspotOwnerId?: string;
     } & DefaultSession["user"];
   }
 }
@@ -39,15 +41,20 @@ export const authOptions = {
     async jwt({ token, user }: { token: any; user: User }) {
       if (user) {
         token.email = user.email;
+        if (user.email) {
+          const ownerId = await getHubspotOwnerId(user.email);
+
+          if (ownerId) {
+            token.hubspotOwnerId = ownerId;
+          }
+        }
 
         const dbUser = await db.user.findUnique({
           where: { email: user.email ?? undefined },
         });
         if (dbUser) {
-          console.log("DBUSER:", dbUser);
           token.accessLevel = dbUser.accessLevel;
           token.id = dbUser.id.toString();
-          console.log("DBID:", token.id);
         }
       }
       return token;
@@ -58,6 +65,9 @@ export const authOptions = {
       }
       if (token.id) {
         session.user.id = token.id.toString();
+      }
+      if (token.hubspotOwnerId) {
+        session.user.hubspotOwnerId = token.hubspotOwnerId;
       }
       return session;
     },

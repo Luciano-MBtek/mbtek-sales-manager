@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 export const stepFourFormAction = async (
   prevState: FormErrors | undefined,
   formData: FormData
-):  Promise<FormErrors | undefined> => {
+): Promise<FormErrors | undefined> => {
   const data = Object.fromEntries(formData.entries());
 
   const validated = stepFourSchema.safeParse(data);
@@ -20,5 +20,5 @@ export const stepFourFormAction = async (
     return errors;
   }
 
-  redirect(collectDataRoutes.REVIEW_LEAD);
+  redirect(collectDataRoutes.QUALIFICATION);
 };

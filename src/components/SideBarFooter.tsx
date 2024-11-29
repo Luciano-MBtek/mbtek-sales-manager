@@ -26,6 +26,8 @@ export default function NavUser() {
   const userName = session?.user?.name;
   const userEmail = session?.user?.email;
   const userImage = session?.user?.image;
+
+  console.log(session);
   const { isMobile } = useSidebar();
 
   if (status === "loading") {
