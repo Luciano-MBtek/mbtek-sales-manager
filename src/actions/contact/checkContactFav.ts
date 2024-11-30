@@ -1,12 +1,10 @@
 "use server";
 
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { db } from "@/lib/db";
-import { getServerSession } from "next-auth";
+import { getUserIdSession } from "../user/getUserIdSession";
 
 export async function checkContactFav(hubspotId: string) {
-  const session = await getServerSession(authOptions);
-  const userId = session?.user?.id;
+  const userId = await getUserIdSession();
 
   if (!userId) {
     return false;

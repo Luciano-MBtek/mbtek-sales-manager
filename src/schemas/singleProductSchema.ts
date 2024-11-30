@@ -1,25 +1,39 @@
 import { canadaProvinceValues, USStates, yesOrNoTuple } from "@/types";
 import z from "zod";
 
-export const stepTwoSingleProductSchema = z.object({
-  products: z
-    .array(
-      z.object({
-        id: z.string(),
-        image: z.string().optional(),
-        name: z.string(),
-        price: z.number(),
-        selected: z.boolean().optional(),
-        sku: z.string().min(1, "SKU is required, please inform Sales Director"),
-        quantity: z.number(),
-      })
-    )
-    .min(1, "You must select at least one product"),
+export const stepTwoSingleProductSchema = z
+  .object({
+    products: z
+      .array(
+        z.object({
+          id: z.string(),
+          image: z.string().optional(),
+          name: z.string(),
+          price: z.number(),
+          selected: z.boolean().optional(),
+          sku: z
+            .string()
+            .min(1, "SKU is required, please inform Sales Director"),
+          quantity: z.number(),
+          isMain: z.boolean().optional(),
+        })
+      )
+      .min(1, "You must select at least one product"),
 
-  splitPayment: z.enum(yesOrNoTuple, {
-    errorMap: () => ({ message: "Please select Yes or No" }),
-  }),
-});
+    splitPayment: z.enum(yesOrNoTuple, {
+      errorMap: () => ({ message: "Please select Yes or No" }),
+    }),
+  })
+  .superRefine((data, ctx) => {
+    const mainProductSelected = data.products.some((product) => product.isMain);
+    if (!mainProductSelected) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "You must select a main product",
+        path: ["products"],
+      });
+    }
+  });
 
 export const stepOneProductSchema = z.discriminatedUnion("country", [
   z.object({
@@ -52,6 +66,10 @@ export const stepOneProductSchema = z.discriminatedUnion("country", [
 
 export const newSingleProductSchema = z.discriminatedUnion("country", [
   z.object({
+    name: z.string().min(1, "Unknown name"),
+    id: z.string(),
+    lastname: z.string().min(1, "Unknown lastname"),
+    email: z.string().email(),
     address: z.string().min(1, "Please enter a street address"),
     city: z.string().min(2, "Please enter a valid city name"),
     zip: z
@@ -79,6 +97,10 @@ export const newSingleProductSchema = z.discriminatedUnion("country", [
     }),
   }),
   z.object({
+    name: z.string().min(1, "Unknown name"),
+    lastname: z.string().min(1, "Unknown lastname"),
+    email: z.string().email(),
+    id: z.string(),
     address: z.string().min(1, "Please enter a street address"),
     city: z.string().min(2, "Please enter a valid city name"),
     zip: z
@@ -108,6 +130,7 @@ export const newSingleProductSchema = z.discriminatedUnion("country", [
 ]);
 
 export const singleProductInitialValuesSchema = z.object({
+  id: z.string().optional(),
   name: z.string().optional(),
   lastname: z.string().optional(),
   email: z.string().optional(),

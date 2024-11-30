@@ -1,8 +1,8 @@
 "use server";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+
 import { db } from "@/lib/db";
 import { revalidateTag } from "next/cache";
+import { getUserIdSession } from "../user/getUserIdSession";
 
 export async function addContactToFav(contactData: {
   id: string;
@@ -10,11 +10,7 @@ export async function addContactToFav(contactData: {
   lastname: string;
   email: string;
 }) {
-  const session = await getServerSession(authOptions);
-  const userId = session?.user?.id;
-  if (!userId) {
-    throw new Error("Usuario no autenticado");
-  }
+  const userId = await getUserIdSession();
 
   try {
     // Primero buscamos o creamos el Lead

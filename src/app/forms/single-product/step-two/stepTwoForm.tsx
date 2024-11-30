@@ -12,6 +12,7 @@ import RadioInput from "@/components/StepForm/RadioButtonStepForm";
 import ProductCard from "@/components/ProductCard";
 import ContactFormCard from "@/components/StepForm/ContactFormCard";
 import { useContactStore } from "@/store/contact-store";
+import MainProductSelect from "@/components/MainProductSelect";
 
 const options = YesOrNo.map((option) => option);
 
@@ -54,6 +55,7 @@ export default function StepSingleProductTwoForm() {
     name: contact?.firstname || singleProductData.name || "",
     lastname: contact?.lastname || singleProductData.lastname || "",
     email: contact?.email || singleProductData.email || "",
+    id: contact?.id || singleProductData.id || "",
   };
 
   const handleRemoveProduct = (productId: string) => {
@@ -74,6 +76,14 @@ export default function StepSingleProductTwoForm() {
       })
     );
   };
+  const handleMainProductSelect = (productId: string) => {
+    setSelectedProducts((prevProducts) =>
+      prevProducts.map((product) => ({
+        ...product,
+        isMain: product.id === productId,
+      }))
+    );
+  };
 
   return (
     <>
@@ -84,6 +94,7 @@ export default function StepSingleProductTwoForm() {
             name={formData.name}
             lastname={formData.lastname}
             email={formData.email}
+            id={formData.id}
           />
 
           <Card className="shadow-lg w-full ">
@@ -116,6 +127,11 @@ export default function StepSingleProductTwoForm() {
             serverErrors={serverErrors}
             onRemoveProduct={handleRemoveProduct}
             handleQuantity={handleQuantity}
+          />
+          <MainProductSelect
+            selectedProducts={selectedProducts}
+            onMainProductSelect={handleMainProductSelect}
+            serverErrors={serverErrors}
           />
           <div className="w-full m-5">
             <RadioInput

@@ -1,5 +1,6 @@
 "use client";
 import Input from "@/components/Input";
+import { USState, canadaProvinceValues } from "@/types";
 import { stepOneFormSingleProductAction } from "./actions";
 import { FormErrors } from "@/types";
 import SubmitButton from "@/components/SubmitButton";
@@ -12,7 +13,7 @@ import {
   provinceOptions,
 } from "@/app/forms/utils/options";
 
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 import ContactFormCard from "@/components/StepForm/ContactFormCard";
 import { useContactStore, Contact } from "@/store/contact-store";
 
@@ -27,6 +28,24 @@ export default function StepSingleProductOneForm() {
   );
   const { contact, update } = useContactStore();
 
+  useEffect(() => {
+    if (contact) {
+      updateSingleProductDetails({
+        name: contact.firstname,
+        lastname: contact.lastname,
+        email: contact.email,
+        country: contact.country as "USA" | "Canada",
+        state: contact.state as USState,
+        province: contact.province as (typeof canadaProvinceValues)[number],
+        address: contact.address,
+        city: contact.city,
+        zip: contact.zip,
+        id: contact.id,
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const formData = {
     ...singleProductData,
     name: singleProductData.name || contact?.firstname || "",
@@ -38,21 +57,21 @@ export default function StepSingleProductOneForm() {
     address: singleProductData.address || contact?.address || "",
     city: singleProductData.city || contact?.city || "",
     zip: singleProductData.zip || contact?.zip || "",
+    id: singleProductData.id || contact?.id || "",
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    console.log("Input changed:", { name, value });
+
     update({ ...contact, [name]: value } as Contact);
     updateSingleProductDetails({ [name]: value });
-    console.log("Current singleProductData:", singleProductData);
   };
 
   const handleSelectChange = (field: string) => (value: string) => {
     update({ ...contact, [field]: value } as Contact);
     updateSingleProductDetails({ [field]: value });
   };
-  console.log(singleProductData);
+
   return (
     <div className="w-full flex flex-col items-center">
       <div className="w-full p-4">
@@ -61,6 +80,7 @@ export default function StepSingleProductOneForm() {
           name={formData.name}
           lastname={formData.lastname}
           email={formData.email}
+          id={formData.id}
         />
       </div>
       <form

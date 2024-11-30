@@ -35,6 +35,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import ProductReviewCard from "@/components/ProductReviewCard";
 import { useContactStore } from "@/store/contact-store";
+import { HubspotIcon } from "@/components/HubspotIcon";
 
 const ReviewFormSingleProduct = () => {
   const { singleProductData, resetLocalStorage } = useSingleProductContext();
@@ -58,9 +59,8 @@ const ReviewFormSingleProduct = () => {
     city: singleProductData.city || contact?.city || "",
     zip: singleProductData.zip || contact?.zip || "",
     address: singleProductData.address || contact?.address || "",
+    id: contact?.id,
   };
-
-  console.log(contact);
 
   const handleFormSubmit = async (formData: FormData) => {
     console.log(singleProductData);
@@ -68,8 +68,6 @@ const ReviewFormSingleProduct = () => {
       singleProductData as newSingleProductType
     );
     const { redirect1, redirect2, errorMsg, success } = res;
-
-    console.log(res);
 
     if (success) {
       toast({
@@ -111,6 +109,11 @@ const ReviewFormSingleProduct = () => {
           </CardHeader>
           <CardContent className="grid gap-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <InfoItem
+                icon={<HubspotIcon color="primary" />}
+                label="Hubspot Id"
+                value={formData.id}
+              />
               <InfoItem
                 icon={<User className="h-5 w-5" />}
                 label="Name"

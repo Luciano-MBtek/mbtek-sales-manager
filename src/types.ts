@@ -14,6 +14,7 @@ export type Product = {
   price: number;
   image?: string;
   selected?: boolean;
+  isMain?: boolean;
 };
 
 type ContactProperties = {

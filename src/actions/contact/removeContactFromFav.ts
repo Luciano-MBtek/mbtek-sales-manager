@@ -1,17 +1,11 @@
 "use server";
 
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { db } from "@/lib/db";
-import { getServerSession } from "next-auth";
 import { revalidateTag } from "next/cache";
+import { getUserIdSession } from "../user/getUserIdSession";
 
 export async function removeContactFromFav(hubspotId: string) {
-  const session = await getServerSession(authOptions);
-  const userId = session?.user?.id;
-
-  if (!userId) {
-    throw new Error("Usuario no autenticado");
-  }
+  const userId = await getUserIdSession();
 
   try {
     const lead = await db.lead.findUnique({

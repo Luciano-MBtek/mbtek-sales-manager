@@ -1,8 +1,8 @@
 "use server";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+
 import { db } from "@/lib/db";
 import { unstable_cache } from "next/cache";
+import { getUserIdSession } from "./getUserIdSession";
 
 const getUserDataByIdCached = unstable_cache(
   async (userId: string) => {
@@ -50,11 +50,6 @@ const getUserDataByIdCached = unstable_cache(
 );
 
 export async function getUserDataById() {
-  const session = await getServerSession(authOptions);
-  const userId = session?.user?.id;
-
-  if (!userId) {
-    throw new Error("Usuario no autenticado");
-  }
+  const userId = await getUserIdSession();
   return getUserDataByIdCached(userId);
 }

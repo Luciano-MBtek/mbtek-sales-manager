@@ -1,10 +1,12 @@
 "use server";
+import { createSingleProductQuote } from "@/actions/contact/createSingleProductQuote";
 import {
   stepTwoSingleProductSchema,
   stepOneProductSchema,
   newSingleProductType,
 } from "@/schemas/singleProductSchema";
 import { singleProductRoutes } from "@/types";
+import { revalidatePath } from "next/cache";
 
 interface SubmitLeadActionReturnType {
   redirect1?: string;
@@ -19,7 +21,6 @@ export const submitSingleProductAction = async (
   console.log("Single Product:", singleProduct);
   const stepOneValidated = stepOneProductSchema.safeParse(singleProduct);
 
-  console.log(stepOneValidated.error);
   if (!stepOneValidated.success) {
     return {
       redirect2: singleProductRoutes.SHIPPING_DATA,
@@ -36,6 +37,12 @@ export const submitSingleProductAction = async (
       errorMsg: "Please validate step two.",
     };
   }
+
+  const createQuote = await createSingleProductQuote({ singleProduct });
+
+  console.log(createQuote);
+  revalidatePath(`/contacts/${singleProduct.id}`);
+  revalidatePath(`/contacts/${singleProduct.id}/properties`);
 
   const retVal = {
     success: true,

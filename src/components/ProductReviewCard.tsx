@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Image from "next/image";
 import { ShoppingCart } from "lucide-react";
 import { Product } from "@/types";
+import ConfirmBox from "./ConfirmBox";
 
 interface ProductReviewCardProps {
   products: Product[];
@@ -49,6 +50,7 @@ export default function ProductReviewCard({
               </div>
               <div className="flex-1">
                 <h3 className="text-sm font-medium">{product.name}</h3>
+
                 <p className="text-sm text-muted-foreground">
                   SKU: {product.sku}
                 </p>
@@ -57,8 +59,13 @@ export default function ProductReviewCard({
                   {product.price.toFixed(2)}
                 </p>
               </div>
-              <div className="text-sm font-medium">
-                ${(product.price * product.quantity).toFixed(2)}
+              <div className="flex flex-col gap-2">
+                <div>
+                  {product.isMain && <ConfirmBox text={"Main product"} />}
+                </div>
+                <div className="text-sm flex font-medium justify-end">
+                  ${(product.price * product.quantity).toFixed(2)}
+                </div>
               </div>
             </li>
           ))}

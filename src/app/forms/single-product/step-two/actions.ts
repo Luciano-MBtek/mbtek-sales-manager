@@ -13,8 +13,6 @@ export const stepTwoFormSingleProductAction = async (
 
   const data = { products, splitPayment };
 
-  console.log(data);
-
   const validated = stepTwoSingleProductSchema.safeParse(data);
   if (!validated.success) {
     const errors = validated.error.issues.reduce((acc: FormErrors, issue) => {

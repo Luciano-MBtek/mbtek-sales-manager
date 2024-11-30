@@ -2,12 +2,14 @@ import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { MailIcon, UserIcon } from "lucide-react";
 import InfoItem from "@/components/InfoItem";
+import { HubspotIcon } from "../HubspotIcon";
 
 type ContactFormProps = {
   title: string;
   name: string;
   lastname: string;
   email: string;
+  id: string;
 };
 
 const ContactFormCard = ({
@@ -15,6 +17,7 @@ const ContactFormCard = ({
   name,
   lastname,
   email,
+  id,
 }: ContactFormProps) => {
   return (
     <>
@@ -34,6 +37,7 @@ const ContactFormCard = ({
               label="Email"
               value={email}
             />
+            <InfoItem icon={<HubspotIcon />} label="Id" value={id} />
           </div>
         </CardContent>
       </Card>
