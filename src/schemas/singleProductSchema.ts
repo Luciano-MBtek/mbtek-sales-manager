@@ -90,6 +90,7 @@ export const newSingleProductSchema = z.discriminatedUnion("country", [
         selected: z.boolean().optional(),
         sku: z.string(),
         quantity: z.number(),
+        isMain: z.boolean(),
       })
     ),
     splitPayment: z.enum(yesOrNoTuple, {
@@ -121,6 +122,7 @@ export const newSingleProductSchema = z.discriminatedUnion("country", [
         selected: z.boolean().optional(),
         sku: z.string(),
         quantity: z.number(),
+        isMain: z.boolean(),
       })
     ),
     splitPayment: z.enum(yesOrNoTuple, {
@@ -150,6 +152,7 @@ export const singleProductInitialValuesSchema = z.object({
         selected: z.boolean().optional(),
         sku: z.string(),
         quantity: z.number(),
+        isMain: z.boolean(),
       })
     )
     .optional(),

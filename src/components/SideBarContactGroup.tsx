@@ -61,16 +61,7 @@ const SideBarContactGroup = () => {
 
   if (!contact) return null;
 
-  const {
-    id,
-    firstname,
-    lastname,
-    email,
-    leadStatus,
-    country,
-    state,
-    province,
-  } = contact;
+  const { id, firstname, lastname } = contact;
 
   const propertiesPath = `/contacts/${id}/properties`;
   const mainPath = `/contacts/${id}`;
@@ -82,43 +73,16 @@ const SideBarContactGroup = () => {
       title: "Lead Qualification",
       url: "/forms/discovery-lead/step-one",
       icon: UserRoundCheck,
-      params: {
-        id,
-        name: firstname,
-        lastname,
-        email,
-        country,
-        state,
-        province,
-      },
     },
     {
       title: "Single Product Quote",
       url: "/forms/single-product/step-one",
       icon: Box,
-      params: {
-        id,
-        name: firstname,
-        lastname,
-        email,
-        country,
-        state,
-        province,
-      },
     },
     {
       title: "Schematic Request",
       url: "/forms/schematic-request",
       icon: Proportions,
-      params: {
-        id,
-        name: firstname,
-        lastname,
-        email,
-        country,
-        state,
-        province,
-      },
     },
   ];
 
@@ -215,7 +179,6 @@ const SideBarContactGroup = () => {
                     <Link
                       href={{
                         pathname: item.url,
-                        query: item.params,
                       }}
                     >
                       <item.icon />

@@ -2,6 +2,7 @@
 import { useSingleProductContext } from "@/contexts/singleProductContext";
 import { submitSingleProductAction } from "./actions";
 import { newSingleProductType } from "@/schemas/singleProductSchema";
+
 import {
   Card,
   CardContent,
@@ -45,6 +46,9 @@ const ReviewFormSingleProduct = () => {
     redirect2?: string;
   } | null>(null);
   const [showDialog, setShowDialog] = useState(false);
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const { toast } = useToast();
   const router = useRouter();
 
@@ -63,35 +67,39 @@ const ReviewFormSingleProduct = () => {
   };
 
   const handleFormSubmit = async (formData: FormData) => {
-    console.log(singleProductData);
-    const res = await submitSingleProductAction(
-      singleProductData as newSingleProductType
-    );
-    const { redirect1, redirect2, errorMsg, success } = res;
+    try {
+      const res = await submitSingleProductAction(
+        singleProductData as newSingleProductType
+      );
+      const { redirect1, redirect2, errorMsg, success } = res;
 
-    if (success) {
-      toast({
-        title: "Success",
-        description: "Single product data submitted successfully",
-      });
+      if (success) {
+        toast({
+          title: "Success",
+          description: "Single product data submitted successfully",
+        });
 
-      setRedirectOptions({
-        redirect1: redirect1 ? redirect1 : undefined,
-        redirect2: redirect2 ? redirect2 : undefined,
-      });
-
-      // resetLocalStorage()
-      setShowDialog(true);
-    } else if (errorMsg) {
+        setRedirectOptions({
+          redirect1: redirect1,
+          redirect2: redirect2,
+        });
+        // resetLocalStorage()
+        setShowDialog(true);
+      } else if (errorMsg) {
+        toast({
+          title: "Error",
+          description: `${errorMsg}`,
+          variant: "destructive",
+          duration: 3000,
+        });
+      }
+    } catch (error) {
       toast({
         title: "Error",
-        description: `${errorMsg}`,
+        description:
+          error instanceof Error ? error.message : "An error occurred",
         variant: "destructive",
-        duration: 3000,
       });
-      if (redirect2) {
-        router.push(redirect2);
-      }
     }
   };
 
@@ -173,14 +181,18 @@ const ReviewFormSingleProduct = () => {
           </CardContent>
 
           <CardFooter>
-            <SubmitButton width="100%" text="Submit" />
+            <SubmitButton
+              width="100%"
+              text={isSubmitting ? "Processing..." : "Submit"}
+              disabled={isSubmitting}
+            />
           </CardFooter>
         </Card>
       </form>
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>The quote will be created in minutes.</DialogTitle>
+            <DialogTitle>The quote is ready and published.</DialogTitle>
             <DialogDescription>
               Select an option to continue with the process
             </DialogDescription>
@@ -189,11 +201,11 @@ const ReviewFormSingleProduct = () => {
             <Button
               onClick={() => {
                 if (redirectOptions?.redirect1) {
-                  router.push(redirectOptions.redirect1);
+                  window.open("http://" + redirectOptions.redirect1, "_blank");
                 }
               }}
             >
-              Go to contact page.
+              Go to quote page.
             </Button>
             <Button
               variant="outline"

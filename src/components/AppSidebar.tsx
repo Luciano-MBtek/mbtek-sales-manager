@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Home,
   Search,
@@ -20,8 +22,8 @@ import {
 import NavUser from "./SideBarFooter";
 import SideBarContactGroup from "./SideBarContactGroup";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
 
-// Menu items.
 const items = [
   {
     title: "Home",
@@ -42,15 +44,36 @@ const items = [
     title: "User Dashboard",
     url: "/dashboard",
     icon: LayoutDashboard,
+    requireAuth: true,
   },
   {
     title: "Admin Dashboard",
     url: "/admin-dashboard",
     icon: MonitorCog,
+    requireAuth: true,
+    requireRole: ["admin", "owner"],
   },
 ];
 
 export function AppSidebar() {
+  const { data: session, status } = useSession();
+
+  if (status === "loading") {
+    return null;
+  }
+
+  const filteredItems = items.filter((item) => {
+    if (!item.requireAuth) return true;
+
+    if (!session) return false;
+
+    if (item.requireRole) {
+      return item.requireRole.includes(session?.user?.accessLevel as string);
+    }
+
+    return true;
+  });
+
   return (
     <Sidebar>
       <SidebarContent>
@@ -58,7 +81,7 @@ export function AppSidebar() {
           <SidebarGroupLabel>Sales Manager</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {items.map((item) => (
+              {filteredItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <Link href={item.url}>

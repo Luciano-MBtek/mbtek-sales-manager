@@ -54,20 +54,20 @@ export async function createDeal(
     if (!response.ok) {
       const errorData = await response.json();
       throw new Error(
-        `Error al crear el Deal: ${response.status} - ${response.statusText} - ${JSON.stringify(errorData)}`
+        `Error creating the Deal: ${response.status} - ${response.statusText} - ${JSON.stringify(errorData)}`
       );
     }
 
     const dealData = await response.json();
     const dealId = dealData.id;
 
-    console.log("Deal creado y asociado exitosamente:", dealId);
+    console.log("Deal created and associated successfully:", dealId);
 
     return dealData;
   } catch (error) {
-    console.error("Error en createDeal:", error);
+    console.error("Error in createDeal:", error);
     throw new Error(
-      `No se pudo crear el Deal: ${error instanceof Error ? error.message : "Error desconocido"}`
+      `Failed to create the Deal: ${error instanceof Error ? error.message : "Unknown error"}`
     );
   }
 }

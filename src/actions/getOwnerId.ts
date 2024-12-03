@@ -1,20 +1,27 @@
 "use server";
 
-export async function getHubspotOwnerId(email: string) {
+export async function getHubspotOwnerId(identifier: string) {
   try {
-    const response = await fetch(
-      `https://api.hubapi.com/crm/v3/owners?email=${email}`,
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.HUBSPOT_API_KEY}`,
-        },
-      }
-    );
+    const isEmail = identifier.includes("@");
+    const endpoint = isEmail
+      ? `https://api.hubapi.com/crm/v3/owners?email=${identifier}`
+      : `https://api.hubapi.com/crm/v3/owners/${identifier}`;
+
+    const response = await fetch(endpoint, {
+      headers: {
+        Authorization: `Bearer ${process.env.HUBSPOT_API_KEY}`,
+      },
+    });
+
     const data = await response.json();
-    if (data.results && data.results.length > 0) {
-      return data.results[0].id;
+
+    if (isEmail) {
+      return data.results && data.results.length > 0
+        ? data.results[0].id
+        : null;
+    } else {
+      return data || null;
     }
-    return null;
   } catch (error) {
     console.error("Error fetching Hubspot owner:", error);
     return null;

@@ -25,9 +25,9 @@ export const metadata: Metadata = {
 
 export default async function DashboardPage() {
   const userData = await getAllUsers();
-  console.log(userData);
+
   return (
-    <div className="flex w-full items-center justify-center">
+    <div className="flex w-full  justify-center">
       <div className="hidden flex-col md:flex">
         <div className="border-b">
           <div className="flex h-16 items-center px-4">

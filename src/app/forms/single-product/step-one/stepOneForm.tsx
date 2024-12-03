@@ -29,7 +29,7 @@ export default function StepSingleProductOneForm() {
   const { contact, update } = useContactStore();
 
   useEffect(() => {
-    if (contact) {
+    if (contact && dataLoaded) {
       updateSingleProductDetails({
         name: contact.firstname,
         lastname: contact.lastname,
@@ -44,7 +44,7 @@ export default function StepSingleProductOneForm() {
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [contact]);
 
   const formData = {
     ...singleProductData,
