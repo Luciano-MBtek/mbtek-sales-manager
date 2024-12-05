@@ -34,14 +34,14 @@ const SchematicRequestForm = () => {
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    const { id, value } = e.target;
+    const { name, value } = e.target;
 
     const contactFields = ["firstname", "lastname", "email"];
 
-    if (contactFields.includes(id)) {
-      update({ ...contact, [id]: value } as Contact);
+    if (contactFields.includes(name)) {
+      update({ ...contact, [name]: value } as Contact);
     } else {
-      updateSchematic({ [id]: value });
+      updateSchematic({ [name]: value });
     }
   };
 
@@ -151,7 +151,7 @@ const SchematicRequestForm = () => {
           <Input
             label="Square feet per zone"
             id="square_feet_zone"
-            type="number"
+            type="text"
             errorMsg={serverErrors?.square_feet_zone}
             placeholder="Bathroom: 100 sqft , Kitchen: 150 sqft ..."
             onChange={handleInputChange}

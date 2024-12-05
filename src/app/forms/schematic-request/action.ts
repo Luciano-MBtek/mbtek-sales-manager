@@ -33,7 +33,7 @@ export const uploadFile = async (
 
   // Extraer y procesar el archivo
   const file = formData.get("documentation") as File | null;
-  if (file) {
+  if (file && file.size > 0) {
     const buffer = Buffer.from(await file.arrayBuffer());
     data.documentation = {
       name: file.name,

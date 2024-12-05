@@ -47,7 +47,7 @@ export const schematicRequestSchema = z.object({
   special_application: z.enum(SpecialApplication, {
     errorMap: () => ({ message: "Please select a valid special application." }),
   }),
-  documentation: fileSchema,
+  documentation: fileSchema.optional(),
   extra_notes: z
     .string()
     .max(300, "Please enter no more than 300 characters")
