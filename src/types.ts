@@ -189,3 +189,37 @@ const YesOrNoArray = ["Yes", "No"];
 export const leadTypeTuple = leadType as [string, ...string[]];
 
 export const yesOrNoTuple = YesOrNoArray as [string, ...string[]];
+
+export interface DocumentationFile {
+  name: string;
+  type: string;
+  size: number;
+  buffer: Buffer;
+}
+
+export interface SchematicRequestData {
+  id: string;
+  firstname: string;
+  lastname: string;
+  email: string;
+  zip: string;
+  total_area: string;
+  number_zones: string;
+  square_feet_zone: string;
+  heat_elements: string[];
+  special_application: string;
+  extra_notes: string;
+  documentation?: DocumentationFile;
+}
+
+export type StringFields =
+  | "id"
+  | "firstname"
+  | "lastname"
+  | "email"
+  | "zip"
+  | "total_area"
+  | "number_zones"
+  | "square_feet_zone"
+  | "special_application"
+  | "extra_notes";

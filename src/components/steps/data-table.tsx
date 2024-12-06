@@ -79,6 +79,7 @@ export function DataTable<TData, TValue>({
     2: "Lead Qualification",
     3: "Data Collection 1",
     4: "Complete System",
+    5: "Schematic Request",
   };
 
   return (

@@ -11,8 +11,6 @@ export async function createContact(contact: newLeadType, ownerId: string) {
     contact.estimatedTimeForBuying,
   ].includes("No");
 
-  console.log(hasNegativeAnswers);
-
   const properties = {
     firstname: contact.name,
     lastname: contact.lastname,

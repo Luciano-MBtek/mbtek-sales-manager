@@ -1,3 +1,4 @@
+import { ClientFileData } from "@/schemas/schematicRequestSchema";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
@@ -8,12 +9,7 @@ export type SchematicRequest = {
   heat_elements: string[];
   special_application?: "DHW" | "Pool" | "None";
   extra_notes?: string;
-  documentation?: {
-    name: string;
-    type: "application/pdf" | "image/jpeg" | "image/png" | "image/svg+xml";
-    size: number;
-    buffer: Buffer;
-  };
+  documentation?: ClientFileData;
 };
 
 interface SchematicStore {

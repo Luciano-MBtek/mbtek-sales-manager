@@ -1,3 +1,36 @@
+const schematicProperties = [
+  {
+    total_area_house: {
+      friendlyName: "Total Area of the house/building",
+      step: 5,
+    },
+    number_of_zones: {
+      friendlyName: "Ammount of zones in house/building",
+      step: 5,
+    },
+    square_feet_per_zone: {
+      friendlyName: "Square feet per zone",
+      step: 5,
+    },
+    heat_elements: {
+      friendlyName: "Heat elements",
+      step: 5,
+    },
+    special_application: {
+      friendlyName: "Special application - DHW, Pool , None",
+      step: 5,
+    },
+    extra_notes: {
+      friendlyName: "Extra notes",
+      step: 5,
+    },
+    technical_documention_received_from_the_prospect: {
+      friendlyName: "Technical docs for building schematic",
+      step: 5,
+    },
+  },
+];
+
 export const propertyNameMap: Record<
   string,
   { friendlyName: string; step: number }
@@ -98,6 +131,7 @@ export const propertyNameMap: Record<
     friendlyName: "Access computer",
     step: 4,
   },
+  ...schematicProperties[0],
 };
 
 export const dateProperties = {

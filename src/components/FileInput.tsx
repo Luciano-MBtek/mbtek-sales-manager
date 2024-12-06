@@ -13,7 +13,7 @@ interface FileInputProps {
     name: string;
     type: string;
     size: number;
-    buffer: Buffer;
+    buffer?: Buffer;
   };
   onChange: (file: File) => void;
 }
@@ -73,6 +73,7 @@ export default function FileInput({
           )}
         </div>
       </div>
+
       <div className="min-h-[1rem]">
         {errorMsg && (
           <span className="text-sm text-destructive">{errorMsg}</span>

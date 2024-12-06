@@ -4,8 +4,8 @@ import SubmitButton from "@/components/SubmitButton";
 import { uploadFile } from "./action";
 import { FormErrors } from "@/types";
 import {
+  clientFileSchema,
   heatElementValues,
-  schematicRequestSchema,
   specialApplicationValues,
 } from "@/schemas/schematicRequestSchema";
 import CheckboxInput from "@/components/StepForm/CheckboxStepForm";
@@ -31,6 +31,12 @@ const SchematicRequestForm = () => {
       updateSchematic({ [fieldId]: Array.isArray(value) ? value : [value] });
     };
 
+  const handleSubmit = async (formData: FormData) => {
+    formAction(formData);
+
+    updateSchematic({ documentation: undefined });
+  };
+
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -51,27 +57,22 @@ const SchematicRequestForm = () => {
 
   const handleFileUpload = async (file: File) => {
     try {
-      // Convertir el File a Buffer
-      const buffer = await file.arrayBuffer().then(Buffer.from);
-
       const fileData = {
         name: file.name,
         type: file.type,
         size: file.size,
-        buffer: buffer,
       };
 
-      // Validar solo el archivo usando el fileSchema
-      const validatedFile =
-        schematicRequestSchema.shape.documentation.parse(fileData);
+      const validatedFile = clientFileSchema.parse(fileData);
 
-      // Si la validación es exitosa, actualizar el store
       useSchematicStore.getState().update({
-        documentation: validatedFile,
+        documentation: {
+          ...validatedFile,
+        },
       });
       setClientErrors((prev) => ({ ...prev, documentation: undefined }));
     } catch (error) {
-      // Manejar el error de validación
+      console.log(error);
       const zodError = error as { issues?: { message: string }[] };
       const errorMessage =
         zodError.issues?.[0]?.message ||
@@ -89,7 +90,10 @@ const SchematicRequestForm = () => {
         title="Request schematic form"
         subtitle="Request a technical drawing to the team."
       />
-      <form action={formAction} className="flex  flex-1 flex-col items-center">
+      <form
+        action={handleSubmit}
+        className="flex  flex-1 flex-col items-center"
+      >
         <div className="flex w-full flex-col gap-1 lg:max-w-[700px] p-2 ">
           <div className="flex flex-col lg:flex-row w-full gap-4 justify-between">
             <Input
@@ -111,6 +115,13 @@ const SchematicRequestForm = () => {
               className="w-full"
             />
           </div>
+          <input
+            type="hidden"
+            id="id"
+            name="id"
+            value={contact?.id || ""}
+            readOnly
+          />
 
           <Input
             label="Email"
@@ -166,6 +177,8 @@ const SchematicRequestForm = () => {
             isMulti={true}
             value={schematic?.heat_elements || []}
             onChange={handleCheckboxChange("heat_elements")}
+            dataLoaded={schematic ? true : false}
+            uppercase={true}
           />
 
           <SelectInput
@@ -187,7 +200,7 @@ const SchematicRequestForm = () => {
             }
             value={
               schematic?.documentation as
-                | { name: string; type: string; size: number; buffer: Buffer }
+                | { name: string; type: string; size: number }
                 | undefined
             }
             onChange={handleFileUpload}

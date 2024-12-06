@@ -1,4 +1,5 @@
 "use server";
+import { revalidatePath } from "next/cache";
 
 export async function patchContactProperties(
   id: string,
@@ -24,15 +25,15 @@ export async function patchContactProperties(
     );
 
     if (!response.ok) {
-      throw new Error(
-        `HubSpot API error: ${response.status} - ${response.statusText}`
-      );
+      const errorText = await response.text();
+      console.error("HubSpot error details:", errorText);
+      throw new Error(`HubSpot API error: ${response.status} - ${errorText}`);
     }
 
     const data = await response.json();
 
-    console.log("Contacto:", id);
-    console.log("Propiedades actualizadas:", properties);
+    revalidatePath(`/contacts/${id}`);
+    revalidatePath(`/contacts/${id}/properties`);
 
     return data;
   } catch (error) {

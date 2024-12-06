@@ -1,14 +1,21 @@
 "use server";
+import { createFileHubspot } from "@/actions/createFileHS";
+import { patchContactProperties } from "@/actions/patchContactProperties";
 import { schematicRequestSchema } from "@/schemas/schematicRequestSchema";
-import { FormErrors, mainRoutes } from "@/types";
+import {
+  FormErrors,
+  mainRoutes,
+  SchematicRequestData,
+  StringFields,
+} from "@/types";
 import { redirect } from "next/navigation";
 
 export const uploadFile = async (
   prevState: FormErrors | undefined,
   formData: FormData
 ): Promise<FormErrors | undefined> => {
-  // Convertir FormData a un objeto
-  const textFields = [
+  const textFields: StringFields[] = [
+    "id",
     "firstname",
     "lastname",
     "email",
@@ -16,39 +23,35 @@ export const uploadFile = async (
     "total_area",
     "number_zones",
     "square_feet_zone",
-    "heat_elements",
     "special_application",
     "extra_notes",
   ];
-  const data: any = {};
+  const data = {} as SchematicRequestData;
   for (const field of textFields) {
     const value = formData.get(field);
-    data[field] = value;
+    data[field as StringFields] = value as string;
   }
 
-  // Manejar heat_elements (puede ser string o array)
-  if (typeof data.heat_elements === "string") {
-    data.heat_elements = [data.heat_elements];
-  }
+  data.heat_elements = formData
+    .getAll("heat_elements")
+    .map((value) => String(value));
 
-  // Extraer y procesar el archivo
   const file = formData.get("documentation") as File | null;
   if (file && file.size > 0) {
-    const buffer = Buffer.from(await file.arrayBuffer());
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = new Uint8Array(arrayBuffer);
     data.documentation = {
       name: file.name,
       type: file.type,
       size: file.size,
-      buffer: buffer,
+      buffer: Buffer.from(buffer),
     };
-  } else {
-    data.documentation = undefined; // O manejar según tus necesidades
   }
 
-  console.log("Processed Data:", data);
   const validated = schematicRequestSchema.safeParse(data);
-  console.log("Validation:", validated.error);
+
   if (!validated.success) {
+    console.log("Validation:", validated.error);
     const errors = validated.error.issues.reduce((acc: FormErrors, issue) => {
       const path = issue.path[0] as string;
       acc[path] = issue.message;
@@ -57,5 +60,37 @@ export const uploadFile = async (
     return errors;
   }
 
-  redirect(mainRoutes.CONTACTS);
+  const documentation = data.documentation;
+  if (documentation) {
+    try {
+      const schematicFile = await createFileHubspot({ documentation });
+      const schematicFileUrl = schematicFile.url;
+
+      const hubspotProperties = {
+        zip: data.zip,
+        total_area_house: data.total_area,
+        number_of_zones: data.number_zones,
+        square_feet_per_zone: data.square_feet_zone,
+        heat_elements: data.heat_elements.join(";"),
+        special_application: data.special_application,
+        extra_notes: data.extra_notes,
+        technical_documention_received_from_the_prospect: schematicFileUrl,
+      };
+
+      console.log("hubspot Properties:", hubspotProperties);
+
+      const contactUpdate = await patchContactProperties(
+        data.id,
+        hubspotProperties
+      );
+
+      console.log("Contact update:", contactUpdate);
+    } catch (error) {
+      console.log(error);
+
+      return { documentation: "Error uploading the file" };
+    }
+  }
+
+  // redirect(mainRoutes.CONTACTS);
 };

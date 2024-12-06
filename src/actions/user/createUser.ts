@@ -34,8 +34,14 @@ export async function createUser(values: z.infer<typeof CreateUserSchema>) {
       message: "New user created successfully",
       user: newUser,
     };
-  } catch (error: any) {
-    if (error.code === "P2002" && error.meta?.target?.includes("email")) {
+  } catch (error) {
+    if (
+      error instanceof Error &&
+      "code" in error &&
+      "meta" in error &&
+      error.code === "P2002" &&
+      (error.meta as { target: string[] }).target?.includes("email")
+    ) {
       return {
         success: false,
         message: "The email is already registered",
