@@ -13,6 +13,8 @@ export type Contact = {
   city: string;
   zip: string;
   address: string;
+  areDeals: boolean;
+  hasSchematic: boolean;
 };
 
 interface ContactStore {

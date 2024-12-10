@@ -4,6 +4,8 @@ import { ProgressProperties } from "@/types";
 import { SchematicData } from "@/schemas/schematicRequestSchema";
 import SchematicRequestCard from "@/components/SchematicRequestCard";
 
+import { checkDealsExist } from "@/actions/getDeals";
+
 type Props = {
   params: Promise<{ id: string }>;
 };
@@ -20,6 +22,12 @@ const ContactFullData = async (props: Props) => {
   const { id } = params;
 
   const contact = await GetContactById(id);
+
+  const deals = await checkDealsExist(id);
+
+  const hasSchematicRequest = Boolean(
+    contact.properties.total_area_house && contact.properties.number_of_zones
+  );
 
   const progressProperties: ProgressProperties = {
     id: id,
@@ -39,6 +47,8 @@ const ContactFullData = async (props: Props) => {
     province: contact.properties.province_territory,
     city: contact.properties.city || "N/A",
     zip: contact.properties.zip || "N/A",
+    areDeals: deals,
+    hasSchematic: hasSchematicRequest,
   };
 
   const schematicRequestProperties: SchematicDisplayData = {
@@ -51,7 +61,7 @@ const ContactFullData = async (props: Props) => {
       ) as SchematicData["heat_elements"]) || [],
     special_application:
       (contact.properties
-        .special_application as SchematicData["special_application"]) || "None",
+        .special_application as SchematicData["special_application"]) || "N/A",
     extra_notes: contact.properties.extra_notes,
     documentation:
       contact.properties.technical_documention_received_from_the_prospect,
@@ -61,9 +71,9 @@ const ContactFullData = async (props: Props) => {
     <div className="flex w-full flex-col items-center justify-center">
       <div className="flex  gap-2 w-full items-center justify-between">
         <ContactStepProgress properties={progressProperties} />
-        {schematicRequestProperties && (
+        {/* {hasSchematicRequest && (
           <SchematicRequestCard properties={schematicRequestProperties} />
-        )}
+        )} */}
       </div>
     </div>
   );

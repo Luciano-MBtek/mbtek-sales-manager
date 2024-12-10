@@ -43,6 +43,8 @@ export type ProgressProperties = {
   emptyProperties: number;
   createDate: string;
   lastModifiedDate: string;
+  areDeals: boolean;
+  hasSchematic: boolean;
 };
 
 export type PropertyDetail = {

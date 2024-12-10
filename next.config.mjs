@@ -8,6 +8,12 @@ const nextConfig = {
         port: "",
         pathname: "/s/files/**",
       },
+      {
+        protocol: "https",
+        hostname: "api-na1.hubspot.com",
+        port: "",
+        pathname: "/**",
+      },
     ],
   },
   experimental: {

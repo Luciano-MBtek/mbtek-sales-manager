@@ -93,13 +93,6 @@ const SchematicRequestCard = ({
               />
             </DialogContent>
           </Dialog>
-          <Image
-            src={properties.documentation}
-            alt="Documentation Preview"
-            width={200}
-            height={200}
-            className="object-contain"
-          />
         </div>
       );
     }

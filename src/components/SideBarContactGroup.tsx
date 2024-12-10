@@ -9,6 +9,8 @@ import {
   MoreHorizontal,
   Trash,
   Proportions,
+  Handshake,
+  PencilRuler,
 } from "lucide-react";
 import {
   Collapsible,
@@ -61,12 +63,16 @@ const SideBarContactGroup = () => {
 
   if (!contact) return null;
 
-  const { id, firstname, lastname } = contact;
+  const { id, firstname, lastname, areDeals, hasSchematic } = contact;
 
   const propertiesPath = `/contacts/${id}/properties`;
+  const dealsPath = `/contacts/${id}/deals`;
+  const schematicPath = `/contacts/${id}/schematic`;
   const mainPath = `/contacts/${id}`;
   const isPropertiesActive = pathname === propertiesPath;
   const isMainActive = pathname === mainPath;
+  const isDealsActive = pathname === dealsPath;
+  const isSchematicActive = pathname === schematicPath;
 
   const items = [
     {
@@ -158,6 +164,49 @@ const SideBarContactGroup = () => {
             </SidebarMenuButton>
           )}
         </SidebarMenuItem>
+        {areDeals && (
+          <SidebarMenuItem>
+            {isDealsActive ? (
+              <SidebarMenuButton isActive={true}>
+                <Handshake />
+                <span>Deals</span>
+              </SidebarMenuButton>
+            ) : (
+              <SidebarMenuButton asChild>
+                <Link
+                  href={{
+                    pathname: dealsPath,
+                  }}
+                >
+                  <Handshake />
+                  <span>Deals</span>
+                </Link>
+              </SidebarMenuButton>
+            )}
+          </SidebarMenuItem>
+        )}
+        {hasSchematic && (
+          <SidebarMenuItem>
+            {isSchematicActive ? (
+              <SidebarMenuButton isActive={true}>
+                <PencilRuler />
+                <span>Schematic</span>
+              </SidebarMenuButton>
+            ) : (
+              <SidebarMenuButton asChild>
+                <Link
+                  href={{
+                    pathname: schematicPath,
+                  }}
+                >
+                  <PencilRuler />
+                  <span>Schematic</span>
+                </Link>
+              </SidebarMenuButton>
+            )}
+          </SidebarMenuItem>
+        )}
+
         <Collapsible defaultOpen={true}>
           <CollapsibleTrigger asChild>
             <SidebarMenuItem>
