@@ -44,6 +44,8 @@ export const submitSingleProductAction = async (
 
     revalidatePath(`/contacts/${singleProduct.id}`);
     revalidatePath(`/contacts/${singleProduct.id}/properties`);
+    revalidatePath(`/contacts/${singleProduct.id}/deals`);
+    revalidatePath(`/contacts/${singleProduct.id}/quotes`);
 
     return {
       success: true,

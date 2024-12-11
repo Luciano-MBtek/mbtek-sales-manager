@@ -11,6 +11,7 @@ import {
   Proportions,
   Handshake,
   PencilRuler,
+  Quote,
 } from "lucide-react";
 import {
   Collapsible,
@@ -63,16 +64,19 @@ const SideBarContactGroup = () => {
 
   if (!contact) return null;
 
-  const { id, firstname, lastname, areDeals, hasSchematic } = contact;
+  const { id, firstname, lastname, areDeals, hasSchematic, hasQuotes } =
+    contact;
 
   const propertiesPath = `/contacts/${id}/properties`;
   const dealsPath = `/contacts/${id}/deals`;
   const schematicPath = `/contacts/${id}/schematic`;
+  const quotesPath = `/contacts/${id}/quotes`;
   const mainPath = `/contacts/${id}`;
   const isPropertiesActive = pathname === propertiesPath;
   const isMainActive = pathname === mainPath;
   const isDealsActive = pathname === dealsPath;
   const isSchematicActive = pathname === schematicPath;
+  const isQuotesPathActive = pathname === quotesPath;
 
   const items = [
     {
@@ -201,6 +205,28 @@ const SideBarContactGroup = () => {
                 >
                   <PencilRuler />
                   <span>Schematic</span>
+                </Link>
+              </SidebarMenuButton>
+            )}
+          </SidebarMenuItem>
+        )}
+
+        {hasQuotes && (
+          <SidebarMenuItem>
+            {isQuotesPathActive ? (
+              <SidebarMenuButton isActive={true}>
+                <Quote />
+                <span>Quotes</span>
+              </SidebarMenuButton>
+            ) : (
+              <SidebarMenuButton asChild>
+                <Link
+                  href={{
+                    pathname: quotesPath,
+                  }}
+                >
+                  <Quote />
+                  <span>Quotes</span>
                 </Link>
               </SidebarMenuButton>
             )}

@@ -14,6 +14,7 @@ interface CheckboxInputProps {
   isMulti?: boolean;
   dataLoaded?: boolean;
   uppercase?: boolean;
+  disabledOption?: string;
 }
 
 export default function CheckboxInput({
@@ -26,6 +27,7 @@ export default function CheckboxInput({
   isMulti = true,
   dataLoaded = true,
   uppercase = false,
+  disabledOption,
 }: CheckboxInputProps) {
   const selectedValues: string[] = value
     ? Array.isArray(value)
@@ -72,6 +74,7 @@ export default function CheckboxInput({
                 onCheckedChange={(checked) =>
                   handleChange(checked as boolean, option)
                 }
+                disabled={option === disabledOption}
               />
               <Label
                 htmlFor={`${id}-${option}`}

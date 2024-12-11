@@ -55,6 +55,7 @@ export default function StepThreeForm() {
           label="Want a complete System?"
           id="wantCompleteSystem"
           options={options}
+          disabledOptions={["Yes"]}
           errorMsg={serverErrors?.wantCompleteSystem}
           value={newLeadData.wantCompleteSystem || ""}
           onChange={(value) =>

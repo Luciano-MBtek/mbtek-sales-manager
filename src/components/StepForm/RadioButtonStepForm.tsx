@@ -10,6 +10,7 @@ interface RadioInputProps {
   value: string;
   onChange: (value: string) => void;
   errorMsg?: string;
+  disabledOptions?: [string];
 }
 
 export default function RadioInput({
@@ -19,6 +20,7 @@ export default function RadioInput({
   value,
   onChange,
   errorMsg,
+  disabledOptions,
 }: RadioInputProps) {
   return (
     <>
@@ -27,7 +29,11 @@ export default function RadioInput({
         <div className="space-y-2">
           {options.map((option) => (
             <div key={option} className="flex items-center space-x-2">
-              <RadioGroupItem value={option} id={`${id}-${option}`} />
+              <RadioGroupItem
+                value={option}
+                id={`${id}-${option}`}
+                disabled={disabledOptions?.includes(option)}
+              />
               <Label htmlFor={`${id}-${option}`} className="text-primary">
                 {option}
               </Label>

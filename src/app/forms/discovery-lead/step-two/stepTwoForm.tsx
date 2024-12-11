@@ -60,13 +60,6 @@ export default function StepTwoForm() {
           onChange={handleSelectChange("country")}
           dataLoaded={dataLoaded}
         />
-        <PhoneInputForm
-          id="phone"
-          name="phone"
-          errorMsg={serverErrors?.phone}
-          onChange={handleInputChange}
-          value={newLeadData.phone || ""}
-        />
 
         {newLeadData.country === "USA" && (
           <SelectInput
@@ -93,12 +86,20 @@ export default function StepTwoForm() {
             dataLoaded={dataLoaded}
           />
         )}
+        <PhoneInputForm
+          id="phone"
+          name="phone"
+          errorMsg={serverErrors?.phone}
+          onChange={handleInputChange}
+          value={newLeadData.phone || ""}
+        />
 
         <FormQuestion question="Are you calling for a business of for yourself?" />
         <CheckboxInput
           label="Lead Type"
           id="leadType"
           options={leadType}
+          disabledOption={"B2B (business related)"}
           errorMsg={serverErrors?.leadType}
           isMulti={false}
           value={newLeadData.leadType || ""}

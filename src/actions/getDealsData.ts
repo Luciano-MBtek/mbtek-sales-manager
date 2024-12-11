@@ -171,7 +171,7 @@ async function getLineItemDetails(
 
     if (!response.ok) {
       throw new Error(
-        `Error al obtener detalles del line item ${lineItemId}: ${response.statusText}`
+        `Error fetching line item details for ${lineItemId}: ${response.statusText}`
       );
     }
 
@@ -179,7 +179,7 @@ async function getLineItemDetails(
     return data;
   } catch (error) {
     console.error(
-      `Error en getLineItemDetails para el line item ${lineItemId}:`,
+      `Error in getLineItemDetails for the line item ${lineItemId}:`,
       error
     );
     return null; // Retornar null para manejar errores individualmente

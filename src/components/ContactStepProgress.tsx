@@ -10,6 +10,7 @@ import {
   Home,
   PencilRuler,
   CircleCheck,
+  Quote,
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import UsaFlag from "./utils/UsaFlag";
@@ -46,6 +47,7 @@ const ContactStepProgress = ({
     address,
     areDeals,
     hasSchematic,
+    hasQuotes,
   } = properties;
 
   const fullName = `${firstname} ${lastname}`;
@@ -57,8 +59,6 @@ const ContactStepProgress = ({
     month: "long",
     day: "numeric",
   });
-
-  console.log(hasSchematic);
 
   useEffect(() => {
     const initialContactData = {
@@ -78,6 +78,7 @@ const ContactStepProgress = ({
       address,
       areDeals,
       hasSchematic,
+      hasQuotes,
     };
 
     // Filtrar los valores que son "N/A"
@@ -111,6 +112,7 @@ const ContactStepProgress = ({
     address,
     areDeals,
     hasSchematic,
+    hasQuotes,
   ]);
 
   return (
@@ -213,6 +215,21 @@ const ContactStepProgress = ({
                 }}
               >
                 Request
+              </Button>
+            </div>
+          </div>
+        )}
+        {hasQuotes && (
+          <div className="flex items-center space-x-4">
+            <Quote className="w-6 h-6 text-primary" />
+            <div className="flex items-center justify-between w-full">
+              <p className="font-semibold">Quotes available</p>
+              <Button
+                onClick={() => {
+                  router.push(`/contacts/${id}/quotes`);
+                }}
+              >
+                Go to Quotes
               </Button>
             </div>
           </div>

@@ -45,6 +45,7 @@ export type ProgressProperties = {
   lastModifiedDate: string;
   areDeals: boolean;
   hasSchematic: boolean;
+  hasQuotes: boolean;
 };
 
 export type PropertyDetail = {

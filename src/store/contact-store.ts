@@ -15,6 +15,7 @@ export type Contact = {
   address: string;
   areDeals: boolean;
   hasSchematic: boolean;
+  hasQuotes: boolean;
 };
 
 interface ContactStore {
