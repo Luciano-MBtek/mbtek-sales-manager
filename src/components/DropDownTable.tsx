@@ -7,11 +7,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Dialog, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogTrigger, DialogContent } from "@/components/ui/dialog";
 import { Button } from "./ui/button";
 import { MoreHorizontal, Copy } from "lucide-react";
-import { DialogCloseButton } from "./DialogAction";
 import { useToast } from "@/components/ui/use-toast";
+import { DialogCloseButton } from "./DialogAction";
 
 const DropDownTable = ({
   property,
@@ -34,7 +34,7 @@ const DropDownTable = ({
   };
 
   return (
-    <Dialog>
+    <>
       <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="h-8 w-8 p-0">
@@ -59,17 +59,22 @@ const DropDownTable = ({
             <Copy className="w-4 h-4 mr-2" />
           </DropdownMenuItem>
           <DropdownMenuSeparator className="w-full" />
-          <DialogTrigger asChild>
-            <DropdownMenuItem>Modify property</DropdownMenuItem>
-          </DialogTrigger>
+          {/* Use DialogTrigger outside of DropdownMenuItem */}
+          <Dialog>
+            <DialogTrigger asChild>
+              <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                Modify property
+              </DropdownMenuItem>
+            </DialogTrigger>
+            <DialogCloseButton
+              property={property}
+              friendlyName={friendlyName}
+              onDialogClose={() => setDropdownOpen(false)}
+            />
+          </Dialog>
         </DropdownMenuContent>
-        <DialogCloseButton
-          property={property}
-          friendlyName={friendlyName}
-          onDialogClose={() => setDropdownOpen(false)}
-        />
       </DropdownMenu>
-    </Dialog>
+    </>
   );
 };
 

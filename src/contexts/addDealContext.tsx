@@ -29,6 +29,10 @@ const defaultDeal: newLeadInitialValuesType = {
   stepsForDecision: "",
   leadBuyingIntention: "",
   expectedETA: "",
+  decisionMaker: "",
+  goodFitForLead: "",
+  moneyAvailability: "",
+  estimatedTimeForBuying: "",
 };
 
 const LOCAL_STORAGE_KEY = "multi-page-form-demo-newLeadData";

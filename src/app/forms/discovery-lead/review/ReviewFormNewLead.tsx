@@ -57,7 +57,25 @@ export default function ReviewForm() {
     stepsForDecision,
     leadBuyingIntention,
     expectedETA,
+    decisionMaker,
+    goodFitForLead,
+    moneyAvailability,
+    estimatedTimeForBuying,
   } = newLeadData;
+
+  const disqualifyingAnswers = [
+    decisionMaker,
+    goodFitForLead,
+    moneyAvailability,
+    estimatedTimeForBuying,
+  ];
+
+  const isLeadDisqualified = disqualifyingAnswers.some(
+    (answer) => answer === "No"
+  );
+  const isLeadQualified = disqualifyingAnswers.every(
+    (answer) => answer === "Yes"
+  );
 
   const handleFormSubmit = async (formData: FormData) => {
     const res = await submitLeadAction(newLeadData as newLeadType);
@@ -103,6 +121,25 @@ export default function ReviewForm() {
             </CardTitle>
           </CardHeader>
           <CardContent className="grid gap-6">
+            {isLeadDisqualified ? (
+              <div className="bg-red-100 border-2 border-red-500 rounded-lg p-6 mb-4 w-full max-w-[700px]">
+                <h1 className="text-red-600 text-2xl font-bold text-center">
+                  Disqualified Lead
+                </h1>
+              </div>
+            ) : isLeadQualified ? (
+              <div className="bg-green-100 border-2 border-green-500 rounded-lg p-6 mb-4 w-full max-w-[700px]">
+                <h1 className="text-green-600 text-2xl font-bold text-center">
+                  Qualified Lead
+                </h1>
+              </div>
+            ) : (
+              <div className="border-2 rounded-lg p-6 mb-4 w-full max-w-[700px]">
+                <h1 className="text-2xl text-primary font-bold text-center">
+                  Unqualified Lead
+                </h1>
+              </div>
+            )}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <InfoItem
                 icon={<UserIcon className="h-5 w-5" />}
@@ -162,16 +199,18 @@ export default function ReviewForm() {
               onClick={() => {
                 if (redirectOptions?.redirect1) {
                   router.push(redirectOptions.redirect1);
+                  // resetLocalStorage();
                 }
               }}
             >
-              Continue with the submission process
+              Go to contact details
             </Button>
             <Button
               variant="outline"
               onClick={() => {
                 if (redirectOptions?.redirect2) {
                   router.push(redirectOptions.redirect2);
+                  resetLocalStorage();
                 }
               }}
             >

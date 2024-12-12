@@ -1,17 +1,18 @@
 "use client";
-import { useFormState } from "react-dom";
 import { stepTwoFormSingleProductAction } from "./actions";
 import { FormErrors, Product, YesOrNo } from "@/types";
 import SubmitButton from "@/components/SubmitButton";
 import { useSingleProductContext } from "@/contexts/singleProductContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import InfoItem from "@/components/InfoItem";
-import { MailIcon, UserIcon } from "lucide-react";
+
 import { SideProductSheet } from "@/components/SideProductSheet";
-import { useEffect, useState } from "react";
-import RadioInput from "@/components/RadioButtonStepForm";
+import { useActionState, useEffect, useState } from "react";
+import RadioInput from "@/components/StepForm/RadioButtonStepForm";
 
 import ProductCard from "@/components/ProductCard";
+import ContactFormCard from "@/components/StepForm/ContactFormCard";
+import { useContactStore } from "@/store/contact-store";
+import MainProductSelect from "@/components/MainProductSelect";
 
 const options = YesOrNo.map((option) => option);
 
@@ -20,7 +21,7 @@ const initialState: FormErrors = {};
 export default function StepSingleProductTwoForm() {
   const { singleProductData, updateSingleProductDetails, dataLoaded } =
     useSingleProductContext();
-  const [serverErrors, formAction] = useFormState(
+  const [serverErrors, formAction] = useActionState(
     stepTwoFormSingleProductAction,
     initialState
   );
@@ -29,15 +30,14 @@ export default function StepSingleProductTwoForm() {
   );
 
   const [totalPrice, setTotalPrice] = useState(0);
-
-  console.log("SelectedProducts:", selectedProducts);
+  const { contact, update } = useContactStore();
 
   useEffect(() => {
     updateSingleProductDetails({
       products: selectedProducts,
     });
     const totalPrice = selectedProducts.reduce((acc, product) => {
-      return product.id ? acc + product.price : acc;
+      return product.id ? acc + product.price * product.quantity : acc;
     }, 0);
     setTotalPrice(totalPrice);
 
@@ -52,9 +52,10 @@ export default function StepSingleProductTwoForm() {
 
   const formData = {
     ...singleProductData,
-    name: singleProductData.name || "",
-    lastname: singleProductData.lastname || "",
-    email: singleProductData.email || "",
+    name: contact?.firstname || singleProductData.name || "",
+    lastname: contact?.lastname || singleProductData.lastname || "",
+    email: contact?.email || singleProductData.email || "",
+    id: contact?.id || singleProductData.id || "",
   };
 
   const handleRemoveProduct = (productId: string) => {
@@ -63,31 +64,39 @@ export default function StepSingleProductTwoForm() {
     );
   };
 
+  const handleQuantity = (productId: string, action: string) => {
+    setSelectedProducts((prevProducts) =>
+      prevProducts.map((product) => {
+        if (product.id === productId) {
+          const newQuantity =
+            action === "increase" ? product.quantity + 1 : product.quantity - 1;
+          return { ...product, quantity: Math.max(newQuantity, 1) };
+        }
+        return product;
+      })
+    );
+  };
+  const handleMainProductSelect = (productId: string) => {
+    setSelectedProducts((prevProducts) =>
+      prevProducts.map((product) => ({
+        ...product,
+        isMain: product.id === productId,
+      }))
+    );
+  };
+
   return (
     <>
       <div className="w-full flex flex-col  items-center">
         <div className="flex flex-col w-full lg:flex-row gap-2 p-4">
-          <Card className="shadow-lg w-full ">
-            <CardHeader>
-              <CardTitle className="text-2xl font-bold">
-                Lead Information - Select Products
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="flex w-full ">
-              <div className="flex w-full justify-around ">
-                <InfoItem
-                  icon={<UserIcon className="h-5 w-5" />}
-                  label="Name"
-                  value={`${formData.name} ${formData.lastname}`}
-                />
-                <InfoItem
-                  icon={<MailIcon className="h-5 w-5" />}
-                  label="Email"
-                  value={formData.email}
-                />
-              </div>
-            </CardContent>
-          </Card>
+          <ContactFormCard
+            title={"Lead Information - Select Products"}
+            name={formData.name}
+            lastname={formData.lastname}
+            email={formData.email}
+            id={formData.id}
+          />
+
           <Card className="shadow-lg w-full ">
             <CardHeader>
               <CardTitle className="text-2xl font-bold">
@@ -117,6 +126,12 @@ export default function StepSingleProductTwoForm() {
             totalPrice={totalPrice}
             serverErrors={serverErrors}
             onRemoveProduct={handleRemoveProduct}
+            handleQuantity={handleQuantity}
+          />
+          <MainProductSelect
+            selectedProducts={selectedProducts}
+            onMainProductSelect={handleMainProductSelect}
+            serverErrors={serverErrors}
           />
           <div className="w-full m-5">
             <RadioInput

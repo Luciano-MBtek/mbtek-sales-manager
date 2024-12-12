@@ -1,4 +1,8 @@
 "use server";
+import { createContact } from "@/actions/createContact";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+
 import {
   newLeadType,
   stepTwoSchema,
@@ -7,7 +11,6 @@ import {
   stepFourSchema,
 } from "@/schemas/newLeadSchema";
 import { collectDataRoutes } from "@/types";
-import { redirect } from "next/dist/server/api-utils";
 
 interface SubmitLeadActionReturnType {
   redirect1?: string;
@@ -17,9 +20,9 @@ interface SubmitLeadActionReturnType {
 }
 
 export const submitLeadAction = async (
-  deal: newLeadType
+  contact: newLeadType
 ): Promise<SubmitLeadActionReturnType> => {
-  const stepOneValidated = stepOneSchema.safeParse(deal);
+  const stepOneValidated = stepOneSchema.safeParse(contact);
   if (!stepOneValidated.success) {
     return {
       redirect2: collectDataRoutes.DISCOVERY_CALL,
@@ -27,7 +30,7 @@ export const submitLeadAction = async (
     };
   }
 
-  const stepTwoValidated = stepTwoSchema.safeParse(deal);
+  const stepTwoValidated = stepTwoSchema.safeParse(contact);
   if (!stepTwoValidated.success) {
     return {
       redirect2: collectDataRoutes.DISCOVERY_CALL_2,
@@ -35,7 +38,7 @@ export const submitLeadAction = async (
     };
   }
 
-  const stepThreeB2CValidated = stepThreeSchemaB2C.safeParse(deal);
+  const stepThreeB2CValidated = stepThreeSchemaB2C.safeParse(contact);
   if (!stepThreeB2CValidated.success) {
     return {
       redirect2: collectDataRoutes.LEAD_QUALIFICATION_B2C,
@@ -43,18 +46,44 @@ export const submitLeadAction = async (
     };
   }
 
-  const stepFourSchemaValidated = stepFourSchema.safeParse(deal);
+  const stepFourSchemaValidated = stepFourSchema.safeParse(contact);
   if (!stepFourSchemaValidated.success) {
     return {
       redirect2: collectDataRoutes.REVIEW_LEAD,
       errorMsg: "Please validate step four.",
     };
   }
-  const retVal = {
-    success: true,
-    redirect1: "/forms/single-product",
-    redirect2: collectDataRoutes.DISCOVERY_CALL,
-  };
 
-  return retVal;
+  try {
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user?.hubspotOwnerId) {
+      return {
+        errorMsg: "User ID not found",
+        success: false,
+      };
+    }
+
+    const ownerId = session.user.hubspotOwnerId;
+
+    const response = await createContact(contact, ownerId);
+    if (!response.success) {
+      return {
+        errorMsg: response.error,
+        success: false,
+      };
+    }
+
+    return {
+      success: true,
+      redirect1: `/contacts/${response.contactId}`,
+      redirect2: collectDataRoutes.DISCOVERY_CALL,
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      errorMsg: "Failed to create contact",
+      success: false,
+    };
+  }
 };

@@ -6,7 +6,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { Skeleton } from "./ui/skeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface SelectInputProps {
   label: string;
@@ -36,7 +36,7 @@ export default function SelectInput({
       </Label>
       {!dataLoaded && <Skeleton className="w-full h-12 rounded-md" />}
       {dataLoaded && (
-        <Select onValueChange={onChange} name={id} value={value}>
+        <Select onValueChange={onChange} name={id} value={value || undefined}>
           <SelectTrigger
             id={id}
             className={`w-full rounded-md py-4 px-2 text-slate-900 border-2 ${

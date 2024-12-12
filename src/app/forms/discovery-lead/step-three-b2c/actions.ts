@@ -3,10 +3,10 @@ import { stepThreeSchemaB2C } from "@/schemas/newLeadSchema";
 import { collectDataRoutes, FormErrors } from "@/types";
 import { redirect } from "next/navigation";
 
-export const stepThreeFormAction = (
+export const stepThreeFormAction = async (
   prevState: FormErrors | undefined,
   formData: FormData
-): FormErrors | undefined => {
+):  Promise<FormErrors | undefined> => {
   const data = Object.fromEntries(formData.entries());
   console.log(data);
   const validated = stepThreeSchemaB2C.safeParse(data);

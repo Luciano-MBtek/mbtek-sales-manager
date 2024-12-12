@@ -3,10 +3,10 @@ import { stepOneProductSchema } from "@/schemas/singleProductSchema";
 import { singleProductRoutes, FormErrors } from "@/types";
 import { redirect } from "next/navigation";
 
-export const stepOneFormSingleProductAction = (
+export const stepOneFormSingleProductAction = async (
   prevState: FormErrors | undefined,
   formData: FormData
-): FormErrors | undefined => {
+):  Promise<FormErrors | undefined> => {
   const data = Object.fromEntries(formData.entries());
   const validated = stepOneProductSchema.safeParse(data);
 

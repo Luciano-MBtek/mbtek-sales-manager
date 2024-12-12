@@ -3,10 +3,10 @@ import { stepOneSchema } from "@/schemas/newLeadSchema";
 import { collectDataRoutes, FormErrors } from "@/types";
 import { redirect } from "next/navigation";
 
-export const stepOneFormAction = (
+export const stepOneFormAction = async (
   prevState: FormErrors | undefined,
   formData: FormData
-): FormErrors | undefined => {
+): Promise<FormErrors | undefined> => {
   const data = Object.fromEntries(formData.entries());
   const validated = stepOneSchema.safeParse(data);
   if (!validated.success) {
@@ -18,5 +18,5 @@ export const stepOneFormAction = (
     return errors;
   }
 
-  redirect(collectDataRoutes.DISCOVERY_CALL_2);
+  return redirect(collectDataRoutes.DISCOVERY_CALL_2);
 };

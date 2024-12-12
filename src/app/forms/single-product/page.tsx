@@ -1,11 +1,12 @@
 import { singleProductRoutes } from "@/types";
 import { redirect } from "next/navigation";
 
-export default function FormsPage({
-  searchParams,
-}: {
-  searchParams: { [key: string]: string | string[] | undefined };
-}) {
+export default async function FormsPage(
+  props: {
+    searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+  }
+) {
+  const searchParams = await props.searchParams;
   const queryParams = new URLSearchParams({
     name: searchParams.name as string,
     lastname: searchParams.lastname as string,

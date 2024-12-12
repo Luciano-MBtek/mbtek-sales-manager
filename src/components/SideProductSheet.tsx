@@ -38,6 +38,16 @@ interface SideProductSheetProps {
   setSelectedProducts: (products: Product[]) => void;
 }
 
+interface APIProduct {
+  id: string;
+  properties: {
+    name: string;
+    hs_sku: string;
+    hs_images: string;
+    price: number;
+  };
+}
+
 export function SideProductSheet({
   selectedProducts,
   setSelectedProducts,
@@ -64,12 +74,13 @@ export function SideProductSheet({
 
   useEffect(() => {
     if (data && "data" in data) {
-      const mappedProducts = data.data.map((product: any) => ({
+      const mappedProducts = data.data.map((product: APIProduct) => ({
         id: product.id,
         name: product.properties.name || "",
         sku: product.properties.hs_sku || "",
         image: product.properties.hs_images || "",
-        price: parseFloat(product.properties.price) || 0,
+        price: Number(product.properties.price) || 0,
+        quantity: 1,
         selected: false,
       }));
       setProducts(mappedProducts);
@@ -161,6 +172,7 @@ export function SideProductSheet({
                     <TableHead className="w-12"></TableHead>
                     <TableHead>NAME</TableHead>
                     <TableHead>SKU</TableHead>
+
                     <TableHead className="text-right">PRICE</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -182,6 +194,7 @@ export function SideProductSheet({
                         </TableCell>
                         <TableCell>{product.name}</TableCell>
                         <TableCell>{product.sku}</TableCell>
+
                         <TableCell className="text-right">
                           ${product.price.toLocaleString()}
                         </TableCell>

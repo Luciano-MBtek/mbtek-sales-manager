@@ -1,4 +1,5 @@
 "use client";
+import { useActionState } from "react";
 import Input from "@/components/Input";
 import {
   createHandleSelectChange,
@@ -11,18 +12,19 @@ import {
   provinceOptions,
 } from "@/app/forms/utils/options";
 import SubmitButton from "@/components/SubmitButton";
-import SelectInput from "@/components/SelectStepForm";
-import CheckboxInput from "@/components/CheckboxStepForm";
+import SelectInput from "@/components/StepForm/SelectStepForm";
+import CheckboxInput from "@/components/StepForm/CheckboxStepForm";
 import { stepTwoFormAction } from "@/app/forms/discovery-lead/step-two/actions";
-import { useFormState } from "react-dom";
-import { FormErrors, canadaProvinces, USStates, leadType } from "@/types";
+import { FormErrors, leadType } from "@/types";
 import { useAddLeadContext } from "@/contexts/addDealContext";
 import FormQuestion from "@/components/FormQuestion";
+import PhoneInputForm from "@/components/StepForm/PhoneInputForm";
+import { cn } from "@/lib/utils";
 
 const initialState: FormErrors = {};
 
 export default function StepTwoForm() {
-  const [serverErrors, formAction] = useFormState(
+  const [serverErrors, formAction] = useActionState(
     stepTwoFormAction,
     initialState
   );
@@ -35,18 +37,16 @@ export default function StepTwoForm() {
   const handleCheckboxChange = createHandleCheckboxChange(updateNewLeadDetails);
 
   return (
-    <form action={formAction} className="flex flex-1 flex-col items-center p-4">
+    <form
+      action={formAction}
+      className={cn(
+        "flex flex-1 flex-col items-center p-4",
+        Object.keys(serverErrors || {}).length > 0
+          ? "border-2 border-red-500 bg-red-50 rounded"
+          : " bg-white  "
+      )}
+    >
       <div className="flex w-full flex-col gap-8 lg:max-w-[700px]">
-        <Input
-          label="Phone Number"
-          id="phone"
-          type="tel"
-          description="Please enter a valid phone number (10 digits)"
-          placeholder="123-456-7890"
-          errorMsg={serverErrors?.phone}
-          onChange={handleInputChange}
-          value={newLeadData.phone || ""}
-        />
         <SelectInput
           label="Country"
           id="country"
@@ -83,12 +83,20 @@ export default function StepTwoForm() {
             dataLoaded={dataLoaded}
           />
         )}
+        <PhoneInputForm
+          id="phone"
+          name="phone"
+          errorMsg={serverErrors?.phone}
+          onChange={handleInputChange}
+          value={newLeadData.phone || ""}
+        />
 
         <FormQuestion question="Are you calling for a business of for yourself?" />
         <CheckboxInput
           label="Lead Type"
           id="leadType"
           options={leadType}
+          disabledOption={"B2B (business related)"}
           errorMsg={serverErrors?.leadType}
           isMulti={false}
           value={newLeadData.leadType || ""}

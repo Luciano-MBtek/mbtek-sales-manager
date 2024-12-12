@@ -1,10 +1,10 @@
 "use client";
-import SelectInput from "@/components/SelectStepForm";
+import { useActionState } from "react";
+import SelectInput from "@/components/StepForm/SelectStepForm";
 import SubmitButton from "@/components/SubmitButton";
 import { stepFourFormAction } from "./action";
 import { FormErrors, LeadBuyingIntention } from "@/types";
-import { useFormState } from "react-dom";
-import { DatePickerForm } from "@/components/DatePickerStepForm";
+import { DatePickerForm } from "@/components/StepForm/DatePickerStepForm";
 import { useAddLeadContext } from "@/contexts/addDealContext";
 import FormQuestion from "@/components/FormQuestion";
 import {
@@ -12,6 +12,7 @@ import {
   createHandleSelectChange,
   getDateValue,
 } from "@/app/forms/utils/createHandlers";
+import { cn } from "@/lib/utils";
 
 const buyingIntentionOptions = LeadBuyingIntention.map((option) => ({
   label: option,
@@ -21,7 +22,7 @@ const buyingIntentionOptions = LeadBuyingIntention.map((option) => ({
 const initialState: FormErrors = {};
 
 export default function StepFourForm() {
-  const [serverErrors, formAction] = useFormState(
+  const [serverErrors, formAction] = useActionState(
     stepFourFormAction,
     initialState
   );
@@ -33,7 +34,15 @@ export default function StepFourForm() {
 
   const name = newLeadData.name;
   return (
-    <form action={formAction} className="flex flex-1 flex-col items-center p-4">
+    <form
+      action={formAction}
+      className={cn(
+        "flex flex-1 flex-col items-center p-4",
+        Object.keys(serverErrors || {}).length > 0
+          ? "border-2 border-red-500 bg-red-50 rounded"
+          : " bg-white  "
+      )}
+    >
       <div className="flex w-full flex-col gap-8 lg:max-w-[700px] ">
         <FormQuestion question="At what stage are you in your project?" />
         <SelectInput

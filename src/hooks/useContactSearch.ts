@@ -52,6 +52,7 @@ export function useContactSearch() {
   };
 
   const handleContactsSearch = (firstname: string, lastname: string) => {
+    console.log("Handle:", firstname, lastname);
     setError(null);
     setContact(null);
     startTransition(async () => {

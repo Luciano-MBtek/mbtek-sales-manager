@@ -1,21 +1,23 @@
-import { Fragment, useState, useMemo } from "react";
-import { useParams } from "next/navigation";
-
+import { Fragment, useState, useMemo, JSX } from "react";
 import {
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
   DialogFooter,
+  DialogClose,
 } from "@/components/ui/dialog";
+import { useParams } from "next/navigation";
 import { GetPropertyDetail } from "@/actions/getPropertyDetail";
-import { PropertyDetail } from "../types";
 import { DatePickerForm } from "./FormsProperties/DatePickerForm";
 import { TextForm } from "./FormsProperties/TextForm";
 import { TextAreaForm } from "./FormsProperties/TextAreaForm";
 import { SelectForm } from "./FormsProperties/SelectForm";
 import { RadioForm } from "./FormsProperties/RadioForm";
 import { CheckboxForm } from "./FormsProperties/CheckboxForm";
+import { Button } from "./ui/button";
+import { PropertyDetail } from "@/types";
+import { PhoneForm } from "./FormsProperties/PhoneForm";
 
 export function DialogCloseButton({
   property,
@@ -29,7 +31,6 @@ export function DialogCloseButton({
   const [propertyDetails, setPropertyDetails] = useState<PropertyDetail | null>(
     null
   );
-
   const [isLoading, setIsLoading] = useState(false);
   const params = useParams<{ id: string }>();
   const { id } = params;
@@ -39,7 +40,7 @@ export function DialogCloseButton({
       setIsLoading(true);
       try {
         const details = await GetPropertyDetail(property);
-
+        console.log(details);
         setPropertyDetails(details);
       } catch (error) {
         console.error("Error loading property details:", error);
@@ -58,6 +59,7 @@ export function DialogCloseButton({
       textArea: propertyDetails?.fieldType === "textarea",
       checkBox: propertyDetails?.fieldType === "checkbox",
       date: propertyDetails?.fieldType === "date",
+      phonenumber: propertyDetails?.fieldType === "phonenumber",
     }),
     [propertyDetails]
   );
@@ -72,7 +74,7 @@ export function DialogCloseButton({
     const { options, label } = propertyOptions;
 
     if (readOnly) {
-      return <p>Read only property, cannot be changed.</p>;
+      return <p>Read-only property; cannot be changed.</p>;
     }
 
     const fieldTypeMap: Record<string, JSX.Element> = {
@@ -105,6 +107,9 @@ export function DialogCloseButton({
         />
       ),
       date: <DatePickerForm label={label ?? ""} property={property} id={id} />,
+      phonenumber: (
+        <PhoneForm label={label ?? ""} property={property} id={id} />
+      ),
     };
 
     return Object.entries(propertyFieldTypes)
@@ -116,6 +121,7 @@ export function DialogCloseButton({
     <DialogContent
       className="sm:max-w-md"
       onOpenAutoFocus={loadPropertyDetails}
+      onCloseAutoFocus={onDialogClose}
     >
       <DialogHeader>
         <DialogTitle>{friendlyName}</DialogTitle>
@@ -131,11 +137,11 @@ export function DialogCloseButton({
         </div>
       )}
       <DialogFooter className="sm:justify-start">
-        {/* <DialogClose asChild>
+        <DialogClose asChild>
           <Button type="button" variant="secondary">
             Close
           </Button>
-        </DialogClose> */}
+        </DialogClose>
       </DialogFooter>
     </DialogContent>
   );

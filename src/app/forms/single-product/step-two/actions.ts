@@ -3,13 +3,16 @@ import { stepTwoSingleProductSchema } from "@/schemas/singleProductSchema";
 import { singleProductRoutes, FormErrors } from "@/types";
 import { redirect } from "next/navigation";
 
-export const stepTwoFormSingleProductAction = (
+export const stepTwoFormSingleProductAction = async (
   prevState: FormErrors | undefined,
   formData: FormData
-): FormErrors | undefined => {
-  const data = Object.fromEntries(formData.entries());
+): Promise<FormErrors | undefined> => {
+  const productsData = formData.get("products");
+  const products = productsData ? JSON.parse(productsData.toString()) : null;
+  const splitPayment = formData.get("splitPayment");
 
-  console.log(data);
+  const data = { products, splitPayment };
+
   const validated = stepTwoSingleProductSchema.safeParse(data);
   if (!validated.success) {
     const errors = validated.error.issues.reduce((acc: FormErrors, issue) => {
@@ -20,5 +23,5 @@ export const stepTwoFormSingleProductAction = (
     return errors;
   }
 
-  redirect(singleProductRoutes.SHIPPING_DATA);
+  redirect(singleProductRoutes.REVIEW_SINGLE_PRODUCT);
 };

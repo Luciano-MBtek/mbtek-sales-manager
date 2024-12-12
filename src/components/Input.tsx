@@ -16,6 +16,7 @@ interface InputProps {
   errorMsg?: string;
   placeholder?: string;
   value: string;
+  className?: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
@@ -33,9 +34,10 @@ export default function Input({
   placeholder = "",
   value,
   onChange,
+  className,
 }: InputProps) {
   return (
-    <div>
+    <div className={className}>
       <Label htmlFor={id} className="block text-zinc-700 text-md mb-2">
         {label}
       </Label>

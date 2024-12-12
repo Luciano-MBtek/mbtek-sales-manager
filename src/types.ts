@@ -10,9 +10,11 @@ export type Product = {
   id: string;
   name: string;
   sku: string;
+  quantity: number;
   price: number;
   image?: string;
   selected?: boolean;
+  isMain?: boolean;
 };
 
 type ContactProperties = {
@@ -26,14 +28,24 @@ type ContactProperties = {
 };
 
 export type ProgressProperties = {
+  id: string;
   firstname: string;
   lastname: string;
   leadStatus: string;
+  email: string;
+  state?: string;
+  province?: string;
+  city: string;
+  address: string;
+  zip: string;
   country_us_ca: string;
   totalProperties: number;
   emptyProperties: number;
   createDate: string;
   lastModifiedDate: string;
+  areDeals: boolean;
+  hasSchematic: boolean;
+  hasQuotes: boolean;
 };
 
 export type PropertyDetail = {
@@ -69,12 +81,19 @@ export enum collectDataRoutes {
   LEAD_QUALIFICATION_B2C = "/forms/discovery-lead/step-three-b2c",
   LEAD_QUALIFICATION_B2B = "/forms/discovery-lead/step-three-b2b",
   LEAD_QUALIFICATION_B2C_2 = "/forms/discovery-lead/step-four",
+  QUALIFICATION = "/forms/discovery-lead/step-five",
   REVIEW_LEAD = "/forms/discovery-lead/review",
 }
 
 export enum singleProductRoutes {
   SHIPPING_DATA = "/forms/single-product/step-one",
   PRODUCT_DATA = "/forms/single-product/step-two",
+  REVIEW_SINGLE_PRODUCT = "/forms/single-product/review",
+}
+
+export enum mainRoutes {
+  HOME = "/",
+  CONTACTS = "/contacts",
 }
 
 export const canadaProvinces = [
@@ -173,3 +192,37 @@ const YesOrNoArray = ["Yes", "No"];
 export const leadTypeTuple = leadType as [string, ...string[]];
 
 export const yesOrNoTuple = YesOrNoArray as [string, ...string[]];
+
+export interface DocumentationFile {
+  name: string;
+  type: string;
+  size: number;
+  buffer: Buffer;
+}
+
+export interface SchematicRequestData {
+  id: string;
+  firstname: string;
+  lastname: string;
+  email: string;
+  zip: string;
+  total_area: string;
+  number_zones: string;
+  square_feet_zone: string;
+  heat_elements: string[];
+  special_application: string;
+  extra_notes: string;
+  documentation?: DocumentationFile;
+}
+
+export type StringFields =
+  | "id"
+  | "firstname"
+  | "lastname"
+  | "email"
+  | "zip"
+  | "total_area"
+  | "number_zones"
+  | "square_feet_zone"
+  | "special_application"
+  | "extra_notes";

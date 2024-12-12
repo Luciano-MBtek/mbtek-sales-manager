@@ -1,96 +1,87 @@
 "use client";
 import Input from "@/components/Input";
-import { useFormState } from "react-dom";
-import {
-  createHandleSelectChange,
-  createHandleInputChange,
-} from "@/app/forms/utils/createHandlers";
+import { USState, canadaProvinceValues } from "@/types";
 import { stepOneFormSingleProductAction } from "./actions";
 import { FormErrors } from "@/types";
 import SubmitButton from "@/components/SubmitButton";
 import FormQuestion from "@/components/FormQuestion";
 import { useSingleProductContext } from "@/contexts/singleProductContext";
-import SelectInput from "@/components/SelectStepForm";
+import SelectInput from "@/components/StepForm/SelectStepForm";
 import {
   countryOptions,
   stateOptions,
   provinceOptions,
 } from "@/app/forms/utils/options";
-import { useSearchParams } from "next/navigation";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import InfoItem from "@/components/InfoItem";
-import { MailIcon, UserIcon } from "lucide-react";
-import { useEffect } from "react";
+
+import { useActionState, useEffect } from "react";
+import ContactFormCard from "@/components/StepForm/ContactFormCard";
+import { useContactStore, Contact } from "@/store/contact-store";
 
 const initialState: FormErrors = {};
 
 export default function StepSingleProductOneForm() {
   const { singleProductData, updateSingleProductDetails, dataLoaded } =
     useSingleProductContext();
-  const [serverErrors, formAction] = useFormState(
+  const [serverErrors, formAction] = useActionState(
     stepOneFormSingleProductAction,
     initialState
   );
-
-  const searchParams = useSearchParams();
+  const { contact, update } = useContactStore();
 
   useEffect(() => {
-    const paramsData = {
-      name: searchParams.get("name"),
-      lastname: searchParams.get("lastname"),
-      email: searchParams.get("email"),
-      country: searchParams.get("country"),
-      state: searchParams.get("state"),
-    };
-
-    const validParamsData = Object.fromEntries(
-      Object.entries(paramsData).filter(([_, value]) => value !== null)
-    );
-
-    if (Object.keys(validParamsData).length > 0) {
-      updateSingleProductDetails(validParamsData);
+    if (contact && dataLoaded) {
+      updateSingleProductDetails({
+        name: contact.firstname,
+        lastname: contact.lastname,
+        email: contact.email,
+        country: contact.country as "USA" | "Canada",
+        state: contact.state as USState,
+        province: contact.province as (typeof canadaProvinceValues)[number],
+        address: contact.address,
+        city: contact.city,
+        zip: contact.zip,
+        id: contact.id,
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [contact]);
 
   const formData = {
     ...singleProductData,
-    name: singleProductData.name || searchParams.get("name") || "",
-    lastname: singleProductData.lastname || searchParams.get("lastname") || "",
-    email: singleProductData.email || searchParams.get("email") || "",
-    country: singleProductData.country || searchParams.get("country") || "",
-    state: singleProductData.state || searchParams.get("state") || "",
+    name: singleProductData.name || contact?.firstname || "",
+    lastname: singleProductData.lastname || contact?.lastname || "",
+    email: singleProductData.email || contact?.email || "",
+    country: singleProductData.country || contact?.country || "",
+    state: singleProductData.state || contact?.state || "",
+    province: singleProductData.province || contact?.province || "",
+    address: singleProductData.address || contact?.address || "",
+    city: singleProductData.city || contact?.city || "",
+    zip: singleProductData.zip || contact?.zip || "",
+    id: singleProductData.id || contact?.id || "",
   };
 
-  const handleInputChange = createHandleInputChange(updateSingleProductDetails);
-  const handleSelectChange = createHandleSelectChange(
-    updateSingleProductDetails
-  );
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+
+    update({ ...contact, [name]: value } as Contact);
+    updateSingleProductDetails({ [name]: value });
+  };
+
+  const handleSelectChange = (field: string) => (value: string) => {
+    update({ ...contact, [field]: value } as Contact);
+    updateSingleProductDetails({ [field]: value });
+  };
 
   return (
     <div className="w-full flex flex-col items-center">
       <div className="w-full p-4">
-        <Card className="shadow-lg w-full">
-          <CardHeader>
-            <CardTitle className="text-2xl font-bold">
-              Lead Information - Shipping information
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="grid gap-6 ">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <InfoItem
-                icon={<UserIcon className="h-5 w-5" />}
-                label="Name"
-                value={`${formData.name} ${formData.lastname}`}
-              />
-              <InfoItem
-                icon={<MailIcon className="h-5 w-5" />}
-                label="Email"
-                value={formData.email}
-              />
-            </div>
-          </CardContent>
-        </Card>
+        <ContactFormCard
+          title={"Lead Information - Shipping information"}
+          name={formData.name}
+          lastname={formData.lastname}
+          email={formData.email}
+          id={formData.id}
+        />
       </div>
       <form
         action={formAction}

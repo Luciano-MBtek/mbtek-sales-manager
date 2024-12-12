@@ -1,6 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -16,6 +16,7 @@ import ContactCard from "./ContactCard";
 import NoContactCard from "./NoContactCard";
 import { ContactList } from "./ContactList";
 import { useContactSearch } from "@/hooks/useContactSearch";
+import { useSingleProductContext } from "@/contexts/singleProductContext";
 
 export function SearchContactTab() {
   const [email, setEmail] = useState("");
@@ -23,6 +24,7 @@ export function SearchContactTab() {
   const [firstname, setFirstname] = useState("");
   const [lastname, setLastname] = useState("");
   const [selectedTab, setSelectedTab] = useState("email");
+  const { resetLocalStorage } = useSingleProductContext();
   const {
     contact,
     contacts,
@@ -31,6 +33,10 @@ export function SearchContactTab() {
     handleSearch,
     handleContactsSearch,
   } = useContactSearch();
+
+  useEffect(() => {
+    resetLocalStorage();
+  }, [resetLocalStorage]);
 
   const handleKeyDown = (
     e: React.KeyboardEvent<HTMLInputElement>,
@@ -46,10 +52,10 @@ export function SearchContactTab() {
   };
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-2 w-full p-4">
       <Tabs
         defaultValue="email"
-        className="w-[1000px]"
+        className="flex flex-col w-full"
         onValueChange={(value) => setSelectedTab(value)}
       >
         <TabsList className="grid w-full grid-cols-3">
@@ -59,8 +65,8 @@ export function SearchContactTab() {
         </TabsList>
         <TabsContent value="email">
           <Card>
-            <div className="flex items-center justify-between">
-              <div className="w-[60%]">
+            <div className="flex flex-col lg:flex-row items-center justify-between">
+              <div className="flex flex-col justify-start flex-1">
                 <CardHeader>
                   <CardTitle>Search by email</CardTitle>
                   <CardDescription>
@@ -91,7 +97,7 @@ export function SearchContactTab() {
                   </Button>
                 </CardFooter>
               </div>
-              <div className="p-2">
+              <div className="flex flex-col flex-1 p-2">
                 {contact === 0 ? (
                   <NoContactCard
                     value={selectedTab === "email" ? "email" : "phone"}
@@ -112,8 +118,8 @@ export function SearchContactTab() {
                 <br></br> Can return a list of possible matchs.
               </CardDescription>
             </CardHeader>
-            <CardContent className="flex w-full items-center space-y-2 gap-10">
-              <div className="space-y-1">
+            <CardContent className="flex flex-col md:flex-row w-full items-center space-y-2 gap-10">
+              <div className="w-full space-y-1">
                 <Label htmlFor="name">Firstname</Label>
                 <Input
                   id="name"
@@ -125,10 +131,10 @@ export function SearchContactTab() {
                       handleContactsSearch(firstname, lastname)
                     )
                   }
-                  className="w-[250px]"
+                  className=""
                 />
               </div>
-              <div className="space-y-1">
+              <div className="w-full space-y-1">
                 <Label htmlFor="lastname">Lastname</Label>
                 <Input
                   id="lastname"
@@ -140,13 +146,13 @@ export function SearchContactTab() {
                       handleContactsSearch(firstname, lastname)
                     )
                   }
-                  className="w-[250px]"
+                  className=""
                 />
               </div>
             </CardContent>
             <CardFooter>
               <Button
-                onClick={() => () => handleContactsSearch(firstname, lastname)}
+                onClick={() => handleContactsSearch(firstname, lastname)}
                 disabled={isPending || (!firstname && !lastname)}
               >
                 {isPending ? "Searching..." : "Search"}
@@ -157,7 +163,7 @@ export function SearchContactTab() {
         <TabsContent value="phone">
           <Card>
             <div className="flex items-center justify-between">
-              <div className="w-[60%]">
+              <div className="flex flex-col justify-start flex-1">
                 <CardHeader>
                   <CardTitle>Search by phone</CardTitle>
                   <CardDescription>
@@ -187,7 +193,7 @@ export function SearchContactTab() {
                   </Button>
                 </CardFooter>
               </div>
-              <div className="p-2">
+              <div className="flex flex-col flex-1 p-2">
                 {contact === 0 ? (
                   <NoContactCard
                     value={selectedTab === "email" ? "email" : "phone"}

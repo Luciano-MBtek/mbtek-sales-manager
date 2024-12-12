@@ -30,20 +30,26 @@ export function ContactList({ contacts }: ContactListProps) {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {contacts.map((contact) => (
-          <TableRow key={contact.id}>
-            <TableCell className="font-medium">
-              {contact.properties.firstname} {contact.properties.lastname}
-            </TableCell>
-            <TableCell>{contact.properties.email}</TableCell>
-            <TableCell>{contact.properties.phone}</TableCell>
-            <TableCell className="text-right">
-              <Link href={`/contacts/${contact.id}`}>
-                <Button>Details</Button>
-              </Link>
-            </TableCell>
-          </TableRow>
-        ))}
+        {contacts.map((contact) => {
+          const { firstname, lastname, email, phone } = contact.properties;
+
+          return (
+            <TableRow key={contact.id}>
+              <TableCell className="font-medium">
+                {firstname} {lastname}
+              </TableCell>
+              <TableCell>{email}</TableCell>
+              <TableCell>{phone}</TableCell>
+              <TableCell className="text-right">
+                <Link
+                  href={`/contacts/${contact.id}?name=${firstname}&lastname=${lastname}`}
+                >
+                  <Button>Details</Button>
+                </Link>
+              </TableCell>
+            </TableRow>
+          );
+        })}
       </TableBody>
     </Table>
   );

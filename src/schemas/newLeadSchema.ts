@@ -9,12 +9,13 @@ import {
   leadTypeTuple,
 } from "@/types";
 
-const phoneSchema = z
+export const phoneSchema = z
   .string()
   .regex(
-    /^\d{10}$/,
-    "Please enter a valid 10-digit phone number (e.g., 6163354521)"
-  );
+    /^(\+\d{1,3}[-.\s]?)?\(?([0-9]{3})\)?[-.\s]?([0-9]{3})[-.\s]?([0-9]{4})$/,
+    "Please enter a valid phone number (e.g., +1 (616) 335-4521 or 6163354521)"
+  )
+  .transform((val) => val.replace(/[-.\s()]/g, ""));
 
 export const stepOneSchema = z.object({
   name: z.string().min(1, "Please enter lead's name."),
@@ -47,13 +48,19 @@ export const stepTwoSchema = z.discriminatedUnion("country", [
 
 export const stepThreeBaseSchema = z.object({
   projectSummary: z
-    .string()
-    .min(5, "Please enter at least 5 characters")
-    .max(300, "Please enter no more than 300 characters"),
+    .enum(yesOrNoTuple, {
+      errorMap: () => ({ message: "Please select Yes or No" }),
+    })
+    .refine((val) => val !== "No", {
+      message: "You have to ask the question",
+    }),
   reasonForCalling: z
-    .string()
-    .min(3, "Please enter at least 3 characters")
-    .max(300, "Please enter no more than 300 characters"),
+    .enum(yesOrNoTuple, {
+      errorMap: () => ({ message: "Please select Yes or No" }),
+    })
+    .refine((val) => val !== "No", {
+      message: "You have to ask the question",
+    }),
   wantCompleteSystem: z.enum(yesOrNoTuple, {
     errorMap: () => ({ message: "Please select Yes or No" }),
   }),
@@ -105,6 +112,21 @@ export const stepFourSchema = z.object({
     }, "You must choose a date. If there's no date, pick the current date."),
 });
 
+export const stepFiveSchema = z.object({
+  decisionMaker: z.enum(yesOrNoTuple, {
+    errorMap: () => ({ message: "Please select Yes or No" }),
+  }),
+  goodFitForLead: z.enum(yesOrNoTuple, {
+    errorMap: () => ({ message: "Please select Yes or No" }),
+  }),
+  moneyAvailability: z.enum(yesOrNoTuple, {
+    errorMap: () => ({ message: "Please select Yes or No" }),
+  }),
+  estimatedTimeForBuying: z.enum(yesOrNoTuple, {
+    errorMap: () => ({ message: "Please select Yes or No" }),
+  }),
+});
+
 export const newLeadSchema = z
   .discriminatedUnion("country", [
     z.object({
@@ -119,6 +141,7 @@ export const newLeadSchema = z
       }),
       ...stepThreeBaseSchema.shape,
       ...stepFourSchema.shape,
+      ...stepFiveSchema.shape,
     }),
     z.object({
       ...stepOneSchema.shape,
@@ -132,6 +155,7 @@ export const newLeadSchema = z
       }),
       ...stepThreeBaseSchema.shape,
       ...stepFourSchema.shape,
+      ...stepFiveSchema.shape,
     }),
   ])
   .superRefine((data, ctx) => {
@@ -171,6 +195,10 @@ export const newLeadInitialValuesSchema = z.object({
   stepsForDecision: z.string().optional(),
   leadBuyingIntention: z.string().optional(),
   expectedETA: z.string().optional(),
+  decisionMaker: z.string().optional(),
+  goodFitForLead: z.string().optional(),
+  moneyAvailability: z.string().optional(),
+  estimatedTimeForBuying: z.string().optional(),
 });
 
 export type newLeadType = z.infer<typeof newLeadSchema>;
