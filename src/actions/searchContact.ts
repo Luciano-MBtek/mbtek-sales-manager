@@ -1,5 +1,7 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
+
 export async function searchContact(
   value: string,
   propertyType: "email" | "phone"
@@ -19,7 +21,11 @@ export async function searchContact(
           filterGroups: [
             {
               filters: [
-                { propertyName: propertyType, operator: "EQ", value: value },
+                {
+                  propertyName: propertyType,
+                  operator: "CONTAINS_TOKEN",
+                  value: `*${value}`,
+                },
               ],
             },
           ],
@@ -39,6 +45,8 @@ export async function searchContact(
     }
 
     const data = await response.json();
+
+    revalidatePath("/contacts");
 
     if (data.total === 0) {
       return 0;

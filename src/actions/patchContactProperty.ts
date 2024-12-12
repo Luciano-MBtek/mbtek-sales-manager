@@ -34,7 +34,9 @@ export async function patchContactProperty(
     }
 
     const data = await response.json();
-    revalidatePath(`/contacts${id}`);
+    revalidatePath(`/contacts/${id}`);
+    revalidatePath(`/contacts/${id}/properties`);
+
     return data;
   } catch (error) {
     console.error("Error updating contact property:", error);

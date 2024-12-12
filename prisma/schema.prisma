@@ -1,0 +1,65 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            BigInt             @id @default(autoincrement())
+  name          String
+  email         String             @unique
+  accessLevel   Role               @map("access_level")
+  activities    Activity[]
+  favoriteLeads UserFavoriteLead[]
+  recentLeads   UserRecentLead[]
+}
+
+enum Role {
+  owner
+  admin
+  manager
+}
+
+model Activity {
+  id           BigInt   @id @default(autoincrement())
+  user         User     @relation(fields: [userId], references: [id])
+  userId       BigInt
+  activityType String   @map("activity_type")
+  activityDate DateTime @default(now()) @map("activity_date")
+  details      String?
+
+  @@map("activities")
+}
+
+model Lead {
+  id         BigInt             @id @default(autoincrement())
+  hubspotId  String             @unique @map("hubspot_id")
+  name       String
+  email      String
+  favoriteBy UserFavoriteLead[]
+  recentBy   UserRecentLead[]
+}
+
+model UserFavoriteLead {
+  id     BigInt @id @default(autoincrement())
+  user   User   @relation(fields: [userId], references: [id])
+  userId BigInt
+  lead   Lead   @relation(fields: [leadId], references: [id])
+  leadId BigInt
+
+  @@map("user_favorite_leads")
+}
+
+model UserRecentLead {
+  id         BigInt   @id @default(autoincrement())
+  user       User     @relation(fields: [userId], references: [id])
+  userId     BigInt
+  lead       Lead     @relation(fields: [leadId], references: [id])
+  leadId     BigInt
+  accessedAt DateTime @default(now()) @map("accessed_at")
+
+  @@map("user_recent_leads")
+}

@@ -1,6 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { useState, useTransition } from "react";
+import { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -12,66 +12,32 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { searchContact } from "@/actions/searchContact";
 import ContactCard from "./ContactCard";
 import NoContactCard from "./NoContactCard";
-import { searchContacts } from "@/actions/searchContactsByName";
 import { ContactList } from "./ContactList";
+import { useContactSearch } from "@/hooks/useContactSearch";
+import { useSingleProductContext } from "@/contexts/singleProductContext";
 
 export function SearchContactTab() {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [firstname, setFirstname] = useState("");
   const [lastname, setLastname] = useState("");
-  const [contacts, setContacts] = useState(null);
   const [selectedTab, setSelectedTab] = useState("email");
-  const [contact, setContact] = useState(null);
-  const [isPending, startTransition] = useTransition();
-  const [error, setError] = useState<string | null>(null);
+  const { resetLocalStorage } = useSingleProductContext();
+  const {
+    contact,
+    contacts,
+    isPending,
+    error,
+    handleSearch,
+    handleContactsSearch,
+  } = useContactSearch();
 
-  const handleSearch = () => {
-    setError(null);
-    setContacts(null);
-    const searchValue = selectedTab === "email" ? email : phone;
-    const propertyType = selectedTab === "email" ? "email" : "phone";
-    startTransition(async () => {
-      try {
-        const result = await searchContact(searchValue, propertyType);
-        setContact(result);
-      } catch (err: unknown) {
-        if (err instanceof Error) {
-          setError(err.message);
-        } else {
-          setError("An unknown error occurred");
-        }
-      }
-    });
-  };
+  useEffect(() => {
+    resetLocalStorage();
+  }, [resetLocalStorage]);
 
-  const handleContactsSearch = () => {
-    setError(null);
-    setContact(null);
-    startTransition(async () => {
-      try {
-        if (firstname && lastname) {
-          const result = await searchContacts(firstname, lastname);
-          setContacts(result);
-        } else if (firstname) {
-          const result = await searchContacts(firstname);
-          setContacts(result);
-        } else if (lastname) {
-          const result = await searchContacts(firstname, lastname);
-          setContacts(result);
-        }
-      } catch (err: unknown) {
-        if (err instanceof Error) {
-          setError(err.message);
-        } else {
-          setError("An unknown error occurred");
-        }
-      }
-    });
-  };
   const handleKeyDown = (
     e: React.KeyboardEvent<HTMLInputElement>,
     searchFunction: () => void
@@ -86,10 +52,10 @@ export function SearchContactTab() {
   };
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-2 w-full p-4">
       <Tabs
         defaultValue="email"
-        className="w-[1000px]"
+        className="flex flex-col w-full"
         onValueChange={(value) => setSelectedTab(value)}
       >
         <TabsList className="grid w-full grid-cols-3">
@@ -99,8 +65,8 @@ export function SearchContactTab() {
         </TabsList>
         <TabsContent value="email">
           <Card>
-            <div className="flex items-center justify-between">
-              <div className="w-[60%]">
+            <div className="flex flex-col lg:flex-row items-center justify-between">
+              <div className="flex flex-col justify-start flex-1">
                 <CardHeader>
                   <CardTitle>Search by email</CardTitle>
                   <CardDescription>
@@ -115,18 +81,23 @@ export function SearchContactTab() {
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      onKeyDown={(e) => handleKeyDown(e, handleSearch)}
+                      onKeyDown={(e) =>
+                        handleKeyDown(e, () => handleSearch(email, "email"))
+                      }
                     />
                   </div>
                 </CardContent>
 
                 <CardFooter>
-                  <Button onClick={handleSearch} disabled={isPending || !email}>
+                  <Button
+                    onClick={() => handleSearch(email, "email")}
+                    disabled={isPending || !email}
+                  >
                     {isPending ? "Searching..." : "Search"}
                   </Button>
                 </CardFooter>
               </div>
-              <div className="p-2">
+              <div className="flex flex-col flex-1 p-2">
                 {contact === 0 ? (
                   <NoContactCard
                     value={selectedTab === "email" ? "email" : "phone"}
@@ -147,33 +118,41 @@ export function SearchContactTab() {
                 <br></br> Can return a list of possible matchs.
               </CardDescription>
             </CardHeader>
-            <CardContent className="flex w-full items-center space-y-2 gap-10">
-              <div className="space-y-1">
+            <CardContent className="flex flex-col md:flex-row w-full items-center space-y-2 gap-10">
+              <div className="w-full space-y-1">
                 <Label htmlFor="name">Firstname</Label>
                 <Input
                   id="name"
                   type="text"
                   value={firstname}
                   onChange={(e) => setFirstname(e.target.value)}
-                  onKeyDown={(e) => handleKeyDown(e, handleContactsSearch)}
-                  className="w-[250px]"
+                  onKeyDown={(e) =>
+                    handleKeyDown(e, () =>
+                      handleContactsSearch(firstname, lastname)
+                    )
+                  }
+                  className=""
                 />
               </div>
-              <div className="space-y-1">
+              <div className="w-full space-y-1">
                 <Label htmlFor="lastname">Lastname</Label>
                 <Input
                   id="lastname"
                   type="text"
                   value={lastname}
                   onChange={(e) => setLastname(e.target.value)}
-                  onKeyDown={(e) => handleKeyDown(e, handleContactsSearch)}
-                  className="w-[250px]"
+                  onKeyDown={(e) =>
+                    handleKeyDown(e, () =>
+                      handleContactsSearch(firstname, lastname)
+                    )
+                  }
+                  className=""
                 />
               </div>
             </CardContent>
             <CardFooter>
               <Button
-                onClick={handleContactsSearch}
+                onClick={() => handleContactsSearch(firstname, lastname)}
                 disabled={isPending || (!firstname && !lastname)}
               >
                 {isPending ? "Searching..." : "Search"}
@@ -184,7 +163,7 @@ export function SearchContactTab() {
         <TabsContent value="phone">
           <Card>
             <div className="flex items-center justify-between">
-              <div className="w-[60%]">
+              <div className="flex flex-col justify-start flex-1">
                 <CardHeader>
                   <CardTitle>Search by phone</CardTitle>
                   <CardDescription>
@@ -199,17 +178,22 @@ export function SearchContactTab() {
                       type="tel"
                       value={phone}
                       onChange={handlePhoneChange}
-                      onKeyDown={(e) => handleKeyDown(e, handleSearch)}
+                      onKeyDown={(e) =>
+                        handleKeyDown(e, () => handleSearch(phone, "phone"))
+                      }
                     />
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Button onClick={handleSearch} disabled={isPending || !phone}>
+                  <Button
+                    onClick={() => handleSearch(phone, "phone")}
+                    disabled={isPending || !phone}
+                  >
                     {isPending ? "Searching..." : "Search"}
                   </Button>
                 </CardFooter>
               </div>
-              <div className="p-2">
+              <div className="flex flex-col flex-1 p-2">
                 {contact === 0 ? (
                   <NoContactCard
                     value={selectedTab === "email" ? "email" : "phone"}

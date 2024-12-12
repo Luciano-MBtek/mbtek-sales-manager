@@ -1,6 +1,7 @@
 "use client";
 
-import { useAddDealContext } from "@/contexts/addDealContext";
+import { Input as ShadcnInput } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 interface InputProps {
   label: string;
@@ -14,11 +15,15 @@ interface InputProps {
   max?: number;
   errorMsg?: string;
   placeholder?: string;
+  value: string;
+  className?: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
+
 export default function Input({
   label,
   id,
-  required,
+  required = false,
   pattern,
   type,
   minLength,
@@ -26,27 +31,20 @@ export default function Input({
   max,
   description,
   errorMsg,
-  placeholder,
+  placeholder = "",
+  value,
+  onChange,
+  className,
 }: InputProps) {
-  const { updateNewDealDetails, newDealData } = useAddDealContext();
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    updateNewDealDetails({ [e.target.name]: e.target.value });
-  };
-
   return (
-    <div>
-      <label className="block text-black text-lg" htmlFor={id}>
+    <div className={className}>
+      <Label htmlFor={id} className="block text-zinc-700 text-md mb-2">
         {label}
-        {description && (
-          <span className="text-sm text-slate-400 block mb-1">
-            {description}
-          </span>
-        )}
-      </label>
-      <input
-        className={`w-full rounded-md py-4 px-2 text-slate-900 ${
-          errorMsg ? "border-red-500" : "border-slate-300"
-        } border-2`}
+      </Label>
+      {description && (
+        <p className="text-sm text-gray-500 mb-2">{description}</p>
+      )}
+      <ShadcnInput
         type={type}
         name={id}
         id={id}
@@ -56,8 +54,11 @@ export default function Input({
         minLength={minLength}
         min={min}
         max={max}
-        onChange={handleInputChange}
-        defaultValue={newDealData[id as keyof typeof newDealData]}
+        value={value}
+        onChange={onChange}
+        className={`w-full rounded-md py-4 px-2 text-slate-900 border-2 ${
+          errorMsg ? "border-red-500" : "border-slate-300"
+        }`}
       />
       <div className="min-h-8 mt-1">
         {errorMsg && (

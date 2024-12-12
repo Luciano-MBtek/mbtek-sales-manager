@@ -1,37 +1,45 @@
 import { GetContactById } from "@/actions/getContactById";
 import ContactStepProgress from "@/components/ContactStepProgress";
-import { Properties, columns } from "@/components/steps/columns";
-import { DataTable } from "@/components/steps/data-table";
-import { propertyNameMap, dateProperties } from "@/components/steps/utils";
-import { ProgressProperties } from "@/../types";
-import Stepper from "@/components/Stepper";
+import { ProgressProperties } from "@/types";
+import { SchematicData } from "@/schemas/schematicRequestSchema";
+import SchematicRequestCard from "@/components/SchematicRequestCard";
+
+import { checkDealsExist } from "@/actions/getDeals";
+import { getQuoteById } from "@/actions/getQuoteById";
 
 type Props = {
-  params: { id: string };
+  params: Promise<{ id: string }>;
+};
+type SchematicDisplayData = Omit<
+  SchematicData,
+  "firstname" | "lastname" | "email" | "zip"
+> & {
+  documentation: string;
 };
 
-const contactFullData = async ({ params: { id } }: Props) => {
+const ContactFullData = async (props: Props) => {
+  const params = await props.params;
+
+  const { id } = params;
+
   const contact = await GetContactById(id);
 
-  const formattedProperties: Properties[] = Object.entries(contact.properties)
-    .filter(([property]) => !dateProperties.hasOwnProperty(property))
-    .map(([property, value]) => {
-      const mappedProperty = propertyNameMap[property] || {
-        friendlyName: property,
-        step: 0,
-      };
-      return {
-        friendlyName: mappedProperty.friendlyName,
-        property,
-        value: value !== null ? String(value) : "N/A",
-        step: mappedProperty.step,
-      };
-    });
+  const deals = await checkDealsExist(id);
+
+  const quotes = await getQuoteById(id);
+
+  const hasSchematicRequest = Boolean(
+    contact.properties.total_area_house && contact.properties.number_of_zones
+  );
+  const hasQuotes = quotes.length > 0;
 
   const progressProperties: ProgressProperties = {
+    id: id,
     firstname: contact.properties.firstname || "N/A",
     lastname: contact.properties.lastname || "N/A",
     leadStatus: contact.properties.hs_lead_status || "N/A",
+    email: contact.properties.email || "N/A",
+    address: contact.properties.address || "N/A",
     country_us_ca: contact.properties.country_us_ca || "N/A",
     totalProperties: Object.keys(contact.properties).length,
     emptyProperties: Object.values(contact.properties).filter(
@@ -39,17 +47,22 @@ const contactFullData = async ({ params: { id } }: Props) => {
     ).length,
     createDate: contact.properties.createdate || "N/A",
     lastModifiedDate: contact.properties.lastmodifieddate || "N/A",
+    state: contact.properties.state_usa,
+    province: contact.properties.province_territory,
+    city: contact.properties.city || "N/A",
+    zip: contact.properties.zip || "N/A",
+    areDeals: deals,
+    hasSchematic: hasSchematicRequest,
+    hasQuotes: hasQuotes,
   };
 
   return (
-    <div className="flex flex-col items-center justify-center">
-      <div className="flex w-full items-center justify-between">
+    <div className="flex w-full flex-col items-center justify-center">
+      <div className="flex  gap-2 w-full items-center justify-between">
         <ContactStepProgress properties={progressProperties} />
-        <Stepper />
       </div>
-      <DataTable columns={columns} data={formattedProperties} />
     </div>
   );
 };
 
-export default contactFullData;
+export default ContactFullData;
