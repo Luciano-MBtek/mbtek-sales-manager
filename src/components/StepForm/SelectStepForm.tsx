@@ -36,7 +36,7 @@ export default function SelectInput({
       </Label>
       {!dataLoaded && <Skeleton className="w-full h-12 rounded-md" />}
       {dataLoaded && (
-        <Select onValueChange={onChange} name={id} value={value}>
+        <Select onValueChange={onChange} name={id} value={value || undefined}>
           <SelectTrigger
             id={id}
             className={`w-full rounded-md py-4 px-2 text-slate-900 border-2 ${

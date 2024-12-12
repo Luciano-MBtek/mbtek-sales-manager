@@ -1,16 +1,15 @@
 "use client";
 import { useActionState } from "react";
 import SubmitButton from "@/components/SubmitButton";
-import {
-  createHandleInputChange,
-  createHandleRadioChange,
-} from "../../utils/createHandlers";
+import { createHandleInputChange } from "../../utils/createHandlers";
 import { stepThreeFormAction } from "./actions";
 import { FormErrors, YesOrNo } from "@/types";
-import TextAreaInput from "@/components/StepForm/TextAreaStepForm";
+
 import RadioInput from "@/components/StepForm/RadioButtonStepForm";
 import { useAddLeadContext } from "@/contexts/addDealContext";
 import Input from "@/components/Input";
+import FormQuestion from "@/components/FormQuestion";
+import { cn } from "@/lib/utils";
 
 const initialState: FormErrors = {};
 
@@ -27,28 +26,38 @@ export default function StepThreeForm() {
   const handleInputChange = createHandleInputChange(updateNewLeadDetails);
 
   return (
-    <form action={formAction} className="flex flex-1 flex-col items-center">
-      <div className="flex w-full flex-col gap-8 lg:max-w-[700px] ">
-        <TextAreaInput
+    <form
+      action={formAction}
+      className={cn(
+        "flex flex-1 flex-col items-center p-2",
+        Object.keys(serverErrors || {}).length > 0
+          ? "border-2 border-red-500 bg-red-50 rounded"
+          : " bg-white  "
+      )}
+    >
+      <div className="flex w-full flex-col gap-8 lg:max-w-[700px]  ">
+        <FormQuestion question="Can you tell me more about your project?" />
+
+        <RadioInput
+          label="Asked?"
           id="projectSummary"
-          label="Project Summary"
-          maxLength={300}
-          minLength={5}
-          description="Little summary of the project"
+          options={options}
           errorMsg={serverErrors?.projectSummary}
           value={newLeadData.projectSummary || ""}
-          onChange={handleInputChange}
+          onChange={(value) => updateNewLeadDetails({ projectSummary: value })}
         />
 
-        <TextAreaInput
+        <FormQuestion question="What is the main reason you decided to give us a call today?" />
+
+        <RadioInput
+          label="Asked?"
           id="reasonForCalling"
-          label="Reason for calling us"
-          maxLength={300}
-          minLength={3}
-          description="Why did you reach to us?"
+          options={options}
           errorMsg={serverErrors?.reasonForCalling}
           value={newLeadData.reasonForCalling || ""}
-          onChange={handleInputChange}
+          onChange={(value) =>
+            updateNewLeadDetails({ reasonForCalling: value })
+          }
         />
 
         <RadioInput

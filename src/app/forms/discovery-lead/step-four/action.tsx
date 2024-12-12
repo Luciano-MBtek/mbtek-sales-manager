@@ -11,6 +11,8 @@ export const stepFourFormAction = async (
 
   const validated = stepFourSchema.safeParse(data);
 
+  console.log(validated);
+
   if (!validated.success) {
     const errors = validated.error.issues.reduce((acc: FormErrors, issue) => {
       const path = issue.path[0] as string;

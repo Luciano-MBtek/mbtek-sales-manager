@@ -31,48 +31,114 @@ const schematicProperties = [
   },
 ];
 
+const leadQualificationProperties = [
+  {
+    hs_object_id: {
+      friendlyName: "Record ID",
+      step: 1,
+    },
+    country_us_ca: {
+      friendlyName: "Country",
+      step: 1,
+    },
+    state_usa: {
+      friendlyName: "State",
+      step: 1,
+    },
+    province_territory: {
+      friendlyName: "Province",
+      step: 1,
+    },
+    email: {
+      friendlyName: "Email",
+      step: 1,
+    },
+    firstname: {
+      friendlyName: "Name",
+      step: 1,
+    },
+    lastname: {
+      friendlyName: "Last Name",
+      step: 1,
+    },
+    phone: {
+      friendlyName: "Phone",
+      step: 1,
+    },
+    lead_type: {
+      friendlyName: "Lead Type",
+      step: 1,
+    },
+    project_summary_user: {
+      friendlyName: "Project Summary",
+      step: 1,
+    },
+    reason_for_calling_us: {
+      friendlyName: "Reason for Calling us",
+      step: 1,
+    },
+    want_a_complete_system_: {
+      friendlyName: "Want a complete system",
+      step: 1,
+    },
+    allocated_budget: {
+      friendlyName: "Allocated budget",
+      step: 1,
+    },
+    steps_for_decision: {
+      friendlyName: "Steps for Decision",
+      step: 1,
+    },
+    expected_eta: {
+      friendlyName: "Expected ETA",
+      step: 1,
+    },
+    decision_maker: {
+      friendlyName: "Decision Maker",
+      step: 1,
+    },
+    good_fit_for_lead_: {
+      friendlyName: "Are we a good fit for this lead?",
+      step: 1,
+    },
+    money_availability: {
+      friendlyName: "Does the lead have or can get the money?",
+      step: 1,
+    },
+    estimated_time_for_buying: {
+      friendlyName: "Is the timing right with this lead?",
+      step: 1,
+    },
+  },
+];
+
+const shippingData = [
+  {
+    address: {
+      friendlyName: "Street address",
+      step: 2,
+    },
+    city: {
+      friendlyName: "City",
+      step: 2,
+    },
+    zip: {
+      friendlyName: "zip/postal code",
+      step: 2,
+    },
+    split_payment: {
+      friendlyName: "Require split payment?",
+      step: 2,
+    },
+  },
+];
+
 export const propertyNameMap: Record<
   string,
   { friendlyName: string; step: number }
 > = {
-  country_us_ca: { friendlyName: "Country", step: 1 },
-  state_usa: {
-    friendlyName: "State",
-    step: 1,
-  },
-  province_territory: {
-    friendlyName: "Province",
-    step: 1,
-  },
-  email: { friendlyName: "Email", step: 1 },
-  firstname: { friendlyName: "Name", step: 1 },
-  hs_lead_status: { friendlyName: "Lead Status", step: 1 },
-  hs_object_id: { friendlyName: "ID", step: 1 },
-  lastname: { friendlyName: "Last Name", step: 1 },
-  lead_source: { friendlyName: "Lead Source", step: 1 },
-  lead_type: { friendlyName: "Lead Type", step: 1 },
-  phone: { friendlyName: "Phone", step: 1 },
-  reason_for_calling_us: { friendlyName: "Reason for Calling us", step: 2 },
-  want_a_complete_system_: { friendlyName: "Want a complete system", step: 2 },
-  allocated_budget: { friendlyName: "Allocated budget", step: 2 },
-  lead_buying_intention: { friendlyName: "Stage on the project", step: 2 },
-  expected_eta: { friendlyName: "Expected ETA", step: 2 },
-  is_contact_the_decision_maker_: {
-    friendlyName: "Is the contact the decision maker",
-    step: 2,
-  },
-  good_fit_for_lead_: {
-    friendlyName: "Are we a good fit for this lead?",
-    step: 2,
-  },
-  money_availability: {
-    friendlyName: "Does the lead have or can get the money?",
-    step: 2,
-  },
-  estimated_time_for_buying: {
-    friendlyName: "Is the timing right with this lead?",
-    step: 2,
-  },
+  ...leadQualificationProperties[0],
+  ...shippingData[0],
   project_summary_user: {
     friendlyName: "Project Summary",
     step: 3,
@@ -109,18 +175,6 @@ export const propertyNameMap: Record<
   },
   interested_to_be_financed: {
     friendlyName: "Interested to be financed",
-    step: 4,
-  },
-  address: {
-    friendlyName: "Street address",
-    step: 4,
-  },
-  city: {
-    friendlyName: "City",
-    step: 4,
-  },
-  zip: {
-    friendlyName: "zip/postal code",
     step: 4,
   },
   special_requierments: {

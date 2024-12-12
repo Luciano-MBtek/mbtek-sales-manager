@@ -9,7 +9,7 @@ import {
   leadTypeTuple,
 } from "@/types";
 
-const phoneSchema = z
+export const phoneSchema = z
   .string()
   .regex(
     /^(\+\d{1,3}[-.\s]?)?\(?([0-9]{3})\)?[-.\s]?([0-9]{3})[-.\s]?([0-9]{4})$/,
@@ -48,13 +48,19 @@ export const stepTwoSchema = z.discriminatedUnion("country", [
 
 export const stepThreeBaseSchema = z.object({
   projectSummary: z
-    .string()
-    .min(5, "Please enter at least 5 characters")
-    .max(300, "Please enter no more than 300 characters"),
+    .enum(yesOrNoTuple, {
+      errorMap: () => ({ message: "Please select Yes or No" }),
+    })
+    .refine((val) => val !== "No", {
+      message: "You have to ask the question",
+    }),
   reasonForCalling: z
-    .string()
-    .min(3, "Please enter at least 3 characters")
-    .max(300, "Please enter no more than 300 characters"),
+    .enum(yesOrNoTuple, {
+      errorMap: () => ({ message: "Please select Yes or No" }),
+    })
+    .refine((val) => val !== "No", {
+      message: "You have to ask the question",
+    }),
   wantCompleteSystem: z.enum(yesOrNoTuple, {
     errorMap: () => ({ message: "Please select Yes or No" }),
   }),

@@ -12,6 +12,7 @@ import {
   createHandleSelectChange,
   getDateValue,
 } from "@/app/forms/utils/createHandlers";
+import { cn } from "@/lib/utils";
 
 const buyingIntentionOptions = LeadBuyingIntention.map((option) => ({
   label: option,
@@ -33,7 +34,15 @@ export default function StepFourForm() {
 
   const name = newLeadData.name;
   return (
-    <form action={formAction} className="flex flex-1 flex-col items-center p-4">
+    <form
+      action={formAction}
+      className={cn(
+        "flex flex-1 flex-col items-center p-4",
+        Object.keys(serverErrors || {}).length > 0
+          ? "border-2 border-red-500 bg-red-50 rounded"
+          : " bg-white  "
+      )}
+    >
       <div className="flex w-full flex-col gap-8 lg:max-w-[700px] ">
         <FormQuestion question="At what stage are you in your project?" />
         <SelectInput

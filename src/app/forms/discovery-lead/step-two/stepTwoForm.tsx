@@ -19,6 +19,7 @@ import { FormErrors, leadType } from "@/types";
 import { useAddLeadContext } from "@/contexts/addDealContext";
 import FormQuestion from "@/components/FormQuestion";
 import PhoneInputForm from "@/components/StepForm/PhoneInputForm";
+import { cn } from "@/lib/utils";
 
 const initialState: FormErrors = {};
 
@@ -29,8 +30,6 @@ export default function StepTwoForm() {
   );
   const { newLeadData, updateNewLeadDetails, dataLoaded } = useAddLeadContext();
 
-  console.log(newLeadData);
-
   const handleInputChange = createHandleInputChange(updateNewLeadDetails);
 
   const handleSelectChange = createHandleSelectChange(updateNewLeadDetails);
@@ -38,18 +37,16 @@ export default function StepTwoForm() {
   const handleCheckboxChange = createHandleCheckboxChange(updateNewLeadDetails);
 
   return (
-    <form action={formAction} className="flex flex-1 flex-col items-center p-4">
+    <form
+      action={formAction}
+      className={cn(
+        "flex flex-1 flex-col items-center p-4",
+        Object.keys(serverErrors || {}).length > 0
+          ? "border-2 border-red-500 bg-red-50 rounded"
+          : " bg-white  "
+      )}
+    >
       <div className="flex w-full flex-col gap-8 lg:max-w-[700px]">
-        {/* <Input
-          label="Phone Number"
-          id="phone"
-          type="tel"
-          description="Please enter a valid phone number (10 digits)"
-          placeholder="123-456-7890"
-          errorMsg={serverErrors?.phone}
-          onChange={handleInputChange}
-          value={newLeadData.phone || ""}
-        /> */}
         <SelectInput
           label="Country"
           id="country"

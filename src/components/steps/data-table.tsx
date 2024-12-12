@@ -75,11 +75,11 @@ export function DataTable<TData, TValue>({
   });
 
   const stepMap: Record<number, string> = {
-    1: "Discovery Call",
-    2: "Lead Qualification",
-    3: "Data Collection 1",
-    4: "Complete System",
-    5: "Schematic Request",
+    1: "Discovery Call - Lead Qualification",
+    2: "Shipping Data",
+    3: "Schematic Request",
+    4: "Data Collection 1",
+    5: "Complete System",
   };
 
   return (

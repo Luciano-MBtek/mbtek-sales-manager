@@ -9,6 +9,7 @@ import { useSession } from "next-auth/react";
 import { useAddLeadContext } from "@/contexts/addDealContext";
 import { createHandleInputChange } from "@/app/forms/utils/createHandlers";
 import { useSearchParams } from "next/navigation";
+import { cn } from "@/lib/utils";
 
 const initialState: FormErrors = {};
 
@@ -49,7 +50,15 @@ export default function StepOneForm() {
 
   const handleInputChange = createHandleInputChange(updateNewLeadDetails);
   return (
-    <form action={formAction} className="flex flex-1 flex-col items-center p-4">
+    <form
+      action={formAction}
+      className={cn(
+        "flex flex-1 flex-col items-center p-4",
+        Object.keys(serverErrors || {}).length > 0
+          ? "border-2 border-red-500 bg-red-50 rounded"
+          : " bg-white  "
+      )}
+    >
       <div className="flex w-full flex-col gap-8 lg:max-w-[700px] ">
         <FormQuestion
           question={`Welcome to MBtek, my name is ${userName}. Can I have your name please?`}

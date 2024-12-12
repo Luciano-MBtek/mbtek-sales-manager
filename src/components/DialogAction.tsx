@@ -17,6 +17,7 @@ import { RadioForm } from "./FormsProperties/RadioForm";
 import { CheckboxForm } from "./FormsProperties/CheckboxForm";
 import { Button } from "./ui/button";
 import { PropertyDetail } from "@/types";
+import { PhoneForm } from "./FormsProperties/PhoneForm";
 
 export function DialogCloseButton({
   property,
@@ -39,6 +40,7 @@ export function DialogCloseButton({
       setIsLoading(true);
       try {
         const details = await GetPropertyDetail(property);
+        console.log(details);
         setPropertyDetails(details);
       } catch (error) {
         console.error("Error loading property details:", error);
@@ -57,6 +59,7 @@ export function DialogCloseButton({
       textArea: propertyDetails?.fieldType === "textarea",
       checkBox: propertyDetails?.fieldType === "checkbox",
       date: propertyDetails?.fieldType === "date",
+      phonenumber: propertyDetails?.fieldType === "phonenumber",
     }),
     [propertyDetails]
   );
@@ -104,6 +107,9 @@ export function DialogCloseButton({
         />
       ),
       date: <DatePickerForm label={label ?? ""} property={property} id={id} />,
+      phonenumber: (
+        <PhoneForm label={label ?? ""} property={property} id={id} />
+      ),
     };
 
     return Object.entries(propertyFieldTypes)
