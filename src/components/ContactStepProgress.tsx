@@ -21,6 +21,8 @@ import { Contact } from "@/store/contact-store";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { div } from "framer-motion/client";
 
 const ContactStepProgress = ({
   properties,
@@ -29,6 +31,13 @@ const ContactStepProgress = ({
 }) => {
   const { contact, update } = useContactStore();
   const router = useRouter();
+
+  const session = useSession();
+
+  const accessLevel = session.data?.user.accessLevel;
+  const allowRequest = accessLevel !== "schematic_team";
+
+  console.log(allowRequest);
 
   const {
     id,
@@ -204,7 +213,7 @@ const ContactStepProgress = ({
               </Badge>
             </div>
           </div>
-        ) : (
+        ) : allowRequest ? (
           <div className="flex items-center space-x-4">
             <PencilRuler className="w-6 h-6 text-primary" />
             <div className="flex items-center justify-between w-full">
@@ -217,6 +226,11 @@ const ContactStepProgress = ({
                 Request
               </Button>
             </div>
+          </div>
+        ) : (
+          <div>
+            <p>You are not a Sales Agent or Admin.</p>
+            <p>Sales Agents can only ask for schematics</p>
           </div>
         )}
         {hasQuotes && (

@@ -8,10 +8,11 @@ const ROUTES = {
     AUTH: "/api/auth/signin",
   },
   PROTECTED: {
-    CONTACTS: "/contacts",
-    USERDASHBOARD: "/dashboard",
-    FORMS: "/forms",
-    ADMINDASHBOARD: "/admin-dashboard",
+    CONTACTS: "/contacts/",
+    USERDASHBOARD: "/dashboard/",
+    FORMS: "/forms/",
+    ADMINDASHBOARD: "/admin-dashboard/",
+    SCHEMATICUP: "/forms/schematic-upload",
   },
 } as const;
 
@@ -33,9 +34,13 @@ const ACCESS_LEVELS = {
     ROUTES.PROTECTED.FORMS,
     ROUTES.PROTECTED.USERDASHBOARD,
   ],
+  schematic_team: [
+    ROUTES.PROTECTED.CONTACTS,
+    ROUTES.PROTECTED.FORMS,
+    ROUTES.PROTECTED.SCHEMATICUP,
+  ],
 } as const;
 
-// Helper functions to improve readability
 const isProtectedRoute = (path: string): boolean => {
   return Object.values(ROUTES.PROTECTED).some((route) =>
     path.startsWith(route)
@@ -45,7 +50,36 @@ const isProtectedRoute = (path: string): boolean => {
 const hasRouteAccess = (accessLevel: string, path: string): boolean => {
   const allowedRoutes =
     ACCESS_LEVELS[accessLevel as keyof typeof ACCESS_LEVELS] || [];
-  return allowedRoutes.some((route) => path.startsWith(route));
+
+  if ((allowedRoutes as readonly string[]).includes(path)) {
+    return true;
+  }
+
+  for (const route of allowedRoutes) {
+    if (route.endsWith("/") && path.startsWith(route)) {
+      // Existe una ruta base que podría permitir el acceso a esta subruta.
+      // Pero debemos asegurarnos que esta subruta no es una ruta especial
+      // que debería estar listada explícitamente y no lo está.
+
+      // Por ejemplo, si la subruta es /forms/schematic-upload y no está en la lista,
+      // entonces no está permitido.
+      if (
+        path === ROUTES.PROTECTED.SCHEMATICUP &&
+        !(allowedRoutes as readonly string[]).includes(
+          ROUTES.PROTECTED.SCHEMATICUP
+        )
+      ) {
+        return false;
+      }
+
+      // De lo contrario, si es una subruta no listada específicamente,
+      // pero hay una ruta base que la incluye, permitimos el acceso.
+      return true;
+    }
+  }
+
+  // Si no coincide con rutas exactas ni con base routes, no hay acceso.
+  return false;
 };
 
 export async function middleware(req: NextRequest) {

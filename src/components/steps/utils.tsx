@@ -28,6 +28,10 @@ const schematicProperties = [
       friendlyName: "Technical docs for building schematic",
       step: 5,
     },
+    schematic_image: {
+      friendlyName: "Technical draw",
+      step: 5,
+    },
   },
 ];
 

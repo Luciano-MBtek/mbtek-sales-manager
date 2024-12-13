@@ -95,7 +95,7 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
         {/* Group for Contact Lead */}
-        <SideBarContactGroup />
+        <SideBarContactGroup session={session} />
         {/* --------- */}
       </SidebarContent>
       <SidebarFooter>

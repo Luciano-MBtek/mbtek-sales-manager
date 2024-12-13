@@ -21,6 +21,7 @@ enum Role {
   owner
   admin
   manager
+  schematic_team
 }
 
 model Activity {

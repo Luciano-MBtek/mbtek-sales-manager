@@ -41,11 +41,20 @@ import {
 import SideBarAddToFavourite from "./SideBarAddToFavourite";
 import { useEffect, useState } from "react";
 import { checkContactFav } from "@/actions/contact/checkContactFav";
+import { Session } from "next-auth";
 
-const SideBarContactGroup = () => {
+interface SideBarContactGroupProps {
+  session: Session | null;
+}
+
+const SideBarContactGroup = ({ session }: SideBarContactGroupProps) => {
   const { contact, update, clear } = useContactStore();
   const [isFavorite, setIsFavorite] = useState(false);
   const [isCheckingFav, setIsCheckingFav] = useState(true);
+  const pathname = usePathname();
+  const router = useRouter();
+
+  console.log(session);
 
   useEffect(() => {
     const checkFavorite = async () => {
@@ -59,8 +68,11 @@ const SideBarContactGroup = () => {
     checkFavorite();
   }, [contact?.id]);
 
-  const pathname = usePathname();
-  const router = useRouter();
+  useEffect(() => {
+    if (!session) {
+      clear();
+    }
+  }, [session, clear]);
 
   if (!contact) return null;
 
@@ -77,6 +89,7 @@ const SideBarContactGroup = () => {
   const isDealsActive = pathname === dealsPath;
   const isSchematicActive = pathname === schematicPath;
   const isQuotesPathActive = pathname === quotesPath;
+  const isTechAgent = session?.user?.accessLevel === "schematic_team";
 
   const items = [
     {
@@ -96,10 +109,20 @@ const SideBarContactGroup = () => {
     },
   ];
 
+  const techAgentItems = [
+    {
+      title: "Schematic Upload",
+      url: "/forms/schematic-upload",
+      icon: Proportions,
+    },
+  ];
+
   const handleClearContact = () => {
     router.push("/contacts");
     clear();
   };
+
+  const displayItems = isTechAgent ? techAgentItems : items;
 
   return (
     <SidebarGroup>
@@ -248,7 +271,7 @@ const SideBarContactGroup = () => {
           </CollapsibleTrigger>
           <CollapsibleContent asChild>
             <SidebarMenuSub>
-              {items.map((item) => (
+              {displayItems.map((item) => (
                 <SidebarMenuSubItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <Link

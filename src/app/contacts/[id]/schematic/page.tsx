@@ -3,6 +3,7 @@ import { getAllDealsDataWithLineItems } from "@/actions/getDealsData";
 import DealsCard from "@/components/DealsCard";
 import PageHeader from "@/components/PageHeader";
 import SchematicRequestCard from "@/components/SchematicRequestCard";
+import TechnicalDrawingCard from "@/components/TechnicalDrawingCard";
 import { SchematicData } from "@/schemas/schematicRequestSchema";
 
 type Props = {
@@ -14,6 +15,10 @@ type SchematicDisplayData = Omit<
   "firstname" | "lastname" | "email" | "zip"
 > & {
   documentation: string;
+};
+
+type TechnicalDrawing = {
+  technicalDrawing: string;
 };
 const ContactDealsPage = async (props: Props) => {
   const params = await props.params;
@@ -36,13 +41,26 @@ const ContactDealsPage = async (props: Props) => {
     documentation:
       contact.properties.technical_documention_received_from_the_prospect,
   };
+
+  const technicalDrawing: TechnicalDrawing = {
+    technicalDrawing: contact.properties.schematic_image,
+  };
   return (
-    <div className="flex flex-col w-full justify-center ">
-      <PageHeader
-        title="Schematic Data"
-        subtitle={`Schematic requested at tech lead.`}
-      />
-      <SchematicRequestCard properties={schematicRequestProperties} />
+    <div className="flex flex-col w-full items-center justify-center gap-4">
+      <div>
+        <PageHeader
+          title="Schematic Data"
+          subtitle={`Schematic requested at tech lead.`}
+        />
+      </div>
+      <div className="flex w-full items-center justify-between">
+        <SchematicRequestCard properties={schematicRequestProperties} />
+        {technicalDrawing && (
+          <TechnicalDrawingCard
+            technicalDrawing={technicalDrawing.technicalDrawing}
+          />
+        )}
+      </div>
     </div>
   );
 };

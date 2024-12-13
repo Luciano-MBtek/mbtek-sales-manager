@@ -10,6 +10,8 @@ import {
 } from "@/types";
 import { redirect } from "next/navigation";
 
+const folderId = process.env.SCHEMATIC_REQUEST;
+
 export const uploadFile = async (
   prevState: FormErrors | undefined,
   formData: FormData
@@ -63,7 +65,10 @@ export const uploadFile = async (
   const documentation = data.documentation;
   if (documentation) {
     try {
-      const schematicFile = await createFileHubspot({ documentation });
+      const schematicFile = await createFileHubspot({
+        documentation,
+        folderId: folderId as string,
+      });
       const schematicFileUrl = schematicFile.url;
 
       const hubspotProperties = {

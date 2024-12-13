@@ -4,12 +4,16 @@ import { DocumentationFile } from "@/types";
 
 interface createFileProps {
   documentation: DocumentationFile;
+  folderId: string;
 }
 
-export async function createFileHubspot({ documentation }: createFileProps) {
+export async function createFileHubspot({
+  documentation,
+  folderId,
+}: createFileProps) {
   try {
     const apiKey = process.env.HUBSPOT_API_KEY;
-    const folderId = "183567968039";
+
     const options = {
       access: "PUBLIC_INDEXABLE",
       overwrite: true,

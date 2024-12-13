@@ -64,16 +64,14 @@ export const schematicRequestSchema = z.object({
     .optional(),
 });
 export const clientFileSchema = z.object({
-  name: z.string().min(1, "El archivo debe tener un nombre."),
+  name: z.string().min(1, "The file must have a name."),
   type: z.enum(
     ["application/pdf", "image/jpeg", "image/png", "image/svg+xml"],
     {
-      errorMap: () => ({ message: "Tipo de archivo no soportado." }),
+      errorMap: () => ({ message: "Unsupported file type." }),
     }
   ),
-  size: z
-    .number()
-    .max(5 * 1024 * 1024, "El tamaño del archivo debe ser menor a 5MB"),
+  size: z.number().max(5 * 1024 * 1024, "The file size must be less than 5MB"),
 });
 
 export type ClientFileData = z.infer<typeof clientFileSchema>;
