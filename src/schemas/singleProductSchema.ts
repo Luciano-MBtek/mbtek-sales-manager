@@ -41,9 +41,10 @@ export const stepOneProductSchema = z.discriminatedUnion("country", [
     city: z.string().min(2, "Please enter a valid city name"),
     zip: z
       .string()
-      .min(5, "ZIP code must be at least 5 characters")
-      .max(10, "ZIP code cannot exceed 10 characters")
-      .regex(/^[0-9-]+$/, "ZIP code can only contain numbers and hyphens"),
+      .regex(
+        /^\d{5}(-\d{4})?$/,
+        "For USA ZIP code must be 5 digits (12345) or 5 digits with hyphen and 4 digits (12345-6789)"
+      ),
     country: z.literal("USA"),
     state: z.enum(USStates, {
       errorMap: () => ({ message: "Please select a valid state" }),
@@ -54,9 +55,14 @@ export const stepOneProductSchema = z.discriminatedUnion("country", [
     city: z.string().min(2, "Please enter a valid city name"),
     zip: z
       .string()
-      .min(5, "ZIP code must be at least 5 characters")
-      .max(10, "ZIP code cannot exceed 10 characters")
-      .regex(/^[0-9-]+$/, "ZIP code can only contain numbers and hyphens"),
+      .length(
+        7,
+        "Postal code must be 6 characters plus a space (e.g., A1A 1A1)"
+      )
+      .regex(
+        /^[ABCEGHJ-NPRSTVXY]\d[ABCEGHJ-NPRSTV-Z]\s\d[ABCEGHJ-NPRSTV-Z]\d$/,
+        "Invalid postal code format.For Canada must be like A1A 1A1"
+      ),
     country: z.literal("Canada"),
     province: z.enum(canadaProvinceValues, {
       errorMap: () => ({ message: "Please select a valid province" }),
