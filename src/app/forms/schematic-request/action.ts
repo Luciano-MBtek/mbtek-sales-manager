@@ -2,13 +2,8 @@
 import { createFileHubspot } from "@/actions/createFileHS";
 import { patchContactProperties } from "@/actions/patchContactProperties";
 import { schematicRequestSchema } from "@/schemas/schematicRequestSchema";
-import {
-  FormErrors,
-  mainRoutes,
-  SchematicRequestData,
-  StringFields,
-} from "@/types";
-import { redirect } from "next/navigation";
+import { FormErrors, SchematicRequestData, StringFields } from "@/types";
+
 import { ActionState } from "./schematicRequestForm";
 
 const folderId = process.env.SCHEMATIC_REQUEST;
@@ -64,7 +59,7 @@ export const uploadFile = async (
   }
 
   const documentation = data.documentation;
-  /*  if (documentation) {
+  if (documentation) {
     try {
       const schematicFile = await createFileHubspot({
         documentation,
@@ -118,7 +113,6 @@ export const uploadFile = async (
         errors: { documentation: "Error uploading the file" },
       };
     }
-  } */
+  }
   return { success: true };
-  // redirect(mainRoutes.CONTACTS);
 };

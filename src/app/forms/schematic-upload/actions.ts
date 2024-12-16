@@ -8,9 +8,8 @@ import { redirect } from "next/navigation";
 const folderId = process.env.SCHEMATIC_UPLOADS;
 
 export const uploadSchematic = async (
-  prevState: FormErrors | undefined,
   formData: FormData
-): Promise<FormErrors | undefined> => {
+): Promise<{ success: boolean; message: string } | FormErrors> => {
   const data = {} as SchematicRequestData;
 
   const id = formData.get("id") as string;
@@ -53,20 +52,26 @@ export const uploadSchematic = async (
         schematic_image: schematicFileUrl,
       };
 
-      console.log("hubspot Properties:", hubspotProperties);
-
       const contactUpdate = await patchContactProperties(
         data.id,
         hubspotProperties
       );
 
-      console.log("Contact update:", contactUpdate);
+      return {
+        success: true,
+        message: "Schematic uploaded successfully",
+      };
     } catch (error) {
       console.log(error);
 
-      return { documentation: "Error uploading the file" };
+      return {
+        success: false,
+        message: "Error uploading the file",
+      };
     }
   }
-
-  // redirect(mainRoutes.CONTACTS);
+  return {
+    success: false,
+    message: "No file provided",
+  };
 };

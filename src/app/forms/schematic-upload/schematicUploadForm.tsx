@@ -4,7 +4,7 @@ import SubmitButton from "@/components/SubmitButton";
 import { uploadSchematic } from "./actions";
 import { FormErrors } from "@/types";
 import { clientFileSchema } from "@/schemas/schematicRequestSchema";
-
+import { useToast } from "@/components/ui/use-toast";
 import { useContactStore } from "@/store/contact-store";
 import PageHeader from "@/components/PageHeader";
 
@@ -15,17 +15,37 @@ import FileInput from "@/components/FileInput";
 const initialState: FormErrors = {};
 
 const SchematicUploadForm = () => {
-  const [serverErrors, formAction] = useActionState(
-    uploadSchematic,
-    initialState
-  );
   const { contact, update } = useContactStore();
   const { schematic, update: updateSchematic } = useSchematicStore();
   const [clientErrors, setClientErrors] = useState<FormErrors>({});
+  const { toast } = useToast();
 
   const handleSubmit = async (formData: FormData) => {
-    formAction(formData);
+    const result = await uploadSchematic(formData);
     updateSchematic({ documentation: undefined });
+
+    if ("success" in result) {
+      if (result.success) {
+        toast({
+          title: "Success",
+          description: result.message,
+          variant: "default",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: result.message,
+          variant: "destructive",
+        });
+      }
+    } else {
+      // Si result es un objeto de errores de formulario
+      toast({
+        title: "Error",
+        description: "Please check the form for errors",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleFileUpload = async (file: File) => {
@@ -79,9 +99,7 @@ const SchematicUploadForm = () => {
           <FileInput
             label="Technical documentation received from the prospect"
             id="documentation"
-            errorMsg={
-              clientErrors?.documentation || serverErrors?.documentation
-            }
+            errorMsg={clientErrors?.documentation}
             value={
               schematic?.documentation as
                 | { name: string; type: string; size: number }
