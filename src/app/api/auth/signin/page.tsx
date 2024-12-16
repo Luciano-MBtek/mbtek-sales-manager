@@ -1,7 +1,7 @@
 "use client";
 
 import { getProviders, signIn } from "next-auth/react";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,7 +17,7 @@ import Logo from "../../../../../public/Logo_Vector.png";
 import { RiGoogleFill } from "@remixicon/react";
 import { HubspotIcon } from "@/components/HubspotIcon";
 
-export default function SignIn() {
+function SignInContent() {
   const [providers, setProviders] = useState<any>({});
   const searchParams = useSearchParams();
   const error = searchParams.get("error");
@@ -96,5 +96,13 @@ export default function SignIn() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function SignIn() {
+  return (
+    <Suspense fallback={<div>Cargando...</div>}>
+      <SignInContent />
+    </Suspense>
   );
 }

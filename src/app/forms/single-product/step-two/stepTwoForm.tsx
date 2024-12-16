@@ -34,7 +34,10 @@ export default function StepSingleProductTwoForm() {
 
   useEffect(() => {
     updateSingleProductDetails({
-      products: selectedProducts,
+      products: selectedProducts.map((product) => ({
+        ...product,
+        isMain: product.isMain || false,
+      })),
     });
     const totalPrice = selectedProducts.reduce((acc, product) => {
       return product.id ? acc + product.price * product.quantity : acc;

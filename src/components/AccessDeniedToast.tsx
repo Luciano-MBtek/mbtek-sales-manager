@@ -1,10 +1,10 @@
 "use client";
 
+import { Suspense, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { useSearchParams } from "next/navigation";
-import { useEffect } from "react";
 
-export function AccessDeniedToast() {
+function AccessDeniedHandler() {
   const { toast } = useToast();
   const searchParams = useSearchParams();
 
@@ -19,4 +19,12 @@ export function AccessDeniedToast() {
   }, [searchParams, toast]);
 
   return null;
+}
+
+export function AccessDeniedToast() {
+  return (
+    <Suspense fallback={null}>
+      <AccessDeniedHandler />
+    </Suspense>
+  );
 }

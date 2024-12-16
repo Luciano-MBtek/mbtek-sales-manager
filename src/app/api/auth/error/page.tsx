@@ -12,8 +12,9 @@ import {
 } from "@/components/ui/card";
 import { AlertTriangle, Home, RefreshCw } from "lucide-react";
 import Link from "next/link";
+import { Suspense } from "react";
 
-export default function ErrorPage() {
+function ErrorContent() {
   const searchParams = useSearchParams();
   const error = searchParams.get("error");
 
@@ -71,5 +72,12 @@ export default function ErrorPage() {
         </CardFooter>
       </Card>
     </div>
+  );
+}
+export default function ErrorPage() {
+  return (
+    <Suspense fallback={<div>Cargando...</div>}>
+      <ErrorContent />
+    </Suspense>
   );
 }
