@@ -1,5 +1,5 @@
-import { useActionState } from "react";
 "use client";
+import { useActionState } from "react";
 import Input from "@/components/Input";
 import SubmitButton from "../../../../components/SubmitButton";
 import { stepThreeFormAction } from "./action";
@@ -15,8 +15,6 @@ export default function StepThreeFormB2B() {
   return (
     <form action={formAction} className="flex flex-1 flex-col items-center">
       <div className="flex w-full flex-col gap-8 lg:max-w-[700px] ">
-       
-
         <SubmitButton text="Continue" />
       </div>
     </form>
