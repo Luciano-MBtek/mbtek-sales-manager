@@ -9,9 +9,9 @@ const ROUTES = {
   },
   PROTECTED: {
     CONTACTS: "/contacts/",
-    USERDASHBOARD: "/dashboard/",
+    USERDASHBOARD: "/dashboard",
     FORMS: "/forms/",
-    ADMINDASHBOARD: "/admin-dashboard/",
+    ADMINDASHBOARD: "/admin-dashboard",
     SCHEMATICUP: "/forms/schematic-upload",
   },
 } as const;
@@ -34,11 +34,7 @@ const ACCESS_LEVELS = {
     ROUTES.PROTECTED.FORMS,
     ROUTES.PROTECTED.USERDASHBOARD,
   ],
-  schematic_team: [
-    ROUTES.PROTECTED.CONTACTS,
-    ROUTES.PROTECTED.FORMS,
-    ROUTES.PROTECTED.SCHEMATICUP,
-  ],
+  schematic_team: [ROUTES.PROTECTED.CONTACTS, ROUTES.PROTECTED.SCHEMATICUP],
 } as const;
 
 const isProtectedRoute = (path: string): boolean => {
@@ -51,34 +47,19 @@ const hasRouteAccess = (accessLevel: string, path: string): boolean => {
   const allowedRoutes =
     ACCESS_LEVELS[accessLevel as keyof typeof ACCESS_LEVELS] || [];
 
-  if ((allowedRoutes as readonly string[]).includes(path)) {
+  // Verificar acceso exacto
+  if (allowedRoutes.some((route) => route === path)) {
     return true;
   }
 
+  // Verificar acceso a rutas base (terminan con "/")
   for (const route of allowedRoutes) {
     if (route.endsWith("/") && path.startsWith(route)) {
-      // Existe una ruta base que podría permitir el acceso a esta subruta.
-      // Pero debemos asegurarnos que esta subruta no es una ruta especial
-      // que debería estar listada explícitamente y no lo está.
-
-      // Por ejemplo, si la subruta es /forms/schematic-upload y no está en la lista,
-      // entonces no está permitido.
-      if (
-        path === ROUTES.PROTECTED.SCHEMATICUP &&
-        !(allowedRoutes as readonly string[]).includes(
-          ROUTES.PROTECTED.SCHEMATICUP
-        )
-      ) {
-        return false;
-      }
-
-      // De lo contrario, si es una subruta no listada específicamente,
-      // pero hay una ruta base que la incluye, permitimos el acceso.
       return true;
     }
   }
 
-  // Si no coincide con rutas exactas ni con base routes, no hay acceso.
+  // Si no coincide con ninguna ruta permitida
   return false;
 };
 
@@ -113,7 +94,9 @@ export async function middleware(req: NextRequest) {
     }
 
     if (!hasRouteAccess(token.accessLevel as string, path)) {
-      return NextResponse.redirect(new URL(ROUTES.PUBLIC.HOME, req.url));
+      return NextResponse.redirect(
+        new URL(`${ROUTES.PUBLIC.HOME}?access_denied=true`, req.url)
+      );
     }
   }
 

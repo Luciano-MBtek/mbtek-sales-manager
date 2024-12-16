@@ -18,8 +18,6 @@ export default function MainProductSelect({
 }: MainProductSelectProps) {
   const mainProductId = selectedProducts.find((p) => p.isMain)?.id;
 
-  console.log(serverErrors);
-
   return (
     <div className="flex flex-col w-full mt-4 gap-2">
       <Label className="block text-primary text-lg mb-2">

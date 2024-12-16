@@ -51,10 +51,10 @@ export const createSingleProductQuote = async ({
     const mainProduct = products.filter((product) => product.isMain === true);
 
     const singleSchematicFanCoilHeatPump =
-      "https://24467819.fs1.hubspotusercontent-na1.net/hubfs/24467819/Generic%20Schematic-1.svg";
+      "https://24467819.fs1.hubspotusercontent-na1.net/hubfs/24467819/Generic-Schematics/Generic%20Schematic-1.svg";
 
     const singleSchematicBoiler =
-      "https://24467819.fs1.hubspotusercontent-na1.net/hubfs/24467819/Boiler%20-%20Radiant%20Heat.svg";
+      "https://24467819.fs1.hubspotusercontent-na1.net/hubfs/24467819/Generic-Schematics/Boiler%20-%20Radiant%20Heat.svg";
 
     const productSchematic = /heat pump|fan coil/i.test(mainProduct[0].name)
       ? singleSchematicFanCoilHeatPump

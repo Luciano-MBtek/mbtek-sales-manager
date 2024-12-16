@@ -83,7 +83,7 @@ const ReviewFormSingleProduct = () => {
           redirect1: redirect1,
           redirect2: redirect2,
         });
-        // resetLocalStorage()
+        resetLocalStorage();
         setShowDialog(true);
       } else if (errorMsg) {
         toast({
@@ -215,7 +215,7 @@ const ReviewFormSingleProduct = () => {
                 }
               }}
             >
-              Finish and return to the beginning
+              Back to main contact.
             </Button>
           </div>
         </DialogContent>

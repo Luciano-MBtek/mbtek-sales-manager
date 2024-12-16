@@ -12,8 +12,6 @@ export const getAllUsers = unstable_cache(
         throw new Error("Usuario no encontrado");
       }
 
-      console.log(userData);
-
       return JSON.parse(
         JSON.stringify(userData, (_, value) =>
           typeof value === "bigint" ? value.toString() : value

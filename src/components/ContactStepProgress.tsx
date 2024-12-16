@@ -37,8 +37,6 @@ const ContactStepProgress = ({
   const accessLevel = session.data?.user.accessLevel;
   const allowRequest = accessLevel !== "schematic_team";
 
-  console.log(allowRequest);
-
   const {
     id,
     firstname,
@@ -173,7 +171,8 @@ const ContactStepProgress = ({
         <div className="flex items-center space-x-4">
           <Home className="w-6 h-6 text-primary" />
           <div>
-            <p className="font-semibold">{city}</p>
+            <p className="font-semibold">Shipping data:</p>
+            <p className="text-sm text-muted-foreground">{city}</p>
             <p className="text-sm text-muted-foreground">{zip}</p>
             <p className="text-sm text-muted-foreground">{address}</p>
           </div>

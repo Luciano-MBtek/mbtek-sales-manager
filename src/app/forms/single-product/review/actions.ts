@@ -5,12 +5,12 @@ import {
   stepOneProductSchema,
   newSingleProductType,
 } from "@/schemas/singleProductSchema";
-import { singleProductRoutes } from "@/types";
+import { mainRoutes, singleProductRoutes } from "@/types";
 import { revalidatePath } from "next/cache";
 
 interface SubmitLeadActionReturnType {
   redirect1?: string;
-  redirect2?: singleProductRoutes;
+  redirect2?: string;
   errorMsg?: string;
   success?: boolean;
 }
@@ -50,7 +50,7 @@ export const submitSingleProductAction = async (
     return {
       success: true,
       redirect1: createQuote.quoteUrl,
-      redirect2: singleProductRoutes.SHIPPING_DATA,
+      redirect2: mainRoutes.CONTACTS + `/${singleProduct.id}`,
     };
   } catch (error) {
     throw error;

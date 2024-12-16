@@ -54,19 +54,23 @@ const SideBarContactGroup = ({ session }: SideBarContactGroupProps) => {
   const pathname = usePathname();
   const router = useRouter();
 
-  console.log(session);
-
   useEffect(() => {
     const checkFavorite = async () => {
-      if (contact?.id) {
+      if (contact?.id && session) {
         setIsCheckingFav(true);
-        const isContactFav = await checkContactFav(contact.id);
-        setIsFavorite(isContactFav);
-        setIsCheckingFav(false);
+        try {
+          const isContactFav = await checkContactFav(contact.id);
+          setIsFavorite(isContactFav);
+        } catch (error) {
+          console.error("Error checking favorite:", error);
+          setIsFavorite(false);
+        } finally {
+          setIsCheckingFav(false);
+        }
       }
     };
     checkFavorite();
-  }, [contact?.id]);
+  }, [contact?.id, session]);
 
   useEffect(() => {
     if (!session) {

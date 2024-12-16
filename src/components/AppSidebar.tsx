@@ -23,6 +23,7 @@ import NavUser from "./SideBarFooter";
 import SideBarContactGroup from "./SideBarContactGroup";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
+import { Role } from "@prisma/client";
 
 const items = [
   {
@@ -34,6 +35,8 @@ const items = [
     title: "New Process",
     url: "/forms/discovery-lead",
     icon: UserPlus,
+    requireAuth: true,
+    requireRole: ["admin", "owner", "manager"],
   },
   {
     title: "Search Contacts",
@@ -68,7 +71,7 @@ export function AppSidebar() {
     if (!session) return false;
 
     if (item.requireRole) {
-      return item.requireRole.includes(session?.user?.accessLevel as string);
+      return item.requireRole.includes(session?.user?.accessLevel as Role);
     }
 
     return true;
@@ -100,7 +103,7 @@ export function AppSidebar() {
       </SidebarContent>
       <SidebarFooter>
         {/* User */}
-        <NavUser />
+        <NavUser session={session} status={status} />
         {/* --------- */}
       </SidebarFooter>
     </Sidebar>

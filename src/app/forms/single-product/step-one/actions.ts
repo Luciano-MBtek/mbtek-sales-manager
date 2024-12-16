@@ -6,11 +6,10 @@ import { redirect } from "next/navigation";
 export const stepOneFormSingleProductAction = async (
   prevState: FormErrors | undefined,
   formData: FormData
-):  Promise<FormErrors | undefined> => {
+): Promise<FormErrors | undefined> => {
   const data = Object.fromEntries(formData.entries());
   const validated = stepOneProductSchema.safeParse(data);
 
-  console.log(validated);
   if (!validated.success) {
     const errors = validated.error.issues.reduce((acc: FormErrors, issue) => {
       const path = issue.path[0] as string;

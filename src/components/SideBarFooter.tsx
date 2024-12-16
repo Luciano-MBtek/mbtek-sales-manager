@@ -19,10 +19,16 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { useSession, signOut, signIn } from "next-auth/react";
+import { Session } from "next-auth";
 
-export default function NavUser() {
-  const { data: session, status } = useSession();
+type SessionStatus = ReturnType<typeof useSession>["status"];
 
+interface SideBarFooterProps {
+  session: Session | null;
+  status: SessionStatus;
+}
+
+export default function NavUser({ session, status }: SideBarFooterProps) {
   const userName = session?.user?.name;
   const userEmail = session?.user?.email;
   const userImage = session?.user?.image;
@@ -108,10 +114,10 @@ export default function NavUser() {
                 Status: {session?.user?.accessLevel}
               </DropdownMenuItem>
 
-              <DropdownMenuItem>
+              {/*  <DropdownMenuItem>
                 <Bell className="mr-2 h-4 w-4" />
                 Notifications
-              </DropdownMenuItem>
+              </DropdownMenuItem> */}
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => signOut()}>

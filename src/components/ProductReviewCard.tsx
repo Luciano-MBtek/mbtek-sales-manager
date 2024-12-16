@@ -38,13 +38,13 @@ export default function ProductReviewCard({
         <ul className="space-y-4">
           {products.map((product) => (
             <li key={product.id} className="flex items-center space-x-4">
-              <div className="relative h-16 w-16 overflow-hidden rounded">
+              <div className="relative overflow-hidden rounded">
                 {product.image && (
                   <Image
                     src={product.image}
                     alt={product.name}
-                    layout="fill"
-                    objectFit="cover"
+                    width={60}
+                    height={60}
                   />
                 )}
               </div>

@@ -2,35 +2,35 @@ const schematicProperties = [
   {
     total_area_house: {
       friendlyName: "Total Area of the house/building",
-      step: 5,
+      step: 3,
     },
     number_of_zones: {
       friendlyName: "Ammount of zones in house/building",
-      step: 5,
+      step: 3,
     },
     square_feet_per_zone: {
       friendlyName: "Square feet per zone",
-      step: 5,
+      step: 3,
     },
     heat_elements: {
       friendlyName: "Heat elements",
-      step: 5,
+      step: 3,
     },
     special_application: {
       friendlyName: "Special application - DHW, Pool , None",
-      step: 5,
+      step: 3,
     },
     extra_notes: {
       friendlyName: "Extra notes",
-      step: 5,
+      step: 3,
     },
     technical_documention_received_from_the_prospect: {
       friendlyName: "Technical docs for building schematic",
-      step: 5,
+      step: 3,
     },
     schematic_image: {
       friendlyName: "Technical draw",
-      step: 5,
+      step: 3,
     },
   },
 ];
@@ -71,6 +71,10 @@ const leadQualificationProperties = [
     },
     lead_type: {
       friendlyName: "Lead Type",
+      step: 1,
+    },
+    hs_lead_status: {
+      friendlyName: "Lead Status",
       step: 1,
     },
     project_summary_user: {
@@ -143,27 +147,23 @@ export const propertyNameMap: Record<
 > = {
   ...leadQualificationProperties[0],
   ...shippingData[0],
-  project_summary_user: {
-    friendlyName: "Project Summary",
-    step: 3,
-  },
   installation_type: {
     friendlyName: "Installation type:",
-    step: 3,
+    step: 4,
   },
 
   already_have_a_system_in_mind: {
     friendlyName: "Already have a system in mind?",
-    step: 3,
+    step: 4,
   },
 
   prospect_valued_benefits: {
     friendlyName: "Prospect Valued Benefits",
-    step: 3,
+    step: 4,
   },
   prior_attempts: {
     friendlyName: "Prior Attempts",
-    step: 3,
+    step: 4,
   },
   ammount_of_zones: {
     friendlyName: "Ammount of zones connected to the system",

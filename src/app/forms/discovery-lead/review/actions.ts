@@ -11,6 +11,7 @@ import {
   stepFourSchema,
 } from "@/schemas/newLeadSchema";
 import { collectDataRoutes } from "@/types";
+import { revalidatePath } from "next/cache";
 
 interface SubmitLeadActionReturnType {
   redirect1?: string;
@@ -73,6 +74,10 @@ export const submitLeadAction = async (
         success: false,
       };
     }
+    revalidatePath(`/contacts/${response.contactId}`);
+    revalidatePath(`/contacts/${response.contactId}/properties`);
+    revalidatePath(`/contacts/${response.contactId}/deals`);
+    revalidatePath(`/contacts/${response.contactId}/quotes`);
 
     return {
       success: true,

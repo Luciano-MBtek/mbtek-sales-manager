@@ -9,13 +9,14 @@ import {
   StringFields,
 } from "@/types";
 import { redirect } from "next/navigation";
+import { ActionState } from "./schematicRequestForm";
 
 const folderId = process.env.SCHEMATIC_REQUEST;
 
 export const uploadFile = async (
-  prevState: FormErrors | undefined,
+  prevState: ActionState,
   formData: FormData
-): Promise<FormErrors | undefined> => {
+): Promise<{ success?: boolean; errors?: FormErrors; errorMsg?: string }> => {
   const textFields: StringFields[] = [
     "id",
     "firstname",
@@ -59,11 +60,11 @@ export const uploadFile = async (
       acc[path] = issue.message;
       return acc;
     }, {});
-    return errors;
+    return { success: false, errors };
   }
 
   const documentation = data.documentation;
-  if (documentation) {
+  /*  if (documentation) {
     try {
       const schematicFile = await createFileHubspot({
         documentation,
@@ -107,14 +108,17 @@ export const uploadFile = async (
           await webhookResponse.text()
         );
       }
-
       console.log("Contact update:", contactUpdate);
     } catch (error) {
       console.log(error);
 
-      return { documentation: "Error uploading the file" };
+      return {
+        success: false,
+        errorMsg: "Error uploading the file",
+        errors: { documentation: "Error uploading the file" },
+      };
     }
-  }
-
+  } */
+  return { success: true };
   // redirect(mainRoutes.CONTACTS);
 };

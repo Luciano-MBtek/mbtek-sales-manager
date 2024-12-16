@@ -9,6 +9,7 @@ import { getAllProducts } from "@/actions/getAllProducts";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
+import { AccessDeniedToast } from "@/components/AccessDeniedToast";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -33,6 +34,7 @@ export default async function RootLayout({
       <body className={inter.className}>
         <Providers>
           <HydrationBoundary state={dehydrate(queryClient)}>
+            <AccessDeniedToast />
             <AppSidebar />
             <main className="flex w-full ">
               <SidebarTrigger />

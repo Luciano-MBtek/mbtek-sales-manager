@@ -87,18 +87,11 @@ export default function ReviewForm() {
         description: "Deal submitted successfully",
       });
 
-      const params = new URLSearchParams();
-      params.set("country", country ? country : "");
-      params.set("state", state ? state : "");
-      params.set("name", name ? name : "");
-      params.set("lastname", lastname ? lastname : "");
-      params.set("email", email ? email : "");
-
       setRedirectOptions({
-        redirect1: redirect1 ? `${redirect1}?${params.toString()}` : undefined,
-        redirect2: redirect2 ? `${redirect2}?${params.toString()}` : undefined,
+        redirect1: redirect1,
+        redirect2: redirect2,
       });
-      // resetLocalStorage()
+      resetLocalStorage();
       setShowDialog(true);
     } else if (errorMsg) {
       toast({
@@ -199,7 +192,6 @@ export default function ReviewForm() {
               onClick={() => {
                 if (redirectOptions?.redirect1) {
                   router.push(redirectOptions.redirect1);
-                  // resetLocalStorage();
                 }
               }}
             >
@@ -210,7 +202,6 @@ export default function ReviewForm() {
               onClick={() => {
                 if (redirectOptions?.redirect2) {
                   router.push(redirectOptions.redirect2);
-                  resetLocalStorage();
                 }
               }}
             >

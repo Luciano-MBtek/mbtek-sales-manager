@@ -1,5 +1,5 @@
 "use client";
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import SubmitButton from "@/components/SubmitButton";
 import { uploadFile } from "./action";
 import { FormErrors } from "@/types";
@@ -18,24 +18,52 @@ import { useSchematicStore } from "@/store/schematic-store";
 import SelectInput from "@/components/StepForm/SelectStepForm";
 import TextAreaInput from "@/components/StepForm/TextAreaStepForm";
 import FileInput from "@/components/FileInput";
+import { useToast } from "@/components/ui/use-toast";
+import { useRouter } from "next/navigation";
 
-const initialState: FormErrors = {};
+export type ActionState = {
+  success?: boolean;
+  errors?: FormErrors;
+  errorMsg?: string;
+};
+
+const initialState: {
+  success?: boolean;
+  errors?: FormErrors;
+  errorMsg?: string;
+} = {};
 
 const SchematicRequestForm = () => {
-  const [serverErrors, formAction] = useActionState(uploadFile, initialState);
+  const [serverResponse, formAction, pending] = useActionState<
+    ActionState,
+    FormData
+  >(uploadFile, initialState);
+  const { toast } = useToast();
+  const router = useRouter();
   const { contact, update } = useContactStore();
-  const { schematic, update: updateSchematic } = useSchematicStore();
+  const { schematic, update: updateSchematic, clear } = useSchematicStore();
   const [clientErrors, setClientErrors] = useState<FormErrors>({});
   const handleCheckboxChange =
     (fieldId: string) => (value: string | string[]) => {
       updateSchematic({ [fieldId]: Array.isArray(value) ? value : [value] });
     };
 
-  const handleSubmit = async (formData: FormData) => {
-    formAction(formData);
-
-    updateSchematic({ documentation: undefined });
-  };
+  useEffect(() => {
+    if (serverResponse?.success) {
+      toast({
+        title: "Success",
+        description: "Schematic request submitted successfully",
+      });
+      clear();
+      router.push(`/contacts/${contact?.id}/schematic`);
+    } else if (serverResponse?.errorMsg) {
+      toast({
+        title: "Error",
+        description: serverResponse.errorMsg,
+        variant: "destructive",
+      });
+    }
+  }, [serverResponse, toast, clear, router, contact]);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -90,17 +118,14 @@ const SchematicRequestForm = () => {
         title="Request schematic form"
         subtitle="Request a technical drawing to the team."
       />
-      <form
-        action={handleSubmit}
-        className="flex  flex-1 flex-col items-center"
-      >
+      <form action={formAction} className="flex  flex-1 flex-col items-center">
         <div className="flex w-full flex-col gap-1 lg:max-w-[700px] p-2 ">
           <div className="flex flex-col lg:flex-row w-full gap-4 justify-between">
             <Input
               label="Firstname"
               id="firstname"
               type="text"
-              errorMsg={serverErrors?.firstname}
+              errorMsg={serverResponse.errors?.firstname}
               onChange={handleInputChange}
               value={contact?.firstname || ""}
               className="w-full"
@@ -109,7 +134,7 @@ const SchematicRequestForm = () => {
               label="Lastname"
               id="lastname"
               type="text"
-              errorMsg={serverErrors?.lastname}
+              errorMsg={serverResponse.errors?.lastname}
               onChange={handleInputChange}
               value={contact?.lastname || ""}
               className="w-full"
@@ -127,7 +152,7 @@ const SchematicRequestForm = () => {
             label="Email"
             id="email"
             type="text"
-            errorMsg={serverErrors?.email}
+            errorMsg={serverResponse.errors?.email}
             onChange={handleInputChange}
             value={contact?.email || ""}
           />
@@ -136,7 +161,7 @@ const SchematicRequestForm = () => {
             label="Zip"
             id="zip"
             type="text"
-            errorMsg={serverErrors?.zip}
+            errorMsg={serverResponse.errors?.zip}
             onChange={handleInputChange}
             value={contact?.zip || ""}
           />
@@ -145,7 +170,7 @@ const SchematicRequestForm = () => {
             label="Total's house/building area"
             id="total_area"
             type="number"
-            errorMsg={serverErrors?.total_area}
+            errorMsg={serverResponse.errors?.total_area}
             onChange={handleInputChange}
             value={schematic?.total_area || ""}
           />
@@ -154,7 +179,7 @@ const SchematicRequestForm = () => {
             label="Number of zones on the house/building"
             id="number_zones"
             type="number"
-            errorMsg={serverErrors?.number_zones}
+            errorMsg={serverResponse.errors?.number_zones}
             onChange={handleInputChange}
             value={schematic?.number_zones || ""}
           />
@@ -163,7 +188,7 @@ const SchematicRequestForm = () => {
             label="Square feet per zone"
             id="square_feet_zone"
             type="text"
-            errorMsg={serverErrors?.square_feet_zone}
+            errorMsg={serverResponse.errors?.square_feet_zone}
             placeholder="Bathroom: 100 sqft , Kitchen: 150 sqft ..."
             onChange={handleInputChange}
             value={schematic?.square_feet_zone || ""}
@@ -173,11 +198,11 @@ const SchematicRequestForm = () => {
             label="Heat elements"
             id="heat_elements"
             options={heatElementValues}
-            errorMsg={serverErrors?.heat_elements}
+            errorMsg={serverResponse.errors?.heat_elements}
             isMulti={true}
             value={schematic?.heat_elements || []}
             onChange={handleCheckboxChange("heat_elements")}
-            dataLoaded={schematic ? true : false}
+            dataLoaded={true}
             uppercase={true}
           />
 
@@ -186,7 +211,7 @@ const SchematicRequestForm = () => {
             id="special_application"
             options={specialApplicationValues}
             placeholder="Select an special application"
-            errorMsg={serverErrors?.special_application}
+            errorMsg={serverResponse.errors?.special_application}
             value={schematic?.special_application || ""}
             onChange={handleSelectChange("special_application")}
             dataLoaded={contact ? true : false}
@@ -196,7 +221,8 @@ const SchematicRequestForm = () => {
             label="Technical documentation received from the prospect"
             id="documentation"
             errorMsg={
-              clientErrors?.documentation || serverErrors?.documentation
+              clientErrors?.documentation ||
+              serverResponse.errors?.documentation
             }
             value={
               schematic?.documentation as
@@ -211,12 +237,12 @@ const SchematicRequestForm = () => {
             placeholder="Extra notes..."
             id="extra_notes"
             value={schematic?.extra_notes || ""}
-            errorMsg={serverErrors?.extra_notes}
+            errorMsg={serverResponse.errors?.extra_notes}
             onChange={handleInputChange}
             maxLength={300}
           />
 
-          <SubmitButton text="Request" />
+          <SubmitButton text="Request" disabled={pending} />
         </div>
       </form>
     </div>

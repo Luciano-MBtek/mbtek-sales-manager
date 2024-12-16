@@ -17,8 +17,9 @@ type SchematicDisplayProps = {
 };
 
 const getFileType = (
-  url: string
+  url?: string
 ): "application/pdf" | "image/jpeg" | "image/png" | "image/svg+xml" | null => {
+  if (!url) return null;
   const extension = url.split(".").pop()?.toLowerCase();
 
   switch (extension) {

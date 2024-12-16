@@ -1,6 +1,4 @@
 import { GetContactById } from "@/actions/getContactById";
-import { getAllDealsDataWithLineItems } from "@/actions/getDealsData";
-import DealsCard from "@/components/DealsCard";
 import PageHeader from "@/components/PageHeader";
 import SchematicRequestCard from "@/components/SchematicRequestCard";
 import TechnicalDrawingCard from "@/components/TechnicalDrawingCard";
@@ -30,10 +28,13 @@ const ContactDealsPage = async (props: Props) => {
     total_area: contact.properties.total_area_house,
     number_zones: contact.properties.number_of_zones,
     square_feet_zone: contact.properties.square_feet_per_zone,
-    heat_elements:
-      (contact.properties.heat_elements?.split(
-        ";"
-      ) as SchematicData["heat_elements"]) || [],
+    heat_elements: contact.properties.heat_elements
+      ? typeof contact.properties.heat_elements === "string"
+        ? contact.properties.heat_elements.includes(";")
+          ? contact.properties.heat_elements.split(";")
+          : [contact.properties.heat_elements]
+        : []
+      : [],
     special_application:
       (contact.properties
         .special_application as SchematicData["special_application"]) || "N/A",
@@ -45,6 +46,7 @@ const ContactDealsPage = async (props: Props) => {
   const technicalDrawing: TechnicalDrawing = {
     technicalDrawing: contact.properties.schematic_image,
   };
+
   return (
     <div className="flex flex-col w-full items-center justify-center gap-4">
       <div>
@@ -55,7 +57,7 @@ const ContactDealsPage = async (props: Props) => {
       </div>
       <div className="flex w-full items-center justify-between">
         <SchematicRequestCard properties={schematicRequestProperties} />
-        {technicalDrawing && (
+        {technicalDrawing.technicalDrawing && (
           <TechnicalDrawingCard
             technicalDrawing={technicalDrawing.technicalDrawing}
           />

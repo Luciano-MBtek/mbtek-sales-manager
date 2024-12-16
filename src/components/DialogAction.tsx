@@ -40,7 +40,7 @@ export function DialogCloseButton({
       setIsLoading(true);
       try {
         const details = await GetPropertyDetail(property);
-        console.log(details);
+
         setPropertyDetails(details);
       } catch (error) {
         console.error("Error loading property details:", error);

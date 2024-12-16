@@ -8,7 +8,8 @@ interface TechnicalDrawingProps {
 }
 
 const TechnicalDrawingCard = ({ technicalDrawing }: TechnicalDrawingProps) => {
-  const getFileType = (url: string) => {
+  const getFileType = (url?: string) => {
+    if (!url) return null;
     const extension = url.split(".").pop()?.toLowerCase();
     switch (extension) {
       case "pdf":
