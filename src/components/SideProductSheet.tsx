@@ -34,8 +34,8 @@ import { getAllProducts } from "@/actions/getAllProducts";
 import { Product } from "@/types";
 
 interface SideProductSheetProps {
-  selectedProducts: Product[];
-  setSelectedProducts: (products: Product[]) => void;
+  selectedProducts: (Product & { isMain: boolean })[];
+  setSelectedProducts: (products: (Product & { isMain: boolean })[]) => void;
 }
 
 interface APIProduct {
@@ -52,9 +52,11 @@ export function SideProductSheet({
   selectedProducts,
   setSelectedProducts,
 }: SideProductSheetProps) {
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<(Product & { isMain: boolean })[]>(
+    []
+  );
   const [localSelectedProducts, setLocalSelectedProducts] =
-    useState<Product[]>(selectedProducts);
+    useState<(Product & { isMain: boolean })[]>(selectedProducts);
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -82,6 +84,7 @@ export function SideProductSheet({
         price: Number(product.properties.price) || 0,
         quantity: 1,
         selected: false,
+        isMain: false,
       }));
       setProducts(mappedProducts);
     }

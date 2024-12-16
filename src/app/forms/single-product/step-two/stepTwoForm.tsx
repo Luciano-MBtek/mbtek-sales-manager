@@ -16,6 +16,8 @@ import MainProductSelect from "@/components/MainProductSelect";
 
 const options = YesOrNo.map((option) => option);
 
+type ProductWithIsMain = Product & { isMain: boolean };
+
 const initialState: FormErrors = {};
 
 export default function StepSingleProductTwoForm() {
@@ -25,7 +27,7 @@ export default function StepSingleProductTwoForm() {
     stepTwoFormSingleProductAction,
     initialState
   );
-  const [selectedProducts, setSelectedProducts] = useState<Product[]>(
+  const [selectedProducts, setSelectedProducts] = useState<ProductWithIsMain[]>(
     singleProductData.products || []
   );
 
@@ -34,10 +36,7 @@ export default function StepSingleProductTwoForm() {
 
   useEffect(() => {
     updateSingleProductDetails({
-      products: selectedProducts.map((product) => ({
-        ...product,
-        isMain: product.isMain || false,
-      })),
+      products: selectedProducts,
     });
     const totalPrice = selectedProducts.reduce((acc, product) => {
       return product.id ? acc + product.price * product.quantity : acc;
