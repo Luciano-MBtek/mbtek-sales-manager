@@ -7,6 +7,7 @@ export type Contact = {
   firstname: string;
   lastname: string;
   leadStatus: string;
+  phone: string;
   country: string;
   state?: string;
   province?: string;

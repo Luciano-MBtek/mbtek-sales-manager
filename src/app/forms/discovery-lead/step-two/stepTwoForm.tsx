@@ -1,5 +1,5 @@
 "use client";
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 import Input from "@/components/Input";
 import {
   createHandleSelectChange,
@@ -20,6 +20,7 @@ import { useAddLeadContext } from "@/contexts/addDealContext";
 import FormQuestion from "@/components/FormQuestion";
 import PhoneInputForm from "@/components/StepForm/PhoneInputForm";
 import { cn } from "@/lib/utils";
+import { useContactStore } from "@/store/contact-store";
 
 const initialState: FormErrors = {};
 
@@ -29,6 +30,29 @@ export default function StepTwoForm() {
     initialState
   );
   const { newLeadData, updateNewLeadDetails, dataLoaded } = useAddLeadContext();
+  const { contact } = useContactStore();
+
+  useEffect(() => {
+    if (contact && !newLeadData.country) {
+      const contactData = {
+        country: contact.country || "",
+        state: contact.state || "",
+        province: contact.province || "",
+        phone: contact.phone
+          ? contact.phone.startsWith("+")
+            ? contact.phone
+            : `+${contact.phone}`
+          : "",
+      };
+      updateNewLeadDetails(contactData as any);
+    }
+  }, [contact, newLeadData.country, updateNewLeadDetails]);
+  const formData = {
+    ...newLeadData,
+    name: newLeadData.country || contact?.country || "",
+    lastname: newLeadData.state || contact?.state || "",
+    email: newLeadData.province || contact?.province || "",
+  };
 
   const handleInputChange = createHandleInputChange(updateNewLeadDetails);
 
@@ -53,32 +77,32 @@ export default function StepTwoForm() {
           options={countryOptions}
           placeholder="Select a country"
           errorMsg={serverErrors?.country}
-          value={newLeadData.country || ""}
+          value={formData.country || ""}
           onChange={handleSelectChange("country")}
           dataLoaded={dataLoaded}
         />
 
-        {newLeadData.country === "USA" && (
+        {formData.country === "USA" && (
           <SelectInput
             label="State"
             id="state"
             options={stateOptions}
             placeholder="Select a state"
             errorMsg={serverErrors?.state}
-            value={newLeadData.state || ""}
+            value={formData.state || ""}
             onChange={handleSelectChange("state")}
             dataLoaded={dataLoaded}
           />
         )}
 
-        {newLeadData.country === "Canada" && (
+        {formData.country === "Canada" && (
           <SelectInput
             label="Province"
             id="province"
             options={provinceOptions}
             placeholder="Select a province"
             errorMsg={serverErrors?.province}
-            value={newLeadData.province || ""}
+            value={formData.province || ""}
             onChange={handleSelectChange("province")}
             dataLoaded={dataLoaded}
           />
@@ -88,7 +112,7 @@ export default function StepTwoForm() {
           name="phone"
           errorMsg={serverErrors?.phone}
           onChange={handleInputChange}
-          value={newLeadData.phone || ""}
+          value={formData.phone || ""}
         />
 
         <FormQuestion question="Are you calling for a business of for yourself?" />

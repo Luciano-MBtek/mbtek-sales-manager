@@ -24,6 +24,8 @@ import SideBarContactGroup from "./SideBarContactGroup";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { Role } from "@prisma/client";
+import { useContactStore } from "@/store/contact-store";
+import { useAddLeadContext } from "@/contexts/addDealContext";
 
 const items = [
   {
@@ -60,6 +62,7 @@ const items = [
 
 export function AppSidebar() {
   const { data: session, status } = useSession();
+  const clearContact = useContactStore((state) => state.clear);
 
   if (status === "loading") {
     return null;
@@ -87,7 +90,19 @@ export function AppSidebar() {
               {filteredItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <Link href={item.url}>
+                    <Link
+                      href={
+                        item.url +
+                        (item.title === "New Process"
+                          ? "/step-one?reset=true"
+                          : "")
+                      }
+                      onClick={() => {
+                        if (item.title === "New Process") {
+                          clearContact();
+                        }
+                      }}
+                    >
                       <item.icon />
                       <span>{item.title}</span>
                     </Link>

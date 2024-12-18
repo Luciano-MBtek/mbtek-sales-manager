@@ -117,6 +117,10 @@ const leadQualificationProperties = [
       friendlyName: "Is the timing right with this lead?",
       step: 1,
     },
+    hubspot_owner_id: {
+      friendlyName: "Hubspot Owner ID",
+      step: 1,
+    },
   },
 ];
 

@@ -33,6 +33,7 @@ export type ProgressProperties = {
   lastname: string;
   leadStatus: string;
   email: string;
+  phone: string;
   state?: string;
   province?: string;
   city: string;

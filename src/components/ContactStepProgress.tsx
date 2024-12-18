@@ -42,6 +42,7 @@ const ContactStepProgress = ({
     firstname,
     lastname,
     email,
+    phone,
     totalProperties,
     emptyProperties,
     createDate,
@@ -82,6 +83,7 @@ const ContactStepProgress = ({
           : {}),
       city,
       zip,
+      phone,
       address,
       areDeals,
       hasSchematic,
@@ -120,17 +122,18 @@ const ContactStepProgress = ({
     areDeals,
     hasSchematic,
     hasQuotes,
+    phone,
   ]);
 
   return (
-    <Card className="w-full max-w-md mx-auto">
+    <Card className="w-full max-w-4xl mx-auto">
       <CardHeader className="pb-4">
         <CardTitle className="text-2xl font-bold text-center">
           Contact Details
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex items-center space-x-4">
+      <CardContent className="grid grid-cols-2 gap-6">
+        <div className="col-span-2 flex items-center space-x-4">
           <User className="w-6 h-6 text-primary" />
           <div>
             <p className="font-semibold">{fullName}</p>
@@ -146,7 +149,15 @@ const ContactStepProgress = ({
         </div>
 
         <div className="flex items-center space-x-4">
-          <MapPin className="w-6 h-6 text-primary" />
+          <Calendar className="w-6 h-6 text-primary" />
+          <div>
+            <p className="font-semibold">Created</p>
+            <p className="text-sm text-muted-foreground">{formattedDate}</p>
+          </div>
+        </div>
+
+        <div className="flex items-start space-x-4">
+          <MapPin className="w-6 h-6 text-primary mt-1" />
           <div>
             <div className="flex items-center space-x-2">
               <span className="font-semibold">{country_us_ca}</span>
@@ -168,17 +179,18 @@ const ContactStepProgress = ({
           </div>
         </div>
 
-        <div className="flex items-center space-x-4">
-          <Home className="w-6 h-6 text-primary" />
+        <div className="flex items-start space-x-4">
+          <Home className="w-6 h-6 text-primary mt-1" />
           <div>
             <p className="font-semibold">Shipping data:</p>
-            <p className="text-sm text-muted-foreground">{city}</p>
-            <p className="text-sm text-muted-foreground">{zip}</p>
+            <p className="text-sm text-muted-foreground">
+              {city}, {zip}
+            </p>
             <p className="text-sm text-muted-foreground">{address}</p>
           </div>
         </div>
 
-        <div className="space-y-2">
+        <div className="col-span-2 space-y-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <BarChart2 className="w-5 h-5 text-primary" />
@@ -195,53 +207,42 @@ const ContactStepProgress = ({
           />
         </div>
 
-        <div className="flex items-center space-x-4">
-          <Calendar className="w-6 h-6 text-primary" />
-          <div>
-            <p className="font-semibold">Created</p>
-            <p className="text-sm text-muted-foreground">{formattedDate}</p>
-          </div>
+        <div className="col-span-2">
+          {hasSchematic ? (
+            <div className="flex items-center space-x-4">
+              <PencilRuler className="w-6 h-6 text-primary" />
+              <div className="flex items-center justify-between w-full">
+                <p className="font-semibold">Schematic Requested</p>
+                <Badge className="bg-success">
+                  <CircleCheck className="w-4 h-4 mr-1" />
+                  Completed
+                </Badge>
+              </div>
+            </div>
+          ) : allowRequest ? (
+            <div className="flex items-center space-x-4">
+              <PencilRuler className="w-6 h-6 text-primary" />
+              <div className="flex items-center justify-between w-full">
+                <p className="font-semibold">Request Schematic</p>
+                <Button onClick={() => router.push("/forms/schematic-request")}>
+                  Request
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="text-center text-muted-foreground">
+              <p>You are not a Sales Agent or Admin.</p>
+              <p>Sales Agents can only ask for schematics</p>
+            </div>
+          )}
         </div>
-        {hasSchematic ? (
-          <div className="flex items-center space-x-4">
-            <PencilRuler className="w-6 h-6 text-primary" />
-            <div className="flex items-center justify-between w-full">
-              <p className="font-semibold">Schematic Requested</p>
-              <Badge className="bg-success">
-                <CircleCheck />
-              </Badge>
-            </div>
-          </div>
-        ) : allowRequest ? (
-          <div className="flex items-center space-x-4">
-            <PencilRuler className="w-6 h-6 text-primary" />
-            <div className="flex items-center justify-between w-full">
-              <p className="font-semibold">Request Schematic</p>
-              <Button
-                onClick={() => {
-                  router.push("/forms/schematic-request");
-                }}
-              >
-                Request
-              </Button>
-            </div>
-          </div>
-        ) : (
-          <div>
-            <p>You are not a Sales Agent or Admin.</p>
-            <p>Sales Agents can only ask for schematics</p>
-          </div>
-        )}
+
         {hasQuotes && (
-          <div className="flex items-center space-x-4">
+          <div className="col-span-2 flex items-center space-x-4">
             <Quote className="w-6 h-6 text-primary" />
             <div className="flex items-center justify-between w-full">
               <p className="font-semibold">Quotes available</p>
-              <Button
-                onClick={() => {
-                  router.push(`/contacts/${id}/quotes`);
-                }}
-              >
+              <Button onClick={() => router.push(`/contacts/${id}/quotes`)}>
                 Go to Quotes
               </Button>
             </div>

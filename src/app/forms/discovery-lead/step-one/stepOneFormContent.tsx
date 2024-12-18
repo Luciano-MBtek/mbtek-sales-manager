@@ -1,5 +1,5 @@
 "use client";
-
+import { useSearchParams } from "next/navigation";
 import { useActionState } from "react";
 import Input from "@/components/Input";
 import { stepOneFormAction } from "./actions";
@@ -9,43 +9,46 @@ import FormQuestion from "@/components/FormQuestion";
 import { useSession } from "next-auth/react";
 import { useAddLeadContext } from "@/contexts/addDealContext";
 import { createHandleInputChange } from "@/app/forms/utils/createHandlers";
-import { useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useEffect } from "react";
+import { useContactStore } from "@/store/contact-store";
 
 const initialState: FormErrors = {};
 
 export default function StepOneFormContent() {
   const { data: session } = useSession();
-  const { newLeadData, updateNewLeadDetails } = useAddLeadContext();
+  const searchParams = useSearchParams();
+  const { newLeadData, updateNewLeadDetails, resetLocalStorage } =
+    useAddLeadContext();
   const [serverErrors, formAction] = useActionState(
     stepOneFormAction,
     initialState
   );
-  const searchParams = useSearchParams();
+  const { contact } = useContactStore();
 
   useEffect(() => {
-    const paramsData = {
-      name: searchParams.get("name"),
-      lastname: searchParams.get("lastname"),
-      email: searchParams.get("email"),
-    };
+    if (searchParams.get("reset") === "true") {
+      resetLocalStorage();
+    }
+  }, [searchParams, resetLocalStorage]);
 
-    const validParamsData = Object.fromEntries(
-      Object.entries(paramsData).filter(([_, value]) => value !== null)
-    );
-
-    if (Object.keys(validParamsData).length > 0) {
-      updateNewLeadDetails(validParamsData);
+  useEffect(() => {
+    if (contact) {
+      const contactData = {
+        name: contact.firstname,
+        lastname: contact.lastname,
+        email: contact.email,
+      };
+      updateNewLeadDetails(contactData);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams]);
+  }, [contact]);
 
   const formData = {
     ...newLeadData,
-    name: newLeadData.name || searchParams.get("name") || "",
-    lastname: newLeadData.lastname || searchParams.get("lastname") || "",
-    email: newLeadData.email || searchParams.get("email") || "",
+    name: newLeadData.name || contact?.firstname || "",
+    lastname: newLeadData.lastname || contact?.lastname || "",
+    email: newLeadData.email || contact?.email || "",
   };
   const userName = session?.user?.name ?? "";
   const leadName = formData.name;
