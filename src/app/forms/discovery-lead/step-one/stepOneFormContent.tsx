@@ -1,6 +1,6 @@
 "use client";
 import { useSearchParams } from "next/navigation";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import Input from "@/components/Input";
 import { stepOneFormAction } from "./actions";
 import { FormErrors } from "@/types";
@@ -18,31 +18,33 @@ const initialState: FormErrors = {};
 export default function StepOneFormContent() {
   const { data: session } = useSession();
   const searchParams = useSearchParams();
-  const { newLeadData, updateNewLeadDetails, resetLocalStorage } =
+  const [isInitialized, setIsInitialized] = useState(false);
+  const { newLeadData, updateNewLeadDetails, resetLocalStorage, dataLoaded } =
     useAddLeadContext();
   const [serverErrors, formAction] = useActionState(
     stepOneFormAction,
     initialState
   );
   const { contact } = useContactStore();
-
+  console.log(isInitialized);
   useEffect(() => {
     if (searchParams.get("reset") === "true") {
       resetLocalStorage();
     }
-  }, [searchParams, resetLocalStorage]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
-    if (contact) {
+    if (contact && !isInitialized && dataLoaded) {
       const contactData = {
         name: contact.firstname,
         lastname: contact.lastname,
         email: contact.email,
       };
       updateNewLeadDetails(contactData);
+      setIsInitialized(true);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [contact]);
+  }, [contact, dataLoaded, isInitialized, updateNewLeadDetails]);
 
   const formData = {
     ...newLeadData,

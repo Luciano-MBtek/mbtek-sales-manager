@@ -11,7 +11,6 @@ interface Owner {
 }
 
 const ContactOwnerCard = ({ owner }: { owner: Owner | null }) => {
-  console.log(owner);
   return (
     <Card className="w-full max-w-4xl mx-auto mb-6">
       <CardHeader className="pb-2">

@@ -78,8 +78,6 @@ export const uploadFile = async (
         technical_documention_received_from_the_prospect: schematicFileUrl,
       };
 
-      console.log("hubspot Properties:", hubspotProperties);
-
       const contactUpdate = await patchContactProperties(
         data.id,
         hubspotProperties
@@ -103,7 +101,6 @@ export const uploadFile = async (
           await webhookResponse.text()
         );
       }
-      console.log("Contact update:", contactUpdate);
     } catch (error) {
       console.log(error);
 

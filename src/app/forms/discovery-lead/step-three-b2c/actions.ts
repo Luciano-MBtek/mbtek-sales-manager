@@ -6,9 +6,9 @@ import { redirect } from "next/navigation";
 export const stepThreeFormAction = async (
   prevState: FormErrors | undefined,
   formData: FormData
-):  Promise<FormErrors | undefined> => {
+): Promise<FormErrors | undefined> => {
   const data = Object.fromEntries(formData.entries());
-  console.log(data);
+
   const validated = stepThreeSchemaB2C.safeParse(data);
 
   if (!validated.success) {

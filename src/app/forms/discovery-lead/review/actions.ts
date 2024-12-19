@@ -12,6 +12,11 @@ import {
 } from "@/schemas/newLeadSchema";
 import { collectDataRoutes } from "@/types";
 import { revalidatePath } from "next/cache";
+import { searchContact } from "@/actions/searchContact";
+import { patchContactProperties } from "@/actions/patchContactProperties";
+import { triggerLeadQualificationWebhook } from "@/actions/webhooks/leadQualificationWebhook";
+import { format } from "date-fns";
+import { createContactProperties } from "@/lib/utils";
 
 interface SubmitLeadActionReturnType {
   redirect1?: string;
@@ -67,23 +72,84 @@ export const submitLeadAction = async (
 
     const ownerId = session.user.hubspotOwnerId;
 
-    const response = await createContact(contact, ownerId);
-    if (!response.success) {
+    // Consultar si el contacto existe , si existe pero no tiene owner , actualizar con el ownerId de la session, si tiene owner , actualizar pero sin el ownerId. Si no existe crear un nuevo contacto y asignar el Owner de la session.
+    const contactExist = await searchContact(contact.email, "email");
+
+    if (contactExist !== 0) {
+      console.log("Existing contact, updating properties.");
+
+      if (!contactExist.properties.hubspot_owner_id) {
+        console.log("Existing contact with no owner, updating properties.");
+        const properties = createContactProperties(contact, ownerId);
+
+        const response = await patchContactProperties(
+          contactExist.id,
+          properties
+        );
+
+        if (!response?.id) {
+          return {
+            errorMsg: "Failed to update contact properties",
+            success: false,
+          };
+        }
+      } else {
+        console.log("Existing contact with owner, updating properties.");
+        const properties = createContactProperties(contact);
+        const response = await patchContactProperties(
+          contactExist.id,
+          properties
+        );
+
+        if (!response?.id) {
+          return {
+            errorMsg: "Failed to update contact properties",
+            success: false,
+          };
+        }
+      }
+
+      const webhook = await triggerLeadQualificationWebhook(contactExist.id);
+
+      if (!webhook) {
+        return {
+          errorMsg:
+            "Failed to trigger webhook for workflow on hubspot, contact developer.",
+          success: false,
+        };
+      }
+
+      revalidatePath(`/contacts/${contactExist.id}`);
+      revalidatePath(`/contacts/${contactExist.id}/properties`);
+      revalidatePath(`/contacts/${contactExist.id}/deals`);
+      revalidatePath(`/contacts/${contactExist.id}/quotes`);
+
       return {
-        errorMsg: response.error,
-        success: false,
+        success: true,
+        redirect1: `/contacts/${contactExist.id}`,
+        redirect2: collectDataRoutes.DISCOVERY_CALL,
       };
     }
-    revalidatePath(`/contacts/${response.contactId}`);
-    revalidatePath(`/contacts/${response.contactId}/properties`);
-    revalidatePath(`/contacts/${response.contactId}/deals`);
-    revalidatePath(`/contacts/${response.contactId}/quotes`);
 
-    return {
-      success: true,
-      redirect1: `/contacts/${response.contactId}`,
-      redirect2: collectDataRoutes.DISCOVERY_CALL,
-    };
+    if (contactExist === 0) {
+      console.log("New Contact, proceed to create it.");
+      const response = await createContact(contact, ownerId);
+      if (!response.success) {
+        return {
+          errorMsg: response.error,
+          success: false,
+        };
+      }
+      revalidatePath(`/contacts/${response.contactId}`);
+      revalidatePath(`/contacts/${response.contactId}/properties`);
+      revalidatePath(`/contacts/${response.contactId}/deals`);
+      revalidatePath(`/contacts/${response.contactId}/quotes`);
+      return {
+        success: true,
+        redirect1: `/contacts/${response.contactId}`,
+        redirect2: collectDataRoutes.DISCOVERY_CALL,
+      };
+    }
   } catch (error) {
     console.error(error);
     return {
@@ -91,4 +157,8 @@ export const submitLeadAction = async (
       success: false,
     };
   }
+  return {
+    errorMsg: "Unexpected error occurred",
+    success: false,
+  };
 };

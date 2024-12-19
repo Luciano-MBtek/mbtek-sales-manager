@@ -93,10 +93,11 @@ export default function ReviewForm() {
       });
       resetLocalStorage();
       setShowDialog(true);
-    } else if (errorMsg) {
+    } else if (!success) {
       toast({
         title: "Error",
         description: `${errorMsg}`,
+        variant: "destructive",
       });
     }
   };

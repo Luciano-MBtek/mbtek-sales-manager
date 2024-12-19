@@ -35,6 +35,7 @@ export async function searchContact(
             "lastname",
             "phone",
             "email",
+            "hubspot_owner_id",
           ],
         }),
       }

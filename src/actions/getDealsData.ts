@@ -9,7 +9,7 @@ export async function getAllDealsDataWithLineItems(
     // Paso 1: Obtener los IDs de los deals asociados al contacto
     const dealIds = await getDealsByContactId(contactId);
     if (dealIds.length === 0) {
-      console.log("No se encontraron deals asociados al contacto.");
+      console.log("No deals associated with the contact were found.");
       return [];
     }
 
@@ -51,7 +51,7 @@ export async function getAllDealsDataWithLineItems(
   } catch (error) {
     console.error("Error en getAllDealsDataWithLineItems:", error);
     throw new Error(
-      "No se pudo obtener toda la información de los deals y sus line items."
+      "Could not retrieve all the information of the deals and their line items."
     );
   }
 }
@@ -72,7 +72,7 @@ async function getDealsByContactId(contactId: string): Promise<string[]> {
 
     if (!response.ok) {
       throw new Error(
-        `Error al obtener asociaciones de deals: ${response.statusText}`
+        `Error retrieving deal associations: ${response.statusText}`
       );
     }
 
@@ -85,7 +85,7 @@ async function getDealsByContactId(contactId: string): Promise<string[]> {
     return data.results.map((association: { id: string }) => association.id);
   } catch (error) {
     console.error("Error en getDealsByContactId:", error);
-    throw new Error("No se pudo obtener los deals del contacto.");
+    throw new Error("Could not retrieve the deals for the contact.");
   }
 }
 
@@ -105,14 +105,14 @@ async function getDealDetails(dealId: string): Promise<Deal | null> {
 
     if (!response.ok) {
       throw new Error(
-        `Error al obtener detalles del deal ${dealId}: ${response.statusText}`
+        `Error retrieving deal details for deal ${dealId}: ${response.statusText}`
       );
     }
 
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error(`Error en getDealDetails para el deal ${dealId}:`, error);
+    console.error(`Error in getDealDetails for deal ${dealId}:`, error);
     return null; // Retornar null para manejar errores individualmente
   }
 }
@@ -133,7 +133,7 @@ async function getLineItemsByDealId(dealId: string): Promise<string[]> {
 
     if (!response.ok) {
       throw new Error(
-        `Error al obtener asociaciones de line items para el deal ${dealId}: ${response.statusText}`
+        `Error retrieving line item associations for deal ${dealId}: ${response.statusText}`
       );
     }
 
@@ -146,7 +146,7 @@ async function getLineItemsByDealId(dealId: string): Promise<string[]> {
     return data.results.map((association: { id: string }) => association.id);
   } catch (error) {
     console.error(
-      `Error en getLineItemsByDealId para el deal ${dealId}:`,
+      `Error in getLineItemsByDealId for the deal ${dealId}:`,
       error
     );
     return []; // Retornar un array vacío en caso de error

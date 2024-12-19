@@ -1,8 +1,6 @@
 import { GetContactById } from "@/actions/getContactById";
 import ContactStepProgress from "@/components/ContactStepProgress";
 import { ProgressProperties } from "@/types";
-import { SchematicData } from "@/schemas/schematicRequestSchema";
-import SchematicRequestCard from "@/components/SchematicRequestCard";
 import { getOwnerById } from "@/actions/getOwnerById";
 
 import { checkDealsExist } from "@/actions/getDeals";
@@ -11,12 +9,6 @@ import ContactOwnerCard from "@/components/ContactOwnerCard";
 
 type Props = {
   params: Promise<{ id: string }>;
-};
-type SchematicDisplayData = Omit<
-  SchematicData,
-  "firstname" | "lastname" | "email" | "zip"
-> & {
-  documentation: string;
 };
 
 const ContactFullData = async (props: Props) => {
