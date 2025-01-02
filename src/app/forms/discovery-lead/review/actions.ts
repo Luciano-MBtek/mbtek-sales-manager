@@ -15,7 +15,6 @@ import { revalidatePath } from "next/cache";
 import { searchContact } from "@/actions/searchContact";
 import { patchContactProperties } from "@/actions/patchContactProperties";
 import { triggerLeadQualificationWebhook } from "@/actions/webhooks/leadQualificationWebhook";
-import { format } from "date-fns";
 import { createContactProperties } from "@/lib/utils";
 
 interface SubmitLeadActionReturnType {

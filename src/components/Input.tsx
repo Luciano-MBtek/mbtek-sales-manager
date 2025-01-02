@@ -15,7 +15,7 @@ interface InputProps {
   max?: number;
   errorMsg?: string;
   placeholder?: string;
-  value: string;
+  value: string | number;
   className?: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
