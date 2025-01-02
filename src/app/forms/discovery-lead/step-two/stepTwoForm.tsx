@@ -33,7 +33,7 @@ export default function StepTwoForm() {
   const { contact } = useContactStore();
 
   useEffect(() => {
-    if (contact && !newLeadData.country) {
+    if (contact) {
       const contactData = {
         country: contact.country || "",
         state: contact.state || "",
@@ -46,7 +46,8 @@ export default function StepTwoForm() {
       };
       updateNewLeadDetails(contactData as any);
     }
-  }, [contact, newLeadData.country, updateNewLeadDetails]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const formData = {
     ...newLeadData,
     name: newLeadData.country || contact?.country || "",

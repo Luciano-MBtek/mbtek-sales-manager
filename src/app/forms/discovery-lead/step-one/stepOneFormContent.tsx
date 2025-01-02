@@ -26,7 +26,7 @@ export default function StepOneFormContent() {
     initialState
   );
   const { contact } = useContactStore();
-  console.log(isInitialized);
+
   useEffect(() => {
     if (searchParams.get("reset") === "true") {
       resetLocalStorage();
