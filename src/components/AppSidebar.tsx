@@ -6,6 +6,7 @@ import {
   LayoutDashboard,
   MonitorCog,
   UserPlus,
+  Handshake,
 } from "lucide-react";
 
 import {
@@ -49,6 +50,12 @@ const items = [
     title: "User Dashboard",
     url: "/dashboard",
     icon: LayoutDashboard,
+    requireAuth: true,
+  },
+  {
+    title: "My Deals",
+    url: "/mydeals",
+    icon: Handshake,
     requireAuth: true,
   },
   {
