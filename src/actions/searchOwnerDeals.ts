@@ -4,6 +4,8 @@ import { getHubspotOwnerIdSession } from "./user/getHubspotOwnerId";
 
 interface EnrichedDeal extends Deal {}
 
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
 async function searchOwnerDeals(userId: string) {
   try {
     const apiKey = process.env.HUBSPOT_API_KEY;
@@ -12,59 +14,51 @@ async function searchOwnerDeals(userId: string) {
       throw new Error("HUBSPOT_API_KEY is not defined");
     }
     let allDeals: Deal[] = [];
-    let after = 0;
-    let hasMore = true;
 
-    while (hasMore) {
-      const response = await fetch(
-        `https://api.hubapi.com/crm/v3/objects/deals/search`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${apiKey}`,
-            "Content-Type": "application/json",
-          },
-          next: {
-            revalidate: 3600,
-          },
-          body: JSON.stringify({
-            filterGroups: [
-              {
-                filters: [
-                  {
-                    propertyName: "hubspot_owner_id",
-                    operator: "EQ",
-                    value: userId,
-                  },
-                ],
-              },
-            ],
-            properties: [
-              "amount",
-              "closedate",
-              "createdate",
-              "dealname",
-              "dealstage",
-              "hs_lastmodifieddate",
-              "pipeline",
-            ],
-            sorts: ["-createdate"],
-            limit: 100,
-            after: after,
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`HubSpot API error: ${response.statusText}`);
+    const response = await fetch(
+      `https://api.hubapi.com/crm/v3/objects/deals/search`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
+        next: {
+          revalidate: 3600,
+        },
+        body: JSON.stringify({
+          filterGroups: [
+            {
+              filters: [
+                {
+                  propertyName: "hubspot_owner_id",
+                  operator: "EQ",
+                  value: userId,
+                },
+              ],
+            },
+          ],
+          properties: [
+            "amount",
+            "closedate",
+            "createdate",
+            "dealname",
+            "dealstage",
+            "hs_lastmodifieddate",
+            "pipeline",
+          ],
+          sorts: ["-createdate"],
+          limit: 50,
+        }),
       }
+    );
 
-      const data = await response.json();
-      allDeals = [...allDeals, ...data.results];
-
-      hasMore = data.paging?.next?.after !== undefined;
-      after = data.paging?.next?.after || 0;
+    if (!response.ok) {
+      throw new Error(`HubSpot API error: ${response.statusText}`);
     }
+
+    const data = await response.json();
+    allDeals = [...allDeals, ...data.results];
 
     const enrichedDeals: EnrichedDeal[] = await Promise.all(
       allDeals.map(async (deal) => {
@@ -98,6 +92,7 @@ async function searchOwnerDeals(userId: string) {
 
         const contacts: Contact[] = await Promise.all(
           contactIds.map(async (contactId) => {
+            await delay(100);
             const contactResponse = await fetch(
               `https://api.hubapi.com/crm/v3/objects/contacts/${contactId}?properties=firstname,lastname`,
               {
@@ -141,6 +136,6 @@ async function searchOwnerDeals(userId: string) {
 
 export async function getDealsByUserId() {
   const userId = await getHubspotOwnerIdSession();
-  // const managerIdTest = "719106449";
+  // const managerIdTest = "376406301";
   return searchOwnerDeals(userId);
 }

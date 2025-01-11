@@ -13,7 +13,10 @@ const DealsPage = async () => {
 
   return (
     <div className="container mx-auto py-10">
-      <PageHeader title="My Deals" subtitle={`${deals.length} owned deals.`} />
+      <PageHeader
+        title="My Deals"
+        subtitle={`Last ${deals.length} owned deals.`}
+      />
       {deals.length > 0 ? <DealsTable deals={deals} /> : <p>No deals yet.</p>}
     </div>
   );
