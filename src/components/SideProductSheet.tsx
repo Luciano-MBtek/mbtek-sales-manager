@@ -83,6 +83,7 @@ export function SideProductSheet({
         image: product.properties.hs_images || "",
         price: Number(product.properties.price) || 0,
         quantity: 1,
+        unitDiscount: 0,
         selected: false,
         isMain: false,
       }));
