@@ -39,10 +39,12 @@ export default function StepSingleProductTwoForm() {
       products: selectedProducts,
     });
     const totalPrice = selectedProducts.reduce((acc, product) => {
-      return product.id ? acc + product.price * product.quantity : acc;
+      if (!product.id) return acc;
+      const discountedPrice =
+        (product.price * (100 - (product.unitDiscount || 0))) / 100;
+      return acc + discountedPrice * product.quantity;
     }, 0);
     setTotalPrice(totalPrice);
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedProducts]);
 
@@ -84,6 +86,16 @@ export default function StepSingleProductTwoForm() {
         ...product,
         isMain: product.id === productId,
       }))
+    );
+  };
+  const handleDiscount = (productId: string, discount: number) => {
+    setSelectedProducts((prevProducts) =>
+      prevProducts.map((product) => {
+        if (product.id === productId) {
+          return { ...product, unitDiscount: discount };
+        }
+        return product;
+      })
     );
   };
 
@@ -129,6 +141,7 @@ export default function StepSingleProductTwoForm() {
             serverErrors={serverErrors}
             onRemoveProduct={handleRemoveProduct}
             handleQuantity={handleQuantity}
+            handleDiscount={handleDiscount}
           />
           <MainProductSelect
             selectedProducts={selectedProducts}

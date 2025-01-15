@@ -35,7 +35,7 @@ export default function SingleProductLayout({
         icon={Quote}
       />
 
-      <div className="mt-1 mb-28 flex flex-col gap-x-16 text-white lg:flex-row">
+      <div className="mt-1 mb-28 flex flex-col gap-x-2  lg:flex-row">
         <StepNavigation steps={steps} />
         <SingleProductContextProvider>
           <div className="w-full">{children}</div>

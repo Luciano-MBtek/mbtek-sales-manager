@@ -15,6 +15,7 @@ export const stepTwoSingleProductSchema = z
             .string()
             .min(1, "SKU is required, please inform Sales Director"),
           quantity: z.number(),
+          unitDiscount: z.number(),
           isMain: z.boolean().optional(),
         })
       )
@@ -95,6 +96,7 @@ export const newSingleProductSchema = z.discriminatedUnion("country", [
         price: z.number(),
         selected: z.boolean().optional(),
         sku: z.string(),
+        unitDiscount: z.number(),
         quantity: z.number(),
         isMain: z.boolean(),
       })
@@ -128,6 +130,7 @@ export const newSingleProductSchema = z.discriminatedUnion("country", [
         selected: z.boolean().optional(),
         sku: z.string(),
         quantity: z.number(),
+        unitDiscount: z.number(),
         isMain: z.boolean(),
       })
     ),
@@ -157,6 +160,7 @@ export const singleProductInitialValuesSchema = z.object({
         price: z.number(),
         selected: z.boolean().optional(),
         sku: z.string(),
+        unitDiscount: z.number(),
         quantity: z.number(),
         isMain: z.boolean(),
       })
