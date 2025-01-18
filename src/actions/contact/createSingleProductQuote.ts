@@ -56,11 +56,13 @@ export const createSingleProductQuote = async ({
     const singleSchematicBoiler =
       "https://24467819.fs1.hubspotusercontent-na1.net/hubfs/24467819/Generic-Schematics/Boiler%20-%20Radiant%20Heat.svg";
 
+    // GEneral
+
     const productSchematic = /heat pump|fan coil/i.test(mainProduct[0].name)
       ? singleSchematicFanCoilHeatPump
       : /boiler/i.test(mainProduct[0].name)
         ? singleSchematicBoiler
-        : undefined;
+        : singleSchematicBoiler;
 
     const dealData = await createDeal(id, name, lastname, userId);
 

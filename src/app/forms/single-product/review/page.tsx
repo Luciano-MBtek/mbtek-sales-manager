@@ -6,6 +6,8 @@ export const metadata: Metadata = {
   description: "Single Product review.",
 };
 
+export const maxDuration = 60;
+
 export default function ReviewForm() {
   return (
     <div>
