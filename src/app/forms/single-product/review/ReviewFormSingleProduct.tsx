@@ -136,7 +136,7 @@ const ReviewFormSingleProduct = () => {
         setHasError(true);
         toast({
           title: "Error",
-          description: "No se pudo parsear el evento complete.",
+          description: "Error in completing the event.",
           variant: "destructive",
         });
       }
@@ -173,7 +173,7 @@ const ReviewFormSingleProduct = () => {
         parseSSEChunk(chunkStr);
       }
     } catch (error) {
-      console.error("Error en la SSE:", error);
+      console.error("Error in SSE:", error);
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : "Unknown error",
