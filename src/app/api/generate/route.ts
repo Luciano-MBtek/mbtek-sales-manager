@@ -5,7 +5,7 @@ import {
   newSingleProductType,
 } from "@/schemas/singleProductSchema";
 import { createSingleProductQuote } from "@/actions/contact/createSingleProductQuote";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 
 export async function POST(request: Request) {
   const body = (await request.json()) as newSingleProductType;
@@ -58,7 +58,7 @@ export async function POST(request: Request) {
         revalidatePath(`/contacts/${body.id}`);
         revalidatePath(`/contacts/${body.id}/properties`);
         revalidatePath(`/contacts/${body.id}/deals`);
-        revalidatePath(`/contacts/${body.id}/quotes`);
+        revalidateTag("quotes");
 
         sendProgress("complete", {
           success: true,
