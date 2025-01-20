@@ -39,6 +39,7 @@ async function getQuoteDetails(quoteId: string): Promise<Quote | null> {
         "Content-Type": "application/json",
       },
       next: {
+        tags: ["quotes"],
         revalidate: 300,
       },
     });

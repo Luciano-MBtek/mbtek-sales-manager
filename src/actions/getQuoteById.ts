@@ -14,6 +14,7 @@ export const getQuoteById = async (id: string): Promise<QuoteAssociated> => {
         "Content-Type": "application/json",
       },
       next: {
+        tags: ["quotes"],
         revalidate: 300,
       },
     });
