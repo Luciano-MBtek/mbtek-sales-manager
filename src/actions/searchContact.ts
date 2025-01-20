@@ -47,8 +47,6 @@ export async function searchContact(
 
     const data = await response.json();
 
-    console.log(data);
-
     revalidatePath("/contacts");
 
     if (data.total === 0) {
