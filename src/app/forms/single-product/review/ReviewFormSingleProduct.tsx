@@ -136,7 +136,7 @@ const ReviewFormSingleProduct = () => {
         setHasError(true);
         toast({
           title: "Error",
-          description: "No se pudo parsear el evento complete.",
+          description: "Error in completing the event.",
           variant: "destructive",
         });
       }
