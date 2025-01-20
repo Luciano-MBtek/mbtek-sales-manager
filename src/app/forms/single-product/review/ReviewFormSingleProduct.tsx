@@ -1,8 +1,6 @@
 "use client";
 import { useSingleProductContext } from "@/contexts/singleProductContext";
-import { submitSingleProductAction } from "./actions";
-import { newSingleProductType } from "@/schemas/singleProductSchema";
-
+import { WheelProgress } from "@/components/ui/wheel-progress";
 import {
   Card,
   CardContent,
@@ -32,7 +30,7 @@ import {
   Building,
 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
-import { useState } from "react";
+import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import ProductReviewCard from "@/components/ProductReviewCard";
 import { useContactStore } from "@/store/contact-store";
@@ -46,8 +44,11 @@ const ReviewFormSingleProduct = () => {
     redirect2?: string;
   } | null>(null);
   const [showDialog, setShowDialog] = useState(false);
-
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isComplete, setIsComplete] = useState(false);
+  const [hasError, setHasError] = useState(false);
+  const [currentProgress, setCurrentProgress] = useState(0);
+  const [currentStep, setCurrentStep] = useState("");
 
   const { toast } = useToast();
   const router = useRouter();
@@ -66,47 +67,127 @@ const ReviewFormSingleProduct = () => {
     id: contact?.id,
   };
 
-  const handleFormSubmit = async (formData: FormData) => {
-    try {
-      const res = await submitSingleProductAction(
-        singleProductData as newSingleProductType
-      );
-      const { redirect1, redirect2, errorMsg, success } = res;
+  function parseSSEChunk(chunkStr: string) {
+    const lines = chunkStr.split("\n");
+    let currentEvent: string | null = null;
+    let currentData: string | null = null;
 
-      if (success) {
-        toast({
-          title: "Success",
-          description: "Single product data submitted successfully",
-        });
+    for (const line of lines) {
+      if (line.startsWith("event:")) {
+        currentEvent = line.replace("event:", "").trim();
+      } else if (line.startsWith("data:")) {
+        currentData = line.replace("data:", "").trim();
+      } else if (line === "") {
+        if (currentEvent && currentData) {
+          handleSSEEvent(currentEvent, currentData);
+        }
 
-        setRedirectOptions({
-          redirect1: redirect1,
-          redirect2: redirect2,
-        });
-        resetLocalStorage();
-        setShowDialog(true);
-      } else if (errorMsg) {
-        toast({
-          title: "Error",
-          description: `${errorMsg}`,
-          variant: "destructive",
-          duration: 3000,
-        });
+        currentEvent = null;
+        currentData = null;
       }
-    } catch (error) {
+    }
+  }
+
+  function handleSSEEvent(eventName: string, data: string) {
+    if (eventName === "progress") {
+      try {
+        const parsed = JSON.parse(data);
+        setCurrentProgress(parsed.percentage || 0);
+        setCurrentStep(parsed.step || "");
+        setShowDialog(true);
+      } catch (err) {
+        setShowDialog(false);
+      }
+    } else if (eventName === "error") {
+      const parsed = JSON.parse(data);
+
+      setHasError(true);
+      setShowDialog(false);
       toast({
         title: "Error",
-        description:
-          error instanceof Error ? error.message : "An error occurred",
+        description: parsed.error || "Unknown error",
         variant: "destructive",
       });
+    } else if (eventName === "complete") {
+      try {
+        const parsed = JSON.parse(data);
+
+        setIsComplete(true);
+
+        if (parsed.success) {
+          toast({
+            title: "Success",
+            description: "Single product data submitted successfully",
+          });
+          setRedirectOptions({
+            redirect1: parsed.redirect1,
+            redirect2: parsed.redirect2,
+          });
+          resetLocalStorage();
+        } else {
+          setHasError(true);
+          toast({
+            title: "Error",
+            description: "Process ended but success=false",
+            variant: "destructive",
+          });
+        }
+      } catch {
+        setHasError(true);
+        toast({
+          title: "Error",
+          description: "No se pudo parsear el evento complete.",
+          variant: "destructive",
+        });
+      }
+    }
+  }
+
+  const handleFormSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setHasError(false);
+    setIsSubmitting(true);
+
+    try {
+      const resp = await fetch("/api/generate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!resp.ok || !resp.body) {
+        throw new Error(`HTTP Error ${resp.status}`);
+      }
+
+      const reader = resp.body.getReader();
+      const decoder = new TextDecoder();
+
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+
+        const chunkStr = decoder.decode(value, { stream: true });
+
+        parseSSEChunk(chunkStr);
+      }
+    } catch (error) {
+      console.error("Error en la SSE:", error);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Unknown error",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
     <>
       <form
-        action={handleFormSubmit}
+        onSubmit={handleFormSubmit}
         className="flex flex-1 flex-col gap-2 items-stretch lg:max-w-full"
       >
         <Card className="shadow-lg">
@@ -192,32 +273,58 @@ const ReviewFormSingleProduct = () => {
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>The quote is ready and published.</DialogTitle>
-            <DialogDescription>
-              Select an option to continue with the process
-            </DialogDescription>
+            <DialogTitle>
+              {!isComplete
+                ? "Processing Quote"
+                : hasError
+                  ? "Error Processing Quote"
+                  : "The quote is ready and published"}
+            </DialogTitle>
+            {!isComplete && (
+              <DialogDescription>
+                Please wait while we process your quote...
+              </DialogDescription>
+            )}
+            {isComplete && !hasError && (
+              <DialogDescription>
+                Select an option to continue with the process
+              </DialogDescription>
+            )}
           </DialogHeader>
-          <div className="flex flex-col gap-4">
-            <Button
-              onClick={() => {
-                if (redirectOptions?.redirect1) {
-                  window.open("http://" + redirectOptions.redirect1, "_blank");
-                }
-              }}
-            >
-              Go to quote page.
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => {
-                if (redirectOptions?.redirect2) {
-                  router.push(redirectOptions.redirect2);
-                }
-              }}
-            >
-              Back to main contact.
-            </Button>
-          </div>
+
+          {currentProgress > 0 && (
+            <div className="flex flex-col items-center gap-4 py-4">
+              <WheelProgress value={currentProgress} size="lg" />
+              <p className="text-center text-muted-foreground">{currentStep}</p>
+            </div>
+          )}
+
+          {isComplete && !hasError && (
+            <div className="flex flex-col gap-4">
+              <Button
+                onClick={() => {
+                  if (redirectOptions?.redirect1) {
+                    window.open(
+                      "http://" + redirectOptions.redirect1,
+                      "_blank"
+                    );
+                  }
+                }}
+              >
+                Go to quote page
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  if (redirectOptions?.redirect2) {
+                    router.push(redirectOptions.redirect2);
+                  }
+                }}
+              >
+                Back to main contact
+              </Button>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </>
