@@ -56,6 +56,7 @@ const ContactStepProgress = ({
     areDeals,
     hasSchematic,
     hasQuotes,
+    wantsCompleteSystem,
   } = properties;
 
   const fullName = `${firstname} ${lastname}`;
@@ -88,6 +89,7 @@ const ContactStepProgress = ({
       areDeals,
       hasSchematic,
       hasQuotes,
+      wantsCompleteSystem,
     };
 
     // Filtrar los valores que son "N/A"
@@ -123,6 +125,7 @@ const ContactStepProgress = ({
     hasSchematic,
     hasQuotes,
     phone,
+    wantsCompleteSystem,
   ]);
 
   return (

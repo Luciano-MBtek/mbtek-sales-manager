@@ -17,6 +17,7 @@ export type Contact = {
   areDeals: boolean;
   hasSchematic: boolean;
   hasQuotes: boolean;
+  wantsCompleteSystem: boolean;
 };
 
 interface ContactStore {

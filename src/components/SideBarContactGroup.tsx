@@ -81,8 +81,15 @@ const SideBarContactGroup = ({ session }: SideBarContactGroupProps) => {
 
   if (!contact) return null;
 
-  const { id, firstname, lastname, areDeals, hasSchematic, hasQuotes } =
-    contact;
+  const {
+    id,
+    firstname,
+    lastname,
+    areDeals,
+    hasSchematic,
+    hasQuotes,
+    wantsCompleteSystem,
+  } = contact;
 
   const propertiesPath = `/contacts/${id}/properties`;
   const dealsPath = `/contacts/${id}/deals`;
@@ -114,6 +121,15 @@ const SideBarContactGroup = ({ session }: SideBarContactGroupProps) => {
       url: "/forms/schematic-request",
       icon: Proportions,
     },
+    ...(wantsCompleteSystem
+      ? [
+          {
+            title: "Complete System",
+            url: "/forms/complete-system/step-one",
+            icon: MessagesSquare,
+          },
+        ]
+      : []),
   ];
 
   const techAgentItems = [

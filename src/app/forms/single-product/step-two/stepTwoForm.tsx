@@ -135,6 +135,11 @@ export default function StepSingleProductTwoForm() {
             name="products"
             value={JSON.stringify(selectedProducts)}
           />
+          <input
+            type="hidden"
+            name="lead_data"
+            value={JSON.stringify(contact)}
+          />
           <ProductCard
             selectedProducts={selectedProducts}
             totalPrice={totalPrice}

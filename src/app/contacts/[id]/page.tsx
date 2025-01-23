@@ -29,6 +29,10 @@ const ContactFullData = async (props: Props) => {
   );
   const hasQuotes = quotes.length > 0;
 
+  const wantsCompleteSystem = Boolean(
+    contact.properties.want_a_complete_system_ === "Yes"
+  );
+
   const progressProperties: ProgressProperties = {
     id: id,
     firstname: contact.properties.firstname || "N/A",
@@ -51,6 +55,7 @@ const ContactFullData = async (props: Props) => {
     areDeals: deals,
     hasSchematic: hasSchematicRequest,
     hasQuotes: hasQuotes,
+    wantsCompleteSystem: wantsCompleteSystem,
   };
 
   return (

@@ -48,6 +48,7 @@ export type ProgressProperties = {
   areDeals: boolean;
   hasSchematic: boolean;
   hasQuotes: boolean;
+  wantsCompleteSystem: boolean;
 };
 
 export type PropertyDetail = {
@@ -85,6 +86,16 @@ export enum collectDataRoutes {
   LEAD_QUALIFICATION_B2C_2 = "/forms/discovery-lead/step-four",
   QUALIFICATION = "/forms/discovery-lead/step-five",
   REVIEW_LEAD = "/forms/discovery-lead/review",
+}
+
+export enum completeSystemRoutes {
+  GENERAL_SYSTEM_DATA = "/forms/complete-system/step-one",
+  MARKET_DATA = "/forms/complete-system/step-two",
+  BUILDING_DATA = "/forms/complete-system/step-three",
+  PROJECT_PLANS = "/forms/complete-system/step-four",
+  SHIPPING_DATA = "/forms/complete-system/step-five",
+  BOOKING_DATA = "/forms/complete-system/step-six",
+  REVIEW_COMPLETE_SYSTEM = "/forms/complete-system/review",
 }
 
 export enum singleProductRoutes {

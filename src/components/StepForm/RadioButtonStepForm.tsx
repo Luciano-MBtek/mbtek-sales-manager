@@ -24,7 +24,9 @@ export default function RadioInput({
 }: RadioInputProps) {
   return (
     <>
-      <Label className="block text-primary text-lg mb-2">{label}</Label>
+      {label && label.trim() !== "" && (
+        <Label className="block text-primary text-lg mb-2">{label}</Label>
+      )}
       <RadioGroup value={value} onValueChange={onChange} name={id}>
         <div className="space-y-2">
           {options.map((option) => (
@@ -41,11 +43,11 @@ export default function RadioInput({
           ))}
         </div>
       </RadioGroup>
-      <div className="min-h-8 mt-1">
-        {errorMsg && (
+      {errorMsg && (
+        <div className="min-h-8 mt-1">
           <span className="text-red-500 text-sm block">{errorMsg}</span>
-        )}
-      </div>
+        </div>
+      )}
     </>
   );
 }

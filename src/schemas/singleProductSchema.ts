@@ -24,6 +24,15 @@ export const stepTwoSingleProductSchema = z
     splitPayment: z.enum(yesOrNoTuple, {
       errorMap: () => ({ message: "Please select Yes or No" }),
     }),
+    rates: z
+      .array(
+        z.object({
+          costLoaded: z.number(),
+          carrierScac: z.string(),
+          estimatedDeliveryDate: z.string().datetime(),
+        })
+      )
+      .optional(),
   })
   .superRefine((data, ctx) => {
     const mainProductSelected = data.products.some((product) => product.isMain);
@@ -96,8 +105,8 @@ export const newSingleProductSchema = z.discriminatedUnion("country", [
         price: z.number(),
         selected: z.boolean().optional(),
         sku: z.string(),
-        unitDiscount: z.number(),
         quantity: z.number(),
+        unitDiscount: z.number(),
         isMain: z.boolean(),
       })
     ),
@@ -129,8 +138,8 @@ export const newSingleProductSchema = z.discriminatedUnion("country", [
         price: z.number(),
         selected: z.boolean().optional(),
         sku: z.string(),
-        quantity: z.number(),
         unitDiscount: z.number(),
+        quantity: z.number(),
         isMain: z.boolean(),
       })
     ),
@@ -167,9 +176,19 @@ export const singleProductInitialValuesSchema = z.object({
     )
     .optional(),
   splitPayment: z.string().optional(),
+  rates: z
+    .array(
+      z.object({
+        costLoaded: z.number(),
+        carrierScac: z.string(),
+        estimatedDeliveryDate: z.string().datetime(),
+      })
+    )
+    .optional(),
 });
 
 export type newSingleProductType = z.infer<typeof newSingleProductSchema>;
 export type singleProductInitialValuesType = z.infer<
   typeof singleProductInitialValuesSchema
 >;
+export type RatesType = z.infer<typeof stepTwoSingleProductSchema>["rates"];
