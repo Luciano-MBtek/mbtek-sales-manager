@@ -89,10 +89,15 @@ export const uploadFile = async (
     }),
   };
 
-  const contactUpdate = await patchContactProperties(
-    data.id,
-    hubspotProperties
-  );
+  try {
+    await patchContactProperties(data.id, hubspotProperties);
+  } catch (error) {
+    console.error("Error Updating Contact:", error);
+    return {
+      success: false,
+      errorMsg: "Error updating contact information",
+    };
+  }
 
   const webhookResponse = await fetch(
     "https://api-na1.hubapi.com/automation/v4/webhook-triggers/24467819/cI0fLqr",
