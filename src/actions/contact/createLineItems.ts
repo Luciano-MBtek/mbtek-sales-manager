@@ -8,6 +8,7 @@ export async function createLineItems(dealId: string, products: Product[]) {
       hs_product_id: product.id.toString(),
       quantity: Number(product.quantity),
       price: Number(product.price),
+      hs_discount_percentage: Number(product.unitDiscount),
     },
     associations: [
       {

@@ -12,7 +12,7 @@ import {
   Handshake,
   PencilRuler,
   Quote,
-  Boxes,
+  MessagesSquare,
 } from "lucide-react";
 import {
   Collapsible,
@@ -95,12 +95,14 @@ const SideBarContactGroup = ({ session }: SideBarContactGroupProps) => {
   const dealsPath = `/contacts/${id}/deals`;
   const schematicPath = `/contacts/${id}/schematic`;
   const quotesPath = `/contacts/${id}/quotes`;
+  const engagementsPath = `/contacts/${id}/engagements`;
   const mainPath = `/contacts/${id}`;
   const isPropertiesActive = pathname === propertiesPath;
   const isMainActive = pathname === mainPath;
   const isDealsActive = pathname === dealsPath;
   const isSchematicActive = pathname === schematicPath;
   const isQuotesPathActive = pathname === quotesPath;
+  const isEngagementsPathActive = pathname === engagementsPath;
   const isTechAgent = session?.user?.accessLevel === "schematic_team";
 
   const items = [
@@ -124,7 +126,7 @@ const SideBarContactGroup = ({ session }: SideBarContactGroupProps) => {
           {
             title: "Complete System",
             url: "/forms/complete-system/step-one",
-            icon: Boxes,
+            icon: MessagesSquare,
           },
         ]
       : []),
@@ -148,7 +150,7 @@ const SideBarContactGroup = ({ session }: SideBarContactGroupProps) => {
   return (
     <SidebarGroup>
       <SidebarGroupLabel>
-        Contact {`${firstname} ${lastname}`}
+        Contact {`${firstname} ${lastname ?? ""}`}
       </SidebarGroupLabel>
 
       <SidebarMenu>
@@ -192,6 +194,25 @@ const SideBarContactGroup = ({ session }: SideBarContactGroupProps) => {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+        </SidebarMenuItem>
+        <SidebarMenuItem>
+          {isEngagementsPathActive ? (
+            <SidebarMenuButton isActive={true}>
+              <MessagesSquare />
+              <span>Engagements</span>
+            </SidebarMenuButton>
+          ) : (
+            <SidebarMenuButton asChild>
+              <Link
+                href={{
+                  pathname: engagementsPath,
+                }}
+              >
+                <MessagesSquare />
+                <span>Engagements</span>
+              </Link>
+            </SidebarMenuButton>
+          )}
         </SidebarMenuItem>
         <SidebarMenuItem>
           {isPropertiesActive ? (

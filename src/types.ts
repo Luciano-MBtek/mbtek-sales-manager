@@ -12,6 +12,7 @@ export type Product = {
   sku: string;
   quantity: number;
   price: number;
+  unitDiscount: number;
   image?: string;
   selected?: boolean;
   isMain?: boolean;

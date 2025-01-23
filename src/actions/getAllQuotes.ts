@@ -38,13 +38,15 @@ async function getQuoteDetails(quoteId: string): Promise<Quote | null> {
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
-      cache: "force-cache",
+      next: {
+        tags: ["quotes"],
+        revalidate: 300,
+      },
     });
 
     if (!response.ok) {
-      throw new Error(
-        `Error fetching quote details for ${quoteId}: ${response.statusText}`
-      );
+      console.error(`Error HTTP: ${response.status} - ${response.statusText}`);
+      return null;
     }
 
     const data = await response.json();

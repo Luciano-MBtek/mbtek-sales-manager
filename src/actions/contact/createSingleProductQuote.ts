@@ -14,19 +14,20 @@ import { getDate } from "@/lib/utils";
 
 interface SingleProductQuote {
   singleProduct: newSingleProductType;
+  onProgress?: (step: string, percentage: number) => void;
 }
 
 const today = getDate();
 
 export const createSingleProductQuote = async ({
   singleProduct,
+  onProgress,
 }: SingleProductQuote) => {
   try {
     const {
       id,
       name,
       lastname,
-      email,
       address,
       zip,
       country,
@@ -45,8 +46,10 @@ export const createSingleProductQuote = async ({
 
     const userId = await getHubspotOwnerIdSession();
 
+    onProgress?.("Getting owner information...", 15);
     const ownerData = await getHubspotOwnerId(userId);
     const { phone, jobtitle } = await getOwnerExtraData(ownerData.email);
+    onProgress?.("Processing product information...", 20);
 
     const mainProduct = products.filter((product) => product.isMain === true);
 
@@ -60,16 +63,20 @@ export const createSingleProductQuote = async ({
       ? singleSchematicFanCoilHeatPump
       : /boiler/i.test(mainProduct[0].name)
         ? singleSchematicBoiler
-        : undefined;
+        : singleSchematicBoiler;
+    onProgress?.("Creating deal...", 25);
 
     const dealData = await createDeal(id, name, lastname, userId);
-
+    onProgress?.("Creating line items...", 35);
     const lineItemsData = await createLineItems(dealData.id, products);
+
+    onProgress?.("Getting product details...", 40);
 
     const shopifyMainProduct = await getShopifyMainProduct(mainProduct[0].sku);
 
     const mainProductDescription =
       shopifyMainProduct.data.productVariants.edges[0].node.product.description;
+    onProgress?.("Generating AI content...", 50);
 
     const aiResponse = await createSingleProductData(mainProductDescription);
 
@@ -95,8 +102,10 @@ export const createSingleProductQuote = async ({
       single_product_description: aiResponse.data.description,
       filled_form_date: today,
     };
+    onProgress?.("Updating contact properties...", 85);
 
     patchContactProperties(id, properties);
+    onProgress?.("Building quote...", 90);
 
     const quoteBuilded = await buildSimpleQuote(
       id,

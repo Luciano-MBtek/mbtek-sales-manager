@@ -10,6 +10,7 @@ import {
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Trash2, Minus, Plus } from "lucide-react";
+import { Input } from "./ui/input";
 
 interface ProductCardProps {
   selectedProducts: Product[];
@@ -19,6 +20,7 @@ interface ProductCardProps {
   };
   onRemoveProduct: (productId: string) => void;
   handleQuantity: (productId: string, string: string) => void;
+  handleDiscount: (productId: string, discount: number) => void;
 }
 
 export default function ProductCard({
@@ -27,6 +29,7 @@ export default function ProductCard({
   serverErrors,
   onRemoveProduct,
   handleQuantity,
+  handleDiscount,
 }: ProductCardProps) {
   return (
     <Card className="w-full shadow-lg">
@@ -43,6 +46,7 @@ export default function ProductCard({
                   <th className="py-2 px-4 text-left">Product</th>
                   <th className="py-2 px-4 text-left">SKU</th>
                   <th className="py-2 px-4 text-left">Quantity</th>
+                  <th className="py-2 px-4 text-left">Discount</th>
                   <th className="py-2 px-4 text-right">Price</th>
                   <th className="py-2 px-4 text-center">Action</th>
                 </tr>
@@ -92,8 +96,31 @@ export default function ProductCard({
                         </Button>
                       </div>
                     </td>
+                    <td className="py-2 px-4">
+                      <div className="flex justify-center items-center">
+                        <Input
+                          type="number"
+                          min="0"
+                          max="100"
+                          placeholder="%"
+                          className="w-12 p-1 border rounded"
+                          value={product.unitDiscount || 0}
+                          onChange={(e) =>
+                            handleDiscount(product.id, Number(e.target.value))
+                          }
+                        />
+                        %
+                      </div>
+                    </td>
                     <td className="py-2 px-4 text-right font-semibold">
-                      ${product.price?.toLocaleString()}
+                      <div className="max-w-[100px] ml-auto">
+                        $
+                        {(
+                          (product.price *
+                            (100 - (product.unitDiscount || 0))) /
+                          100
+                        ).toFixed(2)}
+                      </div>
                     </td>
                     <td className="py-2 px-4 text-center">
                       <Button

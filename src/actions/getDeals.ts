@@ -10,6 +10,9 @@ export async function checkDealsExist(contactId: string): Promise<boolean> {
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
+      next: {
+        revalidate: 300,
+      },
     });
 
     if (!response.ok) {

@@ -25,6 +25,7 @@ const defaultSingleProduct: singleProductInitialValuesType = {
   zip: "",
   products: [],
   splitPayment: "",
+  rates: [],
 };
 
 const LOCAL_STORAGE_KEY = "multi-page-form-single-product";

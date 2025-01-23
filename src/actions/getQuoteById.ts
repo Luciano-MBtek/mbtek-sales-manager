@@ -13,7 +13,10 @@ export const getQuoteById = async (id: string): Promise<QuoteAssociated> => {
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
-      cache: "force-cache",
+      next: {
+        tags: ["quotes"],
+        revalidate: 300,
+      },
     });
 
     if (!response.ok) {

@@ -3,6 +3,7 @@ import Image from "next/image";
 import { ShoppingCart } from "lucide-react";
 import { Product } from "@/types";
 import ConfirmBox from "./ConfirmBox";
+import { Badge } from "./ui/badge";
 
 interface ProductReviewCardProps {
   products: Product[];
@@ -58,13 +59,34 @@ export default function ProductReviewCard({
                   Quantity: {product.quantity} | Price: $
                   {product.price.toFixed(2)}
                 </p>
+
+                <Badge
+                  className="text-background"
+                  variant={product.unitDiscount > 0 ? "success" : "default"}
+                >
+                  Discount: {product.unitDiscount}%
+                </Badge>
               </div>
               <div className="flex flex-col gap-2">
                 <div>
                   {product.isMain && <ConfirmBox text={"Main product"} />}
                 </div>
                 <div className="text-sm flex font-medium justify-end">
-                  ${(product.price * product.quantity).toFixed(2)}
+                  {product.unitDiscount > 0 ? (
+                    <>
+                      <span className="line-through text-muted-foreground mr-2">
+                        ${(product.price * product.quantity).toFixed(2)}
+                      </span>
+                      $
+                      {(
+                        product.price *
+                        product.quantity *
+                        (1 - product.unitDiscount / 100)
+                      ).toFixed(2)}
+                    </>
+                  ) : (
+                    `$${(product.price * product.quantity).toFixed(2)}`
+                  )}
                 </div>
               </div>
             </li>
@@ -75,7 +97,11 @@ export default function ProductReviewCard({
             Total: $
             {products
               .reduce(
-                (total, product) => total + product.price * product.quantity,
+                (total, product) =>
+                  total +
+                  product.price *
+                    product.quantity *
+                    (1 - product.unitDiscount / 100),
                 0
               )
               .toFixed(2)}

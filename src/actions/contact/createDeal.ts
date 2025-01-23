@@ -1,5 +1,7 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
+
 export async function createDeal(
   contactId: string,
   firstName: string,
@@ -61,8 +63,7 @@ export async function createDeal(
     const dealData = await response.json();
     const dealId = dealData.id;
 
-    console.log("Deal created and associated successfully:", dealId);
-
+    revalidatePath("/mydeals");
     return dealData;
   } catch (error) {
     console.error("Error in createDeal:", error);
