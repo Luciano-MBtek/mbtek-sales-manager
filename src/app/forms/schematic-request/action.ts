@@ -59,57 +59,56 @@ export const uploadFile = async (
   }
 
   const documentation = data.documentation;
+  let schematicFile;
   if (documentation) {
     try {
-      const schematicFile = await createFileHubspot({
+      schematicFile = await createFileHubspot({
         documentation,
         folderId: folderId as string,
       });
-      const schematicFileUrl = schematicFile.url;
-
-      const hubspotProperties = {
-        zip: data.zip,
-        total_area_house: data.total_area,
-        number_of_zones: data.number_zones,
-        square_feet_per_zone: data.square_feet_zone,
-        heat_elements: data.heat_elements.join(";"),
-        special_application: data.special_application,
-        extra_notes: data.extra_notes,
-        technical_documention_received_from_the_prospect: schematicFileUrl,
-      };
-
-      const contactUpdate = await patchContactProperties(
-        data.id,
-        hubspotProperties
-      );
-      const webhookResponse = await fetch(
-        "https://api-na1.hubapi.com/automation/v4/webhook-triggers/24467819/cI0fLqr",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            contactId: data.id,
-          }),
-        }
-      );
-
-      if (!webhookResponse.ok) {
-        console.error(
-          "Error triggering webhook:",
-          await webhookResponse.text()
-        );
-      }
     } catch (error) {
       console.log(error);
-
       return {
         success: false,
         errorMsg: "Error uploading the file",
         errors: { documentation: "Error uploading the file" },
       };
     }
+  }
+
+  const hubspotProperties = {
+    zip: data.zip,
+    total_area_house: data.total_area,
+    number_of_zones: data.number_zones,
+    square_feet_per_zone: data.square_feet_zone,
+    heat_elements: data.heat_elements.join(";"),
+    special_application: data.special_application,
+    extra_notes: data.extra_notes,
+    ...(documentation && {
+      technical_documention_received_from_the_prospect: schematicFile.url,
+    }),
+  };
+
+  const contactUpdate = await patchContactProperties(
+    data.id,
+    hubspotProperties
+  );
+
+  const webhookResponse = await fetch(
+    "https://api-na1.hubapi.com/automation/v4/webhook-triggers/24467819/cI0fLqr",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        contactId: data.id,
+      }),
+    }
+  );
+
+  if (!webhookResponse.ok) {
+    console.error("Error triggering webhook:", await webhookResponse.text());
   }
   return { success: true };
 };
