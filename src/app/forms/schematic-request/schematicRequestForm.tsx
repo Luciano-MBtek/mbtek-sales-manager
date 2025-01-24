@@ -70,7 +70,7 @@ const SchematicRequestForm = () => {
   ) => {
     const { name, value } = e.target;
 
-    const contactFields = ["firstname", "lastname", "email"];
+    const contactFields = ["firstname", "lastname", "email", "zip"];
 
     if (contactFields.includes(name)) {
       update({ ...contact, [name]: value } as Contact);
