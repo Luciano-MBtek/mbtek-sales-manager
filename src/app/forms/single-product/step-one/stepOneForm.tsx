@@ -71,6 +71,24 @@ export default function StepSingleProductOneForm() {
     update({ ...contact, [field]: value } as Contact);
     updateSingleProductDetails({ [field]: value });
   };
+  const handleSubmit = async (formData: FormData) => {
+    updateSingleProductDetails({
+      name: contact?.firstname,
+      lastname: contact?.lastname,
+      email: contact?.email,
+      country: formData.get("country") as "USA" | "Canada",
+      state: formData.get("state") as USState,
+      province: formData.get(
+        "province"
+      ) as (typeof canadaProvinceValues)[number],
+      address: formData.get("address") as string,
+      city: formData.get("city") as string,
+      zip: formData.get("zip") as string,
+      id: contact?.id,
+    });
+
+    formAction(formData);
+  };
 
   return (
     <div className="w-full flex flex-col items-center">
@@ -84,7 +102,7 @@ export default function StepSingleProductOneForm() {
         />
       </div>
       <form
-        action={formAction}
+        action={handleSubmit}
         className="flex flex-1 flex-col items-center p-4 w-full"
       >
         <div className="flex w-full flex-col gap-4  ">
