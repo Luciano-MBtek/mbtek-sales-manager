@@ -7,6 +7,7 @@ import {
   MonitorCog,
   UserPlus,
   Handshake,
+  BotMessageSquare,
 } from "lucide-react";
 
 import {
@@ -26,7 +27,6 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { Role } from "@prisma/client";
 import { useContactStore } from "@/store/contact-store";
-import { useAddLeadContext } from "@/contexts/addDealContext";
 
 const items = [
   {
@@ -44,7 +44,14 @@ const items = [
   {
     title: "Search Contacts",
     url: "/contacts",
+    requireAuth: true,
     icon: Search,
+  },
+  {
+    title: "AI chat",
+    url: "/agent-ai",
+    icon: BotMessageSquare,
+    requireAuth: true,
   },
   {
     title: "User Dashboard",
