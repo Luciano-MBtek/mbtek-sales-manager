@@ -22,6 +22,8 @@ export async function createDeal(
     const dealProperties = {
       dealname: dealName,
       hubspot_owner_id: ownerId,
+      dealstage: "checkout_pending",
+      pipeline: "75e28846-ad0d-4be2-a027-5e1da6590b98",
     };
 
     const associations = [
