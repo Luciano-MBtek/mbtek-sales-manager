@@ -25,7 +25,7 @@ export default function FloatingChat() {
             duration={800}
             animateOnHover={true}
           >
-            MBtek AI assistant
+            Mbtek Knowledge Base Assistant
           </HyperText>
           <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)}>
             <X className="h-5 w-5" />
