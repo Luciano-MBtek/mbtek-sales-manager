@@ -13,7 +13,11 @@ export default function FloatingChat() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="fixed bottom-10 right-4 z-50">
+    <div
+      className={`fixed bottom-10 right-4 z-50 ${
+        !isOpen ? "pointer-events-none" : ""
+      }`}
+    >
       <Card
         className={`w-[500px] h-[700px] bg-white rounded-lg shadow-lg transition-all duration-300 flex flex-col justify-between  ${
           isOpen ? "opacity-100 visible" : "opacity-0 invisible"
@@ -45,7 +49,9 @@ export default function FloatingChat() {
       </Card>
 
       <div
-        className={`absolute bottom-0 right-5 ${isOpen ? "hidden" : "block"}`}
+        className={`absolute bottom-0 right-5 ${isOpen ? "hidden" : "block"} ${
+          !isOpen ? "pointer-events-auto" : ""
+        }`}
       >
         <RainbowButton
           className="!h-20 !w-20 !p-0 rounded-full flex items-center justify-center"
