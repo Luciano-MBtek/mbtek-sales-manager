@@ -13,6 +13,7 @@ import {
   PencilRuler,
   Quote,
   MessagesSquare,
+  Mail,
 } from "lucide-react";
 import {
   Collapsible,
@@ -43,6 +44,13 @@ import SideBarAddToFavourite from "./SideBarAddToFavourite";
 import { useEffect, useState } from "react";
 import { checkContactFav } from "@/actions/contact/checkContactFav";
 import { Session } from "next-auth";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "./ui/tooltip";
+import EmailModal from "./Email/EmailModal";
 
 interface SideBarContactGroupProps {
   session: Session | null;
@@ -51,6 +59,7 @@ interface SideBarContactGroupProps {
 const SideBarContactGroup = ({ session }: SideBarContactGroupProps) => {
   const { contact, update, clear } = useContactStore();
   const [isFavorite, setIsFavorite] = useState(false);
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
   const [isCheckingFav, setIsCheckingFav] = useState(true);
   const pathname = usePathname();
   const router = useRouter();
@@ -186,12 +195,34 @@ const SideBarContactGroup = ({ session }: SideBarContactGroupProps) => {
                 setIsFavorite={setIsFavorite}
                 isLoading={isCheckingFav}
               />
-              <DropdownMenuItem onClick={handleClearContact}>
-                <div className="flex w-full items-center justify-between gap-2">
-                  <span>Clear Contact</span>
-                  <Trash width={15} />
-                </div>
+
+              <DropdownMenuItem
+                onSelect={(e) => {
+                  e.preventDefault();
+                }}
+              >
+                <EmailModal isSideBar={true} />
               </DropdownMenuItem>
+
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <DropdownMenuItem
+                      className="hover:bg-red-300 dark:hover:bg-red-800 focus:bg-red-300 dark:focus:bg-red-800"
+                      onClick={handleClearContact}
+                    >
+                      <div className="flex w-full items-center justify-between gap-2">
+                        <span>Clear Contact</span>
+                        <Trash width={15} />
+                      </div>
+                    </DropdownMenuItem>
+                  </TooltipTrigger>
+                  <TooltipContent sideOffset={10} side="right">
+                    Just clears the contact from the sidebar, it does not
+                    delete.
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </DropdownMenuContent>
           </DropdownMenu>
         </SidebarMenuItem>

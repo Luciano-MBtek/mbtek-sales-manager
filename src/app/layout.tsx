@@ -12,7 +12,11 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { AccessDeniedToast } from "@/components/AccessDeniedToast";
 import { FloatingChatWrapper } from "@/components/ChatBot/FloatingChatWrapper";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap", // Add this line
+  preload: true,
+});
 
 export const metadata: Metadata = {
   title: "MBtek Sales Manager",
