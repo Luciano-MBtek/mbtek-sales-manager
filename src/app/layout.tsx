@@ -21,6 +21,9 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "MBtek Sales Manager",
   description: "Sales Manager for MBtek",
+  icons: {
+    icon: "/mbtek-logo.png",
+  },
 };
 
 export default async function RootLayout({

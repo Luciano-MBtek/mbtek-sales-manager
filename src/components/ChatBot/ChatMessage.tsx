@@ -2,6 +2,7 @@ import Image from "next/image";
 import ReactMarkdown from "react-markdown";
 import { CopyButton } from "../CopyButton";
 import { DownloadButton } from "../DownloadButton";
+import { ThinkingDots } from "./ThinkingDots";
 
 interface ChatMessageProps {
   message: string;
@@ -34,6 +35,10 @@ export default function ChatMessage({ message, isUser }: ChatMessageProps) {
       </div>
     );
   };
+
+  if (message === "..." && !isUser) {
+    return <ThinkingDots />;
+  }
 
   return (
     <div className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
