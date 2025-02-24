@@ -14,13 +14,20 @@ import { FloatingChatWrapper } from "@/components/ChatBot/FloatingChatWrapper";
 
 const inter = Inter({
   subsets: ["latin"],
+<<<<<<< HEAD
   display: "swap", // Add this line
+=======
+  display: "swap",
+>>>>>>> c7456e30d59a0fad7d0f7350d16cefeab6a69db7
   preload: true,
 });
 
 export const metadata: Metadata = {
   title: "MBtek Sales Manager",
   description: "Sales Manager for MBtek",
+  icons: {
+    icon: "/mbtek-logo.png",
+  },
 };
 
 export default async function RootLayout({
