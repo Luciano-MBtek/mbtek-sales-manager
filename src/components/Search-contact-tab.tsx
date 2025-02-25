@@ -33,6 +33,7 @@ export function SearchContactTab() {
     }, 500);
 
     return () => clearTimeout(debounceTimeout);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchValue]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
