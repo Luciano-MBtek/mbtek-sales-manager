@@ -1,12 +1,9 @@
 "use server";
 
 export async function searchContacts(searchValue: string) {
-  console.log("SearchValue:", searchValue);
   const trimmedSearch = searchValue.trim();
   let firstNameSearch = trimmedSearch;
   let lastNameSearch = trimmedSearch;
-  console.log("Firstname1:", firstNameSearch);
-  console.log("lastName1:", lastNameSearch);
 
   if (trimmedSearch.includes(" ")) {
     const [firstName, lastName] = trimmedSearch.split(" ").filter(Boolean);
@@ -15,8 +12,6 @@ export async function searchContacts(searchValue: string) {
       lastNameSearch = lastName;
     }
   }
-  console.log("Firstname2:", firstNameSearch);
-  console.log("lastName2:", lastNameSearch);
 
   try {
     const apiKey = process.env.HUBSPOT_API_KEY;
@@ -100,7 +95,7 @@ export async function searchContacts(searchValue: string) {
               ?.toLowerCase()
               .includes(lastName.toLowerCase())
         );
-        console.log("Exact Matches:", matches);
+
         return matches.length > 0 ? matches : data.results || null;
       }
     }

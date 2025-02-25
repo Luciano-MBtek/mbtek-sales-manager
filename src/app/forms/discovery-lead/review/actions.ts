@@ -71,14 +71,10 @@ export const submitLeadAction = async (
 
     const ownerId = session.user.hubspotOwnerId;
 
-    // Consultar si el contacto existe , si existe pero no tiene owner , actualizar con el ownerId de la session, si tiene owner , actualizar pero sin el ownerId. Si no existe crear un nuevo contacto y asignar el Owner de la session.
     const contactExist = await searchContact(contact.email, "email");
 
     if (contactExist !== 0) {
-      console.log("Existing contact, updating properties.");
-
       if (!contactExist.properties.hubspot_owner_id) {
-        console.log("Existing contact with no owner, updating properties.");
         const properties = createContactProperties(contact, ownerId);
 
         const response = await patchContactProperties(
@@ -93,7 +89,6 @@ export const submitLeadAction = async (
           };
         }
       } else {
-        console.log("Existing contact with owner, updating properties.");
         const properties = createContactProperties(contact);
         const response = await patchContactProperties(
           contactExist.id,
@@ -131,7 +126,6 @@ export const submitLeadAction = async (
     }
 
     if (contactExist === 0) {
-      console.log("New Contact, proceed to create it.");
       const response = await createContact(contact, ownerId);
       if (!response.success) {
         return {

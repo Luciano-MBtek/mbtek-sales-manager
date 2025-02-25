@@ -80,7 +80,7 @@ export const stepTwoFormSingleProductAction = async (
           };
 
           const rate = await getFreightwiseRates(body);
-          console.log(rate);
+
           rates = rate;
         } else {
           console.log("None products with Freighwise data");

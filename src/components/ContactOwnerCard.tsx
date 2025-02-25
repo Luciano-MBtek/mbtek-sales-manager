@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { User, Mail } from "lucide-react";
+import EmailModal from "./Email/EmailModal";
 
 interface Owner {
   id: string;
@@ -20,7 +21,7 @@ const ContactOwnerCard = ({ owner }: { owner: Owner | null }) => {
       </CardHeader>
       <CardContent>
         {owner?.id ? (
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-4 justify-between">
             <Avatar className="h-16 w-16">
               <AvatarImage
                 src={`https://api.dicebear.com/6.x/initials/svg?seed=${owner.firstName}%20${owner.lastName}`}
@@ -31,6 +32,7 @@ const ContactOwnerCard = ({ owner }: { owner: Owner | null }) => {
                 {owner.lastName[0]}
               </AvatarFallback>
             </Avatar>
+
             <div className="space-y-2">
               <h3 className="text-lg font-semibold">
                 {owner.firstName} {owner.lastName}
@@ -46,6 +48,7 @@ const ContactOwnerCard = ({ owner }: { owner: Owner | null }) => {
                 Owner ID: {owner.id}
               </Badge>
             </div>
+            <EmailModal isSideBar={false} />
           </div>
         ) : (
           <div className="flex items-center space-x-4 text-muted-foreground">

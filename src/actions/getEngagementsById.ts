@@ -11,7 +11,7 @@ export async function getEngagementsById(id: string) {
         "Content-Type": "application/json",
       },
       next: {
-        revalidate: 1800,
+        revalidate: 500,
       },
     });
 

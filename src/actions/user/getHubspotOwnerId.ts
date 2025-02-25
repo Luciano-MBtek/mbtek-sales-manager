@@ -7,9 +7,11 @@ export const getHubspotOwnerIdSession = async () => {
   const hubspotId = session?.user?.hubspotOwnerId;
 
   if (!hubspotId) {
-    throw new Error(
+    const error = new Error(
       "No hubspot Owner Id, try login again or contact developer."
     );
+    (error as any).status = 401;
+    throw error;
   }
   return hubspotId;
 };
