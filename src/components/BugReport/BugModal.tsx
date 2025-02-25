@@ -14,14 +14,13 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { PaperclipIcon, SendIcon, XIcon, Mail, ArrowRight } from "lucide-react";
+import { PaperclipIcon, SendIcon, XIcon, ArrowRight, Bug } from "lucide-react";
 import { Badge } from "../ui/badge";
-import { useContactStore } from "@/store/contact-store";
 import { useSession } from "next-auth/react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import Tiptap from "./Tiptap";
+
 import { useForm } from "react-hook-form";
-import { emailSchemaType, emailSchema } from "@/schemas/emailSchema";
+import { bugSchemaType, bugSchema } from "@/schemas/bugSchema";
 import {
   Form,
   FormControl,
@@ -31,37 +30,36 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useToast } from "../ui/use-toast";
+import { Textarea } from "../ui/textarea";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "../ui/tooltip";
 
-interface EmailProps {
+interface BugProps {
   isSideBar: boolean;
 }
 
-export default function EmailModal({ isSideBar }: EmailProps) {
+export default function BugModal({ isSideBar }: BugProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const { contact } = useContactStore();
+
   const { data } = useSession();
   const { toast } = useToast();
 
   const userEmail = data?.user.email;
   const userName = data?.user.name;
 
-  console.log(data);
-
-  const contactEmail = contact?.email;
-  const contactId = contact?.id;
-  const contactName = contact?.firstname;
-
-  const form = useForm<emailSchemaType>({
+  const form = useForm<bugSchemaType>({
     mode: "onChange",
-    resolver: zodResolver(emailSchema),
+    resolver: zodResolver(bugSchema),
     defaultValues: {
       senderEmail: userEmail || "",
       senderName: userName || "",
-      receiverEmail: contactEmail || "",
       subject: "",
       content: "",
-      contactId: contactId || "",
       attachments: [],
     },
   });
@@ -70,19 +68,17 @@ export default function EmailModal({ isSideBar }: EmailProps) {
     form.reset({
       senderEmail: userEmail || "",
       senderName: userName || "",
-      receiverEmail: contactEmail || "",
       subject: "",
-      content: `<p>Hello ${contactName},</p><img width="126" height="45" src="https://24467819.fs1.hubspotusercontent-na1.net/hubfs/24467819/Logo%20Mbtek%20Transparency.png"><em><p>${userName}</p></em><em><p>${userEmail}</p></em>`,
-      contactId: contactId || "",
+      content: "",
       attachments: [],
     });
-  }, [userEmail, contactEmail, form, contactId, userName, contactName]);
+  }, [userEmail, form, userName]);
 
-  const onSubmit = async (values: emailSchemaType) => {
+  const onSubmit = async (values: bugSchemaType) => {
     setIsLoading(true);
 
     try {
-      const response = await fetch("/api/email", {
+      const response = await fetch("/api/bug", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -95,7 +91,7 @@ export default function EmailModal({ isSideBar }: EmailProps) {
         setIsOpen(false);
         toast({
           title: "Success",
-          description: "Email sent successfully",
+          description: "Report sent successfully",
         });
         form.reset();
       }
@@ -103,13 +99,12 @@ export default function EmailModal({ isSideBar }: EmailProps) {
       toast({
         title: "Error",
         description:
-          error instanceof Error ? error.message : "Failed to send email",
+          error instanceof Error ? error.message : "Failed to send report",
         variant: "destructive",
       });
     } finally {
       setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   const convertFileToBase64 = (file: File): Promise<string> => {
@@ -158,21 +153,20 @@ export default function EmailModal({ isSideBar }: EmailProps) {
       <DialogTrigger asChild>
         {isSideBar ? (
           <div className="relative flex cursor-default hover:bg-accent hover:text-accent-foreground select-none justify-between items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 w-full">
-            <span>Send Email</span>
-            <Mail width={15} />
+            <span>Report Bug</span>
+            <Bug width={15} />
           </div>
         ) : (
-          <Button className="gap-3">
-            Send
-            <Mail />
+          <Button variant="destructive" className="gap-3 p-2 rounded-full">
+            <Bug />
           </Button>
         )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-[800px]">
         <DialogHeader>
-          <DialogTitle>New Email</DialogTitle>
+          <DialogTitle>Report bug or Errors</DialogTitle>
           <DialogDescription>
-            Compose and send your email message.
+            Help improving the Sales Manager by sharing your problem 😊.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -182,7 +176,7 @@ export default function EmailModal({ isSideBar }: EmailProps) {
                 control={form.control}
                 name="senderEmail"
                 render={({ field }) => (
-                  <FormItem className="w-full">
+                  <FormItem className="hidden">
                     <FormLabel>From</FormLabel>
                     <FormControl>
                       <Input
@@ -191,24 +185,7 @@ export default function EmailModal({ isSideBar }: EmailProps) {
                         placeholder="Your email"
                         readOnly
                         disabled
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <ArrowRight width={50} height={50} />
-              <FormField
-                control={form.control}
-                name="receiverEmail"
-                render={({ field }) => (
-                  <FormItem className="w-full">
-                    <FormLabel>To</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        type="email"
-                        placeholder="Recipient's email"
+                        hidden
                       />
                     </FormControl>
                     <FormMessage />
@@ -224,7 +201,11 @@ export default function EmailModal({ isSideBar }: EmailProps) {
                 <FormItem>
                   <FormLabel>Subject</FormLabel>
                   <FormControl>
-                    <Input {...field} type="text" placeholder="Email subject" />
+                    <Input
+                      {...field}
+                      type="text"
+                      placeholder="Problem subject"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -247,9 +228,13 @@ export default function EmailModal({ isSideBar }: EmailProps) {
               name="content"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Body</FormLabel>
+                  <FormLabel>Report</FormLabel>
                   <FormControl>
-                    <Tiptap content={field.value} onChange={field.onChange} />
+                    <Textarea
+                      placeholder="Describe the bug you encountered..."
+                      className="min-h-[100px]"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -268,7 +253,7 @@ export default function EmailModal({ isSideBar }: EmailProps) {
                           className="cursor-pointer flex items-center gap-2 hover:text-primary"
                         >
                           <PaperclipIcon className="h-5 w-5" />
-                          <span>Attach file</span>
+                          <span>Send image if needed</span>
                         </Label>
                         <input
                           id="attachment"

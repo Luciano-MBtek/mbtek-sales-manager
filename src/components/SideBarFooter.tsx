@@ -1,6 +1,13 @@
 "use client";
 
-import { BadgeCheck, Bell, ChevronsUpDown, LogOut, LogIn } from "lucide-react";
+import {
+  BadgeCheck,
+  Bell,
+  ChevronsUpDown,
+  LogOut,
+  LogIn,
+  Bug,
+} from "lucide-react";
 import { Skeleton } from "./ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -20,6 +27,8 @@ import {
 } from "@/components/ui/sidebar";
 import { useSession, signOut, signIn } from "next-auth/react";
 import { Session } from "next-auth";
+import BugModal from "./BugReport/BugModal";
+import { useState } from "react";
 
 type SessionStatus = ReturnType<typeof useSession>["status"];
 
@@ -29,6 +38,7 @@ interface SideBarFooterProps {
 }
 
 export default function NavUser({ session, status }: SideBarFooterProps) {
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const userName = session?.user?.name;
   const userEmail = session?.user?.email;
   const userImage = session?.user?.image;
@@ -110,9 +120,14 @@ export default function NavUser({ session, status }: SideBarFooterProps) {
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <DropdownMenuItem>
-                <BadgeCheck className="mr-2 h-4 w-4" />
-                Status: {session?.user?.accessLevel}
+                <div className="flex w-full items-center justify-between">
+                  <p>Status: {session?.user?.accessLevel}</p>
+
+                  <BadgeCheck className=" h-4 w-4" />
+                </div>
               </DropdownMenuItem>
+
+              <BugModal isSideBar={true} />
 
               {/*  <DropdownMenuItem>
                 <Bell className="mr-2 h-4 w-4" />

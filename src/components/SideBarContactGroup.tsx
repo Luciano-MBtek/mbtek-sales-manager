@@ -13,7 +13,6 @@ import {
   PencilRuler,
   Quote,
   MessagesSquare,
-  Mail,
 } from "lucide-react";
 import {
   Collapsible,
@@ -130,7 +129,7 @@ const SideBarContactGroup = ({ session }: SideBarContactGroupProps) => {
       url: "/forms/schematic-request",
       icon: Proportions,
     },
-    ...(wantsCompleteSystem
+    /* ...(wantsCompleteSystem
       ? [
           {
             title: "Complete System",
@@ -138,7 +137,7 @@ const SideBarContactGroup = ({ session }: SideBarContactGroupProps) => {
             icon: MessagesSquare,
           },
         ]
-      : []),
+      : []), */
   ];
 
   const techAgentItems = [
@@ -196,13 +195,7 @@ const SideBarContactGroup = ({ session }: SideBarContactGroupProps) => {
                 isLoading={isCheckingFav}
               />
 
-              <DropdownMenuItem
-                onSelect={(e) => {
-                  e.preventDefault();
-                }}
-              >
-                <EmailModal isSideBar={true} />
-              </DropdownMenuItem>
+              <EmailModal isSideBar={true} />
 
               <TooltipProvider>
                 <Tooltip>

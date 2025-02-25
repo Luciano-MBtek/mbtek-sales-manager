@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Navbar } from "@/components/Navbar";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/app/Providers";
@@ -7,10 +6,11 @@ import { Toaster } from "@/components/ui/toaster";
 import { getQueryClient } from "@/lib/query";
 import { getAllProducts } from "@/actions/getAllProducts";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { AccessDeniedToast } from "@/components/AccessDeniedToast";
 import { FloatingChatWrapper } from "@/components/ChatBot/FloatingChatWrapper";
+import { FloatingBugWrapper } from "@/components/BugReport/FloatingBugWrapper";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -49,6 +49,7 @@ export default async function RootLayout({
               {children}
             </main>
             <FloatingChatWrapper />
+            <FloatingBugWrapper />
           </HydrationBoundary>
         </Providers>
         <Toaster />
