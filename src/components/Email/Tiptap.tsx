@@ -22,10 +22,10 @@ const Tiptap = ({
     immediatelyRender: false,
     extensions: [
       StarterKit.configure({
-        bulletList: false, // Disable default bulletList from StarterKit
+        bulletList: false,
         orderedList: false,
         listItem: false,
-        heading: false, // Disable default orderedList from StarterKit
+        heading: false,
       }),
       Heading.configure({
         HTMLAttributes: { class: "text-xl font-bold", levels: [2] },
@@ -61,7 +61,6 @@ const Tiptap = ({
     },
     onUpdate({ editor }) {
       onChange(editor.getHTML());
-      console.log(editor.getHTML());
     },
   });
 

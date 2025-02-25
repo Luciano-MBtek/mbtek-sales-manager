@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -15,6 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PaperclipIcon, SendIcon, XIcon, Mail, ArrowRight } from "lucide-react";
+import { Badge } from "../ui/badge";
 import { useContactStore } from "@/store/contact-store";
 import { useSession } from "next-auth/react";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -29,6 +30,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { useToast } from "../ui/use-toast";
 
 interface EmailProps {
   isSideBar: boolean;
@@ -39,33 +41,45 @@ export default function EmailModal({ isSideBar }: EmailProps) {
   const [isLoading, setIsLoading] = useState(false);
   const { contact } = useContactStore();
   const { data } = useSession();
+  const { toast } = useToast();
 
   const userEmail = data?.user.email;
+  const userName = data?.user.name;
+
+  console.log(data);
+
   const contactEmail = contact?.email;
+  const contactId = contact?.id;
+  const contactName = contact?.firstname;
 
   const form = useForm<emailSchemaType>({
     mode: "onChange",
     resolver: zodResolver(emailSchema),
     defaultValues: {
       senderEmail: userEmail || "",
+      senderName: userName || "",
       receiverEmail: contactEmail || "",
       subject: "",
       content: "",
+      contactId: contactId || "",
+      attachments: [],
     },
   });
 
   useEffect(() => {
     form.reset({
       senderEmail: userEmail || "",
+      senderName: userName || "",
       receiverEmail: contactEmail || "",
       subject: "",
-      content: `<h2 class="text-xl font-bold" levels="2">Testing with Image</h2><ol><li><p>primero</p></li><li><p>segundo</p></li><li><p>tercero</p></li></ol><ul class="list-disc ml-4"><li><p>Bullet 1</p></li><li><p>Bullet 2</p></li><li><p>Bullet 3</p></li></ul><h2 class="text-xl font-bold" levels="2">Wacho </h2><p></p><img width="126" height="45" src="https://24467819.fs1.hubspotusercontent-na1.net/hubfs/24467819/Logo%20Mbtek%20Transparency.png"><p></p>`,
+      content: `<p>Hello ${contactName},</p><img width="126" height="45" src="https://24467819.fs1.hubspotusercontent-na1.net/hubfs/24467819/Logo%20Mbtek%20Transparency.png"><em><p>${userName}</p></em><em><p>${userEmail}</p></em>`,
+      contactId: contactId || "",
+      attachments: [],
     });
-  }, [userEmail, contactEmail, form]);
+  }, [userEmail, contactEmail, form, contactId, userName, contactName]);
 
   const onSubmit = async (values: emailSchemaType) => {
     setIsLoading(true);
-    console.log("Email content:", values);
 
     try {
       const response = await fetch("/api/email", {
@@ -76,13 +90,67 @@ export default function EmailModal({ isSideBar }: EmailProps) {
         body: JSON.stringify(values),
       });
       const data = await response.json();
-      console.log(data);
+
+      if (response.ok) {
+        setIsOpen(false);
+        toast({
+          title: "Success",
+          description: "Email sent successfully",
+        });
+        form.reset();
+      }
     } catch (error) {
-      console.log(error);
-      setIsLoading(false);
+      toast({
+        title: "Error",
+        description:
+          error instanceof Error ? error.message : "Failed to send email",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
+    setIsLoading(false);
+  };
+
+  const convertFileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = (error) => reject(error);
+    });
+  };
+
+  const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+
+    const MAX_FILE_SIZE = 10 * 1024 * 1024;
+
+    for (const file of files) {
+      if (file.size > MAX_FILE_SIZE) {
+        toast({
+          title: "Error",
+          description: `File ${file.name} is too large. Maximum size is 10MB`,
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
+    const newAttachments = await Promise.all(
+      Array.from(files).map(async (file) => {
+        const base64 = await convertFileToBase64(file);
+        return {
+          fileName: file.name,
+          mimeType: file.type,
+          content: base64,
+        };
+      })
+    );
+
+    const currentAttachments = form.getValues("attachments") || [];
+    form.setValue("attachments", [...currentAttachments, ...newAttachments]);
   };
 
   return (
@@ -162,6 +230,17 @@ export default function EmailModal({ isSideBar }: EmailProps) {
                 </FormItem>
               )}
             />
+            <FormField
+              control={form.control}
+              name="senderName"
+              render={({ field }) => (
+                <FormItem className="hidden">
+                  <FormControl>
+                    <Input {...field} type="hidden" />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
 
             <FormField
               control={form.control}
@@ -177,16 +256,62 @@ export default function EmailModal({ isSideBar }: EmailProps) {
               )}
             />
             <div className="flex justify-between">
-              <div className="flex items-center space-x-2">
-                <Label htmlFor="attachment" className="cursor-pointer">
-                  <PaperclipIcon className="h-5 w-5" />
-                  <span className="sr-only">Attach file</span>
-                </Label>
-                <Input id="attachment" type="file" className="hidden" />
-                <span className="text-sm text-muted-foreground">
-                  No file chosen
-                </span>
-              </div>
+              <FormField
+                control={form.control}
+                name="attachments"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <div className="flex items-center space-x-2">
+                        <Label
+                          htmlFor="attachment"
+                          className="cursor-pointer flex items-center gap-2 hover:text-primary"
+                        >
+                          <PaperclipIcon className="h-5 w-5" />
+                          <span>Attach file</span>
+                        </Label>
+                        <input
+                          id="attachment"
+                          type="file"
+                          className="hidden"
+                          multiple
+                          onChange={handleFileChange}
+                        />
+                        <span className="text-sm text-muted-foreground">
+                          {field.value?.length > 0
+                            ? `${field.value.length} file(s) attached`
+                            : "No file chosen"}
+                        </span>
+                        {field.value && field.value.length > 0 && (
+                          <div className="flex flex-wrap gap-2 mt-2">
+                            {field.value.map((file, index) => (
+                              <Badge
+                                key={index}
+                                className="flex items-center gap-2"
+                              >
+                                {file.fileName}
+                                <XIcon
+                                  className="h-3 w-3 cursor-pointer hover:text-destructive"
+                                  onClick={() => {
+                                    const newAttachments = field.value.filter(
+                                      (_, i) => i !== index
+                                    );
+                                    form.setValue(
+                                      "attachments",
+                                      newAttachments
+                                    );
+                                  }}
+                                />
+                              </Badge>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
               <div className="flex justify-end space-x-2">
                 <Button
@@ -197,9 +322,15 @@ export default function EmailModal({ isSideBar }: EmailProps) {
                   <XIcon className="mr-2 h-4 w-4" />
                   Close
                 </Button>
-                <Button type="submit">
-                  <SendIcon className="mr-2 h-4 w-4" />
-                  Send
+                <Button type="submit" disabled={isLoading}>
+                  {isLoading ? (
+                    "Sending..."
+                  ) : (
+                    <>
+                      <SendIcon className="mr-2 h-4 w-4" />
+                      Send
+                    </>
+                  )}
                 </Button>
               </div>
             </div>

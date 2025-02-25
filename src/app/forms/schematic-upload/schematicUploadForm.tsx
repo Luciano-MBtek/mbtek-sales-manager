@@ -39,7 +39,6 @@ const SchematicUploadForm = () => {
         });
       }
     } else {
-      // Si result es un objeto de errores de formulario
       toast({
         title: "Error",
         description: "Please check the form for errors",
@@ -65,7 +64,6 @@ const SchematicUploadForm = () => {
       });
       setClientErrors((prev) => ({ ...prev, documentation: undefined }));
     } catch (error) {
-      console.log(error);
       const zodError = error as { issues?: { message: string }[] };
       const errorMessage =
         zodError.issues?.[0]?.message ||

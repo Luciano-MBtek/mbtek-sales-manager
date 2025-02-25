@@ -9,7 +9,7 @@ export const stepFourFormAction = async (
   formData: FormData
 ): Promise<FormErrors | undefined> => {
   const data: any = Object.fromEntries(formData.entries());
-  console.log("DatA:", data);
+
   const validated = stepFourSchema.safeParse(data);
 
   //parsear el valor No a Noe en interested_to_be_financed

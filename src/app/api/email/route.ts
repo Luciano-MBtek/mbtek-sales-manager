@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 
 const EMAIL_URL = process.env.EMAIL_URL || "";
 
@@ -22,6 +23,7 @@ export async function POST(request: Request) {
         { status: 500 }
       );
     }
+    revalidatePath("/engagements");
 
     return NextResponse.json({ message: "Email sent successfully" });
   } catch (error) {
