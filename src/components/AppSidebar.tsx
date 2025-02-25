@@ -48,7 +48,7 @@ const items = [
     icon: Search,
   },
   {
-    title: "AI chat",
+    title: "AI chat (Beta)",
     url: "/agent-ai",
     icon: BotMessageSquare,
     requireAuth: true,
