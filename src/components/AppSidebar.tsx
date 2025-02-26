@@ -8,6 +8,7 @@ import {
   UserPlus,
   Handshake,
   BotMessageSquare,
+  CircleUserRound,
 } from "lucide-react";
 
 import {
@@ -63,6 +64,12 @@ const items = [
     title: "My Deals",
     url: "/mydeals",
     icon: Handshake,
+    requireAuth: true,
+  },
+  {
+    title: "My Contacts",
+    url: "/my-contacts",
+    icon: CircleUserRound,
     requireAuth: true,
   },
   {
