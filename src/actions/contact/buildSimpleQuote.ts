@@ -23,6 +23,7 @@ export async function buildSimpleQuote(
   ownerLastname: string,
   ownerPhone: string,
   ownerJob: string,
+  shipmentCost: string | undefined,
   lineItems: LineItem[]
 ): Promise<any> {
   try {
@@ -55,6 +56,7 @@ export async function buildSimpleQuote(
       hs_sender_phone: ownerPhone,
       hs_sender_jobtitle: ownerJob ? ownerJob : "Product Solution Specialist",
       hs_currency: "USD",
+      hs_terms: shipmentCost,
     };
 
     const associations = [

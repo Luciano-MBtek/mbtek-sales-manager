@@ -34,6 +34,7 @@ export const createSingleProductQuote = async ({
       city,
       splitPayment,
       products,
+      shipmentCost,
     } = singleProduct;
 
     let province;
@@ -117,6 +118,7 @@ export const createSingleProductQuote = async ({
       ownerData.lastName,
       phone,
       jobtitle,
+      shipmentCost,
       lineItemsData.results
     );
 
