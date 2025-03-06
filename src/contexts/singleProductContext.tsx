@@ -25,6 +25,8 @@ const defaultSingleProduct: singleProductInitialValuesType = {
   zip: "",
   products: [],
   splitPayment: "",
+  customShipment: "",
+  shipmentCost: "",
   rates: [],
 };
 

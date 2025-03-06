@@ -17,8 +17,10 @@ export const stepTwoFormSingleProductAction = async (
   const leadData = formData.get("lead_data");
   const lead = leadData ? JSON.parse(leadData.toString()) : null;
   const splitPayment = formData.get("splitPayment");
+  const customShipment = formData.get("customShipment");
+  const shipmentCost = formData.get("shipmentCost")?.toString() || "";
 
-  const data = { products, splitPayment };
+  const data = { products, splitPayment, customShipment, shipmentCost };
   let rates: RatesType = [];
 
   if (lead.country === "USA") {
@@ -107,6 +109,7 @@ export const stepTwoFormSingleProductAction = async (
       acc[path] = issue.message;
       return acc;
     }, {});
+
     return errors;
   }
 

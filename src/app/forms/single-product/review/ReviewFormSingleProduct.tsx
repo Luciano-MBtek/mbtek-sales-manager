@@ -26,6 +26,7 @@ import {
   Map,
   Hash,
   CreditCard,
+  Truck,
   Globe,
   Building,
 } from "lucide-react";
@@ -252,6 +253,13 @@ const ReviewFormSingleProduct = () => {
                 label="Split Payment"
                 value={formData.splitPayment === "Yes" ? "Yes" : "No"}
               />
+              {formData.customShipment === "Yes" ? (
+                <InfoItem
+                  icon={<Truck className="h-5 w-5" />}
+                  label="Shipment"
+                  value={formData.shipmentCost}
+                />
+              ) : null}
             </div>
 
             {products ? (

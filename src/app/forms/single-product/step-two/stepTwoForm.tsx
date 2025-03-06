@@ -13,6 +13,7 @@ import ProductCard from "@/components/ProductCard";
 import ContactFormCard from "@/components/StepForm/ContactFormCard";
 import { useContactStore } from "@/store/contact-store";
 import MainProductSelect from "@/components/MainProductSelect";
+import MoneyValueInput from "@/components/StepForm/MoneyValueInput";
 
 const options = YesOrNo.map((option) => option);
 
@@ -140,6 +141,11 @@ export default function StepSingleProductTwoForm() {
             name="lead_data"
             value={JSON.stringify(contact)}
           />
+          <input
+            type="hidden"
+            name="shipmentCost"
+            value={singleProductData.shipmentCost || ""}
+          />
           <ProductCard
             selectedProducts={selectedProducts}
             totalPrice={totalPrice}
@@ -164,6 +170,33 @@ export default function StepSingleProductTwoForm() {
                 updateSingleProductDetails({ splitPayment: value })
               }
             />
+          </div>
+          <div className="w-full flex items-center gap-10 m-5">
+            <div>
+              <RadioInput
+                label="Custom Shipment"
+                id="customShipment"
+                options={options}
+                errorMsg={serverErrors?.customShipment}
+                value={singleProductData.customShipment || ""}
+                onChange={(value) =>
+                  updateSingleProductDetails({ customShipment: value })
+                }
+              />
+            </div>
+            {singleProductData.customShipment === "Yes" && (
+              <div>
+                <MoneyValueInput
+                  label="Shipment Cost"
+                  id="shipmentCost"
+                  errorMsg={serverErrors?.shipmentCost}
+                  value={singleProductData.shipmentCost || ""}
+                  onChange={(e) =>
+                    updateSingleProductDetails({ shipmentCost: e.target.value })
+                  }
+                />
+              </div>
+            )}
           </div>
 
           <div className="flex w-full flex-col gap-4 lg:max-w-[700px] ">

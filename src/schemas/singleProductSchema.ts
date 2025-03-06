@@ -24,6 +24,11 @@ export const stepTwoSingleProductSchema = z
     splitPayment: z.enum(yesOrNoTuple, {
       errorMap: () => ({ message: "Please select Yes or No" }),
     }),
+    customShipment: z.enum(yesOrNoTuple, {
+      errorMap: () => ({ message: "Please select Yes or No" }),
+    }),
+    shipmentCost: z.string().optional(),
+
     rates: z
       .array(
         z.object({
@@ -41,6 +46,16 @@ export const stepTwoSingleProductSchema = z
         code: z.ZodIssueCode.custom,
         message: "You must select a main product",
         path: ["products"],
+      });
+    }
+    if (
+      data.customShipment === "Yes" &&
+      (!data.shipmentCost || data.shipmentCost.trim() === "")
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Shipment cost is required when custom shipment is Yes",
+        path: ["shipmentCost"],
       });
     }
   });
@@ -113,6 +128,10 @@ export const newSingleProductSchema = z.discriminatedUnion("country", [
     splitPayment: z.enum(yesOrNoTuple, {
       errorMap: () => ({ message: "Please select Yes or No" }),
     }),
+    customShipment: z.enum(yesOrNoTuple, {
+      errorMap: () => ({ message: "Please select Yes or No" }),
+    }),
+    shipmentCost: z.string().optional(),
   }),
   z.object({
     name: z.string().min(1, "Unknown name"),
@@ -146,6 +165,10 @@ export const newSingleProductSchema = z.discriminatedUnion("country", [
     splitPayment: z.enum(yesOrNoTuple, {
       errorMap: () => ({ message: "Please select Yes or No" }),
     }),
+    customShipment: z.enum(yesOrNoTuple, {
+      errorMap: () => ({ message: "Please select Yes or No" }),
+    }),
+    shipmentCost: z.string().optional(),
   }),
 ]);
 
@@ -185,6 +208,8 @@ export const singleProductInitialValuesSchema = z.object({
       })
     )
     .optional(),
+  customShipment: z.string().optional(),
+  shipmentCost: z.string().optional(),
 });
 
 export type newSingleProductType = z.infer<typeof newSingleProductSchema>;
