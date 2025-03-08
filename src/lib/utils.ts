@@ -40,8 +40,6 @@ export const createContactProperties = (
     lead_type: contact.leadType,
     project_summary_user: contact.projectSummary,
     reason_for_calling_us: contact.reasonForCalling,
-    want_a_complete_system_: contact.wantCompleteSystem,
-    allocated_budget: contact.allocatedBudget,
     lead_buying_intention: contact.leadBuyingIntention,
     expected_eta: format(contact.expectedETA, "yyyy-MM-dd"),
     is_contact_the_decision_maker_: contact.decisionMaker,

@@ -7,7 +7,7 @@ import {
   newLeadType,
   stepTwoSchema,
   stepOneSchema,
-  stepThreeSchemaB2C,
+  stepThreeBaseSchema,
   stepFourSchema,
 } from "@/schemas/newLeadSchema";
 import { collectDataRoutes } from "@/types";
@@ -43,7 +43,7 @@ export const submitLeadAction = async (
     };
   }
 
-  const stepThreeB2CValidated = stepThreeSchemaB2C.safeParse(contact);
+  const stepThreeB2CValidated = stepThreeBaseSchema.safeParse(contact);
   if (!stepThreeB2CValidated.success) {
     return {
       redirect2: collectDataRoutes.LEAD_QUALIFICATION_B2C,

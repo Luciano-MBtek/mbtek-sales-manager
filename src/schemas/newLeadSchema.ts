@@ -61,36 +61,9 @@ export const stepThreeBaseSchema = z.object({
     .refine((val) => val !== "No", {
       message: "You have to ask the question",
     }),
-  wantCompleteSystem: z.enum(yesOrNoTuple, {
-    errorMap: () => ({ message: "Please select Yes or No" }),
-  }),
-  allocatedBudget: z.string().optional(),
-  stepsForDecision: z.string().optional(),
+
   expectedETA: z.string().optional(),
 });
-
-export const stepThreeSchemaB2C = stepThreeBaseSchema.superRefine(
-  (data, ctx) => {
-    if (data.wantCompleteSystem === "Yes") {
-      if (!data.allocatedBudget) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message:
-            "Allocated Budget is required when wanting a complete system.",
-          path: ["allocatedBudget"],
-        });
-      }
-      if (!data.stepsForDecision) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message:
-            "Steps for making a decision are required when wanting a complete system.",
-          path: ["stepsForDecision"],
-        });
-      }
-    }
-  }
-);
 
 export const stepThreeSchema = z.object({
   contactName: z
@@ -127,57 +100,36 @@ export const stepFiveSchema = z.object({
   }),
 });
 
-export const newLeadSchema = z
-  .discriminatedUnion("country", [
-    z.object({
-      ...stepOneSchema.shape,
-      phone: phoneSchema,
-      country: z.literal("USA"),
-      state: z.enum(USStates, {
-        errorMap: () => ({ message: "Please select a valid state" }),
-      }),
-      leadType: z.enum(leadTypeTuple, {
-        errorMap: () => ({ message: "Please select a valid lead type" }),
-      }),
-      ...stepThreeBaseSchema.shape,
-      ...stepFourSchema.shape,
-      ...stepFiveSchema.shape,
+export const newLeadSchema = z.discriminatedUnion("country", [
+  z.object({
+    ...stepOneSchema.shape,
+    phone: phoneSchema,
+    country: z.literal("USA"),
+    state: z.enum(USStates, {
+      errorMap: () => ({ message: "Please select a valid state" }),
     }),
-    z.object({
-      ...stepOneSchema.shape,
-      phone: phoneSchema,
-      country: z.literal("Canada"),
-      province: z.enum(canadaProvinceValues, {
-        errorMap: () => ({ message: "Please select a valid province" }),
-      }),
-      leadType: z.enum(leadTypeTuple, {
-        errorMap: () => ({ message: "Please select a valid lead type" }),
-      }),
-      ...stepThreeBaseSchema.shape,
-      ...stepFourSchema.shape,
-      ...stepFiveSchema.shape,
+    leadType: z.enum(leadTypeTuple, {
+      errorMap: () => ({ message: "Please select a valid lead type" }),
     }),
-  ])
-  .superRefine((data, ctx) => {
-    if (data.wantCompleteSystem === "Yes") {
-      if (!data.allocatedBudget) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message:
-            "Allocated Budget is required when wanting a complete system.",
-          path: ["allocatedBudget"],
-        });
-      }
-      if (!data.stepsForDecision) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message:
-            "Steps for making a decision are required when wanting a complete system.",
-          path: ["stepsForDecision"],
-        });
-      }
-    }
-  });
+    ...stepThreeBaseSchema.shape,
+    ...stepFourSchema.shape,
+    ...stepFiveSchema.shape,
+  }),
+  z.object({
+    ...stepOneSchema.shape,
+    phone: phoneSchema,
+    country: z.literal("Canada"),
+    province: z.enum(canadaProvinceValues, {
+      errorMap: () => ({ message: "Please select a valid province" }),
+    }),
+    leadType: z.enum(leadTypeTuple, {
+      errorMap: () => ({ message: "Please select a valid lead type" }),
+    }),
+    ...stepThreeBaseSchema.shape,
+    ...stepFourSchema.shape,
+    ...stepFiveSchema.shape,
+  }),
+]);
 
 export const newLeadInitialValuesSchema = z.object({
   name: z.string().optional(),
@@ -190,9 +142,6 @@ export const newLeadInitialValuesSchema = z.object({
   leadType: z.union([z.string(), z.array(z.string())]).optional(),
   projectSummary: z.string().optional(),
   reasonForCalling: z.string().optional(),
-  wantCompleteSystem: z.string().optional(),
-  allocatedBudget: z.string().optional(),
-  stepsForDecision: z.string().optional(),
   leadBuyingIntention: z.string().optional(),
   expectedETA: z.string().optional(),
   decisionMaker: z.string().optional(),
