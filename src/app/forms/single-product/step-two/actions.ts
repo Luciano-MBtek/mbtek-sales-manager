@@ -21,9 +21,9 @@ export const stepTwoFormSingleProductAction = async (
   const shipmentCost = formData.get("shipmentCost")?.toString() || "";
 
   const data = { products, splitPayment, customShipment, shipmentCost };
-  let rates: RatesType = [];
+  //let rates: RatesType = [];
 
-  if (lead.country === "USA") {
+  /* if (lead.country === "USA") {
     if (products && Array.isArray(products)) {
       try {
         const productDetails = await Promise.all(
@@ -91,17 +91,17 @@ export const stepTwoFormSingleProductAction = async (
         console.error("Error searching for products:", error);
       }
     }
-  }
+  } */
 
-  const dataWithRates = { ...data, rates };
+  // const dataWithRates = { ...data, rates };
 
-  const validated = stepTwoSingleProductSchema.safeParse(dataWithRates);
-
-  const searchParams = new URLSearchParams();
+  // const validated = stepTwoSingleProductSchema.safeParse(dataWithRates);
+  const validated = stepTwoSingleProductSchema.safeParse(data);
+  /* const searchParams = new URLSearchParams();
   if (Array.isArray(rates) && rates.length > 0) {
     searchParams.set("rates", JSON.stringify(rates));
     console.log(JSON.stringify(rates));
-  }
+  } */
 
   if (!validated.success) {
     const errors = validated.error.issues.reduce((acc: FormErrors, issue) => {
@@ -113,7 +113,8 @@ export const stepTwoFormSingleProductAction = async (
     return errors;
   }
 
-  redirect(
+  /* redirect(
     `${singleProductRoutes.REVIEW_SINGLE_PRODUCT}?${searchParams.toString()}`
-  );
+  ); */
+  redirect(singleProductRoutes.REVIEW_SINGLE_PRODUCT);
 };

@@ -1,5 +1,5 @@
 "use server";
-import { stepThreeSchemaB2C } from "@/schemas/newLeadSchema";
+import { stepThreeBaseSchema } from "@/schemas/newLeadSchema";
 import { collectDataRoutes, FormErrors } from "@/types";
 import { redirect } from "next/navigation";
 
@@ -9,7 +9,7 @@ export const stepThreeFormAction = async (
 ): Promise<FormErrors | undefined> => {
   const data = Object.fromEntries(formData.entries());
 
-  const validated = stepThreeSchemaB2C.safeParse(data);
+  const validated = stepThreeBaseSchema.safeParse(data);
 
   if (!validated.success) {
     const errors = validated.error.issues.reduce((acc: FormErrors, issue) => {

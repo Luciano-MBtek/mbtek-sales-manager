@@ -52,9 +52,6 @@ export default function ReviewForm() {
     leadType,
     projectSummary,
     reasonForCalling,
-    wantCompleteSystem,
-    allocatedBudget,
-    stepsForDecision,
     leadBuyingIntention,
     expectedETA,
     decisionMaker,
@@ -158,17 +155,7 @@ export default function ReviewForm() {
             </div>
             <InfoItem label="Project Summary" value={projectSummary} />
             <InfoItem label="Reason for Calling" value={reasonForCalling} />
-            <InfoItem label="Want Complete System" value={wantCompleteSystem} />
-            {wantCompleteSystem === "Yes" && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <InfoItem
-                  icon={<DollarSignIcon className="h-5 w-5" />}
-                  label="Allocated Budget"
-                  value={allocatedBudget}
-                />
-                <InfoItem label="Steps for Decision" value={stepsForDecision} />
-              </div>
-            )}
+
             <InfoItem
               icon={<CalendarIcon className="h-5 w-5" />}
               label="Expected ETA"

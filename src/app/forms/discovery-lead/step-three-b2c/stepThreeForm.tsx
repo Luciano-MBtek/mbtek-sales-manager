@@ -60,44 +60,6 @@ export default function StepThreeForm() {
           }
         />
 
-        <RadioInput
-          label="Want a complete System?"
-          id="wantCompleteSystem"
-          options={options}
-          disabledOptions={["Yes"]}
-          errorMsg={serverErrors?.wantCompleteSystem}
-          value={newLeadData.wantCompleteSystem || ""}
-          onChange={(value) =>
-            updateNewLeadDetails({ wantCompleteSystem: value })
-          }
-        />
-
-        {newLeadData.wantCompleteSystem === "Yes" && (
-          <>
-            <Input
-              label="Allocated Budget"
-              id="allocatedBudget"
-              type="text"
-              description="What budget have you planned to achieve your project?"
-              placeholder="$2000"
-              errorMsg={serverErrors?.allocatedBudget}
-              onChange={handleInputChange}
-              value={newLeadData.allocatedBudget || ""}
-            />
-
-            <Input
-              label="Steps for making a decision"
-              id="stepsForDecision"
-              type="text"
-              description="Is there extra steps need to be taken for a decision?"
-              placeholder="Yes/No: ..."
-              errorMsg={serverErrors?.stepsForDecision}
-              onChange={handleInputChange}
-              value={newLeadData.stepsForDecision || ""}
-            />
-          </>
-        )}
-
         <SubmitButton text="Continue" />
       </div>
     </form>
