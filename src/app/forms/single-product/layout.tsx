@@ -30,8 +30,8 @@ export default function SingleProductLayout({
   return (
     <div className="w-full px-2 lg:px-0">
       <PageHeader
-        title="Single product Quote creation"
-        subtitle="Fill the form to generate a single product Quote."
+        title="Standard Quote creation"
+        subtitle="Fill the form to generate a standard Quote."
         icon={Quote}
       />
 

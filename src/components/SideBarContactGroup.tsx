@@ -120,7 +120,7 @@ const SideBarContactGroup = ({ session }: SideBarContactGroupProps) => {
       icon: UserRoundCheck,
     },
     {
-      title: "Single Product Quote",
+      title: "Standard Quote",
       url: "/forms/single-product/step-one",
       icon: Box,
     },

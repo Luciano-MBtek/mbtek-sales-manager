@@ -3,7 +3,7 @@ import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Review",
-  description: "Single Product review.",
+  description: "Standard Quote review.",
 };
 
 export const maxDuration = 60;

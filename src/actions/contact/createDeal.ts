@@ -17,7 +17,7 @@ export async function createDeal(
       );
     }
 
-    const dealName = `Single product ${firstName} ${lastName}`;
+    const dealName = `Standard quote ${firstName} ${lastName}`;
 
     const dealProperties = {
       dealname: dealName,

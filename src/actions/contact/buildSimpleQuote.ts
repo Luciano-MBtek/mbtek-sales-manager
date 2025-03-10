@@ -47,7 +47,7 @@ export async function buildSimpleQuote(
     }));
 
     const quoteProperties = {
-      hs_title: `${firstName + " " + lastName} - Single Product`,
+      hs_title: `${firstName + " " + lastName} - Standard quote`,
       hs_expiration_date: quoteExpiration,
       hs_status: "APPROVED",
       hs_sender_email: ownerEmail,
@@ -129,7 +129,7 @@ export async function buildSimpleQuote(
       return { message: "Quote successfully created", data: quoteUrl };
     }
   } catch (error) {
-    console.error("Error in Single Product Quote Creation:", error);
+    console.error("Error in Standard Quote Creation:", error);
     throw new Error(
       `Failed to create the Quote: ${error instanceof Error ? error.message : "Unknown error"}`
     );

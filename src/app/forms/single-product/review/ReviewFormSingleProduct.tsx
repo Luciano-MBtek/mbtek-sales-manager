@@ -118,7 +118,7 @@ const ReviewFormSingleProduct = () => {
         if (parsed.success) {
           toast({
             title: "Success",
-            description: "Single product data submitted successfully",
+            description: "Standard Quote data submitted successfully",
           });
           setRedirectOptions({
             redirect1: parsed.redirect1,

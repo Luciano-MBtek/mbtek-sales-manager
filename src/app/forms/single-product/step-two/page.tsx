@@ -3,7 +3,7 @@ import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Step two",
-  description: "Single Product form step two.",
+  description: "Standard Quote form step two.",
 };
 
 export default async function StepTwo() {

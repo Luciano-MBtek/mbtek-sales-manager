@@ -126,7 +126,7 @@ export const createSingleProductQuote = async ({
   } catch (error) {
     console.error("Error in createSingleProductQuote:", error);
     throw new Error(
-      "Failed to create single product quote: " + (error as Error).message
+      "Failed to create Standard Quote: " + (error as Error).message
     );
   }
 };
