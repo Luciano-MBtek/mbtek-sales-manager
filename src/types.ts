@@ -48,7 +48,6 @@ export type ProgressProperties = {
   areDeals: boolean;
   hasSchematic: boolean;
   hasQuotes: boolean;
-  wantsCompleteSystem: boolean;
 };
 
 export type PropertyDetail = {

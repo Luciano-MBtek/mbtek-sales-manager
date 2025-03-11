@@ -22,7 +22,6 @@ import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { div } from "framer-motion/client";
 
 const ContactStepProgress = ({
   properties,
@@ -56,7 +55,6 @@ const ContactStepProgress = ({
     areDeals,
     hasSchematic,
     hasQuotes,
-    wantsCompleteSystem,
   } = properties;
 
   const fullName = `${firstname} ${lastname}`;
@@ -89,7 +87,6 @@ const ContactStepProgress = ({
       areDeals,
       hasSchematic,
       hasQuotes,
-      wantsCompleteSystem,
     };
 
     // Filtrar los valores que son "N/A"
@@ -125,7 +122,6 @@ const ContactStepProgress = ({
     hasSchematic,
     hasQuotes,
     phone,
-    wantsCompleteSystem,
   ]);
 
   return (

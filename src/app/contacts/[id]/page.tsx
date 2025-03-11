@@ -6,6 +6,7 @@ import { getOwnerById } from "@/actions/getOwnerById";
 import { checkDealsExist } from "@/actions/getDeals";
 import { getQuoteById } from "@/actions/getQuoteById";
 import ContactOwnerCard from "@/components/ContactOwnerCard";
+import ContactSummary from "@/components/ContactSummary";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -29,9 +30,7 @@ const ContactFullData = async (props: Props) => {
   );
   const hasQuotes = quotes.length > 0;
 
-  const wantsCompleteSystem = Boolean(
-    contact.properties.want_a_complete_system_ === "Yes"
-  );
+  const contactSummary = contact.properties.project_summary_user;
 
   const progressProperties: ProgressProperties = {
     id: id,
@@ -55,11 +54,10 @@ const ContactFullData = async (props: Props) => {
     areDeals: deals,
     hasSchematic: hasSchematicRequest,
     hasQuotes: hasQuotes,
-    wantsCompleteSystem: wantsCompleteSystem,
   };
 
   return (
-    <div className="flex w-full flex-col items-center justify-center">
+    <div className="flex w-full flex-col items-center justify-center gap-4">
       <ContactOwnerCard
         owner={{
           id: contactOwner.id,
@@ -68,9 +66,14 @@ const ContactFullData = async (props: Props) => {
           lastName: contactOwner.lastName,
         }}
       />
-      <div className="flex  gap-2 w-full items-center justify-between">
+      <div className="flex w-full items-center justify-between">
         <ContactStepProgress properties={progressProperties} />
       </div>
+      {contactSummary && (
+        <div>
+          <ContactSummary contactSummary={contactSummary} />
+        </div>
+      )}
     </div>
   );
 };
