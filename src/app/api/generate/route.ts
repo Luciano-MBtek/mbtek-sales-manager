@@ -58,12 +58,15 @@ export async function POST(request: Request) {
         revalidatePath(`/contacts/${body.id}`);
         revalidatePath(`/contacts/${body.id}/properties`);
         revalidatePath(`/contacts/${body.id}/deals`);
+        revalidatePath(`/contacts/${body.id}/quotes`);
         revalidateTag("quotes");
+        revalidateTag("contact-deals");
 
         sendProgress("complete", {
           success: true,
           redirect1: createQuote.quoteUrl,
           redirect2: `/contacts/${body.id}`,
+          contactId: body.id,
         });
       } catch (error) {
         sendProgress("error", {

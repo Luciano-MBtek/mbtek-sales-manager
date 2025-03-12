@@ -67,7 +67,7 @@ async function getDealsByContactId(contactId: string): Promise<string[]> {
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
-      cache: "force-cache",
+      next: { tags: [`contact-deals`], revalidate: 300 },
     });
 
     if (!response.ok) {
@@ -91,7 +91,7 @@ async function getDealsByContactId(contactId: string): Promise<string[]> {
 
 async function getDealDetails(dealId: string): Promise<Deal | null> {
   const apiKey = process.env.HUBSPOT_API_KEY;
-  const url = `https://api.hubapi.com/crm/v3/objects/deals/${dealId}?properties=quantity,price,dealname,hs_product_id,hs_images,createdate`;
+  const url = `https://api.hubapi.com/crm/v3/objects/deals/${dealId}?properties=dealname,createdate,amount,shipping_cost`;
 
   try {
     const response = await fetch(url, {
@@ -100,7 +100,7 @@ async function getDealDetails(dealId: string): Promise<Deal | null> {
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
-      cache: "force-cache",
+      next: { tags: [`contact-deals`], revalidate: 300 },
     });
 
     if (!response.ok) {
@@ -128,7 +128,7 @@ async function getLineItemsByDealId(dealId: string): Promise<string[]> {
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
-      cache: "force-cache",
+      next: { tags: [`contact-deals`], revalidate: 300 },
     });
 
     if (!response.ok) {
@@ -166,7 +166,7 @@ async function getLineItemDetails(
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
-      cache: "force-cache",
+      next: { tags: [`contact-deals`], revalidate: 300 },
     });
 
     if (!response.ok) {
@@ -182,6 +182,6 @@ async function getLineItemDetails(
       `Error in getLineItemDetails for the line item ${lineItemId}:`,
       error
     );
-    return null; // Retornar null para manejar errores individualmente
+    return null;
   }
 }

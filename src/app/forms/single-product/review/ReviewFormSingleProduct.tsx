@@ -54,7 +54,7 @@ const ReviewFormSingleProduct = () => {
   const { toast } = useToast();
   const router = useRouter();
 
-  const { products } = singleProductData;
+  const { products, shipmentCost } = singleProductData;
 
   const formData = {
     ...singleProductData,
@@ -89,7 +89,7 @@ const ReviewFormSingleProduct = () => {
     }
   }
 
-  function handleSSEEvent(eventName: string, data: string) {
+  async function handleSSEEvent(eventName: string, data: string) {
     if (eventName === "progress") {
       try {
         const parsed = JSON.parse(data);
@@ -116,6 +116,21 @@ const ReviewFormSingleProduct = () => {
         setIsComplete(true);
 
         if (parsed.success) {
+          await fetch("/api/revalidate", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              paths: [
+                `/contacts/${parsed.contactId}`,
+                `/contacts/${parsed.contactId}/properties`,
+                `/contacts/${parsed.contactId}/deals`,
+                `/contacts/${parsed.contactId}/quotes`,
+              ],
+              tags: ["quotes", "contact-deals"],
+            }),
+          });
           toast({
             title: "Success",
             description: "Standard Quote data submitted successfully",
@@ -263,7 +278,10 @@ const ReviewFormSingleProduct = () => {
             </div>
 
             {products ? (
-              <ProductReviewCard products={products} />
+              <ProductReviewCard
+                products={products}
+                customShipment={shipmentCost}
+              />
             ) : (
               <p>No selected products.</p>
             )}

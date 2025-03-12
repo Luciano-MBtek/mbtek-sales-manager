@@ -7,11 +7,20 @@ import { Badge } from "./ui/badge";
 
 interface ProductReviewCardProps {
   products: Product[];
+  customShipment: string | undefined;
 }
 
 export default function ProductReviewCard({
   products,
+  customShipment,
 }: ProductReviewCardProps) {
+  const subTotal = products.reduce(
+    (total, product) =>
+      total +
+      product.price * product.quantity * (1 - product.unitDiscount / 100),
+    0
+  );
+
   if (products.length === 0) {
     return (
       <Card>
@@ -92,19 +101,13 @@ export default function ProductReviewCard({
             </li>
           ))}
         </ul>
-        <div className="mt-4 flex justify-end">
+        <div className="mt-4 flex w-full flex-col items-end gap-2">
+          <p className="text-md font-semibold">
+            Shipment: ${customShipment || 0}
+          </p>
+          <p className="text-md font-semibold">Sub total: ${subTotal}</p>
           <p className="text-lg font-semibold">
-            Total: $
-            {products
-              .reduce(
-                (total, product) =>
-                  total +
-                  product.price *
-                    product.quantity *
-                    (1 - product.unitDiscount / 100),
-                0
-              )
-              .toFixed(2)}
+            Total: ${(Number(customShipment) + subTotal).toFixed(2)}
           </p>
         </div>
       </CardContent>

@@ -1,9 +1,7 @@
 export interface DealProperties {
   dealname: string;
-  quantity: string;
-  price: string;
-  hs_product_id: string;
-  hs_images: string;
+  shipping_cost: number;
+  amount: number;
   createdate: string;
   hs_lastmodifieddate: string;
   hs_object_id: string;

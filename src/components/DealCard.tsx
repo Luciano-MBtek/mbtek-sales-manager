@@ -12,37 +12,52 @@ import {
 } from "@/components/ui/collapsible";
 import { useState } from "react";
 import { Button } from "./ui/button";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, Truck } from "lucide-react";
 
 interface DealCardProps {
   deal: DealWithLineItems;
 }
 
 export default function DealCard({ deal }: DealCardProps) {
-  const { dealname, createdate, hs_lastmodifieddate, pipeline } =
-    deal.properties;
+  const {
+    dealname,
+    createdate,
+    hs_lastmodifieddate,
+    pipeline,
+    shipping_cost,
+    amount,
+  } = deal.properties;
 
   const [isOpen, setIsOpen] = useState(false);
 
-  const totalDealAmmount = deal.lineItems.reduce((total, lineItem) => {
+  const subTotal = deal.lineItems.reduce((total, lineItem) => {
     const price = parseFloat(lineItem.properties.price) || 0;
     return total + price;
   }, 0);
 
   return (
     <Card className="mb-6 w-full max-w-4xl">
-      <CardHeader>
-        <CardTitle>{dealname || "No Deal Name"}</CardTitle>
-        <div className="flex flex-wrap gap-2 mt-2">
-          <Badge variant="outline">ID: {deal.id}</Badge>
-          {pipeline && <Badge variant="secondary">{pipeline}</Badge>}
+      <CardHeader className="flex flex-row items-center justify-between">
+        <div className="gap-4 flex flex-col ">
+          <CardTitle>{dealname || "No Deal Name"}</CardTitle>
+          <div>
+            <Badge variant="outline">ID: {deal.id}</Badge>
+            {pipeline && <Badge variant="secondary">{pipeline}</Badge>}
+          </div>
         </div>
-        <div className="flex flex-wrap gap-2 mt-2">
+        <div className="flex flex-col gap-2 mt-2">
+          <Badge className="bg-accent text-primary p-2 gap-2" variant="outline">
+            <Truck className="h-4 w-4" />
+            <span>Shipping cost: ${shipping_cost}</span>
+          </Badge>
+          <Badge className="bg-accent text-primary p-2" variant="outline">
+            Sub total ammount: ${subTotal}
+          </Badge>
           <Badge
-            className="bg-success text-success-foreground"
+            className="bg-success text-success-foreground p-2"
             variant="outline"
           >
-            Total ammount: ${totalDealAmmount}
+            Total ammount: ${amount}
           </Badge>
         </div>
       </CardHeader>
@@ -50,11 +65,23 @@ export default function DealCard({ deal }: DealCardProps) {
         <div className="grid grid-cols-2 gap-4 text-sm mb-4">
           <div>
             <p className="font-semibold">Creation Date:</p>
-            <p>{new Date(createdate).toLocaleDateString()}</p>
+            <p>
+              {new Date(createdate).toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+              })}
+            </p>
           </div>
           <div>
             <p className="font-semibold">Last Modified:</p>
-            <p>{new Date(hs_lastmodifieddate).toLocaleDateString()}</p>
+            <p>
+              {new Date(hs_lastmodifieddate).toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+              })}
+            </p>
           </div>
         </div>
 

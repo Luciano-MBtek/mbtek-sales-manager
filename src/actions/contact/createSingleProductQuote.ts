@@ -46,6 +46,11 @@ export const createSingleProductQuote = async ({
     }
 
     const userId = await getHubspotOwnerIdSession();
+    const totalProducts = products.reduce(
+      (sum, product) => sum + product.price * product.quantity,
+      0
+    );
+    const totalAmount = totalProducts + (Number(shipmentCost) || 0);
 
     onProgress?.("Getting owner information...", 15);
     const ownerData = await getHubspotOwnerId(userId);
@@ -67,7 +72,14 @@ export const createSingleProductQuote = async ({
         : singleSchematicBoiler;
     onProgress?.("Creating deal...", 25);
 
-    const dealData = await createDeal(id, name, lastname, userId);
+    const dealData = await createDeal(
+      id,
+      name,
+      lastname,
+      userId,
+      totalAmount,
+      Number(shipmentCost)
+    );
     onProgress?.("Creating line items...", 35);
     const lineItemsData = await createLineItems(dealData.id, products);
 

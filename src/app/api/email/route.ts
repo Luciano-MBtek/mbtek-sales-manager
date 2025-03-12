@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { revalidatePath } from "next/cache";
+import { revalidateTag } from "next/cache";
 
 const EMAIL_URL = process.env.EMAIL_URL || "";
 
@@ -23,9 +23,13 @@ export async function POST(request: Request) {
         { status: 500 }
       );
     }
-    revalidatePath("/engagements");
+    revalidateTag("engagements");
 
-    return NextResponse.json({ message: "Email sent successfully" });
+    return NextResponse.json({
+      message: "Email sent successfully",
+      revalidated: true,
+      now: Date.now(),
+    });
   } catch (error) {
     console.error("Email API error:", error);
     return NextResponse.json(

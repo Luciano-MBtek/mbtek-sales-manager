@@ -1,4 +1,5 @@
 "use server";
+import { revalidatePath } from "next/cache";
 
 export async function searchContacts(searchValue: string) {
   const trimmedSearch = searchValue.trim();
@@ -80,6 +81,7 @@ export async function searchContacts(searchValue: string) {
     if (!response.ok) {
       throw new Error(`HubSpot API error: ${response.statusText}`);
     }
+    revalidatePath("/contacts/*");
 
     const data = await response.json();
 

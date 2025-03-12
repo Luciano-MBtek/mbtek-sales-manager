@@ -7,7 +7,7 @@ interface DealsCardProps {
 
 const DealsCard = ({ deals }: DealsCardProps) => {
   return (
-    <div className="flex flex-col items-center w-full mt-2">
+    <div className="flex items-center w-full mt-2">
       {deals.map((deal) => (
         <DealCard key={deal.id} deal={deal} />
       ))}

@@ -11,12 +11,12 @@ export async function GetContactById(id: string) {
     const response = await fetch(
       `https://api.hubapi.com/crm/v3/objects/contacts/${id}?properties=${propertiesQuery}`,
       {
-        cache: "force-cache",
         method: "GET",
         headers: {
           Authorization: `Bearer ${apiKey}`,
           "Content-Type": "application/json",
         },
+        next: { tags: [`contact`], revalidate: 300 },
       }
     );
 

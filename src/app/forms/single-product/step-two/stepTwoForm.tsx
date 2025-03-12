@@ -179,9 +179,17 @@ export default function StepSingleProductTwoForm() {
                 options={options}
                 errorMsg={serverErrors?.customShipment}
                 value={singleProductData.customShipment || ""}
-                onChange={(value) =>
-                  updateSingleProductDetails({ customShipment: value })
-                }
+                onChange={(value) => {
+                  // Si cambiamos a "No", resetear el shipmentCost
+                  if (value === "No") {
+                    updateSingleProductDetails({
+                      customShipment: value,
+                      shipmentCost: "",
+                    });
+                  } else {
+                    updateSingleProductDetails({ customShipment: value });
+                  }
+                }}
               />
             </div>
             {singleProductData.customShipment === "Yes" && (
