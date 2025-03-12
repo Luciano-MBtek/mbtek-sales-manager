@@ -13,6 +13,8 @@ export interface QuoteProperties {
   hs_quote_link: string;
   hs_status: string;
   hs_quote_amount: string;
+  hs_title: string;
+  hs_expiration_date: string;
 }
 
 export type QuoteAssociated = string[];

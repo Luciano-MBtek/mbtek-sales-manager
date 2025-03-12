@@ -23,9 +23,7 @@ async function searchOwnerDeals(userId: string) {
           Authorization: `Bearer ${apiKey}`,
           "Content-Type": "application/json",
         },
-        next: {
-          revalidate: 3600,
-        },
+        next: { tags: [`deals`], revalidate: 300 },
         body: JSON.stringify({
           filterGroups: [
             {
@@ -72,9 +70,7 @@ async function searchOwnerDeals(userId: string) {
               Authorization: `Bearer ${apiKey}`,
               "Content-Type": "application/json",
             },
-            next: {
-              revalidate: 3600,
-            },
+            next: { tags: [`deals`], revalidate: 300 },
           }
         );
 
@@ -101,9 +97,7 @@ async function searchOwnerDeals(userId: string) {
                   Authorization: `Bearer ${apiKey}`,
                   "Content-Type": "application/json",
                 },
-                next: {
-                  revalidate: 3600,
-                },
+                next: { tags: [`deals`], revalidate: 300 },
               }
             );
 

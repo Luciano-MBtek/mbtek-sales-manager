@@ -5,14 +5,11 @@ export async function checkDealsExist(contactId: string): Promise<boolean> {
   try {
     const response = await fetch(url, {
       method: "GET",
-      cache: "force-cache",
       headers: {
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
-      next: {
-        revalidate: 300,
-      },
+      next: { tags: [`contact-deals`], revalidate: 300 },
     });
 
     if (!response.ok) {

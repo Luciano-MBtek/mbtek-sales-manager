@@ -6,7 +6,9 @@ export async function createDeal(
   contactId: string,
   firstName: string,
   lastName: string,
-  ownerId: string
+  ownerId: string,
+  amount: number,
+  shippingCost: number
 ): Promise<any> {
   try {
     const apiKey = process.env.HUBSPOT_API_KEY;
@@ -24,6 +26,8 @@ export async function createDeal(
       hubspot_owner_id: ownerId,
       dealstage: "checkout_pending",
       pipeline: "75e28846-ad0d-4be2-a027-5e1da6590b98",
+      amount: amount,
+      shipping_cost: shippingCost,
     };
 
     const associations = [

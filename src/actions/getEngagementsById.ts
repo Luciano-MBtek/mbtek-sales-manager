@@ -10,9 +10,7 @@ export async function getEngagementsById(id: string) {
         Authorization: `Bearer ${process.env.HUBSPOT_API_KEY}`,
         "Content-Type": "application/json",
       },
-      next: {
-        revalidate: 500,
-      },
+      next: { tags: [`engagements`], revalidate: 300 },
     });
 
     if (response.ok) {

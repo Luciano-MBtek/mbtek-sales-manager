@@ -46,8 +46,6 @@ export default function EmailModal({ isSideBar }: EmailProps) {
   const userEmail = data?.user.email;
   const userName = data?.user.name;
 
-  console.log(data);
-
   const contactEmail = contact?.email;
   const contactId = contact?.id;
   const contactName = contact?.firstname;

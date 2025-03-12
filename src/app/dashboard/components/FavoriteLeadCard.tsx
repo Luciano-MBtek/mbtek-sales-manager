@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Star, Trash } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
-import React, { startTransition } from "react";
+import { startTransition } from "react";
 import { UserWithRelations } from "../user-dashboard";
 import { removeContactFromFav } from "@/actions/contact/removeContactFromFav";
 import { toast } from "@/components/ui/use-toast";
