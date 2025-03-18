@@ -9,6 +9,7 @@ import {
   Handshake,
   BotMessageSquare,
   CircleUserRound,
+  FileText,
 } from "lucide-react";
 
 import {
@@ -28,6 +29,7 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { Role } from "@prisma/client";
 import { useContactStore } from "@/store/contact-store";
+import { SidebarResources } from "@/app/resources/SidebarResources";
 
 const items = [
   {
@@ -72,6 +74,7 @@ const items = [
     icon: CircleUserRound,
     requireAuth: true,
   },
+
   {
     title: "Admin Dashboard",
     url: "/admin-dashboard",
@@ -130,6 +133,10 @@ export function AppSidebar() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
+              {session?.user?.accessLevel &&
+                ["admin", "owner", "manager"].includes(
+                  session.user.accessLevel
+                ) && <SidebarResources />}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
