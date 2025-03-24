@@ -23,14 +23,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Calendar } from "@/components/ui/calendar";
 
-import { format } from "date-fns";
-import { enUS } from "date-fns/locale";
-import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { ticketSchema, ticketSchemaType } from "@/schemas/ticketSchema";
+import {
+  updateTicketSchema,
+  updateTicketSchemaType,
+} from "@/schemas/ticketSchema";
 import {
   Form,
   FormControl,
@@ -40,79 +39,78 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useToast } from "@/components/ui/use-toast";
-import { useEffect, useRef, useState, useTransition } from "react";
+import { useEffect, useTransition } from "react";
 import { useSession } from "next-auth/react";
-import { useContactStore } from "@/store/contact-store";
-import { createTicket } from "@/actions/createTicket";
+import { Ticket } from "@/types/ticketTypes";
+import { updateTicket } from "@/actions/updateTicket";
 
-interface CreateTicketModalProps {
+interface EditTicketModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  ticket: Ticket;
+  onSubmit?: (data: updateTicketSchemaType) => void;
 }
 
-export function CreateTicketModal({
+export function EditTicketModal({
   open,
   onOpenChange,
-}: CreateTicketModalProps) {
+  ticket,
+  onSubmit,
+}: EditTicketModalProps) {
   const { toast } = useToast();
   const { data } = useSession();
-  const { contact } = useContactStore();
 
   const userHubspotId = data?.user.hubspotOwnerId;
   const userName = data?.user.name;
-  const contactId = contact?.id;
 
   const [isPending, startTransition] = useTransition();
-  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
-  const calendarRef = useRef<HTMLDivElement>(null);
-  const buttonRef = useRef<HTMLButtonElement>(null);
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        isCalendarOpen &&
-        calendarRef.current &&
-        buttonRef.current &&
-        !calendarRef.current.contains(event.target as Node) &&
-        !buttonRef.current.contains(event.target as Node)
-      ) {
-        setIsCalendarOpen(false);
-      }
-    };
+  const getTicketCategoryValues = () => {
+    if (!ticket.properties?.hs_ticket_category) return [];
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [isCalendarOpen]);
+    if (ticket.properties.hs_ticket_category.includes(";")) {
+      return ticket.properties.hs_ticket_category
+        .split(";")
+        .map((category) => category.trim());
+    }
 
-  const form = useForm<ticketSchemaType>({
+    return [ticket.properties.hs_ticket_category];
+  };
+
+  const form = useForm<updateTicketSchemaType>({
     mode: "onChange",
-    resolver: zodResolver(ticketSchema),
+    resolver: zodResolver(updateTicketSchema),
     defaultValues: {
-      name: "",
-      pipeline: "support_pipeline",
-      status: "1",
-      category: [],
-      description: "",
-      source: "",
-      owner: userHubspotId || "",
-      priority: "",
-      createDate: new Date(),
-      contactId: contactId || "",
+      name: ticket.properties?.subject || "",
+      pipeline: ticket.properties?.hs_pipeline || "support_pipeline",
+      status: ticket.properties?.hs_pipeline_stage || "1",
+      category: getTicketCategoryValues(),
+      description: ticket.properties?.content || "",
+      source: ticket.properties?.source_type || "",
+      owner: ticket.properties?.hubspot_owner_id || userHubspotId || "",
+      priority: ticket.properties?.hs_ticket_priority || "",
+      contactId: ticket.properties?.hubspot_owner_id || "",
+      ticketId: ticket.id,
     },
   });
 
   useEffect(() => {
-    if (userHubspotId) {
-      form.setValue("owner", userHubspotId);
+    if (ticket) {
+      form.reset({
+        name: ticket.properties?.subject || "",
+        pipeline: ticket.properties?.hs_pipeline || "support_pipeline",
+        status: ticket.properties?.hs_pipeline_stage || "1",
+        category: getTicketCategoryValues(),
+        description: ticket.properties?.content || "",
+        source: ticket.properties?.source_type || "",
+        owner: ticket.properties?.hubspot_owner_id || userHubspotId || "",
+        priority: ticket.properties?.hs_ticket_priority || "",
+        contactId: ticket.properties?.hubspot_owner_id || "",
+        ticketId: ticket.id,
+      });
     }
-  }, [userHubspotId, form]);
-  useEffect(() => {
-    if (contactId) {
-      form.setValue("contactId", contactId);
-    }
-  }, [contactId, form]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ticket, userHubspotId, form]);
 
   const getStatusByPipeline = (selectedPipelineValue: string) => {
     const selectedPipeline = pipelines.find(
@@ -127,21 +125,27 @@ export function CreateTicketModal({
     );
   };
 
-  const handleSubmit = async (values: ticketSchemaType) => {
+  const handleSubmit = async (values: updateTicketSchemaType) => {
     try {
       startTransition(async () => {
-        const result = await createTicket(values);
+        const result = await updateTicket({
+          ...values,
+          ticketId: ticket.id,
+        });
 
-        if (result.success) {
+        if (result && result.success) {
           toast({
             title: "Success",
-            description: "Ticket created successfully",
+            description: "Ticket updated successfully",
           });
           onOpenChange(false);
+          if (onSubmit) {
+            onSubmit(values);
+          }
         } else {
           toast({
             title: "Error",
-            description: result.error || "Failed to create ticket",
+            description: result?.error || "Failed to update ticket",
             variant: "destructive",
           });
         }
@@ -150,7 +154,7 @@ export function CreateTicketModal({
       toast({
         title: "Error",
         description:
-          error instanceof Error ? error.message : "Failed to create ticket",
+          error instanceof Error ? error.message : "Failed to update ticket",
         variant: "destructive",
       });
     }
@@ -160,26 +164,13 @@ export function CreateTicketModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px] p-0 overflow-auto max-h-[90vh]">
         <DialogHeader className="bg-[#00bdb4] text-white p-4 flex flex-row items-center justify-between">
-          <DialogTitle className="text-xl font-medium">
-            Create Ticket
-          </DialogTitle>
+          <DialogTitle className="text-xl font-medium">Edit Ticket</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(handleSubmit)}
             className="p-6 space-y-6"
           >
-            <FormField
-              control={form.control}
-              name="contactId"
-              render={({ field }) => (
-                <FormItem className="hidden">
-                  <FormControl>
-                    <Input type="hidden" {...field} />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
             <FormField
               control={form.control}
               name="name"
@@ -303,7 +294,13 @@ export function CreateTicketModal({
                       commandProps={{
                         label: "Select categories",
                       }}
-                      value={undefined}
+                      value={field.value.map(
+                        (value) =>
+                          categories.find((cat) => cat.value === value) || {
+                            value,
+                            label: value,
+                          }
+                      )}
                       defaultOptions={categories}
                       placeholder="Select categories"
                       hideClearAllButton
@@ -344,10 +341,7 @@ export function CreateTicketModal({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Source</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger className="border-gray-300">
                         <SelectValue placeholder="Select source" />
@@ -398,66 +392,16 @@ export function CreateTicketModal({
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="createDate"
-              render={({ field }) => {
-                return (
-                  <FormItem>
-                    <FormLabel>Create date</FormLabel>
-                    <div className="relative">
-                      <Button
-                        type="button"
-                        ref={buttonRef}
-                        variant="outline"
-                        onClick={() => setIsCalendarOpen(!isCalendarOpen)}
-                        className={cn(
-                          "w-full justify-start text-left font-normal border-gray-300",
-                          !field.value && "text-muted-foreground"
-                        )}
-                      >
-                        <span className="mr-2">📅</span>
-                        {field.value
-                          ? format(field.value, "MM/dd/yyyy")
-                          : "MM/DD/YYYY"}
-                      </Button>
-
-                      {isCalendarOpen && (
-                        <div
-                          ref={calendarRef}
-                          className="absolute bottom-full left-0 z-[9999] mb-1 bg-white border rounded-md shadow-lg p-3"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <Calendar
-                            mode="single"
-                            selected={field.value}
-                            onSelect={(date) => {
-                              if (date) {
-                                form.setValue("createDate", date, {
-                                  shouldValidate: true,
-                                });
-                                field.onChange(date);
-                                setIsCalendarOpen(false);
-                              }
-                            }}
-                            initialFocus
-                            locale={enUS}
-                            disabled={(date) => {
-                              return (
-                                date < new Date(new Date().setHours(0, 0, 0, 0))
-                              );
-                            }}
-                          />
-                        </div>
-                      )}
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                );
-              }}
-            />
 
             <div className="flex justify-end border-t border-gray-200 pt-4">
+              <Button
+                type="button"
+                variant="outline"
+                className="mr-2"
+                onClick={() => onOpenChange(false)}
+              >
+                Cancel
+              </Button>
               <Button
                 type="submit"
                 className="bg-[#00bdb4] hover:bg-[#00a59e]"
@@ -487,10 +431,10 @@ export function CreateTicketModal({
                         ></path>
                       </svg>
                     </span>
-                    Creating...
+                    Updating...
                   </>
                 ) : (
-                  "Create Ticket"
+                  "Update Ticket"
                 )}
               </Button>
             </div>

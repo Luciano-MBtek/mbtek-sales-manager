@@ -1,5 +1,5 @@
 "use server";
-
+import { revalidateTag } from "next/cache";
 import { ticketSchemaType } from "@/schemas/ticketSchema";
 
 export async function createTicket(ticketProperties: ticketSchemaType) {
@@ -27,7 +27,7 @@ export async function createTicket(ticketProperties: ticketSchemaType) {
       content: description,
       hubspot_owner_id: owner,
       createdate: createDate ? new Date(createDate).getTime() : undefined,
-      hs_ticket_category: category.length > 0 ? category.join(",") : undefined,
+      hs_ticket_category: category.length > 0 ? category.join(";") : undefined,
       source_type: source,
     };
 
@@ -70,6 +70,8 @@ export async function createTicket(ticketProperties: ticketSchemaType) {
     }
 
     const data = await response.json();
+
+    revalidateTag("tickets");
 
     return {
       success: true,

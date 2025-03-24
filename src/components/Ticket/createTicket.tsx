@@ -7,11 +7,6 @@ import { CreateTicketModal } from "@/components/Ticket/create-ticket-modal";
 export default function OpenTicket() {
   const [open, setOpen] = useState(false);
 
-  const handleSubmit = (data: any) => {
-    console.log("Ticket data:", data);
-    // Aquí puedes implementar la lógica para enviar los datos a HubSpot
-  };
-
   return (
     <>
       <Button
@@ -21,11 +16,7 @@ export default function OpenTicket() {
         Open Ticket
       </Button>
 
-      <CreateTicketModal
-        open={open}
-        onOpenChange={setOpen}
-        onSubmit={handleSubmit}
-      />
+      <CreateTicketModal open={open} onOpenChange={setOpen} />
     </>
   );
 }
