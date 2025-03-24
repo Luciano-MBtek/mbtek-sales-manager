@@ -22,6 +22,18 @@ async function searchOwnedContacts(userId: string, after?: string) {
           revalidate: 250,
         },
         body: JSON.stringify({
+          properties: [
+            "createdate",
+            "email",
+            "firstname",
+            "hs_object_id",
+            "lastmodifieddate",
+            "lastname",
+            "phone",
+            "company",
+            "lead_type",
+            "total_revenue",
+          ],
           filterGroups: [
             {
               filters: [
@@ -54,7 +66,7 @@ async function searchOwnedContacts(userId: string, after?: string) {
 }
 
 export async function getContactsByOwnerId(after?: string) {
-  const userId = await getHubspotOwnerIdSession();
-  //const managerIdTest = "719106449";
-  return searchOwnedContacts(userId, after);
+  // const userId = await getHubspotOwnerIdSession();
+  const managerIdTest = "719106449";
+  return searchOwnedContacts(managerIdTest, after);
 }

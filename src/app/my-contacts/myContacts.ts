@@ -6,5 +6,9 @@ export interface OwnedContacts {
     firstname: string;
     lastname: string;
     lastmodifieddate: string;
+    phone: string;
+    company: string | null;
+    lead_type: string;
+    total_revenue: string;
   };
 }

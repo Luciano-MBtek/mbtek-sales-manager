@@ -121,26 +121,40 @@ const OwnedContactsTable = ({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Firstname</TableHead>
-            <TableHead>Lastname</TableHead>
-            <TableHead>Email</TableHead>
-            <TableHead>Days since creation</TableHead>
-            <TableHead>Last Update</TableHead>
+            <TableHead>Name</TableHead>
+            <TableHead>Company</TableHead>
+            <TableHead>Contact Info</TableHead>
+            <TableHead>Client Type</TableHead>
+            <TableHead>Last Contact</TableHead>
+            <TableHead>Value</TableHead>
             <TableHead>Open</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {paginatedContacts.map((contact) => (
             <TableRow key={contact.id}>
-              <TableCell>{contact.properties.firstname || "-"}</TableCell>
-              <TableCell>{contact.properties.lastname || "-"}</TableCell>
-              <TableCell>{contact.properties.email || "-"}</TableCell>
               <TableCell>
-                {calculateDaysSinceCreation(contact.properties.createdate)}
+                {`${contact.properties.firstname || ""} ${contact.properties.lastname || ""}`.trim() ||
+                  "-"}
               </TableCell>
+              <TableCell>{contact.properties.company || "-"}</TableCell>
+              <TableCell>
+                <div className="flex flex-col">
+                  <span>{contact.properties.phone || "-"}</span>
+                  <span className="text-xs text-gray-500">
+                    {contact.properties.email || "-"}
+                  </span>
+                </div>
+              </TableCell>
+              <TableCell>{contact.properties.lead_type || "-"}</TableCell>
               <TableCell>
                 {contact.properties.lastmodifieddate
                   ? formatDate(contact.properties.lastmodifieddate)
+                  : "-"}
+              </TableCell>
+              <TableCell>
+                {contact.properties.total_revenue
+                  ? `$${parseFloat(contact.properties.total_revenue).toFixed(2)}`
                   : "-"}
               </TableCell>
               <TableCell>

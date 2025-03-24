@@ -14,7 +14,7 @@ const OwnedContactPage = async () => {
   const contacts = ownedContacts.results;
   const total = ownedContacts.total;
   const after = ownedContacts?.paging?.next?.after || 0;
-
+  console.log("Contacts:", contacts);
   return (
     <div className="container mx-auto py-10">
       <PageHeader
