@@ -40,7 +40,16 @@ export async function getTicketsFromContacts(contactId: string) {
     const data = await response.json();
 
     if (data.status === "COMPLETE") {
+      if (!data.results || data.results.length === 0) {
+        return [];
+      }
+
       const tickets = data.results[0].to as { id: string }[];
+
+      // Verificar si hay tickets antes de continuar
+      if (!tickets || tickets.length === 0) {
+        return [];
+      }
 
       const mappedTickets = tickets.map((e) => ({ id: e.id }));
 
