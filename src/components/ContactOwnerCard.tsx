@@ -3,6 +3,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { User, Mail } from "lucide-react";
 import EmailModal from "./Email/EmailModal";
+import OpenTicket from "./Ticket/createTicket";
 
 interface Owner {
   id: string;
@@ -48,7 +49,10 @@ const ContactOwnerCard = ({ owner }: { owner: Owner | null }) => {
                 Owner ID: {owner.id}
               </Badge>
             </div>
-            <EmailModal isSideBar={false} />
+            <div className="flex flex-col gap-2">
+              <OpenTicket />
+              <EmailModal isSideBar={false} />
+            </div>
           </div>
         ) : (
           <div className="flex items-center space-x-4 text-muted-foreground">
