@@ -7,6 +7,8 @@ import { checkDealsExist } from "@/actions/getDeals";
 import { getQuoteById } from "@/actions/getQuoteById";
 import ContactOwnerCard from "@/components/ContactOwnerCard";
 import ContactSummary from "@/components/ContactSummary";
+import { getTicketsFromContacts } from "@/actions/getTicketsFromContact";
+import OpenTicketsCard from "@/components/Ticket/OpenTicketsCard";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -22,6 +24,8 @@ const ContactFullData = async (props: Props) => {
   const deals = await checkDealsExist(id);
 
   const quotes = await getQuoteById(id);
+
+  const tickets = await getTicketsFromContacts(id);
 
   const contactOwner = await getOwnerById(contact.properties.hubspot_owner_id);
 
@@ -66,6 +70,11 @@ const ContactFullData = async (props: Props) => {
           lastName: contactOwner.lastName,
         }}
       />
+      {tickets.length > 0 && (
+        <div className="flex w-full items-center justify-between">
+          <OpenTicketsCard tickets={tickets} />
+        </div>
+      )}
       <div className="flex w-full items-center justify-between">
         <ContactStepProgress properties={progressProperties} />
       </div>
