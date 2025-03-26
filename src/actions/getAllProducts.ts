@@ -51,18 +51,18 @@ export async function getAllProducts(): Promise<
         after = data.paging?.next?.after || "";
       } else {
         const errorData = await response.json();
-        console.error("Error al recuperar los datos:", errorData);
+        console.error("Error retrieving data:", errorData);
         break;
       }
     } while (after);
 
     return {
-      message: "Todos los productos han sido recuperados",
+      message: "All products have been retrieved",
       quantity: allResults.length,
       data: allResults,
     };
   } catch (error) {
-    console.error("Error en la solicitud:", error);
+    console.error("Error in the request:", error);
     return {
       error:
         error instanceof Error ? error.message : "An unknown error occurred",
