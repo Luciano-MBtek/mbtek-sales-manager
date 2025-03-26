@@ -5,6 +5,7 @@ import { Providers } from "@/app/Providers";
 import { Toaster } from "@/components/ui/toaster";
 import { getQueryClient } from "@/lib/query";
 import { getAllProducts } from "@/actions/getAllProducts";
+import { getAllOwners } from "@/actions/getAllOwners";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
@@ -35,6 +36,11 @@ export default async function RootLayout({
   await queryClient.prefetchQuery({
     queryKey: ["allProducts"],
     queryFn: getAllProducts,
+  });
+
+  await queryClient.prefetchQuery({
+    queryKey: ["allOwners"],
+    queryFn: getAllOwners,
   });
 
   return (
