@@ -41,9 +41,10 @@ import {
 } from "@/components/ui/form";
 import { useToast } from "@/components/ui/use-toast";
 import { useEffect, useRef, useState, useTransition } from "react";
-import { useSession } from "next-auth/react";
 import { useContactStore } from "@/store/contact-store";
 import { createTicket } from "@/actions/createTicket";
+import { useQuery } from "@tanstack/react-query";
+import { getAllOwners, OwnersArray } from "@/actions/getAllOwners";
 
 interface CreateTicketModalProps {
   open: boolean;
@@ -55,17 +56,23 @@ export function CreateTicketModal({
   onOpenChange,
 }: CreateTicketModalProps) {
   const { toast } = useToast();
-  const { data } = useSession();
+
   const { contact } = useContactStore();
 
-  const userHubspotId = data?.user.hubspotOwnerId;
-  const userName = data?.user.name;
   const contactId = contact?.id;
 
   const [isPending, startTransition] = useTransition();
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const calendarRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
+
+  const { isLoading, data: ownersData } = useQuery({
+    queryKey: ["allOwners"],
+    queryFn: async () => {
+      const allOwners = await getAllOwners();
+      return allOwners;
+    },
+  });
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -96,18 +103,13 @@ export function CreateTicketModal({
       category: [],
       description: "",
       source: "",
-      owner: userHubspotId || "",
+      owner: "",
       priority: "",
       createDate: new Date(),
       contactId: contactId || "",
     },
   });
 
-  useEffect(() => {
-    if (userHubspotId) {
-      form.setValue("owner", userHubspotId);
-    }
-  }, [userHubspotId, form]);
   useEffect(() => {
     if (contactId) {
       form.setValue("contactId", contactId);
@@ -156,6 +158,72 @@ export function CreateTicketModal({
     }
   };
 
+  const getRandomOwnerByPipeline = (pipeline: string) => {
+    if (!ownersData || !("data" in ownersData)) return null;
+
+    // Grupo 1: Support, Schematics, Pre-delivery
+    const group1PipelineValues = ["0", "149497267", "148924448"];
+    // Grupo 2: Post-Delivery, Help Desk
+    const group2PipelineValues = ["149497353", "677828696"];
+
+    let eligibleOwners: OwnersArray = [];
+
+    if (group1PipelineValues.includes(pipeline)) {
+      // Daniel, Jeffrey, y Jesus para grupo 1
+      eligibleOwners = ownersData.data.filter(
+        (owner) =>
+          owner.email === "engineering@mbtek.com" ||
+          owner.firstName === "Jeffrey" ||
+          owner.firstName === "Jesus"
+      );
+      console.log("Owner:", eligibleOwners);
+    } else if (group2PipelineValues.includes(pipeline)) {
+      // Yen y Dave para grupo 2
+      eligibleOwners = ownersData.data.filter(
+        (owner) => owner.firstName === "Yen" || owner.firstName === "Dave"
+      );
+      console.log("Owner:", eligibleOwners);
+    }
+
+    if (eligibleOwners.length === 0) return null;
+
+    // Seleccionar aleatoriamente un propietario
+    const randomIndex = Math.floor(Math.random() * eligibleOwners.length);
+    return eligibleOwners[randomIndex].id;
+  };
+  useEffect(() => {
+    if (ownersData && "data" in ownersData) {
+      const currentPipeline = form.getValues("pipeline");
+      const randomOwner = getRandomOwnerByPipeline(currentPipeline);
+
+      if (randomOwner) {
+        // Forzar la actualización del campo owner
+        form.setValue("owner", randomOwner, {
+          shouldValidate: true,
+          shouldDirty: true,
+          shouldTouch: true,
+        });
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form.watch("pipeline"), ownersData]);
+
+  useEffect(() => {
+    if (ownersData && "data" in ownersData && !form.getValues("owner")) {
+      const initialPipeline = form.getValues("pipeline");
+      const randomOwner = getRandomOwnerByPipeline(initialPipeline);
+
+      if (randomOwner) {
+        form.setValue("owner", randomOwner, {
+          shouldValidate: true,
+          shouldDirty: true,
+          shouldTouch: true,
+        });
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ownersData]);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px] p-0 overflow-auto max-h-[90vh]">
@@ -198,34 +266,6 @@ export function CreateTicketModal({
 
             <FormField
               control={form.control}
-              name="owner"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Ticket owner</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger className="border-gray-300">
-                        <SelectValue placeholder="Select owner" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {userHubspotId && (
-                        <SelectItem value={userHubspotId}>
-                          {userName}
-                        </SelectItem>
-                      )}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
               name="pipeline"
               render={({ field }) => (
                 <FormItem>
@@ -239,6 +279,18 @@ export function CreateTicketModal({
                         "status",
                         getStatusByPipeline(value)[0]?.value || ""
                       );
+
+                      // Asignar owner basado en el pipeline seleccionado
+                      if (ownersData && "data" in ownersData) {
+                        const randomOwner = getRandomOwnerByPipeline(value);
+                        if (randomOwner) {
+                          form.setValue("owner", randomOwner, {
+                            shouldValidate: true,
+                            shouldDirty: true,
+                            shouldTouch: true,
+                          });
+                        }
+                      }
                     }}
                     defaultValue={field.value}
                   >
@@ -253,6 +305,33 @@ export function CreateTicketModal({
                           {pipeline.label}
                         </SelectItem>
                       ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="owner"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Ticket owner</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger className="border-gray-300">
+                        <SelectValue placeholder="Select owner" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {ownersData &&
+                        "data" in ownersData &&
+                        ownersData.data.map((owner) => (
+                          <SelectItem key={owner.id} value={owner.id}>
+                            {owner.firstName} {owner.lastName}
+                          </SelectItem>
+                        ))}
                     </SelectContent>
                   </Select>
                   <FormMessage />
