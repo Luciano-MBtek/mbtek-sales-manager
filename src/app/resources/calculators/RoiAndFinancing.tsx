@@ -6,6 +6,8 @@ import {
   CalculationResults,
 } from "./calculator-types";
 
+import { formatCurrency } from "@/lib/utils";
+
 import { useState } from "react";
 
 const energyCosts: EnergyCosts = {
@@ -134,7 +136,6 @@ export default function HeatingCalculator() {
   };
 
   // Helper to format currency
-  const formatCurrency = (value: number): string => "$" + value.toFixed(2);
 
   // Color helper based on value
   const textColor = (value: number): string =>

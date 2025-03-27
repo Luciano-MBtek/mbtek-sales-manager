@@ -3,8 +3,10 @@ export interface DealProperties {
   shipping_cost: number;
   amount: number;
   createdate: string;
+  dealstage: string;
   hs_lastmodifieddate: string;
   hs_object_id: string;
+  closedate: string;
   pipeline?: string | null;
 }
 

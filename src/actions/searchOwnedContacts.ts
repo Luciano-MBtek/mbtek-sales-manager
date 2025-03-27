@@ -27,6 +27,7 @@ async function searchOwnedContacts(userId: string, after?: string) {
             "email",
             "firstname",
             "hs_object_id",
+            "address",
             "lastmodifieddate",
             "lastname",
             "phone",
@@ -66,7 +67,7 @@ async function searchOwnedContacts(userId: string, after?: string) {
 }
 
 export async function getContactsByOwnerId(after?: string) {
-  // const userId = await getHubspotOwnerIdSession();
-  const managerIdTest = "719106449";
-  return searchOwnedContacts(managerIdTest, after);
+  const userId = await getHubspotOwnerIdSession();
+  //const managerIdTest = "719106449";
+  return searchOwnedContacts(userId, after);
 }

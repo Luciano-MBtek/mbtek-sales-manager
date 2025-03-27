@@ -65,6 +65,19 @@ const dealStageColors: { [key: string]: string } = {
   "Closed won (Mbtek Sales Pipeline (old))": "bg-green-100 text-green-800",
 };
 
+const pipelines = {
+  "General Pipeline": "63487084",
+  "Shopify deals imported (2025 and new)":
+    "75e28846-ad0d-4be2-a027-5e1da6590b98",
+  "Shopify deals imported (old prior 2025)": "default",
+  "B2B - Business to Business": "117386272",
+};
+export const getPipelineLabel = (value: string) => {
+  return (
+    Object.entries(pipelines).find(([_, val]) => val === value)?.[0] || value
+  );
+};
+
 export const getDealStageLabel = (value: string) => {
   return (
     Object.entries(dealStage).find(([_, val]) => val === value)?.[0] || value

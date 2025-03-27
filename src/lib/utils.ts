@@ -7,6 +7,8 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+export const formatCurrency = (value: number): string => "$" + value.toFixed(2);
+
 export function getDatePlus30Days(): string {
   const today = new Date();
   const futureDate = new Date(today.setDate(today.getDate() + 30));

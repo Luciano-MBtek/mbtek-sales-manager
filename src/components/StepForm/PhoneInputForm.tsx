@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { ChevronDown, Phone } from "lucide-react";
-import React, { forwardRef, useState } from "react";
+import React, { forwardRef, useMemo, useState } from "react";
 import * as RPNInput from "react-phone-number-input";
 import flags from "react-phone-number-input/flags";
 
@@ -14,6 +14,7 @@ interface PhoneInputFormProps {
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   id: string;
   name: string;
+  label: boolean;
 }
 
 export default function PhoneInputForm({
@@ -22,13 +23,26 @@ export default function PhoneInputForm({
   value,
   id,
   name,
+  label,
 }: PhoneInputFormProps) {
+  const normalizedValue = useMemo(() => {
+    if (!value) return "";
+    // If it's already a valid E.164 format (starts with +), leave it as is
+    if (value.startsWith("+")) return value;
+    // If it starts with a number (and not with +), assume it's a number without the + prefix
+    // By default, use the US country code (+1)
+    if (/^\d+$/.test(value)) return `+${value}`;
+
+    return value;
+  }, [value]);
   return (
     <div className="space-y-2" dir="ltr">
-      <Label className="block text-zinc-700 text-md mb-2" htmlFor={id}>
-        Phone number input
-      </Label>
-      <input type="hidden" name={name} value={value} />
+      {label && (
+        <Label className="block text-zinc-700 text-md mb-2" htmlFor={id}>
+          Phone number input
+        </Label>
+      )}
+      <input type="hidden" name={name} value={normalizedValue} />
       <RPNInput.default
         className="flex rounded-lg shadow-sm text-primary shadow-black/5"
         international
@@ -36,7 +50,7 @@ export default function PhoneInputForm({
         countrySelectComponent={CountrySelect}
         inputComponent={PhoneInput}
         placeholder="Enter phone number"
-        value={value}
+        value={normalizedValue}
         onChange={(newValue) =>
           onChange({
             target: {
@@ -47,11 +61,13 @@ export default function PhoneInputForm({
           } as React.ChangeEvent<HTMLInputElement>)
         }
       />
-      <div className="min-h-8">
-        {errorMsg && (
-          <span className="text-red-500 text-sm block">{errorMsg}</span>
-        )}
-      </div>
+      {label && (
+        <div className="min-h-8">
+          {errorMsg && (
+            <span className="text-red-500 text-sm block">{errorMsg}</span>
+          )}
+        </div>
+      )}
     </div>
   );
 }

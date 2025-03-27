@@ -27,6 +27,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { getContactsByOwnerId } from "@/actions/searchOwnedContacts";
+import { ContactModal } from "@/components/Modals/Contact/ContactModal";
 
 interface DealsTableProps {
   contacts: OwnedContacts[];
@@ -48,6 +49,21 @@ const OwnedContactsTable = ({
   const [currentAfter, setCurrentAfter] = useState(initialAfter);
   const itemsPerPage = 10;
   const totalPages = Math.ceil(contacts.length / itemsPerPage);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedContactId, setSelectedContactId] = useState<string | null>(
+    null
+  );
+
+  const handleOpenModal = (contact: OwnedContacts) => {
+    setSelectedContactId(contact.id);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedContactId(null);
+  };
 
   const loadMoreContacts = useCallback(async () => {
     if (isLoading || !hasMore) return;
@@ -133,12 +149,23 @@ const OwnedContactsTable = ({
         <TableBody>
           {paginatedContacts.map((contact) => (
             <TableRow key={contact.id}>
-              <TableCell>
+              <TableCell
+                className="cursor-pointer"
+                onClick={() => handleOpenModal(contact)}
+              >
                 {`${contact.properties.firstname || ""} ${contact.properties.lastname || ""}`.trim() ||
                   "-"}
               </TableCell>
-              <TableCell>{contact.properties.company || "-"}</TableCell>
-              <TableCell>
+              <TableCell
+                className="cursor-pointer"
+                onClick={() => handleOpenModal(contact)}
+              >
+                {contact.properties.company || "-"}
+              </TableCell>
+              <TableCell
+                className="cursor-pointer"
+                onClick={() => handleOpenModal(contact)}
+              >
                 <div className="flex flex-col">
                   <span>{contact.properties.phone || "-"}</span>
                   <span className="text-xs text-gray-500">
@@ -146,13 +173,24 @@ const OwnedContactsTable = ({
                   </span>
                 </div>
               </TableCell>
-              <TableCell>{contact.properties.lead_type || "-"}</TableCell>
-              <TableCell>
+              <TableCell
+                className="cursor-pointer"
+                onClick={() => handleOpenModal(contact)}
+              >
+                {contact.properties.lead_type || "-"}
+              </TableCell>
+              <TableCell
+                className="cursor-pointer"
+                onClick={() => handleOpenModal(contact)}
+              >
                 {contact.properties.lastmodifieddate
                   ? formatDate(contact.properties.lastmodifieddate)
                   : "-"}
               </TableCell>
-              <TableCell>
+              <TableCell
+                className="cursor-pointer"
+                onClick={() => handleOpenModal(contact)}
+              >
                 {contact.properties.total_revenue
                   ? `$${parseFloat(contact.properties.total_revenue).toFixed(2)}`
                   : "-"}
@@ -215,6 +253,11 @@ const OwnedContactsTable = ({
           </PaginationItem>
         </PaginationContent>
       </Pagination>
+      <ContactModal
+        contactId={selectedContactId}
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+      />
     </div>
   );
 };
