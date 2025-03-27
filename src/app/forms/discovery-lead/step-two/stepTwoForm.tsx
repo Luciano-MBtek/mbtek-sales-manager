@@ -114,6 +114,7 @@ export default function StepTwoForm() {
           errorMsg={serverErrors?.phone}
           onChange={handleInputChange}
           value={formData.phone || ""}
+          label={true}
         />
 
         <FormQuestion question="Are you calling for a business of for yourself?" />

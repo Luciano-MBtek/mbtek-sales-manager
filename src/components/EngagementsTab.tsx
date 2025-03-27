@@ -11,30 +11,7 @@ import {
 } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "./ui/badge";
-
-type Engagement = {
-  engagement: {
-    id: number;
-    type: string;
-    timestamp: number;
-    bodyPreview: string;
-  };
-  metadata: {
-    from?: { email: string; firstName: string; lastName: string };
-    to?: Array<{ email: string; firstName: string; lastName: string }>;
-    subject?: string;
-    toNumber?: string;
-    fromNumber?: string;
-    status: string;
-    title: string;
-    durationMilliseconds?: number;
-    body: string;
-    html: string;
-    text: string;
-    priority: string;
-    taskType: string;
-  };
-};
+import { Engagement } from "@/types/engagementsTypes";
 
 type EngagementsByType = {
   [key: string]: Engagement[];
@@ -146,7 +123,9 @@ function EngagementItem({ engagement }: { engagement: Engagement }) {
     <Card className="mb-4">
       <CardHeader>
         <CardTitle className="text-lg">
-          {type === "EMAIL" && subject ? subject : `${type}  ${title ?? ""}`}
+          {type === "EMAIL" || (type === "INCOMING_EMAIL" && subject)
+            ? subject
+            : `${type}  ${title ?? ""}`}
         </CardTitle>
         <CardDescription>
           {new Date(timestamp).toLocaleString()}

@@ -121,6 +121,10 @@ const leadQualificationProperties = [
       friendlyName: "Hubspot Owner ID",
       step: 1,
     },
+    company: {
+      friendlyName: "Company",
+      step: 1,
+    },
   },
 ];
 

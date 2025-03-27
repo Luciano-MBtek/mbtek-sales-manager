@@ -37,6 +37,9 @@ export const calculateDaysSinceCreation = (createDate: string) => {
   now.setHours(0, 0, 0, 0);
   return Math.floor((now.getTime() - create.getTime()) / (1000 * 60 * 60 * 24));
 };
-export const formatDate = (dateString: string) => {
+export const formatDate = (dateString: string | undefined) => {
+  if (!dateString) {
+    return null;
+  }
   return new Date(dateString).toLocaleDateString("en-US");
 };

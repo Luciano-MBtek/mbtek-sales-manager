@@ -1,5 +1,5 @@
 "use server";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 
 export async function patchContactProperties(
   id: string,
@@ -32,7 +32,10 @@ export async function patchContactProperties(
 
     const data = await response.json();
 
+    revalidateTag("contact");
+
     revalidatePath(`/contacts/${id}`);
+
     revalidatePath(`/contacts/${id}/properties`);
 
     return data;

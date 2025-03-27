@@ -22,6 +22,19 @@ async function searchOwnedContacts(userId: string, after?: string) {
           revalidate: 250,
         },
         body: JSON.stringify({
+          properties: [
+            "createdate",
+            "email",
+            "firstname",
+            "hs_object_id",
+            "address",
+            "lastmodifieddate",
+            "lastname",
+            "phone",
+            "company",
+            "lead_type",
+            "total_revenue",
+          ],
           filterGroups: [
             {
               filters: [
