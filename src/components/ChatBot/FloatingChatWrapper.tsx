@@ -12,6 +12,7 @@ export function FloatingChatWrapper() {
   if (
     pathname === "/agent-ai" ||
     pathname === "/resources/calculators" ||
+    pathname === "/my-meetings" ||
     status === "loading"
   ) {
     return null;

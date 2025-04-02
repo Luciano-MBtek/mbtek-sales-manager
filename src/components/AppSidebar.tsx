@@ -9,7 +9,7 @@ import {
   Handshake,
   BotMessageSquare,
   CircleUserRound,
-  FileText,
+  Calendar,
 } from "lucide-react";
 
 import {
@@ -54,6 +54,12 @@ const items = [
     title: "AI chat (Beta)",
     url: "/agent-ai",
     icon: BotMessageSquare,
+    requireAuth: true,
+  },
+  {
+    title: "My Meetings",
+    url: "/my-meetings",
+    icon: Calendar,
     requireAuth: true,
   },
   {
