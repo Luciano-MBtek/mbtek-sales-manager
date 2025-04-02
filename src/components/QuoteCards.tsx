@@ -9,6 +9,7 @@ import { Quote } from "@/types/quoteTypes";
 import { toast } from "./ui/use-toast";
 import { Quote as QuoteIcon } from "lucide-react";
 import { deleteQuote } from "@/actions/contact/deleteQuote";
+import TemplateModal from "./Email/TemplateModal";
 
 export function QuoteItem({ quote }: { quote: Quote }) {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -85,11 +86,11 @@ export function QuoteItem({ quote }: { quote: Quote }) {
             { minimumFractionDigits: 2 }
           )}
         </p>
-        {isExpanded && (
-          <div className="mt-4">
+
+        <div className="flex justify-between">
+          <div className="flex gap-4">
             <Button
               variant="outline"
-              className="mr-2"
               onClick={() =>
                 window.open(quote.properties.hs_quote_link, "_blank")
               }
@@ -104,35 +105,29 @@ export function QuoteItem({ quote }: { quote: Quote }) {
             >
               <Download className="mr-2 h-4 w-4" /> Download PDF
             </Button>
+            <TemplateModal quote={quote} />
           </div>
-        )}
-        <div className="flex items-center justify-between">
-          <Button
-            variant="link"
-            onClick={() => setIsExpanded(!isExpanded)}
-            className="mt-2 p-0"
-          >
-            {isExpanded ? "View Less" : "View More"}
-          </Button>
-          <Button
-            variant="destructive"
-            onClick={() => deleteQuoteAndDeal(quote.id)}
-            disabled={isPending}
-          >
-            {isPending ? (
-              "Deleting..."
-            ) : (
-              <div className="flex items-center gap-2">
-                <span>Delete</span>
-                <Trash
-                  className="opacity-60"
-                  size={16}
-                  strokeWidth={2}
-                  aria-hidden="true"
-                />
-              </div>
-            )}
-          </Button>
+          <div>
+            <Button
+              variant="destructive"
+              onClick={() => deleteQuoteAndDeal(quote.id)}
+              disabled={isPending}
+            >
+              {isPending ? (
+                "Deleting..."
+              ) : (
+                <div className="flex items-center gap-2">
+                  <span>Delete</span>
+                  <Trash
+                    className="opacity-60"
+                    size={16}
+                    strokeWidth={2}
+                    aria-hidden="true"
+                  />
+                </div>
+              )}
+            </Button>
+          </div>
         </div>
       </CardContent>
     </Card>
