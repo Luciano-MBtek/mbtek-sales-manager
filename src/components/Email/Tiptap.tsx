@@ -14,9 +14,11 @@ import Heading from "@tiptap/extension-heading";
 const Tiptap = ({
   content,
   onChange,
+  readOnly = false,
 }: {
   content: string;
   onChange: (richText: string) => void;
+  readOnly?: boolean;
 }) => {
   const editor = useEditor({
     immediatelyRender: false,
@@ -53,6 +55,7 @@ const Tiptap = ({
       Underline,
     ],
     content: content,
+    editable: !readOnly,
     editorProps: {
       attributes: {
         class:
@@ -66,7 +69,7 @@ const Tiptap = ({
 
   return (
     <div className="border rounded-md p-2">
-      <MenuBar editor={editor} />
+      {!readOnly && <MenuBar editor={editor} />}
       <EditorContent editor={editor} className="prose [&_p]:my-0  max-w-none" />
     </div>
   );
