@@ -87,8 +87,16 @@ export const createSingleProductQuote = async ({
 
     const shopifyMainProduct = await getShopifyMainProduct(mainProduct[0].sku);
 
-    const mainProductDescription =
-      shopifyMainProduct.data.productVariants.edges[0].node.product.description;
+    const productVariant =
+      shopifyMainProduct.data.productVariants.edges[0]?.node?.product;
+
+    if (!productVariant?.description) {
+      throw new Error(
+        "Main product does not have description, select another or send bug report"
+      );
+    }
+
+    const mainProductDescription = productVariant.description;
     onProgress?.("Generating AI content...", 50);
 
     const aiResponse = await createSingleProductData(mainProductDescription);

@@ -171,7 +171,7 @@ export default function StepSingleProductTwoForm() {
               }
             />
           </div>
-          <div className="w-full flex items-center gap-10 m-5">
+          {/*   <div className="w-full flex items-center gap-10 m-5">
             <div>
               <RadioInput
                 label="Custom Shipment"
@@ -205,7 +205,7 @@ export default function StepSingleProductTwoForm() {
                 />
               </div>
             )}
-          </div>
+          </div> */}
 
           <div className="flex w-full flex-col gap-4 lg:max-w-[700px] ">
             <SubmitButton text="Continue" />

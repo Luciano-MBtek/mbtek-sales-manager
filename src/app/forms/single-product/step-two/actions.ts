@@ -17,13 +17,14 @@ export const stepTwoFormSingleProductAction = async (
   const leadData = formData.get("lead_data");
   const lead = leadData ? JSON.parse(leadData.toString()) : null;
   const splitPayment = formData.get("splitPayment");
-  const customShipment = formData.get("customShipment");
-  const shipmentCost = formData.get("shipmentCost")?.toString() || "";
+  // const customShipment = formData.get("customShipment");
+  const shipmentCost = Number(formData.get("shipmentCost")) || 0;
 
-  const data = { products, splitPayment, customShipment, shipmentCost };
-  //let rates: RatesType = [];
+  // const data = { products, splitPayment, customShipment, shipmentCost };
+  const data = { products, splitPayment, shipmentCost };
+  let rates: RatesType = [];
 
-  /* if (lead.country === "USA") {
+  if (lead.country === "USA") {
     if (products && Array.isArray(products)) {
       try {
         const productDetails = await Promise.all(
@@ -91,19 +92,21 @@ export const stepTwoFormSingleProductAction = async (
         console.error("Error searching for products:", error);
       }
     }
-  } */
+  }
 
-  // const dataWithRates = { ...data, rates };
+  const dataWithRates = { ...data, rates };
 
-  // const validated = stepTwoSingleProductSchema.safeParse(dataWithRates);
-  const validated = stepTwoSingleProductSchema.safeParse(data);
-  /* const searchParams = new URLSearchParams();
+  console.log("Data:", dataWithRates);
+
+  const validated = stepTwoSingleProductSchema.safeParse(dataWithRates);
+  // const validated = stepTwoSingleProductSchema.safeParse(data);
+  const searchParams = new URLSearchParams();
   if (Array.isArray(rates) && rates.length > 0) {
     searchParams.set("rates", JSON.stringify(rates));
-    console.log(JSON.stringify(rates));
-  } */
+  }
 
   if (!validated.success) {
+    console.log(validated.error);
     const errors = validated.error.issues.reduce((acc: FormErrors, issue) => {
       const path = issue.path[0] as string;
       acc[path] = issue.message;
@@ -113,8 +116,8 @@ export const stepTwoFormSingleProductAction = async (
     return errors;
   }
 
-  /* redirect(
+  redirect(
     `${singleProductRoutes.REVIEW_SINGLE_PRODUCT}?${searchParams.toString()}`
-  ); */
-  redirect(singleProductRoutes.REVIEW_SINGLE_PRODUCT);
+  );
+  // redirect(singleProductRoutes.REVIEW_SINGLE_PRODUCT);
 };

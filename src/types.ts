@@ -238,3 +238,9 @@ export type StringFields =
   | "square_feet_zone"
   | "special_application"
   | "extra_notes";
+
+export type Rate = {
+  costLoaded: number;
+  carrierScac: string;
+  estimatedDeliveryDate: string;
+};

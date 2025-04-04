@@ -24,10 +24,10 @@ export const stepTwoSingleProductSchema = z
     splitPayment: z.enum(yesOrNoTuple, {
       errorMap: () => ({ message: "Please select Yes or No" }),
     }),
-    customShipment: z.enum(yesOrNoTuple, {
+    /*  customShipment: z.enum(yesOrNoTuple, {
       errorMap: () => ({ message: "Please select Yes or No" }),
-    }),
-    shipmentCost: z.string().optional(),
+    }), */
+    shipmentCost: z.number().optional(),
 
     rates: z
       .array(
@@ -48,7 +48,7 @@ export const stepTwoSingleProductSchema = z
         path: ["products"],
       });
     }
-    if (
+    /* if (
       data.customShipment === "Yes" &&
       (!data.shipmentCost || data.shipmentCost.trim() === "")
     ) {
@@ -57,7 +57,7 @@ export const stepTwoSingleProductSchema = z
         message: "Shipment cost is required when custom shipment is Yes",
         path: ["shipmentCost"],
       });
-    }
+    } */
   });
 
 export const stepOneProductSchema = z.discriminatedUnion("country", [
@@ -128,10 +128,10 @@ export const newSingleProductSchema = z.discriminatedUnion("country", [
     splitPayment: z.enum(yesOrNoTuple, {
       errorMap: () => ({ message: "Please select Yes or No" }),
     }),
-    customShipment: z.enum(yesOrNoTuple, {
+    /* customShipment: z.enum(yesOrNoTuple, {
       errorMap: () => ({ message: "Please select Yes or No" }),
-    }),
-    shipmentCost: z.string().optional(),
+    }), */
+    shipmentCost: z.number().optional(),
   }),
   z.object({
     name: z.string().min(1, "Unknown name"),
@@ -165,10 +165,10 @@ export const newSingleProductSchema = z.discriminatedUnion("country", [
     splitPayment: z.enum(yesOrNoTuple, {
       errorMap: () => ({ message: "Please select Yes or No" }),
     }),
-    customShipment: z.enum(yesOrNoTuple, {
+    /*  customShipment: z.enum(yesOrNoTuple, {
       errorMap: () => ({ message: "Please select Yes or No" }),
-    }),
-    shipmentCost: z.string().optional(),
+    }), */
+    shipmentCost: z.number().optional(),
   }),
 ]);
 
@@ -209,7 +209,7 @@ export const singleProductInitialValuesSchema = z.object({
     )
     .optional(),
   customShipment: z.string().optional(),
-  shipmentCost: z.string().optional(),
+  shipmentCost: z.number().optional(),
 });
 
 export type newSingleProductType = z.infer<typeof newSingleProductSchema>;

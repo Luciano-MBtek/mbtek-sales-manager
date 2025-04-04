@@ -29,16 +29,28 @@ import {
   Truck,
   Globe,
   Building,
+  ArrowRight,
 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
-import { FormEvent, useState } from "react";
-import { useRouter } from "next/navigation";
+import { FormEvent, useEffect, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import ProductReviewCard from "@/components/ProductReviewCard";
 import { useContactStore } from "@/store/contact-store";
 import { HubspotIcon } from "@/components/HubspotIcon";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Rate } from "@/types";
+import Shopify from "@/components/Icons/Shopify";
 
 const ReviewFormSingleProduct = () => {
-  const { singleProductData, resetLocalStorage } = useSingleProductContext();
+  const { singleProductData, resetLocalStorage, updateSingleProductDetails } =
+    useSingleProductContext();
   const { contact, update } = useContactStore();
   const [redirectOptions, setRedirectOptions] = useState<{
     redirect1?: string;
@@ -48,15 +60,39 @@ const ReviewFormSingleProduct = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
   const [hasError, setHasError] = useState(false);
+  const [selectedShipment, setSelectedShipment] = useState<Rate | null>(null);
   const [currentProgress, setCurrentProgress] = useState(0);
   const [currentStep, setCurrentStep] = useState("");
+  const searchParams = useSearchParams();
 
   const { toast } = useToast();
   const router = useRouter();
 
-  const { products, shipmentCost } = singleProductData;
+  // const { products, shipmentCost } = singleProductData;
 
-  const formData = {
+  const { products } = singleProductData;
+
+  const ratesParam = searchParams.get("rates");
+  const decodedRates = useMemo(() => {
+    const parsedRates = ratesParam
+      ? JSON.parse(decodeURIComponent(ratesParam || "[]"))
+      : [];
+
+    return parsedRates.length > 0
+      ? parsedRates.map((rate: Rate) => ({
+          ...rate,
+          costLoaded: Math.ceil(rate.costLoaded * 1.12),
+        }))
+      : [];
+  }, [ratesParam]);
+
+  useEffect(() => {
+    if (decodedRates?.length > 0 && !selectedShipment) {
+      setSelectedShipment(decodedRates[0]);
+    }
+  }, [decodedRates, selectedShipment]);
+
+  const [formData, setFormData] = useState({
     ...singleProductData,
     name: singleProductData.name || contact?.firstname || "",
     lastname: singleProductData.lastname || contact?.lastname || "",
@@ -65,8 +101,22 @@ const ReviewFormSingleProduct = () => {
     city: singleProductData.city || contact?.city || "",
     zip: singleProductData.zip || contact?.zip || "",
     address: singleProductData.address || contact?.address || "",
+    shipmentCost: selectedShipment?.costLoaded || null,
     id: contact?.id,
-  };
+  });
+
+  useEffect(() => {
+    setFormData((prevData) => ({
+      ...prevData,
+      shipmentCost: selectedShipment?.costLoaded || null,
+    }));
+    if (selectedShipment) {
+      updateSingleProductDetails({
+        shipmentCost: selectedShipment.costLoaded,
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedShipment]);
 
   function parseSSEChunk(chunkStr: string) {
     const lines = chunkStr.split("\n");
@@ -161,6 +211,7 @@ const ReviewFormSingleProduct = () => {
 
   const handleFormSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
     setHasError(false);
     setIsSubmitting(true);
 
@@ -268,19 +319,70 @@ const ReviewFormSingleProduct = () => {
                 label="Split Payment"
                 value={formData.splitPayment === "Yes" ? "Yes" : "No"}
               />
-              {formData.customShipment === "Yes" ? (
+              {/*  {formData.customShipment === "Yes" ? (
                 <InfoItem
                   icon={<Truck className="h-5 w-5" />}
                   label="Shipment"
                   value={formData.shipmentCost}
                 />
-              ) : null}
+              ) : null} */}
+
+              {decodedRates && decodedRates.length > 0 ? (
+                <div className="space-y-3">
+                  <Label
+                    htmlFor="shipping-options"
+                    className="flex items-center gap-2"
+                  >
+                    <Truck className="h-5 w-5" />
+                    <span>Shipping Options</span>
+                  </Label>
+                  <Select
+                    value={selectedShipment?.carrierScac || ""}
+                    onValueChange={(value) => {
+                      const selectedOption = decodedRates.find(
+                        (rate: Rate) => rate.carrierScac === value
+                      );
+                      setSelectedShipment(selectedOption || null);
+                    }}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select a shipping option" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {decodedRates.map((rate: Rate, index: number) => (
+                        <SelectItem key={index} value={rate.carrierScac}>
+                          {rate.carrierScac} - ${rate.costLoaded.toFixed(2)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  {selectedShipment && (
+                    <div className="mt-2 p-3 bg-muted rounded-md">
+                      <p className="font-semibold">Selected Shipping Option:</p>
+                      <p>Cost: ${selectedShipment.costLoaded.toFixed(2)}</p>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <InfoItem
+                  icon={
+                    <div className="flex gap-2 items-center">
+                      <Truck className="h-5 w-5" />
+                      <ArrowRight />
+                      <Shopify />
+                    </div>
+                  }
+                  label="Shipment"
+                  value={`Defined by Shopify`}
+                />
+              )}
             </div>
 
             {products ? (
               <ProductReviewCard
                 products={products}
-                customShipment={shipmentCost}
+                customShipment={selectedShipment?.costLoaded}
               />
             ) : (
               <p>No selected products.</p>
