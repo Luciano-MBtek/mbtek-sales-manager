@@ -96,8 +96,6 @@ export const stepTwoFormSingleProductAction = async (
 
   const dataWithRates = { ...data, rates };
 
-  console.log("Data:", dataWithRates);
-
   const validated = stepTwoSingleProductSchema.safeParse(dataWithRates);
   // const validated = stepTwoSingleProductSchema.safeParse(data);
   const searchParams = new URLSearchParams();

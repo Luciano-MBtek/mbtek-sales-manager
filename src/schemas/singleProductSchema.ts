@@ -27,7 +27,7 @@ export const stepTwoSingleProductSchema = z
     /*  customShipment: z.enum(yesOrNoTuple, {
       errorMap: () => ({ message: "Please select Yes or No" }),
     }), */
-    shipmentCost: z.number().optional(),
+    shipmentCost: z.number().nullable().optional(),
 
     rates: z
       .array(
