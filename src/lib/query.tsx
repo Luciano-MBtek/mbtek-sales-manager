@@ -9,7 +9,9 @@ export function makeQueryClient() {
       queries: {
         staleTime: ONE_DAY,
         gcTime: ONE_DAY,
+        refetchInterval: ONE_DAY,
         refetchOnWindowFocus: false,
+        refetchIntervalInBackground: true,
       },
     },
   });
