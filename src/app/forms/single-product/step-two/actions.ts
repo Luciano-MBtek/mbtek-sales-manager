@@ -1,5 +1,5 @@
 "use server";
-import { Commodity, getFreightwiseRates } from "@/actions/getFreightwiseRates";
+import { getFreightwiseRates } from "@/actions/getFreightwiseRates";
 import { searchProducts } from "@/actions/searchProductsById";
 import {
   RatesType,
@@ -95,8 +95,6 @@ export const stepTwoFormSingleProductAction = async (
   }
 
   const dataWithRates = { ...data, rates };
-
-  console.log("Data:", dataWithRates);
 
   const validated = stepTwoSingleProductSchema.safeParse(dataWithRates);
   // const validated = stepTwoSingleProductSchema.safeParse(data);
