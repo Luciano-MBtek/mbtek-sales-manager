@@ -26,7 +26,7 @@ const defaultSingleProduct: singleProductInitialValuesType = {
   products: [],
   splitPayment: "",
   customShipment: "",
-  shipmentCost: "",
+  shipmentCost: undefined,
   rates: [],
 };
 

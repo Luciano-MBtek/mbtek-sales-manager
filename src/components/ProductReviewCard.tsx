@@ -4,10 +4,11 @@ import { ShoppingCart } from "lucide-react";
 import { Product } from "@/types";
 import ConfirmBox from "./ConfirmBox";
 import { Badge } from "./ui/badge";
+import Shopify from "./Icons/Shopify";
 
 interface ProductReviewCardProps {
   products: Product[];
-  customShipment: string | undefined;
+  customShipment: number | undefined;
 }
 
 export default function ProductReviewCard({
@@ -102,12 +103,25 @@ export default function ProductReviewCard({
           ))}
         </ul>
         <div className="mt-4 flex w-full flex-col items-end gap-2">
+          <div className="flex items-center gap-2">
+            <p className="text-md font-semibold">
+              Shipment:{" "}
+              {customShipment !== undefined
+                ? `$${customShipment}`
+                : "Defined by"}
+            </p>
+            <span>
+              <Shopify width={24} height={24} />
+            </span>
+          </div>
           <p className="text-md font-semibold">
-            Shipment: ${customShipment || 0}
+            Sub total: ${subTotal.toFixed(2)}
           </p>
-          <p className="text-md font-semibold">Sub total: ${subTotal}</p>
           <p className="text-lg font-semibold">
-            Total: ${(Number(customShipment) + subTotal).toFixed(2)}
+            Total: $
+            {customShipment !== undefined
+              ? (Number(customShipment) + subTotal).toFixed(2)
+              : subTotal.toFixed(2)}
           </p>
         </div>
       </CardContent>

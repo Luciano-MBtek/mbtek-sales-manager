@@ -23,7 +23,7 @@ export async function buildSimpleQuote(
   ownerLastname: string,
   ownerPhone: string,
   ownerJob: string,
-  shipmentCost: string | undefined,
+  shipmentCost: number | undefined,
   lineItems: LineItem[]
 ): Promise<any> {
   try {
