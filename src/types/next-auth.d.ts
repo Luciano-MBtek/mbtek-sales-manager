@@ -3,6 +3,8 @@ import { DefaultSession } from "next-auth";
 
 declare module "next-auth" {
   interface Session {
+    accessToken?: string;
+    error?: string;
     user: {
       accessLevel?: string;
       id?: string;
@@ -11,4 +13,4 @@ declare module "next-auth" {
   }
 }
 
-export {}; // Asegura que el archivo sea tratado como un módulo
+export {};
