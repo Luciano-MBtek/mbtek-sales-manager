@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { ChatInterface } from "./Chatbotn8n";
 import { Button } from "../ui/button";
 import { X, BotMessageSquare } from "lucide-react";
@@ -8,9 +7,10 @@ import { RainbowButton } from "../magicui/rainbow-button";
 import { HyperText } from "../magicui/hyper-text";
 import { BorderBeam } from "../magicui/border-beam";
 import { Card, CardHeader } from "../ui/card";
+import { useChatStore } from "@/store/chatbot-store";
 
 export default function FloatingChat() {
-  const [isOpen, setIsOpen] = useState(false);
+  const { isOpen, setIsOpen } = useChatStore();
 
   return (
     <div

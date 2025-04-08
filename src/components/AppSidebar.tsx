@@ -11,6 +11,7 @@ import {
   CircleUserRound,
   FileText,
 } from "lucide-react";
+import Shopify from "./Icons/Shopify";
 
 import {
   Sidebar,
@@ -79,6 +80,13 @@ const items = [
     title: "Admin Dashboard",
     url: "/admin-dashboard",
     icon: MonitorCog,
+    requireAuth: true,
+    requireRole: ["admin", "owner"],
+  },
+  {
+    title: "Products",
+    url: "/products",
+    icon: Shopify,
     requireAuth: true,
     requireRole: ["admin", "owner"],
   },
