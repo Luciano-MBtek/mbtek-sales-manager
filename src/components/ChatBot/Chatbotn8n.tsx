@@ -7,13 +7,14 @@ import ChatInput from "./ChatInput";
 import { DotPattern } from "../magicui/dot-pattern";
 import { cn } from "@/lib/utils";
 import { useChatStore } from "@/store/chatbot-store";
+import { sendChatbotMessage } from "@/components/ChatBot/chatbot-service";
 
 export const ChatInterface = ({
   isFloating = false,
 }: {
   isFloating?: boolean;
 }) => {
-  const { messages, isLoading, addMessage, setIsLoading } = useChatStore();
+  const { messages, isLoading } = useChatStore();
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const { data: session } = useSession();
@@ -26,37 +27,7 @@ export const ChatInterface = ({
   }, [messages]);
 
   const handleSendMessage = async (message: string) => {
-    addMessage({ text: message, isUser: true });
-    setIsLoading(true);
-
-    try {
-      const response = await fetch("/api/chatbot", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          chatInput: message,
-          sessionId: session?.user?.hubspotOwnerId,
-        }),
-      });
-
-      const data = await response.json();
-      const chatResponse = data[0].output;
-
-      addMessage({
-        text:
-          chatResponse || "Sorry, there was an error processing your request.",
-        isUser: false,
-      });
-    } catch (error) {
-      addMessage({
-        text: "Sorry, there was an error connecting to the server.",
-        isUser: false,
-      });
-    } finally {
-      setIsLoading(false);
-    }
+    await sendChatbotMessage(message, session?.user?.hubspotOwnerId);
   };
 
   return (

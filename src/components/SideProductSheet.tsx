@@ -1,8 +1,5 @@
 import { useState, useEffect } from "react";
-import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Sheet,
   SheetClose,
@@ -13,25 +10,10 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
 import { useQuery } from "@tanstack/react-query";
 import { getAllProducts } from "@/actions/getAllProducts";
 import { Product } from "@/types";
+import { ProductsTable } from "@/components/ProductsTable";
 
 interface SideProductSheetProps {
   selectedProducts: (Product & { isMain: boolean })[];
@@ -57,10 +39,6 @@ export function SideProductSheet({
   );
   const [localSelectedProducts, setLocalSelectedProducts] =
     useState<(Product & { isMain: boolean })[]>(selectedProducts);
-  const [search, setSearch] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
-  const maxPageButtons = 8;
 
   const { isLoading, data } = useQuery({
     queryKey: ["allProducts"],
@@ -90,39 +68,6 @@ export function SideProductSheet({
       setProducts(mappedProducts);
     }
   }, [data]);
-
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [search]);
-
-  const filteredProducts = products.filter((product) => {
-    const searchTerm = search.toLowerCase();
-    return (
-      (product.name || "").toLowerCase().includes(searchTerm) ||
-      (product.sku || "").toLowerCase().includes(searchTerm) ||
-      product.price.toString().includes(searchTerm)
-    );
-  });
-
-  const indexOfLastProduct = currentPage * itemsPerPage;
-  const indexOfFirstProduct = indexOfLastProduct - itemsPerPage;
-  const currentProducts = filteredProducts.slice(
-    indexOfFirstProduct,
-    indexOfLastProduct
-  );
-
-  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
-
-  const startPage = Math.max(1, currentPage - Math.floor(maxPageButtons / 2));
-  const endPage = Math.min(totalPages, startPage + maxPageButtons - 1);
-  const displayedPages = [];
-  for (let i = startPage; i <= endPage; i++) {
-    displayedPages.push(i);
-  }
-
-  const handlePageChange = (pageNumber: number) => {
-    setCurrentPage(pageNumber);
-  };
 
   const toggleProduct = (productId: string) => {
     const product = products.find((p) => p.id === productId);
@@ -156,105 +101,13 @@ export function SideProductSheet({
               Search and select products to add.
             </SheetDescription>
           </SheetHeader>
-          <div className="w-full max-w-6xl mx-auto p-4 space-y-4">
-            {/* Search Field */}
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-              <Input
-                className="pl-10"
-                placeholder="Search the product library by name, SKU or price"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            </div>
 
-            {/* Products Table */}
-            <div className="border rounded-lg">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-12"></TableHead>
-                    <TableHead>NAME</TableHead>
-                    <TableHead>SKU</TableHead>
-
-                    <TableHead className="text-right">PRICE</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {isLoading ? (
-                    <TableRow>
-                      <TableCell colSpan={4}>Loading...</TableCell>
-                    </TableRow>
-                  ) : currentProducts.length > 0 ? (
-                    currentProducts.map((product) => (
-                      <TableRow key={product.id}>
-                        <TableCell>
-                          <Checkbox
-                            checked={localSelectedProducts.some(
-                              (p) => p.id === product.id
-                            )}
-                            onCheckedChange={() => toggleProduct(product.id)}
-                          />
-                        </TableCell>
-                        <TableCell>{product.name}</TableCell>
-                        <TableCell>{product.sku}</TableCell>
-
-                        <TableCell className="text-right">
-                          ${product.price.toLocaleString()}
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={4}>No products found</TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </div>
-
-            {/* Pagination */}
-            <Pagination>
-              <PaginationContent>
-                <PaginationItem>
-                  <PaginationPrevious
-                    href="#"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      if (currentPage > 1) {
-                        setCurrentPage(currentPage - 1);
-                      }
-                    }}
-                  />
-                </PaginationItem>
-                {displayedPages.map((number) => (
-                  <PaginationItem key={number}>
-                    <PaginationLink
-                      href="#"
-                      isActive={number === currentPage}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        handlePageChange(number);
-                      }}
-                    >
-                      {number}
-                    </PaginationLink>
-                  </PaginationItem>
-                ))}
-                <PaginationItem>
-                  <PaginationNext
-                    href="#"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      if (currentPage < totalPages) {
-                        setCurrentPage(currentPage + 1);
-                      }
-                    }}
-                  />
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
-          </div>
+          <ProductsTable
+            products={products}
+            isLoading={isLoading}
+            selectedProducts={localSelectedProducts}
+            onProductToggle={toggleProduct}
+          />
 
           {/* Action Buttons */}
           <SheetFooter>
