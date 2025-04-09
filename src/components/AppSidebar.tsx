@@ -88,7 +88,6 @@ const items = [
     url: "/products",
     icon: Shopify,
     requireAuth: true,
-    requireRole: ["admin", "owner"],
   },
 ];
 
