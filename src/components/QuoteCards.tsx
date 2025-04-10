@@ -9,6 +9,7 @@ import { Quote } from "@/types/quoteTypes";
 import { toast } from "./ui/use-toast";
 import { Quote as QuoteIcon } from "lucide-react";
 import { deleteQuote } from "@/actions/contact/deleteQuote";
+import Shopify from "./Icons/Shopify";
 import TemplateModal from "./Email/TemplateModal";
 
 export function QuoteItem({ quote }: { quote: Quote }) {
@@ -106,6 +107,12 @@ export function QuoteItem({ quote }: { quote: Quote }) {
               <Download className="mr-2 h-4 w-4" /> Download PDF
             </Button>
             <TemplateModal quote={quote} />
+            <Button
+              variant="outline"
+              onClick={() => window.open(quote.properties.hs_terms, "_blank")}
+            >
+              <Shopify width={20} height={20} className="mr-2" /> Pay Now
+            </Button>
           </div>
           <div>
             <Button

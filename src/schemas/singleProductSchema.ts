@@ -1,3 +1,4 @@
+import { getPurchaseOptions } from "@/actions/contact/createDownpayCart";
 import { canadaProvinceValues, USStates, yesOrNoTuple } from "@/types";
 import z from "zod";
 
@@ -29,6 +30,8 @@ export const stepTwoSingleProductSchema = z
     }), */
     shipmentCost: z.number().nullable().optional(),
 
+    purchaseOptionId: z.string().optional(),
+
     rates: z
       .array(
         z.object({
@@ -46,6 +49,17 @@ export const stepTwoSingleProductSchema = z
         code: z.ZodIssueCode.custom,
         message: "You must select a main product",
         path: ["products"],
+      });
+    }
+
+    if (
+      data.splitPayment === "Yes" &&
+      (!data.purchaseOptionId || data.purchaseOptionId.trim() === "")
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Purchase Option ID is required when split payment is Yes",
+        path: ["purchaseOptionId"],
       });
     }
     /* if (
@@ -132,6 +146,7 @@ export const newSingleProductSchema = z.discriminatedUnion("country", [
       errorMap: () => ({ message: "Please select Yes or No" }),
     }), */
     shipmentCost: z.number().optional(),
+    purchaseOptionId: z.string().optional(),
   }),
   z.object({
     name: z.string().min(1, "Unknown name"),
@@ -169,6 +184,7 @@ export const newSingleProductSchema = z.discriminatedUnion("country", [
       errorMap: () => ({ message: "Please select Yes or No" }),
     }), */
     shipmentCost: z.number().optional(),
+    purchaseOptionId: z.string().optional(),
   }),
 ]);
 
@@ -210,6 +226,7 @@ export const singleProductInitialValuesSchema = z.object({
     .optional(),
   customShipment: z.string().optional(),
   shipmentCost: z.number().optional(),
+  purchaseOptionId: z.string().optional(),
 });
 
 export type newSingleProductType = z.infer<typeof newSingleProductSchema>;

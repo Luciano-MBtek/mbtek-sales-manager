@@ -19,9 +19,10 @@ export const stepTwoFormSingleProductAction = async (
   const splitPayment = formData.get("splitPayment");
   // const customShipment = formData.get("customShipment");
   const shipmentCost = Number(formData.get("shipmentCost")) || 0;
+  const purchaseOptionId = formData.get("purchaseOptionId")?.toString() || "";
 
   // const data = { products, splitPayment, customShipment, shipmentCost };
-  const data = { products, splitPayment, shipmentCost };
+  const data = { products, splitPayment, shipmentCost, purchaseOptionId };
   let rates: RatesType = [];
 
   if (lead.country === "USA") {

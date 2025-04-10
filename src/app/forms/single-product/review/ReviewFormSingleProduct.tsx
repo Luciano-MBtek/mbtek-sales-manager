@@ -103,6 +103,7 @@ const ReviewFormSingleProduct = () => {
     address: singleProductData.address || contact?.address || "",
     shipmentCost: selectedShipment?.costLoaded || null,
     id: contact?.id,
+    purchaseOptionId: singleProductData.purchaseOptionId || "",
   });
 
   useEffect(() => {
@@ -319,6 +320,14 @@ const ReviewFormSingleProduct = () => {
                 label="Split Payment"
                 value={formData.splitPayment === "Yes" ? "Yes" : "No"}
               />
+              {formData.splitPayment === "Yes" && (
+                <InfoItem
+                  icon={<CreditCard className="h-5 w-5" />}
+                  label="Purchase Option"
+                  value={formData.purchaseOptionId}
+                />
+              )}
+
               {/*  {formData.customShipment === "Yes" ? (
                 <InfoItem
                   icon={<Truck className="h-5 w-5" />}
