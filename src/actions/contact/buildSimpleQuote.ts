@@ -2,7 +2,9 @@
 
 import { getDatePlus30Days } from "@/lib/utils";
 
-const templateId = "360901336075";
+const currentQuote = "364369694331";
+const backupQuote = "360901336075";
+
 const quoteExpiration = getDatePlus30Days();
 
 type LineItem = {
@@ -23,7 +25,7 @@ export async function buildSimpleQuote(
   ownerLastname: string,
   ownerPhone: string,
   ownerJob: string,
-  shipmentCost: number | undefined,
+  cartOrderUrl: string,
   lineItems: LineItem[]
 ): Promise<any> {
   try {
@@ -56,7 +58,7 @@ export async function buildSimpleQuote(
       hs_sender_phone: ownerPhone,
       hs_sender_jobtitle: ownerJob ? ownerJob : "Product Solution Specialist",
       hs_currency: "USD",
-      hs_terms: shipmentCost,
+      hs_terms: cartOrderUrl,
     };
 
     const associations = [
@@ -73,7 +75,7 @@ export async function buildSimpleQuote(
       },
       {
         to: {
-          id: templateId,
+          id: currentQuote, // CHANGE THIS TO TEST WITH BACKUP QUOTE
         },
         types: [
           {

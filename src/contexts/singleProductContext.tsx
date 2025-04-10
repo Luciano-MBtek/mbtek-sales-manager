@@ -28,6 +28,7 @@ const defaultSingleProduct: singleProductInitialValuesType = {
   customShipment: "",
   shipmentCost: undefined,
   rates: [],
+  purchaseOptionId: "",
 };
 
 const LOCAL_STORAGE_KEY = "multi-page-form-single-product";

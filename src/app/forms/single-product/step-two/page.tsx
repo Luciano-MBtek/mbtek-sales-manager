@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import StepSingleProductTwoForm from "./stepTwoForm";
 import { Metadata } from "next";
 
@@ -9,7 +10,9 @@ export const metadata: Metadata = {
 export default async function StepTwo() {
   return (
     <div className="flex flex-col items-center">
-      <StepSingleProductTwoForm />
+      <Suspense fallback={<div>Loading...</div>}>
+        <StepSingleProductTwoForm />
+      </Suspense>
     </div>
   );
 }

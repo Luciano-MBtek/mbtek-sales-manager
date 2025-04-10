@@ -15,6 +15,7 @@ export interface QuoteProperties {
   hs_quote_amount: string;
   hs_title: string;
   hs_expiration_date: string;
+  hs_terms: string;
 }
 
 export type QuoteAssociated = string[];

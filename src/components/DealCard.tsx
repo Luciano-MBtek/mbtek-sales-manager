@@ -34,6 +34,7 @@ export default function DealCard({
     pipeline,
     shipping_cost,
     amount,
+    shopify_draft_order_url,
   } = deal.properties;
   const { data: session } = useSession();
   const [isOpen, setIsOpen] = useState(false);
@@ -53,6 +54,8 @@ export default function DealCard({
   };
 
   const isOrder = dealname && /^\d+$/.test(dealname);
+
+  console.log("SHopify URL:", shopify_draft_order_url);
 
   return (
     <Card className="mb-6 w-full max-w-4xl">
@@ -128,6 +131,14 @@ export default function DealCard({
               </Button>
             )}
           </div>
+          <Button
+            variant="outline"
+            onClick={() =>
+              window.open(deal.properties.shopify_draft_order_url, "_blank")
+            }
+          >
+            <Shopify width={20} height={20} className="mr-2" /> Pay Now
+          </Button>
         </div>
 
         <Separator className="my-4" />
