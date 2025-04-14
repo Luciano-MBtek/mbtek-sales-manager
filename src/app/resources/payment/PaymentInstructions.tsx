@@ -206,10 +206,7 @@ export default function PaymentInstructions() {
                           <span className="font-medium">Account Number:</span>{" "}
                           833367245854200
                         </li>
-                        <li>
-                          <span className="font-medium">Account Type:</span>{" "}
-                          Checking
-                        </li>
+
                         <li>
                           <span className="font-medium">
                             ACH Routing Number:
@@ -268,24 +265,17 @@ export default function PaymentInstructions() {
                           <span className="font-medium">Transit number:</span>{" "}
                           16001
                         </li>
-                        <li>
-                          <span className="font-medium">
-                            ACH Routing Number:
-                          </span>{" "}
-                          084009519
-                        </li>
                       </ul>
                     </div>
                     <div>
                       <ul className="space-y-2">
                         <li>
                           <span className="font-medium">Bank Name:</span> Wise
-                          US Inc
+                          Payments Canada Inc.
                         </li>
                         <li>
-                          <span className="font-medium">Bank Address:</span> 30
-                          W. 26th Street, Sixth Floor, New York, NY, 10010,
-                          United States
+                          <span className="font-medium">Bank Address:</span> 99
+                          Bank Street, Suite 1420, Ottawa, ON, K1P 1H4, Canada
                         </li>
                       </ul>
                     </div>
@@ -293,7 +283,7 @@ export default function PaymentInstructions() {
                   <div className="mt-4 p-4 bg-muted rounded-lg">
                     <h4 className="font-semibold">Important Notes:</h4>
                     <ul className="list-disc pl-5 mt-2">
-                      <li>ACH Transfer (2-3 business days)</li>
+                      <li>Bank Transfer (2-3 business days)</li>
                     </ul>
                   </div>
                 </CardContent>
