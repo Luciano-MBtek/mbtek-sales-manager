@@ -136,6 +136,7 @@ export const createSingleProductQuote = async ({
     const shopifyItems = products.map((product) => ({
       sku: product.sku,
       quantity: product.quantity,
+      unitDiscount: product.unitDiscount,
     }));
 
     const variantLineItems = await fetchShopifyVariants(shopifyItems);

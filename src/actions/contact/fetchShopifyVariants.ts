@@ -3,6 +3,12 @@
 interface ShopifyVariantLineItem {
   variant_id: string;
   quantity: number;
+  applied_discount?: {
+    value: number;
+    value_type: "percentage";
+    description: string;
+    title: string;
+  };
 }
 
 const BASE_URL = process.env.MBTEK_API;
@@ -11,6 +17,7 @@ const VARIANTS_URL = `${BASE_URL}/mbtek/shopify/variants`;
 interface ShopifyItem {
   sku: string;
   quantity: number;
+  unitDiscount: number;
 }
 
 interface ShopifyVariant {
@@ -43,10 +50,24 @@ export async function fetchShopifyVariants(
 
     // Map the variants to the format needed for line items
     const lineItems: ShopifyVariantLineItem[] = variantsData.data.map(
-      (variant, index) => ({
-        variant_id: variant.variantId,
-        quantity: items[index].quantity,
-      })
+      (variant, index) => {
+        const item: ShopifyVariantLineItem = {
+          variant_id: variant.variantId,
+          quantity: items[index].quantity,
+        };
+
+        // Add discount if it exists and is greater than 0
+        if (items[index].unitDiscount && items[index].unitDiscount > 0) {
+          item.applied_discount = {
+            value: items[index].unitDiscount,
+            value_type: "percentage",
+            description: `${items[index].unitDiscount}% off`,
+            title: "Discount",
+          };
+        }
+
+        return item;
+      }
     );
 
     return lineItems;
