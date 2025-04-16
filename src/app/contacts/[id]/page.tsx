@@ -27,7 +27,10 @@ const ContactFullData = async (props: Props) => {
 
   const tickets = await getTicketsFromContacts(id);
 
-  const contactOwner = await getOwnerById(contact.properties.hubspot_owner_id);
+  const contactOwner = await getOwnerById(
+    contact.properties.hubspot_owner_id,
+    id
+  );
 
   const hasSchematicRequest = Boolean(
     contact.properties.total_area_house && contact.properties.number_of_zones
@@ -63,12 +66,16 @@ const ContactFullData = async (props: Props) => {
   return (
     <div className="flex w-full flex-col items-center justify-center gap-4">
       <ContactOwnerCard
-        owner={{
-          id: contactOwner.id,
-          email: contactOwner.email,
-          firstName: contactOwner.firstName,
-          lastName: contactOwner.lastName,
-        }}
+        owner={
+          contactOwner && contactOwner.id
+            ? {
+                id: contactOwner.id,
+                email: contactOwner.email,
+                firstName: contactOwner.firstName,
+                lastName: contactOwner.lastName,
+              }
+            : null
+        }
       />
       {tickets.length > 0 && (
         <div className="flex w-full items-center justify-between">
