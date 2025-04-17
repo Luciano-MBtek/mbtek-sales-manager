@@ -81,7 +81,8 @@ const ReviewFormSingleProduct = () => {
     return parsedRates.length > 0
       ? parsedRates.map((rate: Rate) => ({
           ...rate,
-          costLoaded: Math.ceil(rate.costLoaded * 1.1) + 65,
+          costLoaded:
+            rate.costLoaded === 0 ? 0 : Math.ceil(rate.costLoaded * 1.1) + 65,
         }))
       : [];
   }, [ratesParam]);
