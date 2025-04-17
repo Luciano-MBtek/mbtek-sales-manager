@@ -1,30 +1,42 @@
 "use server";
 
-export async function searchProducts(id: string) {
+type FilterType = {
+  propertyName: string;
+  operator: string;
+  value?: string; // Make value optional
+};
+
+export async function searchProducts(id: string, customFilters?: FilterType[]) {
   try {
     const apiKey = process.env.HUBSPOT_API_KEY;
 
-    const filters = [];
-
-    filters.push(
+    const filters: FilterType[] = [
       {
         propertyName: "hs_object_id",
         operator: "EQ",
         value: id,
       },
-      {
-        propertyName: "weight",
-        operator: "HAS_PROPERTY",
-      },
-      {
-        propertyName: "class",
-        operator: "HAS_PROPERTY",
-      },
-      {
-        propertyName: "nmfc",
-        operator: "HAS_PROPERTY",
-      }
-    );
+    ];
+
+    if (customFilters && customFilters.length > 0) {
+      filters.push(...customFilters);
+    } else {
+      // Si no hay filtros personalizados, usar los predeterminados
+      filters.push(
+        {
+          propertyName: "weight",
+          operator: "HAS_PROPERTY",
+        },
+        {
+          propertyName: "class",
+          operator: "HAS_PROPERTY",
+        },
+        {
+          propertyName: "nmfc",
+          operator: "HAS_PROPERTY",
+        }
+      );
+    }
 
     const response = await fetch(
       `https://api.hubapi.com/crm/v3/objects/products/search`,
@@ -50,6 +62,7 @@ export async function searchProducts(id: string) {
             "uom",
             "name",
             "hs_sku",
+            "ip__shopify__tags",
           ],
         }),
       }
