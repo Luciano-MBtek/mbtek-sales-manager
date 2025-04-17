@@ -38,8 +38,6 @@ export const stepTwoFormSingleProductAction = async (
 
       const flattenedProducts = productDetails.flat();
 
-      console.log("Product Details:", flattenedProducts);
-
       // Check if all products have "Free shipping" tag
       const allProductsHaveFreeShipping =
         flattenedProducts.length > 0 &&
@@ -144,7 +142,6 @@ export const stepTwoFormSingleProductAction = async (
   }
 
   if (!validated.success) {
-    console.log(validated.error);
     const errors = validated.error.issues.reduce((acc: FormErrors, issue) => {
       const path = issue.path[0] as string;
       acc[path] = issue.message;
