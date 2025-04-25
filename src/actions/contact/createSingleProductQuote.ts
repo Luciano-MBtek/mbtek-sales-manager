@@ -9,7 +9,7 @@ import getShopifyMainProduct from "./getShopifyMainProduct";
 import { createSingleProductData } from "../openAi/createSingleProductData";
 import { getHubspotOwnerId } from "../getOwnerId";
 import { getOwnerExtraData } from "../getOwnerExtraData";
-import { buildSimpleQuote } from "./buildSimpleQuote";
+import { buildSimpleQuote } from "../quote/buildSimpleQuote";
 import { getDate } from "@/lib/utils";
 import { fetchShopifyVariants } from "./fetchShopifyVariants";
 import { createDraftOrder } from "./createDraftOrder";

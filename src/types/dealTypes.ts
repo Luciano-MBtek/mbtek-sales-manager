@@ -24,8 +24,10 @@ export interface LineItemProperties {
   price: string;
   name: string;
   hs_product_id: string;
-  hs_images: string;
+  hs_images?: string | undefined;
   createdate: string;
+  hs_discount_percentage: string;
+  hs_sku: string;
 }
 
 export interface LineItem {
@@ -34,9 +36,19 @@ export interface LineItem {
   createdAt: string;
   updatedAt: string;
   archived: boolean;
+  associations?: {
+    deals: {
+      results: DealAssociation[];
+    };
+  };
 }
 
 export interface DealWithLineItems extends Deal {
   lineItemIds: string[];
   lineItems: LineItem[];
+}
+
+export interface DealAssociation {
+  id: string;
+  type: string;
 }

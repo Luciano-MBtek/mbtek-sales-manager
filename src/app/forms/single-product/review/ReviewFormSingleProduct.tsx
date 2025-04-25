@@ -47,6 +47,7 @@ import {
 } from "@/components/ui/select";
 import { Rate } from "@/types";
 import Shopify from "@/components/Icons/Shopify";
+import { createFormSubmitHandler } from "@/lib/sse";
 
 const ReviewFormSingleProduct = () => {
   const { singleProductData, resetLocalStorage, updateSingleProductDetails } =
@@ -67,8 +68,6 @@ const ReviewFormSingleProduct = () => {
 
   const { toast } = useToast();
   const router = useRouter();
-
-  // const { products, shipmentCost } = singleProductData;
 
   const { products } = singleProductData;
 
@@ -120,143 +119,23 @@ const ReviewFormSingleProduct = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedShipment]);
 
-  function parseSSEChunk(chunkStr: string) {
-    const lines = chunkStr.split("\n");
-    let currentEvent: string | null = null;
-    let currentData: string | null = null;
-
-    for (const line of lines) {
-      if (line.startsWith("event:")) {
-        currentEvent = line.replace("event:", "").trim();
-      } else if (line.startsWith("data:")) {
-        currentData = line.replace("data:", "").trim();
-      } else if (line === "") {
-        if (currentEvent && currentData) {
-          handleSSEEvent(currentEvent, currentData);
-        }
-
-        currentEvent = null;
-        currentData = null;
-      }
-    }
-  }
-
-  async function handleSSEEvent(eventName: string, data: string) {
-    if (eventName === "progress") {
-      try {
-        const parsed = JSON.parse(data);
-        setCurrentProgress(parsed.percentage || 0);
-        setCurrentStep(parsed.step || "");
-        setShowDialog(true);
-      } catch (err) {
-        setShowDialog(false);
-      }
-    } else if (eventName === "error") {
-      const parsed = JSON.parse(data);
-
-      setHasError(true);
-      setShowDialog(false);
-      toast({
-        title: "Error",
-        description: parsed.error || "Unknown error",
-        variant: "destructive",
-      });
-    } else if (eventName === "complete") {
-      try {
-        const parsed = JSON.parse(data);
-
-        setIsComplete(true);
-
-        if (parsed.success) {
-          await fetch("/api/revalidate", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              paths: [
-                `/contacts/${parsed.contactId}`,
-                `/contacts/${parsed.contactId}/properties`,
-                `/contacts/${parsed.contactId}/deals`,
-                `/contacts/${parsed.contactId}/quotes`,
-              ],
-              tags: ["quotes", "contact-deals"],
-            }),
-          });
-          toast({
-            title: "Success",
-            description: "Standard Quote data submitted successfully",
-          });
-          setRedirectOptions({
-            redirect1: parsed.redirect1,
-            redirect2: parsed.redirect2,
-          });
-          resetLocalStorage();
-        } else {
-          setHasError(true);
-          toast({
-            title: "Error",
-            description: "Process ended but success=false",
-            variant: "destructive",
-          });
-        }
-      } catch {
-        setHasError(true);
-        toast({
-          title: "Error",
-          description: "Error in completing the event.",
-          variant: "destructive",
-        });
-      }
-    }
-  }
-
-  const handleFormSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    setHasError(false);
-    setIsSubmitting(true);
-
-    try {
-      const resp = await fetch("/api/generate", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (!resp.ok || !resp.body) {
-        throw new Error(`HTTP Error ${resp.status}`);
-      }
-
-      const reader = resp.body.getReader();
-      const decoder = new TextDecoder();
-
-      while (true) {
-        const { value, done } = await reader.read();
-        if (done) break;
-
-        const chunkStr = decoder.decode(value, { stream: true });
-
-        parseSSEChunk(chunkStr);
-      }
-    } catch (error) {
-      console.error("Error in SSE:", error);
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Unknown error",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  // Create SSE handler with the utility
+  const handleFormSubmit = createFormSubmitHandler("/api/generate", {
+    setIsSubmitting,
+    setHasError,
+    setIsComplete,
+    setCurrentProgress,
+    setCurrentStep,
+    setShowDialog,
+    setRedirectOptions,
+    toast,
+    resetLocalStorage,
+  });
 
   return (
     <>
       <form
-        onSubmit={handleFormSubmit}
+        onSubmit={(e) => handleFormSubmit(e, formData)}
         className="flex flex-1 flex-col gap-2 items-stretch lg:max-w-full"
       >
         <Card className="shadow-lg">
@@ -328,14 +207,6 @@ const ReviewFormSingleProduct = () => {
                   value={formData.purchaseOptionId}
                 />
               )}
-
-              {/*  {formData.customShipment === "Yes" ? (
-                <InfoItem
-                  icon={<Truck className="h-5 w-5" />}
-                  label="Shipment"
-                  value={formData.shipmentCost}
-                />
-              ) : null} */}
 
               {decodedRates && decodedRates.length > 0 ? (
                 <div className="space-y-3">
