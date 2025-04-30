@@ -2,7 +2,7 @@
 
 const apiKey = process.env.HUBSPOT_API_KEY;
 
-type QuoteStatus = "DRAFT" | "APPROVAL";
+type QuoteStatus = "DRAFT" | "APPROVED";
 
 interface SetQuoteResult {
   success: boolean;

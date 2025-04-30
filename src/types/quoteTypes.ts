@@ -1,3 +1,5 @@
+import { DealAssociation } from "./dealTypes";
+
 export interface Quote {
   id: string;
   properties: QuoteProperties;
@@ -7,6 +9,9 @@ export interface Quote {
   associations?: {
     "line items": {
       results: LineItemAssociation[];
+    };
+    deals: {
+      results: DealAssociation[];
     };
   };
 }

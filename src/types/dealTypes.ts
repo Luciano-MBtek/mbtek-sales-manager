@@ -9,6 +9,7 @@ export interface DealProperties {
   closedate: string;
   pipeline?: string | null;
   shopify_draft_order_url: string;
+  shopify_draft_order_id: string;
 }
 
 export interface Deal {

@@ -8,7 +8,7 @@ const apiKey = process.env.HUBSPOT_API_KEY;
 export async function getQuoteFullDetail(
   quoteId: string
 ): Promise<(Quote & { lineItems?: LineItem[] }) | null> {
-  const url = `https://api.hubapi.com/crm/v3/objects/quotes/${quoteId}?associations=line_items&archived=false?properties=hs_quote_amount&properties=hs_status&properties=hs_quote_link&properties=hs_title&properties=hs_expiration_date&properties=hs_terms&properties=hs_pdf_download_link`;
+  const url = `https://api.hubapi.com/crm/v3/objects/quotes/${quoteId}?associations=line_items,deal&archived=false?properties=hs_quote_amount&properties=hs_status&properties=hs_quote_link&properties=hs_title&properties=hs_expiration_date&properties=hs_terms&properties=hs_pdf_download_link`;
 
   try {
     const response = await fetch(url, {
