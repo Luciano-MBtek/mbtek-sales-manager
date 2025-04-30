@@ -1,9 +1,19 @@
+import { DealAssociation } from "./dealTypes";
+
 export interface Quote {
   id: string;
   properties: QuoteProperties;
   createdAt: string;
   updatedAt: string;
   archived: boolean;
+  associations?: {
+    "line items": {
+      results: LineItemAssociation[];
+    };
+    deals: {
+      results: DealAssociation[];
+    };
+  };
 }
 
 export interface QuoteProperties {
@@ -16,6 +26,11 @@ export interface QuoteProperties {
   hs_title: string;
   hs_expiration_date: string;
   hs_terms: string;
+}
+
+export interface LineItemAssociation {
+  id: string;
+  type: string;
 }
 
 export type QuoteAssociated = string[];

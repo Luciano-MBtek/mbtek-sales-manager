@@ -14,11 +14,11 @@ interface ShopifyVariantLineItem {
 const BASE_URL = process.env.MBTEK_API;
 const VARIANTS_URL = `${BASE_URL}/mbtek/shopify/variants`;
 
-interface ShopifyItem {
+export type ShopifyItem = {
   sku: string;
   quantity: number;
   unitDiscount: number;
-}
+};
 
 interface ShopifyVariant {
   sku: string;

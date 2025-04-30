@@ -9,7 +9,7 @@ import getShopifyMainProduct from "./getShopifyMainProduct";
 import { createSingleProductData } from "../openAi/createSingleProductData";
 import { getHubspotOwnerId } from "../getOwnerId";
 import { getOwnerExtraData } from "../getOwnerExtraData";
-import { buildSimpleQuote } from "./buildSimpleQuote";
+import { buildSimpleQuote } from "../quote/buildSimpleQuote";
 import { getDate } from "@/lib/utils";
 import { fetchShopifyVariants } from "./fetchShopifyVariants";
 import { createDraftOrder } from "./createDraftOrder";
@@ -162,6 +162,7 @@ export const createSingleProductQuote = async ({
 
     let paymentUrl = "";
     let paymentType = "";
+    let orderId = "";
 
     // Create either draft order or downpay cart based on splitPayment
     if (splitPayment === "No") {
@@ -174,6 +175,7 @@ export const createSingleProductQuote = async ({
         Number(shipmentCost) || undefined
       );
       paymentUrl = draftOrderResult.invoiceUrl;
+      orderId = draftOrderResult.draftOrderId;
       paymentType = "draft";
     } else {
       // Create downpay cart with financing options
@@ -200,6 +202,7 @@ export const createSingleProductQuote = async ({
 
     const dealProperty = {
       shopify_draft_order_url: paymentUrl,
+      shopify_draft_order_id: orderId || "",
     };
 
     // PatchDeal with paymentURL

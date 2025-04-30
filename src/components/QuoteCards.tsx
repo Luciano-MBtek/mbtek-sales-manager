@@ -4,19 +4,21 @@ import { startTransition, useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ExternalLink, Download, Trash } from "lucide-react";
+import { ExternalLink, Download, Trash, Edit } from "lucide-react";
 import { Quote } from "@/types/quoteTypes";
 import { toast } from "./ui/use-toast";
 import { Quote as QuoteIcon } from "lucide-react";
-import { deleteQuote } from "@/actions/contact/deleteQuote";
+import { deleteQuote } from "@/actions/quote/deleteQuote";
 import Shopify from "./Icons/Shopify";
 import TemplateModal from "./Email/TemplateModal";
+import { useRouter, usePathname } from "next/navigation";
 
 export function QuoteItem({ quote }: { quote: Quote }) {
-  const [isExpanded, setIsExpanded] = useState(false);
   const [isPending, setIsPending] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname();
 
-  console.log("Quote", quote);
+  const contactId = pathname.split("/")[2];
 
   const deleteQuoteAndDeal = (id: string) => {
     setIsPending(true);
@@ -54,6 +56,10 @@ export function QuoteItem({ quote }: { quote: Quote }) {
       month: "long",
       day: "numeric",
     });
+  };
+
+  const handleUpdateQuote = () => {
+    router.push(`/contacts/${contactId}/quotes/${quote.id}`);
   };
 
   return (
@@ -112,6 +118,9 @@ export function QuoteItem({ quote }: { quote: Quote }) {
               onClick={() => window.open(quote.properties.hs_terms, "_blank")}
             >
               <Shopify width={20} height={20} className="mr-2" /> Pay Now
+            </Button>
+            <Button variant="outline" onClick={handleUpdateQuote}>
+              <Edit className="mr-2 h-4 w-4" /> Update Quote
             </Button>
           </div>
           <div>

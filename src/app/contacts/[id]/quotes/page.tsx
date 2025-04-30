@@ -1,4 +1,4 @@
-import { getAllQuotes } from "@/actions/getAllQuotes";
+import { getAllQuotes } from "@/actions/quote/getAllQuotes";
 import { QuoteItem } from "@/components/QuoteCards";
 
 type Props = {
@@ -11,6 +11,7 @@ const QuotesDetails = async (props: Props) => {
   const { id } = params;
 
   const quotes = await getAllQuotes(id);
+
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-2xl font-bold mb-6">Quotes</h1>

@@ -4,7 +4,7 @@ import { ProgressProperties } from "@/types";
 import { getOwnerById } from "@/actions/getOwnerById";
 
 import { checkDealsExist } from "@/actions/getDeals";
-import { getQuoteById } from "@/actions/getQuoteById";
+import { getQuoteById } from "@/actions/quote/getQuoteById";
 import ContactOwnerCard from "@/components/ContactOwnerCard";
 import ContactSummary from "@/components/ContactSummary";
 import { getTicketsFromContacts } from "@/actions/getTicketsFromContact";

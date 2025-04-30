@@ -106,6 +106,7 @@ export async function createDraftOrder(
       return {
         success: true,
         invoiceUrl: draftOrderData.data.draft_order.invoice_url,
+        draftOrderId: draftOrderData.data.draft_order.id,
       };
     } else {
       throw new Error("Invoice URL not found in the response");
