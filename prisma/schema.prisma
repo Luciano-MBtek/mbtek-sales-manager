@@ -64,3 +64,9 @@ model UserRecentLead {
 
   @@map("user_recent_leads")
 }
+
+model RoundRobinState {
+  id             Int     @id @default(1)         
+  lastManagerId  BigInt?
+}
+

@@ -115,11 +115,6 @@ const SideBarContactGroup = ({ session }: SideBarContactGroupProps) => {
 
   const items = [
     {
-      title: "Lead Qualification",
-      url: "/forms/discovery-lead/step-one",
-      icon: UserRoundCheck,
-    },
-    {
       title: "Standard Quote",
       url: "/forms/single-product/step-one",
       icon: Box,

@@ -123,7 +123,10 @@ export const stepTwoFormSingleProductAction = async (
           };
 
           const rate = await getFreightwiseRates(body);
-          rates = rate;
+          const validRates = rate.filter(
+            (rateItem: any) => rateItem.estimatedDeliveryDate
+          );
+          rates = validRates;
         } else {
           console.log("None products with Freighwise data");
         }

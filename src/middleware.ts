@@ -89,6 +89,12 @@ const hasRouteAccess = (accessLevel: string, path: string): boolean => {
 
 export async function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname;
+
+  // Skip middleware for auth API routes (except signin page)
+  if (path.startsWith("/api/auth/") && !path.startsWith(ROUTES.PUBLIC.AUTH)) {
+    return NextResponse.next();
+  }
+
   const token = await getToken({ req });
 
   // Handle authentication routes
@@ -99,20 +105,16 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  // Allow public routes
-  if (path === ROUTES.PUBLIC.HOME) {
-    return NextResponse.next();
+  // Redirect to auth if no token (for all routes)
+  if (!token?.email) {
+    const callbackUrl = encodeURIComponent(req.url);
+    return NextResponse.redirect(
+      new URL(`${ROUTES.PUBLIC.AUTH}?callbackUrl=${callbackUrl}`, req.url)
+    );
   }
 
-  // Handle protected routes
+  // For protected routes, check access level
   if (isProtectedRoute(path)) {
-    if (!token?.email) {
-      const callbackUrl = encodeURIComponent(req.url);
-      return NextResponse.redirect(
-        new URL(`${ROUTES.PUBLIC.AUTH}?callbackUrl=${callbackUrl}`, req.url)
-      );
-    }
-
     if (!token.accessLevel) {
       return NextResponse.redirect(new URL(ROUTES.PUBLIC.HOME, req.url));
     }
