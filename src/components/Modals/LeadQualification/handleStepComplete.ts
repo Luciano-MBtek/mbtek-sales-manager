@@ -46,27 +46,78 @@ export const handleStepComplete = async (
   currentStep: QualificationStep,
   deps: StepProcessingDependencies
 ) => {
-  const { updateData, setIsSaving, toast, setHasChanges, resetData } = deps;
+  const { updateData, setIsSaving, toast, setHasChanges, resetData, onClose } =
+    deps;
 
   setIsSaving(true);
 
-  try {
-    // Update local store - IMPORTANT: Add a direct force flag for critical steps
-    const forceProcess =
-      currentStep === "step-one" || currentStep === "disqualified";
+  console.log(
+    "⭐ CURRENT STEP TYPE:",
+    typeof currentStep,
+    "VALUE:",
+    currentStep
+  );
+  console.log("⭐ IS DISQUALIFIED STEP?", currentStep === "disqualified");
 
-    // Instead of using the updateData from deps, directly access the store
-    // to get real-time hasChanges state
+  try {
+    // Para asegurarnos que no hay problema de comparación de strings:
+    if (String(currentStep) === "disqualified") {
+      console.log("🚨 DISQUALIFICATION PATH ACTIVATED");
+
+      // Actualizar datos primero
+      updateData(stepData);
+
+      // Procesar descalificación
+      if (!deps.data.contactId) {
+        throw new Error("Contact ID not found");
+      }
+
+      try {
+        // Actualizar contacto directamente
+        await patchContactProperties(
+          deps.data.contactId,
+          createDisqualifyProperties(stepData as disqualifiedLeadFormValues)
+        );
+
+        // Mostrar mensaje de éxito
+        toast({
+          title: "Success",
+          description: "Lead has been disqualified",
+        });
+
+        console.log("🚨 ABOUT TO RESET STORE");
+
+        // Reset directo del store - borrar todos los datos
+        if (typeof resetData === "function") {
+          console.log("🚨 RESET FUNCTION EXISTS");
+          try {
+            resetData();
+            console.log("🚨 STORE RESET COMPLETED");
+          } catch (resetError) {
+            console.error("ERROR DURING RESET:", resetError);
+          }
+        } else {
+          console.log("🚨 NO RESET FUNCTION AVAILABLE", typeof resetData);
+        }
+
+        // Cerrar modal inmediatamente
+        console.log("🚨 CLOSING MODAL");
+        onClose();
+        return;
+      } catch (error) {
+        console.error("Error disqualifying lead:", error);
+        throw error;
+      }
+    }
+
+    // For normal (non-disqualified) steps
+    const forceProcess = currentStep === "step-one";
     updateData(stepData);
 
-    // Get the current hasChanges state directly from the store
     const currentHasChanges = useQualificationStore.getState().hasChanges;
-
     console.log("Current has changes from store:", currentHasChanges);
 
-    // Process step data only when needed
     const shouldProcessStep = currentHasChanges || forceProcess;
-
     console.log(
       "Should process step:",
       shouldProcessStep,
@@ -74,50 +125,62 @@ export const handleStepComplete = async (
       currentStep
     );
 
+    // Complete "review" step specially
+    if (currentStep === "review" && shouldProcessStep) {
+      console.log("REVIEW COMPLETION PATH ACTIVATED");
+
+      // Process step data
+      await processStepData(currentStep, stepData, deps);
+
+      // Show success message
+      toast({
+        title: "Success",
+        description: "Qualification process completed successfully",
+      });
+
+      console.log("About to reset qualification store...");
+
+      // Reset store directly
+      if (resetData) {
+        resetData();
+        console.log("Store reset completed");
+      }
+
+      // Close modal
+      onClose();
+      return;
+    }
+
+    // Regular steps processing
     if (shouldProcessStep) {
       await processStepData(currentStep, stepData, deps);
     }
 
-    // Mark step as complete
+    // Mark step as complete and continue
     deps.completeStep(currentStep);
 
-    // Reset hasChanges flag after processing
     if (setHasChanges) {
       setHasChanges(false);
     }
 
-    // Determine and set next step
+    // Move to next step if available
     const nextStep = getNextStep(currentStep);
     if (nextStep) {
       deps.setStep(nextStep);
-      // Only show toast if we actually saved data
       if (shouldProcessStep) {
         toast({
           title: "Step Completed",
           description: `Successfully saved ${stepTitles[currentStep]}`,
         });
       } else {
-        // For steps with no changes, just show a simpler message
         toast({
           title: "Moving Forward",
           description: `Proceeding to next step: ${stepTitles[nextStep]}`,
         });
       }
     } else {
-      // Reset the store when the review step is completed (last step)
-      if (resetData && currentStep === "review") {
-        resetData();
-      }
-      if (resetData && currentStep === "disqualified") {
-        resetData();
-      }
-
-      // Handle completion
-      toast({
-        title: "Success",
-        description: "Qualification process completed successfully",
-      });
-      deps.onClose();
+      // Close modal if no next step
+      onClose();
     }
   } catch (error) {
     console.error("Error saving step data:", error);
@@ -159,15 +222,18 @@ export const processStepData = async (
       // Handle redirect for single products quote
       if (stepData.lookingFor === "single_products_quote" && contactId) {
         // Reset the store when redirecting to single product quote
-        if (resetData) {
+
+        if (typeof resetData === "function") {
           resetData();
         }
+
         onClose();
         router.push(
           `/contacts/${contactId}?redirect=/forms/single-product/step-one`
         );
         return false;
       }
+
       break;
 
     case "step-two":
@@ -221,17 +287,6 @@ export const processStepData = async (
         data.contactId,
         createDisqualifyProperties(stepData as disqualifiedLeadFormValues)
       );
-
-      console.log("Must Reset");
-      if (resetData) {
-        console.log("Executing resetData()");
-        resetData();
-      }
-
-      // Pequeño retraso para asegurar que resetData se completa
-      setTimeout(() => {
-        onClose();
-      }, 100);
       break;
   }
 

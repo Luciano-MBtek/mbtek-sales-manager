@@ -60,6 +60,7 @@ export interface QualificationStore {
   completedSteps: QualificationStep[];
   previousStep: QualificationStep | null;
   hasChanges: boolean;
+  resetVersion: number; // Add reset version counter
   updateData: (newData: Partial<QualificationData>) => void;
   setStep: (step: QualificationStep) => void;
   setPreviousStep: (step: QualificationStep | null) => void;
@@ -107,14 +108,19 @@ const initialData: QualificationData = {
   disqualification_explanation: "",
 };
 
+const initialState = {
+  data: initialData,
+  currentStep: "step-one" as QualificationStep,
+  completedSteps: [] as QualificationStep[],
+  previousStep: null as QualificationStep | null,
+  hasChanges: false,
+  resetVersion: 0,
+};
+
 export const useQualificationStore = create(
   persist<QualificationStore>(
     (set, get) => ({
-      data: initialData,
-      currentStep: "step-one",
-      completedSteps: [],
-      previousStep: null,
-      hasChanges: false,
+      ...initialState,
       updateData: (newData) =>
         set((state) => {
           // Check if there are actual changes by comparing each property
@@ -177,15 +183,21 @@ export const useQualificationStore = create(
         // Clear the persisted data from localStorage
         if (typeof window !== "undefined") {
           localStorage.removeItem("qualification-storage");
+          console.log("Cleared localStorage qualification data");
         }
 
-        // Use state function with replace=true
+        // Increment reset version first to ensure React components using it will update
+        const newResetVersion = get().resetVersion + 1;
+        console.log("New reset version:", newResetVersion);
+
+        // Do a complete state reset
         set({
-          data: initialData,
+          data: { ...initialData }, // Create a new object reference
           currentStep: "step-one",
           completedSteps: [],
           previousStep: null,
           hasChanges: false,
+          resetVersion: newResetVersion,
         });
       },
       setHasChanges: (value) => set(() => ({ hasChanges: value })),
@@ -193,8 +205,7 @@ export const useQualificationStore = create(
     {
       name: "qualification-storage",
       storage: createJSONStorage(() => customStorage),
-      // Optional - use skipHydration to ensure we don't rehydrate from localStorage on disqualification
-      version: 1, // Add a version to help with future migrations
+      version: 1,
     }
   )
 );

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -54,12 +54,22 @@ export function QualificationModal({
     previousStep,
     setHasChanges,
     resetData,
+    resetVersion, // Use the reset version
   } = useQualificationStore();
   const [isSaving, setIsSaving] = useState(false);
   const [currentBantTotal, setCurrentBantTotal] = useState<number | null>(null);
 
   const { toast } = useToast();
   const router = useRouter();
+
+  useEffect(() => {
+    // When resetVersion changes, we can force reset the form if it exists
+    if (formRef.current) {
+      console.log("Form reset triggered by resetVersion change:", resetVersion);
+      // This is a hack to reset the React Hook Form state
+      formRef.current.reset?.();
+    }
+  }, [resetVersion]);
 
   // Create dependencies object for step handling
   const stepDependencies: StepProcessingDependencies = {
@@ -81,6 +91,7 @@ export function QualificationModal({
   };
 
   const handleDisqualify = () => {
+    console.log("DISQUALIFY BUTTON CLICKED");
     if (!data.contactId) {
       toast({
         title: "Error",
@@ -89,18 +100,23 @@ export function QualificationModal({
       });
       return;
     }
-    setPreviousStep(currentStep); // Store the current step before switching to disqualified
+    console.log("SETTING PREVIOUS STEP:", currentStep);
+    setPreviousStep(currentStep);
+
+    console.log("CHANGING TO DISQUALIFIED STEP");
     setStep("disqualified");
-    // Always force changes for disqualification
+
+    console.log("FORCING CHANGES FLAG");
     setHasChanges(true);
   };
 
-  // Render current step content
+  // Render current step content with key prop based on resetVersion
   const renderStepContent = () => {
     switch (currentStep) {
       case "step-one":
         return (
           <StepOneContent
+            key={`step-one-${resetVersion}`}
             onComplete={handleStepComplete}
             initialData={data}
             formRef={formRef}
@@ -109,6 +125,7 @@ export function QualificationModal({
       case "step-two":
         return (
           <StepTwoContent
+            key={`step-two-${resetVersion}`}
             onComplete={handleStepComplete}
             initialData={data}
             formRef={formRef}
@@ -117,6 +134,7 @@ export function QualificationModal({
       case "step-three":
         return (
           <StepThreeContent
+            key={`step-three-${resetVersion}`}
             onComplete={handleStepComplete}
             initialData={data}
             formRef={formRef}
@@ -126,6 +144,7 @@ export function QualificationModal({
       case "step-four":
         return (
           <StepFourContent
+            key={`step-four-${resetVersion}`}
             onComplete={handleStepComplete}
             initialData={data}
             formRef={formRef}
@@ -135,6 +154,7 @@ export function QualificationModal({
       case "step-five":
         return (
           <StepFiveContent
+            key={`step-five-${resetVersion}`}
             onComplete={handleStepComplete}
             initialData={data}
             formRef={formRef}
@@ -144,6 +164,7 @@ export function QualificationModal({
       case "review":
         return (
           <ReviewContent
+            key={`review-${resetVersion}`}
             onComplete={handleStepComplete}
             initialData={data}
             formRef={formRef}
@@ -154,6 +175,7 @@ export function QualificationModal({
       case "disqualified":
         return (
           <DisqualificationContent
+            key={`disqualified-${resetVersion}`}
             onComplete={handleStepComplete}
             initialData={data}
             formRef={formRef}
@@ -174,7 +196,7 @@ export function QualificationModal({
     if (currentStep === "step-one") {
       onClose();
     } else {
-      const prevStep = getPreviousStep(currentStep, previousStep); // Pass previousStep here
+      const prevStep = getPreviousStep(currentStep, previousStep);
       if (prevStep) {
         setStep(prevStep);
         // Reset hasChanges when navigating back
