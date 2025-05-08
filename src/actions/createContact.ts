@@ -1,10 +1,14 @@
 "use server";
-import { newLeadType } from "@/schemas/newLeadSchema";
+
 import { revalidatePath } from "next/cache";
 import { triggerLeadQualificationWebhook } from "./webhooks/leadQualificationWebhook";
 import { createContactProperties } from "@/lib/utils";
+import { StepQualificationOneFormValues } from "@/schemas/leadQualificationSchema";
 
-export async function createContact(contact: newLeadType, ownerId: string) {
+export async function createContact(
+  contact: StepQualificationOneFormValues,
+  ownerId: string
+) {
   const properties = createContactProperties(contact, ownerId);
 
   try {

@@ -51,7 +51,7 @@ const CreateUserForm = ({ setShowNewTeamDialog }: CreateUserFormProps) => {
     defaultValues: {
       name: "",
       email: "",
-      accessLevel: "" || undefined,
+      accessLevel: undefined,
     },
   });
 

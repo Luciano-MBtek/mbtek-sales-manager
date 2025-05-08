@@ -69,52 +69,112 @@ const leadQualificationProperties = [
       friendlyName: "Phone",
       step: 1,
     },
+    city: {
+      friendlyName: "City",
+      step: 1,
+    },
+    address: {
+      friendlyName: "Address",
+      step: 1,
+    },
     lead_type: {
       friendlyName: "Lead Type",
       step: 1,
     },
+    lead_owner_id: {
+      friendlyName: "Lead Owner ID",
+      step: 1,
+    },
+    hear_about_us: {
+      friendlyName: "How you heard about us",
+      step: 1,
+    },
+    current_situation: {
+      friendlyName: "Current Situation",
+      step: 1,
+    },
+    looking_for: {
+      friendlyName: "What you are looking for",
+      step: 1,
+    },
+    building_type: {
+      friendlyName: "Building Type",
+      step: 1,
+    },
+    project_type: {
+      friendlyName: "Project Type",
+      step: 1,
+    },
+    current_system_type: {
+      friendlyName: "Current System Type",
+      step: 1,
+    },
+    system_age: {
+      friendlyName: "System Age",
+      step: 1,
+    },
+    main_project_goals: {
+      friendlyName: "Main Project Goals",
+      step: 1,
+    },
+    competitors_previously_contacted: {
+      friendlyName: "Competitors Previously Contacted",
+      step: 1,
+    },
+    competitors_name: {
+      friendlyName: "Competitors Name",
+      step: 1,
+    },
+    desired_timeframe: {
+      friendlyName: "Desired Timeframe",
+      step: 1,
+    },
+    decisive_timing_factor: {
+      friendlyName: "Decisive Timing Factor",
+      step: 1,
+    },
+    other_timing_factor: {
+      friendlyName: "Other Timing Factor",
+      step: 1,
+    },
+    decision_making_status: {
+      friendlyName: "Decision Making Status",
+      step: 1,
+    },
+    property_type: {
+      friendlyName: "Property Type",
+      step: 1,
+    },
+    type_of_decision: {
+      friendlyName: "Type of Decision",
+      step: 1,
+    },
+    additional_comments: {
+      friendlyName: "Additional Comments",
+      step: 1,
+    },
+    defined_a_budget: {
+      friendlyName: "Defined a Budget",
+      step: 1,
+    },
+    budget_range: {
+      friendlyName: "Budget Range",
+      step: 1,
+    },
+    aware_of_available_financial_incentives: {
+      friendlyName: "Aware of Financial Incentives",
+      step: 1,
+    },
+    planned_financial_method: {
+      friendlyName: "Planned Financial Method",
+      step: 1,
+    },
+    bant_score: {
+      friendlyName: "BANT Score",
+      step: 1,
+    },
     hs_lead_status: {
       friendlyName: "Lead Status",
-      step: 1,
-    },
-    project_summary_user: {
-      friendlyName: "Project Summary",
-      step: 1,
-    },
-    reason_for_calling_us: {
-      friendlyName: "Reason for Calling us",
-      step: 1,
-    },
-    want_a_complete_system_: {
-      friendlyName: "Want a complete system",
-      step: 1,
-    },
-    allocated_budget: {
-      friendlyName: "Allocated budget",
-      step: 1,
-    },
-    steps_for_decision: {
-      friendlyName: "Steps for Decision",
-      step: 1,
-    },
-    expected_eta: {
-      friendlyName: "Expected ETA",
-      step: 1,
-    },
-    decision_maker: {
-      friendlyName: "Decision Maker",
-      step: 1,
-    },
-    good_fit_for_lead_: {
-      friendlyName: "Are we a good fit for this lead?",
-      step: 1,
-    },
-    money_availability: {
-      friendlyName: "Does the lead have or can get the money?",
-      step: 1,
-    },
-    estimated_time_for_buying: {
-      friendlyName: "Is the timing right with this lead?",
       step: 1,
     },
     hubspot_owner_id: {
@@ -155,7 +215,7 @@ export const propertyNameMap: Record<
 > = {
   ...leadQualificationProperties[0],
   ...shippingData[0],
-  installation_type: {
+  /* installation_type: {
     friendlyName: "Installation type:",
     step: 4,
   },
@@ -196,7 +256,7 @@ export const propertyNameMap: Record<
   access_computer: {
     friendlyName: "Access computer",
     step: 4,
-  },
+  }, */
   ...schematicProperties[0],
 };
 

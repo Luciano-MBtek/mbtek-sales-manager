@@ -1,75 +1,32 @@
 "use server";
 import { createContact } from "@/actions/createContact";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/lib/authOptions";
 
-import {
-  newLeadType,
-  stepTwoSchema,
-  stepOneSchema,
-  stepThreeBaseSchema,
-  stepFourSchema,
-} from "@/schemas/newLeadSchema";
-import { collectDataRoutes } from "@/types";
 import { revalidatePath } from "next/cache";
 import { searchContact } from "@/actions/searchContact";
 import { patchContactProperties } from "@/actions/patchContactProperties";
 import { triggerLeadQualificationWebhook } from "@/actions/webhooks/leadQualificationWebhook";
 import { createContactProperties } from "@/lib/utils";
+import { StepQualificationOneFormValues } from "@/schemas/leadQualificationSchema";
+import { getNextManagerId } from "./getNextManagerId";
 
-interface SubmitLeadActionReturnType {
-  redirect1?: string;
-  redirect2?: collectDataRoutes;
+interface CreateOrModifyReturnType {
   errorMsg?: string;
   success?: boolean;
+  contactId?: string;
 }
 
-export const submitLeadAction = async (
-  contact: newLeadType
-): Promise<SubmitLeadActionReturnType> => {
-  const stepOneValidated = stepOneSchema.safeParse(contact);
-  if (!stepOneValidated.success) {
-    return {
-      redirect2: collectDataRoutes.DISCOVERY_CALL,
-      errorMsg: "Please validate step one.",
-    };
-  }
-
-  const stepTwoValidated = stepTwoSchema.safeParse(contact);
-  if (!stepTwoValidated.success) {
-    return {
-      redirect2: collectDataRoutes.DISCOVERY_CALL_2,
-      errorMsg: "Please validate step two.",
-    };
-  }
-
-  const stepThreeB2CValidated = stepThreeBaseSchema.safeParse(contact);
-  if (!stepThreeB2CValidated.success) {
-    return {
-      redirect2: collectDataRoutes.LEAD_QUALIFICATION_B2C,
-      errorMsg: "Please validate step 3 (B2C).",
-    };
-  }
-
-  const stepFourSchemaValidated = stepFourSchema.safeParse(contact);
-  if (!stepFourSchemaValidated.success) {
-    return {
-      redirect2: collectDataRoutes.REVIEW_LEAD,
-      errorMsg: "Please validate step four.",
-    };
-  }
-
+export const createOrModify = async (
+  contact: StepQualificationOneFormValues
+): Promise<CreateOrModifyReturnType> => {
   try {
-    const session = await getServerSession(authOptions);
+    const ownerId = await getNextManagerId();
 
-    if (!session?.user?.hubspotOwnerId) {
+    if (!ownerId) {
       return {
-        errorMsg: "User ID not found",
+        errorMsg: "Failed to assign a manager",
         success: false,
       };
     }
-
-    const ownerId = session.user.hubspotOwnerId;
 
     const contactExist = await searchContact(contact.email, "email");
 
@@ -90,6 +47,7 @@ export const submitLeadAction = async (
         }
       } else {
         const properties = createContactProperties(contact);
+
         const response = await patchContactProperties(
           contactExist.id,
           properties
@@ -103,15 +61,15 @@ export const submitLeadAction = async (
         }
       }
 
-      const webhook = await triggerLeadQualificationWebhook(contactExist.id);
+      // const webhook = await triggerLeadQualificationWebhook(contactExist.id);
 
-      if (!webhook) {
+      /* if (!webhook) {
         return {
           errorMsg:
             "Failed to trigger webhook for workflow on hubspot, contact developer.",
           success: false,
         };
-      }
+      } */
 
       revalidatePath(`/contacts/${contactExist.id}`);
       revalidatePath(`/contacts/${contactExist.id}/properties`);
@@ -120,8 +78,7 @@ export const submitLeadAction = async (
 
       return {
         success: true,
-        redirect1: `/contacts/${contactExist.id}`,
-        redirect2: collectDataRoutes.DISCOVERY_CALL,
+        contactId: contactExist.id,
       };
     }
 
@@ -139,8 +96,7 @@ export const submitLeadAction = async (
       revalidatePath(`/contacts/${response.contactId}/quotes`);
       return {
         success: true,
-        redirect1: `/contacts/${response.contactId}`,
-        redirect2: collectDataRoutes.DISCOVERY_CALL,
+        contactId: response.contactId,
       };
     }
   } catch (error) {
