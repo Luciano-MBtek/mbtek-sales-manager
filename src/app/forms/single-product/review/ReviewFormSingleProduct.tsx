@@ -30,6 +30,7 @@ import {
   Globe,
   Building,
   ArrowRight,
+  Phone,
 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { FormEvent, useEffect, useMemo, useState } from "react";
@@ -97,6 +98,7 @@ const ReviewFormSingleProduct = () => {
     name: singleProductData.name || contact?.firstname || "",
     lastname: singleProductData.lastname || contact?.lastname || "",
     email: singleProductData.email || contact?.email || "",
+    phone: singleProductData.phone || contact?.phone || "",
     country: singleProductData.country || contact?.country || "",
     city: singleProductData.city || contact?.city || "",
     zip: singleProductData.zip || contact?.zip || "",
@@ -160,6 +162,11 @@ const ReviewFormSingleProduct = () => {
                 icon={<Mail className="h-5 w-5" />}
                 label="Email"
                 value={formData.email}
+              />
+              <InfoItem
+                icon={<Phone className="h-5 w-5" />}
+                label="Phone"
+                value={formData.phone}
               />
               <InfoItem
                 icon={<Globe className="h-5 w-5" />}

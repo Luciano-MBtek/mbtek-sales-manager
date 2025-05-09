@@ -2,6 +2,14 @@ import { getPurchaseOptions } from "@/actions/contact/createDownpayCart";
 import { canadaProvinceValues, USStates, yesOrNoTuple } from "@/types";
 import z from "zod";
 
+const phoneSchema = z
+  .string()
+  .regex(
+    /^(?:\+1\s?)?\(?([2-9][0-9]{2})\)?[-.\s]?([2-9][0-9]{2})[-.\s]?([0-9]{4})(?:\s*(?:#|x\.?|ext\.?)\s*\d{1,5})?$/,
+    "Enter a valid US/Canada phone (e.g., +1 616 335‑4521)"
+  )
+  .transform((v) => v.replace(/[^0-9x]/gi, "")); // conserva dígitos y ext
+
 export const stepTwoSingleProductSchema = z
   .object({
     products: z
@@ -78,6 +86,7 @@ export const stepOneProductSchema = z.discriminatedUnion("country", [
   z.object({
     address: z.string().min(1, "Please enter a street address"),
     city: z.string().min(2, "Please enter a valid city name"),
+    phone: phoneSchema,
     zip: z
       .string()
       .regex(
@@ -113,6 +122,7 @@ export const newSingleProductSchema = z.discriminatedUnion("country", [
   z.object({
     name: z.string().min(1, "Unknown name"),
     id: z.string(),
+    phone: phoneSchema,
     lastname: z.string().min(1, "Unknown lastname"),
     email: z.string().email(),
     address: z.string().min(1, "Please enter a street address"),
@@ -152,6 +162,7 @@ export const newSingleProductSchema = z.discriminatedUnion("country", [
     name: z.string().min(1, "Unknown name"),
     lastname: z.string().min(1, "Unknown lastname"),
     email: z.string().email(),
+    phone: phoneSchema,
     id: z.string(),
     address: z.string().min(1, "Please enter a street address"),
     city: z.string().min(2, "Please enter a valid city name"),
@@ -194,6 +205,7 @@ export const singleProductInitialValuesSchema = z.object({
   lastname: z.string().optional(),
   email: z.string().optional(),
   address: z.string().optional(),
+  phone: z.string().optional(),
   country: z.string().optional(),
   city: z.string().optional(),
   zip: z.string().optional(),
