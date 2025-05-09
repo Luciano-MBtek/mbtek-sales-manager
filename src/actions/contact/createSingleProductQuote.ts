@@ -35,6 +35,7 @@ export const createSingleProductQuote = async ({
       lastname,
       address,
       zip,
+      phone: contactPhone,
       country,
       city,
       splitPayment,
@@ -116,6 +117,7 @@ export const createSingleProductQuote = async ({
       zip: zip,
       city: city,
       split_payment: splitPayment,
+      phone: contactPhone,
       country_us_ca: country,
       ...(country === "USA"
         ? { state_usa: state }
@@ -151,7 +153,7 @@ export const createSingleProductQuote = async ({
       province,
       country_us_ca: country,
       zip,
-      phone: phone || "",
+      phone: contactPhone || "",
       hubspot_owner_id: {
         fullname: `${ownerData.firstName} ${ownerData.lastName}`,
       },
