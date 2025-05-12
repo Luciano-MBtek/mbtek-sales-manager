@@ -50,7 +50,7 @@ export async function createDraftOrder(
       first_name: contactData.firstname,
       last_name: contactData.lastname,
       address1: contactData.address,
-      phone: contactData.phone || "",
+      phone: contactData.phone,
       city: contactData.city,
       province: contactData.state_usa || contactData.province || "",
       country: contactData.country_us_ca,

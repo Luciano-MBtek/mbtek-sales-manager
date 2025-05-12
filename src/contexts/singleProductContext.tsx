@@ -17,6 +17,7 @@ const defaultSingleProduct: singleProductInitialValuesType = {
   name: "",
   lastname: "",
   email: "",
+  phone: "",
   address: "",
   country: "",
   state: "",
