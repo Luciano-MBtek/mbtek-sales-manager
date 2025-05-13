@@ -19,6 +19,7 @@ import {
   plannedFinancialMethodValues,
   leadStatusValues,
   disqualificationReasonValues,
+  lookingForTypeValues,
 } from "@/types";
 
 export const stepOneLeadQualificationSchema = z.discriminatedUnion("country", [
@@ -40,7 +41,9 @@ export const stepOneLeadQualificationSchema = z.discriminatedUnion("country", [
     currentSituation: z
       .array(z.string())
       .min(1, "Please select at least one option"),
-    lookingFor: z.string().min(1, "Please select what you are looking for"),
+    lookingFor: z.enum(lookingForTypeValues as [string, ...string[]], {
+      errorMap: () => ({ message: "Please select what you are looking for" }),
+    }),
     lead_owner_id: z.string(),
   }),
   z.object({
@@ -61,7 +64,9 @@ export const stepOneLeadQualificationSchema = z.discriminatedUnion("country", [
     currentSituation: z
       .array(z.string())
       .min(1, "Please select at least one option"),
-    lookingFor: z.string().min(1, "Please select what you are looking for"),
+    lookingFor: z.enum(lookingForTypeValues as [string, ...string[]], {
+      errorMap: () => ({ message: "Please select what you are looking for" }),
+    }),
     lead_owner_id: z.string(),
   }),
 ]);

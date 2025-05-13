@@ -2,13 +2,11 @@
 
 import { revalidatePath } from "next/cache";
 
-export async function createDeal(
+export async function createCompleteDeal(
   contactId: string,
   firstName: string,
   lastName: string,
-  ownerId: string,
-  amount: number,
-  shippingCost: number
+  ownerId: string
 ): Promise<any> {
   try {
     const apiKey = process.env.HUBSPOT_API_KEY;
@@ -19,15 +17,13 @@ export async function createDeal(
       );
     }
 
-    const dealName = `Standard quote ${firstName} ${lastName}`;
+    const dealName = `Complete System - ${firstName} ${lastName}`;
 
     const dealProperties = {
       dealname: dealName,
       hubspot_owner_id: ownerId,
       dealstage: "1067319842", //   Quote sent (Mbtek - Single Product)
       pipeline: "732682097", // Mbtek - Single Product
-      amount: amount,
-      shipping_cost: shippingCost,
     };
 
     const associations = [

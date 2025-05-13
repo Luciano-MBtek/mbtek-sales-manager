@@ -20,6 +20,8 @@ model User {
 enum Role {
   owner
   admin
+  lead_agent
+  sales_agent
   manager
   schematic_team
 }

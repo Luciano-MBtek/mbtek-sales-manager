@@ -24,6 +24,9 @@ import {
   createContactPropertiesStep5,
   createDisqualifyProperties,
 } from "@/lib/utils";
+import { triggerLeadQualificationWebhook } from "@/actions/webhooks/leadQualificationWebhook";
+import { createCompleteDeal } from "@/actions/contact/createCompleteDeal";
+import { GetContactOwner } from "@/actions/getContactOwner";
 
 // Interface for step processing dependencies
 export interface StepProcessingDependencies {
@@ -223,6 +226,10 @@ export const processStepData = async (
       if (stepData.lookingFor === "single_products_quote" && contactId) {
         // Reset the store when redirecting to single product quote
 
+        const singleProduct = stepData.lookingFor;
+
+        await triggerLeadQualificationWebhook(contactId, singleProduct);
+
         if (typeof resetData === "function") {
           resetData();
         }
@@ -280,6 +287,19 @@ export const processStepData = async (
         data.contactId,
         createContactPropertiesReview(stepData as ReviewQualificationFormValues)
       );
+
+      const contactOwnerId = await GetContactOwner(data.contactId);
+
+      await createCompleteDeal(
+        data.contactId,
+        data.name,
+        data.lastname,
+        contactOwnerId
+      );
+
+      await triggerLeadQualificationWebhook(data.contactId, data.lookingFor);
+
+      // send the data via webhook to lead qualified complete system
       break;
     case "disqualified":
       if (!data.contactId) throw new Error("Contact ID not found");

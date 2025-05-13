@@ -33,7 +33,7 @@ export async function createContact(
 
     const data = await response.json();
 
-    await triggerLeadQualificationWebhook(data.id);
+    // await triggerLeadQualificationWebhook(data.id);
 
     revalidatePath("/contacts");
 

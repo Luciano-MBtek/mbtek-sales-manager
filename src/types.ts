@@ -209,6 +209,7 @@ export const lookingFor = [
   { label: "Single Products Quote", value: "single_products_quote" },
   { label: "Complete System", value: "complete_system" },
 ];
+export const lookingForTypeValues = lookingFor.map((type) => type.value);
 
 export const YesOrNo = ["Yes", "No"] as const;
 
