@@ -20,6 +20,8 @@ model User {
 enum Role {
   owner
   admin
+  lead_agent
+  sales_agent
   manager
   schematic_team
 }
@@ -64,3 +66,9 @@ model UserRecentLead {
 
   @@map("user_recent_leads")
 }
+
+model RoundRobinState {
+  id             Int     @id @default(1)         
+  lastManagerId  BigInt?
+}
+

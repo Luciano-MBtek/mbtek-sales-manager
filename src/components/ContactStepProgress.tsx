@@ -20,7 +20,7 @@ import { useEffect } from "react";
 import { Contact } from "@/store/contact-store";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 
 const ContactStepProgress = ({
@@ -30,11 +30,13 @@ const ContactStepProgress = ({
 }) => {
   const { contact, update } = useContactStore();
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const session = useSession();
 
   const accessLevel = session.data?.user.accessLevel;
   const allowRequest = accessLevel !== "schematic_team";
+  const redirect = searchParams.get("redirect");
 
   const {
     id,
@@ -123,6 +125,13 @@ const ContactStepProgress = ({
     hasQuotes,
     phone,
   ]);
+
+  useEffect(() => {
+    // If contact is loaded and we have a redirect URL, navigate to it
+    if (contact && redirect) {
+      router.push(redirect);
+    }
+  }, [contact, redirect, router]);
 
   return (
     <Card className="w-full max-w-4xl mx-auto">
