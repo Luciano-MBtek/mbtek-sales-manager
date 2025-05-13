@@ -48,6 +48,46 @@ export type ProgressProperties = {
   areDeals: boolean;
   hasSchematic: boolean;
   hasQuotes: boolean;
+  // New properties to add
+  additional_comments?: string;
+  aware_of_available_financial_incentives?: string;
+  bant_score?: string;
+  budget_range?: string;
+  building_type?: string;
+  company?: string;
+  competitors_name?: string;
+  competitors_previously_contacted?: string;
+  current_situation?: string;
+  current_system_type?: string;
+  decision_making_status?: string;
+  decisive_timing_factor?: string;
+  defined_a_budget?: string;
+  desired_timeframe?: string;
+  extra_notes?: string;
+  hear_about_us?: string;
+  heat_elements?: string;
+  hs_lead_status?: string;
+  hs_object_id?: string;
+  hubspot_owner_id?: string;
+  lead_owner_id?: string;
+  lead_type?: string;
+  looking_for?: string;
+  main_project_goals?: string;
+  number_of_zones?: string;
+  other_timing_factor?: string;
+  planned_financial_method?: string;
+  project_type?: string;
+  property_type?: string;
+  province_territory?: string;
+  schematic_image?: string;
+  special_application?: string;
+  split_payment?: string;
+  square_feet_per_zone?: string;
+  state_usa?: string;
+  system_age?: string;
+  technical_documention_received_from_the_prospect?: string;
+  total_area_house?: string;
+  type_of_decision?: string;
 };
 
 export type PropertyDetail = {
@@ -414,7 +454,7 @@ export const plannedFinancialMethodValues = plannedFinancialMethod.map(
 
 // Disqualified Lead
 
-const leadStatus = [
+export const leadStatus = [
   { label: "New", value: "NEW" },
   { label: "In Progress to Qualify", value: "IN_PROGRESS" },
   { label: "In Progress - Discovery Call", value: "OPEN_DISCOVERY" },
