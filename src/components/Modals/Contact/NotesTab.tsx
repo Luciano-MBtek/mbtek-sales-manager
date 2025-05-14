@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { createNote } from "@/actions/createNote";
+import { useSession } from "next-auth/react";
 
 type Engagement = {
   engagement: {
@@ -59,6 +60,9 @@ const NotesTab = ({ contactId }: NotesTabProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const session = useSession();
+
+  const userName = session.data?.user.name;
 
   const form = useForm<NoteFormValues>({
     resolver: zodResolver(noteFormSchema),
@@ -98,7 +102,8 @@ const NotesTab = ({ contactId }: NotesTabProps) => {
   const onSubmit = async (data: NoteFormValues) => {
     setIsSubmitting(true);
     try {
-      await createNote(contactId, data.content);
+      const noteWithName = `${userName ? `${userName}:\n` : ""}${data.content}`;
+      await createNote(contactId, noteWithName);
 
       // Reset the form after successful submission
       form.reset();

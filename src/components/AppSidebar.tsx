@@ -53,12 +53,14 @@ const items = [
     url: "/dashboard",
     icon: LayoutDashboard,
     requireAuth: true,
+    requireRole: ["admin", "owner", "sales_agent", "manager"],
   },
   {
     title: "My Deals",
     url: "/mydeals",
     icon: Handshake,
     requireAuth: true,
+    requireRole: ["admin", "owner", "sales_agent", "manager"],
   },
   {
     title: "My Contacts",
@@ -119,9 +121,13 @@ export function AppSidebar() {
                 </SidebarMenuItem>
               ))}
               {session?.user?.accessLevel &&
-                ["admin", "owner", "manager"].includes(
-                  session.user.accessLevel
-                ) && <SidebarResources />}
+                [
+                  "admin",
+                  "owner",
+                  "manager",
+                  "sales_agent",
+                  "lead_agent",
+                ].includes(session.user.accessLevel) && <SidebarResources />}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
