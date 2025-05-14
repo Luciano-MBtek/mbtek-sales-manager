@@ -3,14 +3,8 @@ import PageHeader from "@/components/PageHeader";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
 import QualificationButton from "@/components/Modals/LeadQualification/QualificationButton";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
-import { CalendarClock } from "lucide-react";
+import { LeadCountCard } from "@/components/LeadsQualifier/LeadsCountCard";
+import { LeadsQualifiedList } from "@/components/LeadsQualifier/LeadsQualifiedList";
 
 async function HomePage() {
   const session = await getServerSession(authOptions);
@@ -34,21 +28,11 @@ async function HomePage() {
           <div>
             <QualificationButton />
           </div>
-
-          <div className="w-[500px] items-center justify-center">
-            <Card className=" border-blue-300 bg-blue-50">
-              <CardHeader className="flex flex-row items-center gap-2">
-                <CalendarClock className="h-5 w-5 text-blue-500" />
-                <CardTitle className="text-blue-700">Coming Soon</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription className="text-blue-600 font-medium">
-                  A new and improved dashboard experience is currently in
-                  development. Soon new features and tools to help you manage
-                  leads more efficiently!
-                </CardDescription>
-              </CardContent>
-            </Card>
+          <div className="w-[250px]">
+            <LeadCountCard />
+          </div>
+          <div className="w-full pr-4">
+            <LeadsQualifiedList />
           </div>
         </div>
       )}

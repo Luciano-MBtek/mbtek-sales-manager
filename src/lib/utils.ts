@@ -28,6 +28,28 @@ export function getDate(): string {
   return today.toISOString().split("T")[0];
 }
 
+export function getCurrentWeekDateRange(): {
+  startDate: string;
+  endDate: string;
+} {
+  // Get current week's start and end dates
+  const now = new Date();
+  const currentDay = now.getDay(); // 0 is Sunday, 6 is Saturday
+
+  const startDate = new Date(now);
+  startDate.setDate(now.getDate() - currentDay + (currentDay === 0 ? -6 : 1)); // If Sunday, go back to previous Monday
+  startDate.setHours(0, 0, 0, 0);
+
+  const endDate = new Date();
+  endDate.setHours(23, 59, 59, 999);
+
+  // Format dates to ISO strings
+  const startDateISO = startDate.toISOString();
+  const endDateISO = endDate.toISOString();
+
+  return { startDate: startDateISO, endDate: endDateISO };
+}
+
 export const createContactProperties = (
   contact: StepQualificationOneFormValues,
   ownerId?: string
@@ -128,3 +150,37 @@ export const createDisqualifyProperties = (
     disqualification_explanation: data.disqualification_explanation,
   };
 };
+
+export function formatDateWithDay(dateString: string): string {
+  const date = new Date(dateString);
+  const today = new Date();
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+
+  // Check if it's today
+  if (date.toDateString() === today.toDateString()) {
+    return "Today";
+  }
+
+  // Check if it's yesterday
+  if (date.toDateString() === yesterday.toDateString()) {
+    return "Yesterday";
+  }
+
+  // Get day name
+  const days = [
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+  ];
+  const dayName = days[date.getDay()];
+
+  // Get day number
+  const dayNumber = date.getDate();
+
+  return `${dayName} ${dayNumber}`;
+}
