@@ -22,8 +22,8 @@ export async function createCompleteDeal(
     const dealProperties = {
       dealname: dealName,
       hubspot_owner_id: ownerId,
-      dealstage: "1067319842", //   Quote sent (Mbtek - Single Product)
-      pipeline: "732682097", // Mbtek - Single Product
+      dealstage: "1067281267", //   Qualified to Buy
+      pipeline: "732661879", // Complete - System
     };
 
     const associations = [

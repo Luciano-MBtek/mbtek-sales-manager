@@ -7,4 +7,8 @@ export const CreateUserSchema = z.object({
   accessLevel: z.nativeEnum(Role, {
     required_error: "Selecciona un nivel de acceso",
   }),
+  hubspotId: z
+    .string()
+    .regex(/^\d+$/, "HubSpot ID debe contener solo números")
+    .min(1, "HubSpot ID es requerido"),
 });

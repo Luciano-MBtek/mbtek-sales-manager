@@ -17,29 +17,41 @@ import { Search } from "@/app/admin-dashboard/components/search";
 import TeamSwitcher from "@/app/admin-dashboard/components/team-switcher";
 import { UserNav } from "@/app/admin-dashboard/components/user-nav";
 import { getAllUsers } from "@/actions/user/getAllUsers";
+import { Suspense } from "react";
+import NewLeadsSkeleton from "./components/newLeadsSkeleton";
+import NewLeadsCard from "./components/newLeadsCard";
 
 export const metadata: Metadata = {
   title: "Dashboard",
   description: "Admin Dashboard for sales manager.",
 };
 
-export default async function DashboardPage() {
+type DashboardPageProps = {
+  searchParams?: {
+    from?: string;
+    to?: string;
+    hubspotId?: string;
+  };
+};
+
+export default async function DashboardPage({
+  searchParams,
+}: DashboardPageProps) {
   const userData = await getAllUsers();
+
+  const params = await searchParams;
 
   return (
     <div className="flex w-full  justify-center">
       <div className="hidden flex-col md:flex">
-        <div className="border-b">
-          <div className="flex h-16 items-center px-4">
-            <TeamSwitcher users={userData} />
-          </div>
-        </div>
-        {/* <div className="flex-1 space-y-4 p-8 pt-6">
+        <div className="flex-1 space-y-4 p-8 pt-6">
           <div className="flex items-center justify-between space-y-2">
             <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
+            <div className="flex h-16 items-center px-4">
+              <TeamSwitcher users={userData} />
+            </div>
             <div className="flex items-center space-x-2">
               <CalendarDateRangePicker />
-              <Button>Download</Button>
             </div>
           </div>
           <Tabs defaultValue="overview" className="space-y-4">
@@ -82,10 +94,10 @@ export default async function DashboardPage() {
                     </p>
                   </CardContent>
                 </Card>
-                <Card>
+                {/*  <Card>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">
-                      Subscriptions
+                      New Leads
                     </CardTitle>
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -108,7 +120,10 @@ export default async function DashboardPage() {
                       +180.1% from last month
                     </p>
                   </CardContent>
-                </Card>
+                </Card> */}
+                <Suspense fallback={<NewLeadsSkeleton />}>
+                  <NewLeadsCard searchParams={params} />
+                </Suspense>
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">Sales</CardTitle>
@@ -182,7 +197,7 @@ export default async function DashboardPage() {
               </div>
             </TabsContent>
           </Tabs>
-        </div> */}
+        </div>
       </div>
     </div>
   );

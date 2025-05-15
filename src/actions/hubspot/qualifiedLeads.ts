@@ -78,7 +78,7 @@ async function leadsQualified(userId: string) {
 }
 
 export async function getQualifiedLeads() {
-  const userId = await getHubspotOwnerIdSession();
-  // const managerIdTest = "719106449"; // Byron
-  return leadsQualified(userId);
+  // const userId = await getHubspotOwnerIdSession();
+  const managerIdTest = "719106449"; // Byron
+  return leadsQualified(managerIdTest);
 }
