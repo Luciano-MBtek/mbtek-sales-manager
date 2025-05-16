@@ -168,8 +168,11 @@ export default function TeamSwitcher({ users }: TeamSwitcherProps) {
                   />
                 </CommandItem>
               </CommandGroup>
-              {groups.map((group) => (
-                <CommandGroup key={group.label} heading={group.label}>
+              {groups.map((group, index) => (
+                <CommandGroup
+                  key={`${group.label}-${index}`}
+                  heading={group.label}
+                >
                   {group.teams.map((team) => (
                     <CommandItem
                       key={team.value}
