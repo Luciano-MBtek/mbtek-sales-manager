@@ -8,6 +8,7 @@ import {
   Handshake,
   BotMessageSquare,
   CircleUserRound,
+  Calendar,
 } from "lucide-react";
 import Shopify from "./Icons/Shopify";
 
@@ -46,6 +47,12 @@ const items = [
     title: "AI chat (Beta)",
     url: "/agent-ai",
     icon: BotMessageSquare,
+    requireAuth: true,
+  },
+  {
+    title: "My Meetings",
+    url: "/my-meetings",
+    icon: Calendar,
     requireAuth: true,
   },
   {

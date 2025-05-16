@@ -9,12 +9,13 @@ const ROUTES = {
   },
   PROTECTED: {
     CONTACTS: "/contacts/",
+    MY_CONTACTS: "my-contacts",
     USERDASHBOARD: "/dashboard",
+    MEETINGS: "/my-meetings",
     FORMS: "/forms/",
     ADMINDASHBOARD: "/admin-dashboard",
-    SCHEMATICUP: "/forms/schematic-upload",
-    MY_CONTACTS: "my-contacts",
     DEALS: "/mydeals",
+    SCHEMATICUP: "/forms/schematic-upload",
     PRODUCTS: "/products",
     RESOURCES: "/resources/",
     AI: "/agent-ai",
@@ -27,6 +28,7 @@ const ACCESS_LEVELS = {
     ROUTES.PROTECTED.FORMS,
     ROUTES.PROTECTED.USERDASHBOARD,
     ROUTES.PROTECTED.ADMINDASHBOARD,
+    ROUTES.PROTECTED.MEETINGS,
     ROUTES.PROTECTED.PRODUCTS,
     ROUTES.PROTECTED.RESOURCES,
     ROUTES.PROTECTED.MY_CONTACTS,
@@ -38,6 +40,7 @@ const ACCESS_LEVELS = {
     ROUTES.PROTECTED.FORMS,
     ROUTES.PROTECTED.USERDASHBOARD,
     ROUTES.PROTECTED.ADMINDASHBOARD,
+    ROUTES.PROTECTED.MEETINGS,
     ROUTES.PROTECTED.PRODUCTS,
     ROUTES.PROTECTED.RESOURCES,
     ROUTES.PROTECTED.MY_CONTACTS,
@@ -48,6 +51,7 @@ const ACCESS_LEVELS = {
     ROUTES.PROTECTED.CONTACTS,
     ROUTES.PROTECTED.FORMS,
     ROUTES.PROTECTED.USERDASHBOARD,
+    ROUTES.PROTECTED.MEETINGS,
     ROUTES.PROTECTED.PRODUCTS,
     ROUTES.PROTECTED.RESOURCES,
     ROUTES.PROTECTED.MY_CONTACTS,
@@ -80,19 +84,19 @@ const hasRouteAccess = (accessLevel: string, path: string): boolean => {
   const allowedRoutes =
     ACCESS_LEVELS[accessLevel as keyof typeof ACCESS_LEVELS] || [];
 
-  // Verificar acceso exacto
+  // Verify exact access
   if (allowedRoutes.some((route) => route === path)) {
     return true;
   }
 
-  // Verificar acceso a rutas base (terminan con "/")
+  // Verify access to base routes (end with "/")
   for (const route of allowedRoutes) {
     if (route.endsWith("/") && path.startsWith(route)) {
       return true;
     }
   }
 
-  // Si no coincide con ninguna ruta permitida
+  // If it does not match any allowed route
   return false;
 };
 
@@ -124,6 +128,13 @@ export async function middleware(req: NextRequest) {
 
   // For protected routes, check access level
   if (isProtectedRoute(path)) {
+    if (!token?.email || token?.error) {
+      const callbackUrl = encodeURIComponent(req.url);
+      return NextResponse.redirect(
+        new URL(`${ROUTES.PUBLIC.AUTH}?callbackUrl=${callbackUrl}`, req.url)
+      );
+    }
+
     if (!token.accessLevel) {
       return NextResponse.redirect(new URL(ROUTES.PUBLIC.HOME, req.url));
     }
