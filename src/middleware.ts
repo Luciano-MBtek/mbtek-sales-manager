@@ -16,8 +16,6 @@ const ROUTES = {
     ADMINDASHBOARD: "/admin-dashboard",
     DEALS: "/mydeals",
     SCHEMATICUP: "/forms/schematic-upload",
-    MY_CONTACTS: "my-contacts",
-    DEALS: "/mydeals",
     PRODUCTS: "/products",
     RESOURCES: "/resources/",
     AI: "/agent-ai",
@@ -35,7 +33,7 @@ const ACCESS_LEVELS = {
     ROUTES.PROTECTED.RESOURCES,
     ROUTES.PROTECTED.MY_CONTACTS,
     ROUTES.PROTECTED.DEALS,
-    ROUTES.PROTECTED.AI
+    ROUTES.PROTECTED.AI,
   ],
   admin: [
     ROUTES.PROTECTED.CONTACTS,
@@ -47,7 +45,7 @@ const ACCESS_LEVELS = {
     ROUTES.PROTECTED.RESOURCES,
     ROUTES.PROTECTED.MY_CONTACTS,
     ROUTES.PROTECTED.DEALS,
-    ROUTES.PROTECTED.AI
+    ROUTES.PROTECTED.AI,
   ],
   manager: [
     ROUTES.PROTECTED.CONTACTS,
