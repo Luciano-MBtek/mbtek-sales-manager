@@ -9,8 +9,12 @@ import getShopifyMainProduct from "./getShopifyMainProduct";
 import { createSingleProductData } from "../openAi/createSingleProductData";
 import { getHubspotOwnerId } from "../getOwnerId";
 import { getOwnerExtraData } from "../getOwnerExtraData";
-import { buildSimpleQuote } from "./buildSimpleQuote";
+import { buildSimpleQuote } from "../quote/buildSimpleQuote";
 import { getDate } from "@/lib/utils";
+import { fetchShopifyVariants } from "./fetchShopifyVariants";
+import { createDraftOrder } from "./createDraftOrder";
+import { createDownpayCart, getPurchaseOptions } from "./createDownpayCart";
+import { patchDealProperties } from "./patchDealProperties";
 
 interface SingleProductQuote {
   singleProduct: newSingleProductType;
@@ -27,14 +31,17 @@ export const createSingleProductQuote = async ({
     const {
       id,
       name,
+      email,
       lastname,
       address,
       zip,
+      phone: contactPhone,
       country,
       city,
       splitPayment,
       products,
       shipmentCost,
+      purchaseOptionId,
     } = singleProduct;
 
     let province;
@@ -44,7 +51,7 @@ export const createSingleProductQuote = async ({
     } else if (country === "Canada") {
       province = singleProduct.province;
     }
-
+    const sellingPlanId = purchaseOptionId;
     const userId = await getHubspotOwnerIdSession();
     const totalProducts = products.reduce(
       (sum, product) => sum + product.price * product.quantity,
@@ -87,8 +94,16 @@ export const createSingleProductQuote = async ({
 
     const shopifyMainProduct = await getShopifyMainProduct(mainProduct[0].sku);
 
-    const mainProductDescription =
-      shopifyMainProduct.data.productVariants.edges[0].node.product.description;
+    const productVariant =
+      shopifyMainProduct.data.productVariants.edges[0]?.node?.product;
+
+    if (!productVariant?.description) {
+      throw new Error(
+        "Main product does not have description, select another or send bug report"
+      );
+    }
+
+    const mainProductDescription = productVariant.description;
     onProgress?.("Generating AI content...", 50);
 
     const aiResponse = await createSingleProductData(mainProductDescription);
@@ -102,6 +117,7 @@ export const createSingleProductQuote = async ({
       zip: zip,
       city: city,
       split_payment: splitPayment,
+      phone: contactPhone,
       country_us_ca: country,
       ...(country === "USA"
         ? { state_usa: state }
@@ -118,8 +134,84 @@ export const createSingleProductQuote = async ({
     onProgress?.("Updating contact properties...", 85);
 
     patchContactProperties(id, properties);
-    onProgress?.("Building quote...", 90);
 
+    const shopifyItems = products.map((product) => ({
+      sku: product.sku,
+      quantity: product.quantity,
+      unitDiscount: product.unitDiscount,
+    }));
+
+    const variantLineItems = await fetchShopifyVariants(shopifyItems);
+
+    const contactData = {
+      firstname: name,
+      lastname,
+      email: email || "",
+      address,
+      city,
+      state_usa: state,
+      province,
+      country_us_ca: country,
+      zip,
+      phone: contactPhone || "",
+      hubspot_owner_id: {
+        fullname: `${ownerData.firstName} ${ownerData.lastName}`,
+      },
+    };
+
+    const quoteTitle = `${name} ${lastname} - Standard quote`;
+    // Create Draft order and pass the url later , instead of the shipment cost to buildSimpleQuote.
+
+    let paymentUrl = "";
+    let paymentType = "";
+    let orderId = "";
+
+    // Create either draft order or downpay cart based on splitPayment
+    if (splitPayment === "No") {
+      // Create regular draft order for full payment
+      onProgress?.("Creating Shopify draft order...", 85);
+      const draftOrderResult = await createDraftOrder(
+        variantLineItems,
+        contactData,
+        quoteTitle,
+        Number(shipmentCost) || undefined
+      );
+      paymentUrl = draftOrderResult.invoiceUrl;
+      orderId = draftOrderResult.draftOrderId;
+      paymentType = "draft";
+    } else {
+      // Create downpay cart with financing options
+      onProgress?.("Creating downpayment cart...", 85);
+
+      // Get the first purchase option by default
+
+      // Get the first option's first purchase option ID
+
+      // Create cart lines with selling plan ID
+      const cartLines = variantLineItems.map((item) => ({
+        quantity: item.quantity,
+        merchandiseId: `gid://shopify/ProductVariant/${item.variant_id}`,
+        sellingPlanId: `gid://shopify/SellingPlan/${sellingPlanId}`,
+      }));
+
+      // Create the cart
+      const cartResult = await createDownpayCart(cartLines, contactData);
+      paymentUrl = cartResult.checkoutUrl;
+      paymentType = "cart";
+    }
+
+    onProgress?.("Updating Deal...", 90);
+
+    const dealProperty = {
+      shopify_draft_order_url: paymentUrl,
+      shopify_draft_order_id: orderId || "",
+    };
+
+    // PatchDeal with paymentURL
+    patchDealProperties(dealData.id, dealProperty);
+
+    onProgress?.("Building quote...", 95);
+    // Build the quote with the payment URL
     const quoteBuilded = await buildSimpleQuote(
       id,
       name,
@@ -130,11 +222,16 @@ export const createSingleProductQuote = async ({
       ownerData.lastName,
       phone,
       jobtitle,
-      shipmentCost,
+      paymentUrl, // Pass the payment URL (either invoice URL or checkout URL)
       lineItemsData.results
     );
 
-    return { success: true, quoteUrl: quoteBuilded.data };
+    return {
+      success: true,
+      quoteUrl: quoteBuilded.data,
+      paymentUrl,
+      paymentType,
+    };
   } catch (error) {
     console.error("Error in createSingleProductQuote:", error);
     throw new Error(

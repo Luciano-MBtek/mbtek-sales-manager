@@ -4,17 +4,21 @@ import { startTransition, useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ExternalLink, Download, Trash } from "lucide-react";
+import { ExternalLink, Download, Trash, Edit } from "lucide-react";
 import { Quote } from "@/types/quoteTypes";
 import { toast } from "./ui/use-toast";
 import { Quote as QuoteIcon } from "lucide-react";
-import { deleteQuote } from "@/actions/contact/deleteQuote";
+import { deleteQuote } from "@/actions/quote/deleteQuote";
+import Shopify from "./Icons/Shopify";
+import TemplateModal from "./Email/TemplateModal";
+import { useRouter, usePathname } from "next/navigation";
 
 export function QuoteItem({ quote }: { quote: Quote }) {
-  const [isExpanded, setIsExpanded] = useState(false);
   const [isPending, setIsPending] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname();
 
-  console.log("Quote", quote);
+  const contactId = pathname.split("/")[2];
 
   const deleteQuoteAndDeal = (id: string) => {
     setIsPending(true);
@@ -54,6 +58,10 @@ export function QuoteItem({ quote }: { quote: Quote }) {
     });
   };
 
+  const handleUpdateQuote = () => {
+    router.push(`/contacts/${contactId}/quotes/${quote.id}`);
+  };
+
   return (
     <Card className="mb-4">
       <CardHeader>
@@ -85,11 +93,11 @@ export function QuoteItem({ quote }: { quote: Quote }) {
             { minimumFractionDigits: 2 }
           )}
         </p>
-        {isExpanded && (
-          <div className="mt-4">
+
+        <div className="flex justify-between">
+          <div className="flex gap-4">
             <Button
               variant="outline"
-              className="mr-2"
               onClick={() =>
                 window.open(quote.properties.hs_quote_link, "_blank")
               }
@@ -104,35 +112,38 @@ export function QuoteItem({ quote }: { quote: Quote }) {
             >
               <Download className="mr-2 h-4 w-4" /> Download PDF
             </Button>
+            <TemplateModal quote={quote} />
+            <Button
+              variant="outline"
+              onClick={() => window.open(quote.properties.hs_terms, "_blank")}
+            >
+              <Shopify width={20} height={20} className="mr-2" /> Pay Now
+            </Button>
+            <Button variant="outline" onClick={handleUpdateQuote}>
+              <Edit className="mr-2 h-4 w-4" /> Update Quote
+            </Button>
           </div>
-        )}
-        <div className="flex items-center justify-between">
-          <Button
-            variant="link"
-            onClick={() => setIsExpanded(!isExpanded)}
-            className="mt-2 p-0"
-          >
-            {isExpanded ? "View Less" : "View More"}
-          </Button>
-          <Button
-            variant="destructive"
-            onClick={() => deleteQuoteAndDeal(quote.id)}
-            disabled={isPending}
-          >
-            {isPending ? (
-              "Deleting..."
-            ) : (
-              <div className="flex items-center gap-2">
-                <span>Delete</span>
-                <Trash
-                  className="opacity-60"
-                  size={16}
-                  strokeWidth={2}
-                  aria-hidden="true"
-                />
-              </div>
-            )}
-          </Button>
+          <div>
+            <Button
+              variant="destructive"
+              onClick={() => deleteQuoteAndDeal(quote.id)}
+              disabled={isPending}
+            >
+              {isPending ? (
+                "Deleting..."
+              ) : (
+                <div className="flex items-center gap-2">
+                  <span>Delete</span>
+                  <Trash
+                    className="opacity-60"
+                    size={16}
+                    strokeWidth={2}
+                    aria-hidden="true"
+                  />
+                </div>
+              )}
+            </Button>
+          </div>
         </div>
       </CardContent>
     </Card>

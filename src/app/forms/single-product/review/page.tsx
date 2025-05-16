@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import ReviewFormSingleProduct from "./ReviewFormSingleProduct";
 import { Metadata } from "next";
 
@@ -11,7 +12,9 @@ export const maxDuration = 60;
 export default function ReviewForm() {
   return (
     <div>
-      <ReviewFormSingleProduct />
+      <Suspense fallback={<div>Loading...</div>}>
+        <ReviewFormSingleProduct />
+      </Suspense>
     </div>
   );
 }

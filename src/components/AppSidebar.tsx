@@ -5,12 +5,12 @@ import {
   Search,
   LayoutDashboard,
   MonitorCog,
-  UserPlus,
   Handshake,
   BotMessageSquare,
   CircleUserRound,
   Calendar,
 } from "lucide-react";
+import Shopify from "./Icons/Shopify";
 
 import {
   Sidebar,
@@ -28,21 +28,14 @@ import SideBarContactGroup from "./SideBarContactGroup";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { Role } from "@prisma/client";
-import { useContactStore } from "@/store/contact-store";
+
 import { SidebarResources } from "@/app/resources/SidebarResources";
 
 const items = [
   {
-    title: "Home",
+    title: "Overview",
     url: "/",
     icon: Home,
-  },
-  {
-    title: "New Process",
-    url: "/forms/discovery-lead",
-    icon: UserPlus,
-    requireAuth: true,
-    requireRole: ["admin", "owner", "manager"],
   },
   {
     title: "Search Contacts",
@@ -67,12 +60,14 @@ const items = [
     url: "/dashboard",
     icon: LayoutDashboard,
     requireAuth: true,
+    requireRole: ["admin", "owner", "sales_agent", "manager"],
   },
   {
     title: "My Deals",
     url: "/mydeals",
     icon: Handshake,
     requireAuth: true,
+    requireRole: ["admin", "owner", "sales_agent", "manager"],
   },
   {
     title: "My Contacts",
@@ -88,11 +83,16 @@ const items = [
     requireAuth: true,
     requireRole: ["admin", "owner"],
   },
+  {
+    title: "Products",
+    url: "/products",
+    icon: Shopify,
+    requireAuth: true,
+  },
 ];
 
 export function AppSidebar() {
   const { data: session, status } = useSession();
-  const clearContact = useContactStore((state) => state.clear);
 
   if (status === "loading") {
     return null;
@@ -120,19 +120,7 @@ export function AppSidebar() {
               {filteredItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <Link
-                      href={
-                        item.url +
-                        (item.title === "New Process"
-                          ? "/step-one?reset=true"
-                          : "")
-                      }
-                      onClick={() => {
-                        if (item.title === "New Process") {
-                          clearContact();
-                        }
-                      }}
-                    >
+                    <Link href={item.url}>
                       <item.icon />
                       <span>{item.title}</span>
                     </Link>
@@ -140,9 +128,13 @@ export function AppSidebar() {
                 </SidebarMenuItem>
               ))}
               {session?.user?.accessLevel &&
-                ["admin", "owner", "manager"].includes(
-                  session.user.accessLevel
-                ) && <SidebarResources />}
+                [
+                  "admin",
+                  "owner",
+                  "manager",
+                  "sales_agent",
+                  "lead_agent",
+                ].includes(session.user.accessLevel) && <SidebarResources />}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

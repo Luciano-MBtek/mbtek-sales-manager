@@ -34,6 +34,7 @@ export default function StepSingleProductOneForm() {
         name: contact.firstname,
         lastname: contact.lastname,
         email: contact.email,
+        phone: contact.phone,
         country: contact.country as "USA" | "Canada",
         state: contact.state as USState,
         province: contact.province as (typeof canadaProvinceValues)[number],
@@ -51,6 +52,7 @@ export default function StepSingleProductOneForm() {
     name: singleProductData.name || contact?.firstname || "",
     lastname: singleProductData.lastname || contact?.lastname || "",
     email: singleProductData.email || contact?.email || "",
+    phone: singleProductData.phone || contact?.phone || "",
     country: singleProductData.country || contact?.country || "",
     state: singleProductData.state || contact?.state || "",
     province: singleProductData.province || contact?.province || "",
@@ -76,6 +78,7 @@ export default function StepSingleProductOneForm() {
       name: contact?.firstname,
       lastname: contact?.lastname,
       email: contact?.email,
+      phone: contact?.phone,
       country: formData.get("country") as "USA" | "Canada",
       state: formData.get("state") as USState,
       province: formData.get(
@@ -121,6 +124,15 @@ export default function StepSingleProductOneForm() {
             type="text"
             errorMsg={serverErrors?.city}
             value={formData.city || ""}
+            onChange={handleInputChange}
+          />
+
+          <Input
+            label="Phone"
+            id="phone"
+            type="phone"
+            errorMsg={serverErrors?.phone}
+            value={formData.phone || ""}
             onChange={handleInputChange}
           />
 

@@ -4,7 +4,8 @@ import { revalidatePath } from "next/cache";
 export async function patchContactProperty(
   id: string,
   property: string,
-  value: string
+  value: string,
+  revalidate: boolean = true
 ) {
   try {
     const apiKey = process.env.HUBSPOT_API_KEY;
@@ -34,8 +35,11 @@ export async function patchContactProperty(
     }
 
     const data = await response.json();
-    revalidatePath(`/contacts/${id}`);
-    revalidatePath(`/contacts/${id}/properties`);
+
+    if (revalidate) {
+      revalidatePath(`/contacts/${id}`);
+      revalidatePath(`/contacts/${id}/properties`);
+    }
 
     return data;
   } catch (error) {

@@ -14,6 +14,8 @@ import ContactFormCard from "@/components/StepForm/ContactFormCard";
 import { useContactStore } from "@/store/contact-store";
 import MainProductSelect from "@/components/MainProductSelect";
 import MoneyValueInput from "@/components/StepForm/MoneyValueInput";
+import { useSearchParams } from "next/navigation";
+import SelectInput from "@/components/StepForm/SelectStepForm";
 
 const options = YesOrNo.map((option) => option);
 
@@ -34,6 +36,7 @@ export default function StepSingleProductTwoForm() {
 
   const [totalPrice, setTotalPrice] = useState(0);
   const { contact, update } = useContactStore();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     updateSingleProductDetails({
@@ -100,6 +103,10 @@ export default function StepSingleProductTwoForm() {
     );
   };
 
+  const handleSelectChange = (field: string) => (value: string) => {
+    updateSingleProductDetails({ [field]: value });
+  };
+
   return (
     <>
       <div className="w-full flex flex-col  items-center">
@@ -146,6 +153,11 @@ export default function StepSingleProductTwoForm() {
             name="shipmentCost"
             value={singleProductData.shipmentCost || ""}
           />
+          <input
+            type="hidden"
+            name="purchaseOptionId"
+            value={singleProductData.purchaseOptionId || ""}
+          />
           <ProductCard
             selectedProducts={selectedProducts}
             totalPrice={totalPrice}
@@ -171,7 +183,41 @@ export default function StepSingleProductTwoForm() {
               }
             />
           </div>
-          <div className="w-full flex items-center gap-10 m-5">
+          {singleProductData.splitPayment === "Yes" && (
+            <div className="w-full mb-4">
+              <Card className="shadow-lg">
+                <CardHeader>
+                  <CardTitle className="text-xl font-bold">
+                    Purchase Options
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <SelectInput
+                    label="Select Purchase Option"
+                    id="purchaseOptionId"
+                    options={Array.from(searchParams.entries())
+                      .filter(([key]) => key.startsWith("merchantCode_"))
+                      .map(([key, value]) => {
+                        const index = key.split("_")[1];
+                        const idKey = `id_${index}`;
+                        const idValue = searchParams.get(idKey) || "";
+
+                        return {
+                          label: `${value}`,
+                          value: idValue,
+                        };
+                      })}
+                    placeholder="Select a purchase option"
+                    errorMsg={serverErrors?.purchaseOptionId}
+                    value={singleProductData.purchaseOptionId || ""}
+                    onChange={handleSelectChange("purchaseOptionId")}
+                    dataLoaded={dataLoaded}
+                  />
+                </CardContent>
+              </Card>
+            </div>
+          )}
+          {/*   <div className="w-full flex items-center gap-10 m-5">
             <div>
               <RadioInput
                 label="Custom Shipment"
@@ -205,7 +251,7 @@ export default function StepSingleProductTwoForm() {
                 />
               </div>
             )}
-          </div>
+          </div> */}
 
           <div className="flex w-full flex-col gap-4 lg:max-w-[700px] ">
             <SubmitButton text="Continue" />

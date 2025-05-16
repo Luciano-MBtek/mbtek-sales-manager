@@ -193,40 +193,38 @@ export default function PaymentInstructions() {
               <Card>
                 <CardContent className="pt-6">
                   <h3 className="text-lg font-semibold mb-4">
-                    Bank Transfer (from a U.S. bank account)
+                    USA using USD only (no international payment, local only)
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <ul className="space-y-2">
                         <li>
-                          <span className="font-medium">Account Holder:</span>{" "}
-                          MBTEK
+                          <span className="font-medium">Name:</span> 2424647
+                          ALBERTA INC.
                         </li>
                         <li>
                           <span className="font-medium">Account Number:</span>{" "}
-                          8310079032
+                          833367245854200
                         </li>
-                        <li>
-                          <span className="font-medium">Account Type:</span>{" "}
-                          Checking
-                        </li>
+
                         <li>
                           <span className="font-medium">
                             ACH Routing Number:
                           </span>{" "}
-                          026073150
+                          084009519
                         </li>
                       </ul>
                     </div>
                     <div>
                       <ul className="space-y-2">
                         <li>
-                          <span className="font-medium">Bank Name:</span>{" "}
-                          Community Federal Savings Bank
+                          <span className="font-medium">Bank Name:</span> Wise
+                          US Inc
                         </li>
                         <li>
-                          <span className="font-medium">Bank Address:</span>{" "}
-                          89-16 Jamaica Ave, Woodhaven, NY 11421, USA
+                          <span className="font-medium">Bank Address:</span> 30
+                          W. 26th Street, Sixth Floor, New York, NY, 10010,
+                          United States
                         </li>
                       </ul>
                     </div>
@@ -235,10 +233,6 @@ export default function PaymentInstructions() {
                     <h4 className="font-semibold">Important Notes:</h4>
                     <ul className="list-disc pl-5 mt-2">
                       <li>ACH Transfer (2-3 business days)</li>
-                      <li>
-                        The account holder&apos;s name must be spelled correctly
-                        to prevent payment failures.
-                      </li>
                     </ul>
                   </div>
                 </CardContent>
@@ -247,53 +241,51 @@ export default function PaymentInstructions() {
             <TabsContent value="cad">
               <Card>
                 <CardContent className="pt-6">
-                  <Accordion type="single" collapsible className="w-full">
-                    <AccordionItem value="interac">
-                      <AccordionTrigger>
-                        <h3 className="text-lg font-semibold">
-                          Preferred Method: INTERAC CAD E-Transfer
-                        </h3>
-                      </AccordionTrigger>
-                      <AccordionContent>
-                        <p className="py-2">
-                          Send the payment to:{" "}
+                  <h3 className="text-lg font-semibold mb-4">
+                    CANADA using CAD only (no international payment, local only)
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <ul className="space-y-2">
+                        <li>
+                          <span className="font-medium">Name:</span> 2424647
+                          ALBERTA INC.
+                        </li>
+                        <li>
+                          <span className="font-medium">Account Number:</span>{" "}
+                          200116458449
+                        </li>
+                        <li>
                           <span className="font-medium">
-                            accounting@mbtek.com
-                          </span>
-                        </p>
-                      </AccordionContent>
-                    </AccordionItem>
-                    <AccordionItem value="traditional">
-                      <AccordionTrigger>
-                        <h3 className="text-lg font-semibold">
-                          Alternative Method: Traditional Bank Transfer (CAD to
-                          CAD)
-                        </h3>
-                      </AccordionTrigger>
-                      <AccordionContent>
-                        <ul className="space-y-2 py-2">
-                          <li>
-                            <span className="font-medium">Account Holder:</span>{" "}
-                            MBTEK
-                          </li>
-                          <li>
-                            <span className="font-medium">Account Number:</span>{" "}
-                            1001718
-                          </li>
-                          <li>
-                            <span className="font-medium">Transit Number:</span>{" "}
-                            07489
-                          </li>
-                          <li>
-                            <span className="font-medium">
-                              Institution Number:
-                            </span>{" "}
-                            003
-                          </li>
-                        </ul>
-                      </AccordionContent>
-                    </AccordionItem>
-                  </Accordion>
+                            Institution number:
+                          </span>{" "}
+                          621
+                        </li>
+                        <li>
+                          <span className="font-medium">Transit number:</span>{" "}
+                          16001
+                        </li>
+                      </ul>
+                    </div>
+                    <div>
+                      <ul className="space-y-2">
+                        <li>
+                          <span className="font-medium">Bank Name:</span> Wise
+                          Payments Canada Inc.
+                        </li>
+                        <li>
+                          <span className="font-medium">Bank Address:</span> 99
+                          Bank Street, Suite 1420, Ottawa, ON, K1P 1H4, Canada
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div className="mt-4 p-4 bg-muted rounded-lg">
+                    <h4 className="font-semibold">Important Notes:</h4>
+                    <ul className="list-disc pl-5 mt-2">
+                      <li>Bank Transfer (2-3 business days)</li>
+                    </ul>
+                  </div>
                 </CardContent>
               </Card>
             </TabsContent>

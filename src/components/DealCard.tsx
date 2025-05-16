@@ -1,6 +1,7 @@
 "use client";
 import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import Shopify from "./Icons/Shopify";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import LineItemCard from "@/components/LineItemCard";
@@ -13,12 +14,19 @@ import {
 import { useState } from "react";
 import { Button } from "./ui/button";
 import { ChevronDown, ChevronUp, Truck } from "lucide-react";
+import { useChatStore } from "@/store/chatbot-store";
+import { sendChatbotMessage } from "./ChatBot/chatbot-service";
+import { useSession } from "next-auth/react";
 
 interface DealCardProps {
   deal: DealWithLineItems;
+  isMostRecent?: boolean;
 }
 
-export default function DealCard({ deal }: DealCardProps) {
+export default function DealCard({
+  deal,
+  isMostRecent = false,
+}: DealCardProps) {
   const {
     dealname,
     createdate,
@@ -26,23 +34,53 @@ export default function DealCard({ deal }: DealCardProps) {
     pipeline,
     shipping_cost,
     amount,
+    shopify_draft_order_url,
   } = deal.properties;
-
+  const { data: session } = useSession();
   const [isOpen, setIsOpen] = useState(false);
+  const { setIsOpen: setIsChatOpen } = useChatStore();
 
   const subTotal = deal.lineItems.reduce((total, lineItem) => {
     const price = parseFloat(lineItem.properties.price) || 0;
     return total + price;
   }, 0);
 
+  const handleTrackingOrder = async (order: string) => {
+    const message = `Please track this order: ${order}`;
+
+    setIsChatOpen(true);
+
+    await sendChatbotMessage(message, session?.user?.hubspotOwnerId);
+  };
+
+  const isOrder = dealname && /^\d+$/.test(dealname);
+
+  console.log("SHopify URL:", shopify_draft_order_url);
+
   return (
     <Card className="mb-6 w-full max-w-4xl">
       <CardHeader className="flex flex-row items-center justify-between">
-        <div className="gap-4 flex flex-col ">
-          <CardTitle>{dealname || "No Deal Name"}</CardTitle>
+        <div className="gap-4 flex flex-col justify-center ">
+          <CardTitle>
+            {dealname || "No Deal Name"}{" "}
+            {isMostRecent && (
+              <Badge
+                variant="outline"
+                className="bg-blue-500 p-2 text-primary-foreground ml-10"
+              >
+                Most recent deal
+              </Badge>
+            )}
+          </CardTitle>
+
           <div>
             <Badge variant="outline">ID: {deal.id}</Badge>
             {pipeline && <Badge variant="secondary">{pipeline}</Badge>}
+            {!isOrder && (
+              <Badge variant="outline" className="ml-2 bg-yellow-100">
+                Draft
+              </Badge>
+            )}
           </div>
         </div>
         <div className="flex flex-col gap-2 mt-2">
@@ -62,7 +100,7 @@ export default function DealCard({ deal }: DealCardProps) {
         </div>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-2 gap-4 text-sm mb-4">
+        <div className="grid grid-cols-3 gap-4 text-sm mb-4">
           <div>
             <p className="font-semibold">Creation Date:</p>
             <p>
@@ -83,6 +121,24 @@ export default function DealCard({ deal }: DealCardProps) {
               })}
             </p>
           </div>
+          <div className="flex justify-end">
+            {isOrder && (
+              <Button onClick={() => handleTrackingOrder(dealname)} size="sm">
+                <div className="flex items-center justify-center gap-4 w-full">
+                  Track order
+                  <Shopify width={20} height={20} />
+                </div>
+              </Button>
+            )}
+          </div>
+          <Button
+            variant="outline"
+            onClick={() =>
+              window.open(deal.properties.shopify_draft_order_url, "_blank")
+            }
+          >
+            <Shopify width={20} height={20} className="mr-2" /> Pay Now
+          </Button>
         </div>
 
         <Separator className="my-4" />

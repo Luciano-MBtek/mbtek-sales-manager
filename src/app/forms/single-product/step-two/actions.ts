@@ -1,6 +1,7 @@
 "use server";
 import { Commodity, getFreightwiseRates } from "@/actions/getFreightwiseRates";
 import { searchProducts } from "@/actions/searchProductsById";
+import { getDatePlus30Days } from "@/lib/utils";
 import {
   RatesType,
   stepTwoSingleProductSchema,
@@ -17,21 +18,61 @@ export const stepTwoFormSingleProductAction = async (
   const leadData = formData.get("lead_data");
   const lead = leadData ? JSON.parse(leadData.toString()) : null;
   const splitPayment = formData.get("splitPayment");
-  const customShipment = formData.get("customShipment");
-  const shipmentCost = formData.get("shipmentCost")?.toString() || "";
+  const shipmentCost = Number(formData.get("shipmentCost")) || 0;
+  const purchaseOptionId = formData.get("purchaseOptionId")?.toString() || "";
 
-  const data = { products, splitPayment, customShipment, shipmentCost };
-  //let rates: RatesType = [];
+  const data = { products, splitPayment, shipmentCost, purchaseOptionId };
+  let rates: RatesType = [];
 
-  /* if (lead.country === "USA") {
-    if (products && Array.isArray(products)) {
-      try {
+  if (products && Array.isArray(products)) {
+    try {
+      // Search for products with custom filter for ip__shopify__tags
+      const tagFilter = {
+        propertyName: "ip__shopify__tags",
+        operator: "HAS_PROPERTY",
+      };
+
+      const productDetails = await Promise.all(
+        products.map((product) => searchProducts(product.id, [tagFilter]))
+      );
+
+      const flattenedProducts = productDetails.flat();
+
+      // Check if all products have "Free shipping" tag
+      const allProductsHaveFreeShipping =
+        flattenedProducts.length > 0 &&
+        flattenedProducts.every((product) => {
+          if (!product.properties || !product.properties.ip__shopify__tags) {
+            return false;
+          }
+
+          // Split tags by comma and check if "Free shipping" exists (case insensitive)
+          const tags = product.properties.ip__shopify__tags
+            .split(",")
+            .map((tag: string) => tag.trim().toLowerCase());
+
+          return tags.includes("free shipping");
+        });
+
+      // If all products have free shipping tag, set free shipping rate
+      if (allProductsHaveFreeShipping) {
+        console.log(
+          "All products have Free shipping tag, setting shipping cost to 0"
+        );
+        rates = [
+          {
+            costLoaded: 0,
+            carrierScac: "Free",
+            estimatedDeliveryDate: new Date(getDatePlus30Days()).toISOString(),
+          },
+        ];
+      }
+      // Otherwise calculate shipping rates if in USA
+      else if (lead.country === "USA") {
         const productDetails = await Promise.all(
           products.map((product) => searchProducts(product.id))
         );
-
         const flattenedProducts = productDetails.flat();
-
         const validProducts = productDetails.some((result) => result !== 0);
         if (validProducts) {
           const { firstname, lastname, address, city, state, zip, country } =
@@ -82,26 +123,26 @@ export const stepTwoFormSingleProductAction = async (
           };
 
           const rate = await getFreightwiseRates(body);
-
-          rates = rate;
+          const validRates = rate.filter(
+            (rateItem: any) => rateItem.estimatedDeliveryDate
+          );
+          rates = validRates;
         } else {
           console.log("None products with Freighwise data");
         }
-      } catch (error) {
-        console.error("Error searching for products:", error);
       }
+    } catch (error) {
+      console.error("Error searching for products:", error);
     }
-  } */
+  }
 
-  // const dataWithRates = { ...data, rates };
+  const dataWithRates = { ...data, rates };
 
-  // const validated = stepTwoSingleProductSchema.safeParse(dataWithRates);
-  const validated = stepTwoSingleProductSchema.safeParse(data);
-  /* const searchParams = new URLSearchParams();
+  const validated = stepTwoSingleProductSchema.safeParse(dataWithRates);
+  const searchParams = new URLSearchParams();
   if (Array.isArray(rates) && rates.length > 0) {
     searchParams.set("rates", JSON.stringify(rates));
-    console.log(JSON.stringify(rates));
-  } */
+  }
 
   if (!validated.success) {
     const errors = validated.error.issues.reduce((acc: FormErrors, issue) => {
@@ -113,8 +154,7 @@ export const stepTwoFormSingleProductAction = async (
     return errors;
   }
 
-  /* redirect(
+  redirect(
     `${singleProductRoutes.REVIEW_SINGLE_PRODUCT}?${searchParams.toString()}`
-  ); */
-  redirect(singleProductRoutes.REVIEW_SINGLE_PRODUCT);
+  );
 };

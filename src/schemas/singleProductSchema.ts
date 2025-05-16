@@ -1,5 +1,14 @@
+import { getPurchaseOptions } from "@/actions/contact/createDownpayCart";
 import { canadaProvinceValues, USStates, yesOrNoTuple } from "@/types";
 import z from "zod";
+
+const phoneSchema = z
+  .string()
+  .regex(
+    /^(?:\+1\s?)?\(?([2-9][0-9]{2})\)?[-.\s]?([2-9][0-9]{2})[-.\s]?([0-9]{4})(?:\s*(?:#|x\.?|ext\.?)\s*\d{1,5})?$/,
+    "Enter a valid US/Canada phone (e.g., +1 616 335‑4521)"
+  )
+  .transform((v) => v.replace(/[^0-9x]/gi, "")); // conserva dígitos y ext
 
 export const stepTwoSingleProductSchema = z
   .object({
@@ -24,10 +33,12 @@ export const stepTwoSingleProductSchema = z
     splitPayment: z.enum(yesOrNoTuple, {
       errorMap: () => ({ message: "Please select Yes or No" }),
     }),
-    customShipment: z.enum(yesOrNoTuple, {
+    /*  customShipment: z.enum(yesOrNoTuple, {
       errorMap: () => ({ message: "Please select Yes or No" }),
-    }),
-    shipmentCost: z.string().optional(),
+    }), */
+    shipmentCost: z.number().nullable().optional(),
+
+    purchaseOptionId: z.string().optional(),
 
     rates: z
       .array(
@@ -48,7 +59,18 @@ export const stepTwoSingleProductSchema = z
         path: ["products"],
       });
     }
+
     if (
+      data.splitPayment === "Yes" &&
+      (!data.purchaseOptionId || data.purchaseOptionId.trim() === "")
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Purchase Option ID is required when split payment is Yes",
+        path: ["purchaseOptionId"],
+      });
+    }
+    /* if (
       data.customShipment === "Yes" &&
       (!data.shipmentCost || data.shipmentCost.trim() === "")
     ) {
@@ -57,13 +79,14 @@ export const stepTwoSingleProductSchema = z
         message: "Shipment cost is required when custom shipment is Yes",
         path: ["shipmentCost"],
       });
-    }
+    } */
   });
 
 export const stepOneProductSchema = z.discriminatedUnion("country", [
   z.object({
     address: z.string().min(1, "Please enter a street address"),
     city: z.string().min(2, "Please enter a valid city name"),
+    phone: phoneSchema,
     zip: z
       .string()
       .regex(
@@ -99,6 +122,7 @@ export const newSingleProductSchema = z.discriminatedUnion("country", [
   z.object({
     name: z.string().min(1, "Unknown name"),
     id: z.string(),
+    phone: phoneSchema,
     lastname: z.string().min(1, "Unknown lastname"),
     email: z.string().email(),
     address: z.string().min(1, "Please enter a street address"),
@@ -128,15 +152,17 @@ export const newSingleProductSchema = z.discriminatedUnion("country", [
     splitPayment: z.enum(yesOrNoTuple, {
       errorMap: () => ({ message: "Please select Yes or No" }),
     }),
-    customShipment: z.enum(yesOrNoTuple, {
+    /* customShipment: z.enum(yesOrNoTuple, {
       errorMap: () => ({ message: "Please select Yes or No" }),
-    }),
-    shipmentCost: z.string().optional(),
+    }), */
+    shipmentCost: z.number().optional(),
+    purchaseOptionId: z.string().optional(),
   }),
   z.object({
     name: z.string().min(1, "Unknown name"),
     lastname: z.string().min(1, "Unknown lastname"),
     email: z.string().email(),
+    phone: phoneSchema,
     id: z.string(),
     address: z.string().min(1, "Please enter a street address"),
     city: z.string().min(2, "Please enter a valid city name"),
@@ -165,10 +191,11 @@ export const newSingleProductSchema = z.discriminatedUnion("country", [
     splitPayment: z.enum(yesOrNoTuple, {
       errorMap: () => ({ message: "Please select Yes or No" }),
     }),
-    customShipment: z.enum(yesOrNoTuple, {
+    /*  customShipment: z.enum(yesOrNoTuple, {
       errorMap: () => ({ message: "Please select Yes or No" }),
-    }),
-    shipmentCost: z.string().optional(),
+    }), */
+    shipmentCost: z.number().optional(),
+    purchaseOptionId: z.string().optional(),
   }),
 ]);
 
@@ -178,6 +205,7 @@ export const singleProductInitialValuesSchema = z.object({
   lastname: z.string().optional(),
   email: z.string().optional(),
   address: z.string().optional(),
+  phone: z.string().optional(),
   country: z.string().optional(),
   city: z.string().optional(),
   zip: z.string().optional(),
@@ -209,7 +237,8 @@ export const singleProductInitialValuesSchema = z.object({
     )
     .optional(),
   customShipment: z.string().optional(),
-  shipmentCost: z.string().optional(),
+  shipmentCost: z.number().optional(),
+  purchaseOptionId: z.string().optional(),
 });
 
 export type newSingleProductType = z.infer<typeof newSingleProductSchema>;

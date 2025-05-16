@@ -11,7 +11,6 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { AccessDeniedToast } from "@/components/AccessDeniedToast";
 import { FloatingChatWrapper } from "@/components/ChatBot/FloatingChatWrapper";
-import { FloatingBugWrapper } from "@/components/BugReport/FloatingBugWrapper";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -55,7 +54,6 @@ export default async function RootLayout({
               {children}
             </main>
             <FloatingChatWrapper />
-            <FloatingBugWrapper />
           </HydrationBoundary>
         </Providers>
         <Toaster />

@@ -17,6 +17,7 @@ const defaultSingleProduct: singleProductInitialValuesType = {
   name: "",
   lastname: "",
   email: "",
+  phone: "",
   address: "",
   country: "",
   state: "",
@@ -26,8 +27,9 @@ const defaultSingleProduct: singleProductInitialValuesType = {
   products: [],
   splitPayment: "",
   customShipment: "",
-  shipmentCost: "",
+  shipmentCost: undefined,
   rates: [],
+  purchaseOptionId: "",
 };
 
 const LOCAL_STORAGE_KEY = "multi-page-form-single-product";

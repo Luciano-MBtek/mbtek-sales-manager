@@ -16,7 +16,10 @@ const ROUTES = {
     ADMINDASHBOARD: "/admin-dashboard",
     DEALS: "/mydeals",
     SCHEMATICUP: "/forms/schematic-upload",
-    RESOURCES: "/resources",
+    MY_CONTACTS: "my-contacts",
+    DEALS: "/mydeals",
+    PRODUCTS: "/products",
+    RESOURCES: "/resources/",
     AI: "/agent-ai",
   },
 } as const;
@@ -27,34 +30,50 @@ const ACCESS_LEVELS = {
     ROUTES.PROTECTED.FORMS,
     ROUTES.PROTECTED.USERDASHBOARD,
     ROUTES.PROTECTED.ADMINDASHBOARD,
+    ROUTES.PROTECTED.MEETINGS,
+    ROUTES.PROTECTED.PRODUCTS,
+    ROUTES.PROTECTED.RESOURCES,
     ROUTES.PROTECTED.MY_CONTACTS,
     ROUTES.PROTECTED.DEALS,
-    ROUTES.PROTECTED.AI,
-    ROUTES.PROTECTED.RESOURCES,
-    ROUTES.PROTECTED.MEETINGS,
+    ROUTES.PROTECTED.AI
   ],
   admin: [
     ROUTES.PROTECTED.CONTACTS,
     ROUTES.PROTECTED.FORMS,
     ROUTES.PROTECTED.USERDASHBOARD,
     ROUTES.PROTECTED.ADMINDASHBOARD,
+    ROUTES.PROTECTED.MEETINGS,
+    ROUTES.PROTECTED.PRODUCTS,
+    ROUTES.PROTECTED.RESOURCES,
     ROUTES.PROTECTED.MY_CONTACTS,
     ROUTES.PROTECTED.DEALS,
-    ROUTES.PROTECTED.AI,
-    ROUTES.PROTECTED.RESOURCES,
-    ROUTES.PROTECTED.MEETINGS,
+    ROUTES.PROTECTED.AI
   ],
   manager: [
     ROUTES.PROTECTED.CONTACTS,
     ROUTES.PROTECTED.FORMS,
     ROUTES.PROTECTED.USERDASHBOARD,
+    ROUTES.PROTECTED.MEETINGS,
+    ROUTES.PROTECTED.PRODUCTS,
+    ROUTES.PROTECTED.RESOURCES,
     ROUTES.PROTECTED.MY_CONTACTS,
     ROUTES.PROTECTED.DEALS,
     ROUTES.PROTECTED.AI,
-    ROUTES.PROTECTED.RESOURCES,
-    ROUTES.PROTECTED.MEETINGS,
   ],
-  schematic_team: [ROUTES.PROTECTED.CONTACTS, ROUTES.PROTECTED.SCHEMATICUP],
+  schematic_team: [
+    ROUTES.PROTECTED.CONTACTS,
+    ROUTES.PROTECTED.SCHEMATICUP,
+    ROUTES.PROTECTED.RESOURCES,
+  ],
+  lead_agent: [
+    ROUTES.PROTECTED.CONTACTS,
+    ROUTES.PROTECTED.FORMS,
+    ROUTES.PROTECTED.PRODUCTS,
+    ROUTES.PROTECTED.RESOURCES,
+    ROUTES.PROTECTED.MY_CONTACTS,
+    ROUTES.PROTECTED.DEALS,
+    ROUTES.PROTECTED.AI,
+  ],
 } as const;
 
 const isProtectedRoute = (path: string): boolean => {
@@ -85,6 +104,12 @@ const hasRouteAccess = (accessLevel: string, path: string): boolean => {
 
 export async function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname;
+
+  // Skip middleware for auth API routes (except signin page)
+  if (path.startsWith("/api/auth/") && !path.startsWith(ROUTES.PUBLIC.AUTH)) {
+    return NextResponse.next();
+  }
+
   const token = await getToken({ req });
 
   // Handle authentication routes
@@ -95,12 +120,15 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  // Allow public routes
-  if (path === ROUTES.PUBLIC.HOME) {
-    return NextResponse.next();
+  // Redirect to auth if no token (for all routes)
+  if (!token?.email) {
+    const callbackUrl = encodeURIComponent(req.url);
+    return NextResponse.redirect(
+      new URL(`${ROUTES.PUBLIC.AUTH}?callbackUrl=${callbackUrl}`, req.url)
+    );
   }
 
-  // Handle protected routes
+  // For protected routes, check access level
   if (isProtectedRoute(path)) {
     if (!token?.email || token?.error) {
       const callbackUrl = encodeURIComponent(req.url);

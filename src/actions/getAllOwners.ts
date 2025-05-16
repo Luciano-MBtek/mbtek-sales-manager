@@ -1,3 +1,4 @@
+"use server";
 const accessToken = process.env.HUBSPOT_API_KEY;
 
 type Team = {

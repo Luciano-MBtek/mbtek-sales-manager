@@ -29,16 +29,30 @@ import {
   Truck,
   Globe,
   Building,
+  ArrowRight,
+  Phone,
 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
-import { FormEvent, useState } from "react";
-import { useRouter } from "next/navigation";
+import { FormEvent, useEffect, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import ProductReviewCard from "@/components/ProductReviewCard";
 import { useContactStore } from "@/store/contact-store";
 import { HubspotIcon } from "@/components/HubspotIcon";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Rate } from "@/types";
+import Shopify from "@/components/Icons/Shopify";
+import { createFormSubmitHandler } from "@/lib/sse";
 
 const ReviewFormSingleProduct = () => {
-  const { singleProductData, resetLocalStorage } = useSingleProductContext();
+  const { singleProductData, resetLocalStorage, updateSingleProductDetails } =
+    useSingleProductContext();
   const { contact, update } = useContactStore();
   const [redirectOptions, setRedirectOptions] = useState<{
     redirect1?: string;
@@ -48,162 +62,82 @@ const ReviewFormSingleProduct = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
   const [hasError, setHasError] = useState(false);
+  const [selectedShipment, setSelectedShipment] = useState<Rate | null>(null);
   const [currentProgress, setCurrentProgress] = useState(0);
   const [currentStep, setCurrentStep] = useState("");
+  const searchParams = useSearchParams();
 
   const { toast } = useToast();
   const router = useRouter();
 
-  const { products, shipmentCost } = singleProductData;
+  const { products } = singleProductData;
 
-  const formData = {
+  const ratesParam = searchParams.get("rates");
+  const decodedRates = useMemo(() => {
+    const parsedRates = ratesParam
+      ? JSON.parse(decodeURIComponent(ratesParam || "[]"))
+      : [];
+
+    return parsedRates.length > 0
+      ? parsedRates.map((rate: Rate) => ({
+          ...rate,
+          costLoaded:
+            rate.costLoaded === 0 ? 0 : Math.ceil(rate.costLoaded * 1.1) + 65,
+        }))
+      : [];
+  }, [ratesParam]);
+
+  useEffect(() => {
+    if (decodedRates?.length > 0 && !selectedShipment) {
+      setSelectedShipment(decodedRates[0]);
+    }
+  }, [decodedRates, selectedShipment]);
+
+  const [formData, setFormData] = useState({
     ...singleProductData,
     name: singleProductData.name || contact?.firstname || "",
     lastname: singleProductData.lastname || contact?.lastname || "",
     email: singleProductData.email || contact?.email || "",
+    phone: singleProductData.phone || contact?.phone || "",
     country: singleProductData.country || contact?.country || "",
     city: singleProductData.city || contact?.city || "",
     zip: singleProductData.zip || contact?.zip || "",
     address: singleProductData.address || contact?.address || "",
+    shipmentCost: selectedShipment?.costLoaded || null,
     id: contact?.id,
-  };
+    purchaseOptionId: singleProductData.purchaseOptionId || "",
+  });
 
-  function parseSSEChunk(chunkStr: string) {
-    const lines = chunkStr.split("\n");
-    let currentEvent: string | null = null;
-    let currentData: string | null = null;
-
-    for (const line of lines) {
-      if (line.startsWith("event:")) {
-        currentEvent = line.replace("event:", "").trim();
-      } else if (line.startsWith("data:")) {
-        currentData = line.replace("data:", "").trim();
-      } else if (line === "") {
-        if (currentEvent && currentData) {
-          handleSSEEvent(currentEvent, currentData);
-        }
-
-        currentEvent = null;
-        currentData = null;
-      }
-    }
-  }
-
-  async function handleSSEEvent(eventName: string, data: string) {
-    if (eventName === "progress") {
-      try {
-        const parsed = JSON.parse(data);
-        setCurrentProgress(parsed.percentage || 0);
-        setCurrentStep(parsed.step || "");
-        setShowDialog(true);
-      } catch (err) {
-        setShowDialog(false);
-      }
-    } else if (eventName === "error") {
-      const parsed = JSON.parse(data);
-
-      setHasError(true);
-      setShowDialog(false);
-      toast({
-        title: "Error",
-        description: parsed.error || "Unknown error",
-        variant: "destructive",
+  useEffect(() => {
+    setFormData((prevData) => ({
+      ...prevData,
+      shipmentCost: selectedShipment?.costLoaded || null,
+    }));
+    if (selectedShipment) {
+      updateSingleProductDetails({
+        shipmentCost: selectedShipment.costLoaded,
       });
-    } else if (eventName === "complete") {
-      try {
-        const parsed = JSON.parse(data);
-
-        setIsComplete(true);
-
-        if (parsed.success) {
-          await fetch("/api/revalidate", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              paths: [
-                `/contacts/${parsed.contactId}`,
-                `/contacts/${parsed.contactId}/properties`,
-                `/contacts/${parsed.contactId}/deals`,
-                `/contacts/${parsed.contactId}/quotes`,
-              ],
-              tags: ["quotes", "contact-deals"],
-            }),
-          });
-          toast({
-            title: "Success",
-            description: "Standard Quote data submitted successfully",
-          });
-          setRedirectOptions({
-            redirect1: parsed.redirect1,
-            redirect2: parsed.redirect2,
-          });
-          resetLocalStorage();
-        } else {
-          setHasError(true);
-          toast({
-            title: "Error",
-            description: "Process ended but success=false",
-            variant: "destructive",
-          });
-        }
-      } catch {
-        setHasError(true);
-        toast({
-          title: "Error",
-          description: "Error in completing the event.",
-          variant: "destructive",
-        });
-      }
     }
-  }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedShipment]);
 
-  const handleFormSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setHasError(false);
-    setIsSubmitting(true);
-
-    try {
-      const resp = await fetch("/api/generate", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (!resp.ok || !resp.body) {
-        throw new Error(`HTTP Error ${resp.status}`);
-      }
-
-      const reader = resp.body.getReader();
-      const decoder = new TextDecoder();
-
-      while (true) {
-        const { value, done } = await reader.read();
-        if (done) break;
-
-        const chunkStr = decoder.decode(value, { stream: true });
-
-        parseSSEChunk(chunkStr);
-      }
-    } catch (error) {
-      console.error("Error in SSE:", error);
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Unknown error",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  // Create SSE handler with the utility
+  const handleFormSubmit = createFormSubmitHandler("/api/generate", {
+    setIsSubmitting,
+    setHasError,
+    setIsComplete,
+    setCurrentProgress,
+    setCurrentStep,
+    setShowDialog,
+    setRedirectOptions,
+    toast,
+    resetLocalStorage,
+  });
 
   return (
     <>
       <form
-        onSubmit={handleFormSubmit}
+        onSubmit={(e) => handleFormSubmit(e, formData)}
         className="flex flex-1 flex-col gap-2 items-stretch lg:max-w-full"
       >
         <Card className="shadow-lg">
@@ -228,6 +162,11 @@ const ReviewFormSingleProduct = () => {
                 icon={<Mail className="h-5 w-5" />}
                 label="Email"
                 value={formData.email}
+              />
+              <InfoItem
+                icon={<Phone className="h-5 w-5" />}
+                label="Phone"
+                value={formData.phone}
               />
               <InfoItem
                 icon={<Globe className="h-5 w-5" />}
@@ -268,19 +207,70 @@ const ReviewFormSingleProduct = () => {
                 label="Split Payment"
                 value={formData.splitPayment === "Yes" ? "Yes" : "No"}
               />
-              {formData.customShipment === "Yes" ? (
+              {formData.splitPayment === "Yes" && (
                 <InfoItem
-                  icon={<Truck className="h-5 w-5" />}
-                  label="Shipment"
-                  value={formData.shipmentCost}
+                  icon={<CreditCard className="h-5 w-5" />}
+                  label="Purchase Option"
+                  value={formData.purchaseOptionId}
                 />
-              ) : null}
+              )}
+
+              {decodedRates && decodedRates.length > 0 ? (
+                <div className="space-y-3">
+                  <Label
+                    htmlFor="shipping-options"
+                    className="flex items-center gap-2"
+                  >
+                    <Truck className="h-5 w-5" />
+                    <span>Shipping Options</span>
+                  </Label>
+                  <Select
+                    value={selectedShipment?.carrierScac || ""}
+                    onValueChange={(value) => {
+                      const selectedOption = decodedRates.find(
+                        (rate: Rate) => rate.carrierScac === value
+                      );
+                      setSelectedShipment(selectedOption || null);
+                    }}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select a shipping option" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {decodedRates.map((rate: Rate, index: number) => (
+                        <SelectItem key={index} value={rate.carrierScac}>
+                          {rate.carrierScac} - ${rate.costLoaded.toFixed(2)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  {selectedShipment && (
+                    <div className="mt-2 p-3 bg-muted rounded-md">
+                      <p className="font-semibold">Selected Shipping Option:</p>
+                      <p>Cost: ${selectedShipment.costLoaded.toFixed(2)}</p>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <InfoItem
+                  icon={
+                    <div className="flex gap-2 items-center">
+                      <Truck className="h-5 w-5" />
+                      <ArrowRight />
+                      <Shopify />
+                    </div>
+                  }
+                  label="Shipment"
+                  value={`Defined by Shopify`}
+                />
+              )}
             </div>
 
             {products ? (
               <ProductReviewCard
                 products={products}
-                customShipment={shipmentCost}
+                customShipment={selectedShipment?.costLoaded}
               />
             ) : (
               <p>No selected products.</p>
