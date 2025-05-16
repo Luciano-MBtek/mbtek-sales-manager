@@ -9,6 +9,7 @@ interface User {
   name: string;
   email: string;
   accessLevel: Role;
+  hubspotId: string;
 }
 
 export async function createUser(values: z.infer<typeof CreateUserSchema>) {
@@ -18,7 +19,7 @@ export async function createUser(values: z.infer<typeof CreateUserSchema>) {
     return { error: "Invalid fields!" };
   }
 
-  const { name, email, accessLevel } = validatedUser.data;
+  const { name, email, accessLevel, hubspotId } = validatedUser.data;
 
   try {
     const newUser = await db.user.create({
@@ -26,6 +27,7 @@ export async function createUser(values: z.infer<typeof CreateUserSchema>) {
         name,
         email,
         accessLevel,
+        hubspotId,
       },
     });
     revalidateTag("all-users-data");

@@ -12,6 +12,7 @@ model User {
   name          String
   email         String             @unique
   accessLevel   Role               @map("access_level")
+  hubspotId     String?            @unique @map("hubspot_id")
   activities    Activity[]
   favoriteLeads UserFavoriteLead[]
   recentLeads   UserRecentLead[]

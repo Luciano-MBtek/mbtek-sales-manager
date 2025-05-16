@@ -15,38 +15,25 @@ import {
   CommandList,
   CommandSeparator,
 } from "@/components/ui/command";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Dialog, DialogTrigger } from "@/components/ui/dialog";
+
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+
 import { PopoverTriggerProps } from "@radix-ui/react-popover";
 import { useState } from "react";
 import CreateUserForm from "./createUserForm";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 interface User {
   id: string;
   name: string;
   email: string;
   accessLevel: string;
+  hubspotId: string;
 }
 
 // Update TeamSwitcherProps to include users
@@ -66,18 +53,23 @@ function transformUsersToGroups(users: User[]) {
           label: user.name,
           value: user.id,
           email: user.email,
+          hubspotId: user.hubspotId,
         });
       } else {
         acc.push({
           label:
-            user.accessLevel.charAt(0).toUpperCase() +
-            user.accessLevel.slice(1) +
+            user.accessLevel
+              .replace(/_/g, " ") // Reemplaza todos los guiones bajos por espacios
+              .charAt(0)
+              .toUpperCase() +
+            user.accessLevel.replace(/_/g, " ").slice(1) +
             "s",
           teams: [
             {
               label: user.name,
               value: user.id,
               email: user.email,
+              hubspotId: user.hubspotId,
             },
           ],
         });
@@ -86,7 +78,12 @@ function transformUsersToGroups(users: User[]) {
     },
     [] as {
       label: string;
-      teams: { label: string; value: string; email: string }[];
+      teams: {
+        label: string;
+        value: string;
+        email: string;
+        hubspotId?: string;
+      }[];
     }[]
   );
 
@@ -100,7 +97,19 @@ export default function TeamSwitcher({ users }: TeamSwitcherProps) {
   const [selectedTeam, setSelectedTeam] = useState(
     groups[0]?.teams[0] || { label: "", value: "", email: "" }
   );
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
 
+  const updateHubspotIdParam = (hubspotId: string | null) => {
+    const params = new URLSearchParams(searchParams);
+    if (hubspotId) {
+      params.set("hubspotId", hubspotId);
+    } else {
+      params.delete("hubspotId");
+    }
+    router.push(`${pathname}?${params.toString()}`);
+  };
   return (
     <Dialog open={showNewTeamDialog} onOpenChange={setShowNewTeamDialog}>
       <Popover open={open} onOpenChange={setOpen}>
@@ -129,14 +138,48 @@ export default function TeamSwitcher({ users }: TeamSwitcherProps) {
             <CommandInput placeholder="Search team..." />
             <CommandList>
               <CommandEmpty>No team found.</CommandEmpty>
-              {groups.map((group) => (
-                <CommandGroup key={group.label} heading={group.label}>
+              <CommandGroup heading="General">
+                <CommandItem
+                  onSelect={() => {
+                    setSelectedTeam({
+                      label: "All Users",
+                      value: "all",
+                      email: "",
+                    });
+                    setOpen(false);
+                    updateHubspotIdParam(null);
+                  }}
+                  className="text-sm"
+                >
+                  <Avatar className="mr-2 h-5 w-5">
+                    <AvatarImage
+                      src={`https://avatar.vercel.sh/all.png`}
+                      alt="All Users"
+                      className="grayscale"
+                    />
+                    <AvatarFallback>ALL</AvatarFallback>
+                  </Avatar>
+                  All Users
+                  <Check
+                    className={cn(
+                      "ml-auto",
+                      selectedTeam.value === "all" ? "opacity-100" : "opacity-0"
+                    )}
+                  />
+                </CommandItem>
+              </CommandGroup>
+              {groups.map((group, index) => (
+                <CommandGroup
+                  key={`${group.label}-${index}`}
+                  heading={group.label}
+                >
                   {group.teams.map((team) => (
                     <CommandItem
                       key={team.value}
                       onSelect={() => {
                         setSelectedTeam(team);
                         setOpen(false);
+                        updateHubspotIdParam(team.hubspotId || null);
                       }}
                       className="text-sm"
                     >
