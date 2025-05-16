@@ -64,7 +64,7 @@ async function leadsCount(userId: string) {
 }
 
 export async function getLeadsCount() {
-  // const userId = await getHubspotOwnerIdSession();
-  const managerIdTest = "719106449"; // Byron
-  return leadsCount(managerIdTest);
+  const userId = await getHubspotOwnerIdSession();
+  // const managerIdTest = "719106449"; // Byron
+  return leadsCount(userId);
 }
