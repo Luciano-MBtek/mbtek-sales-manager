@@ -22,54 +22,24 @@ import {
   lookingForTypeValues,
 } from "@/types";
 
-export const stepOneLeadQualificationSchema = z.discriminatedUnion("country", [
-  z.object({
-    name: z.string().min(1, "Name is required"),
-    lastname: z.string().min(1, "Last name is required"),
-    email: z.string().email("Invalid email address"),
-    phone: z.string().min(1, "Phone number is required"),
-    country: z.literal("USA"),
-    state: z.enum(USStates, {
-      errorMap: () => ({ message: "Please select a valid state" }),
-    }),
-    city: z.string().min(1, "City is required"),
-    address: z.string().min(1, "Address is required"),
-    leadType: z.enum(leadTypeTuple, {
-      errorMap: () => ({ message: "Please select a valid lead type" }),
-    }),
-    hearAboutUs: z.string().min(1, "Please select how you heard about us"),
-    currentSituation: z
-      .array(z.string())
-      .min(1, "Please select at least one option"),
-    lookingFor: z.enum(lookingForTypeValues as [string, ...string[]], {
-      errorMap: () => ({ message: "Please select what you are looking for" }),
-    }),
-    lead_owner_id: z.string(),
+export const stepOneLeadQualificationSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  lastname: z.string().min(1, "Last name is required"),
+  email: z.string().email("Invalid email address"),
+  phone: z.string().min(1, "Phone number is required"),
+  zipCode: z.string().min(1, "Zip code is required"),
+  leadType: z.enum(leadTypeTuple, {
+    errorMap: () => ({ message: "Please select a valid lead type" }),
   }),
-  z.object({
-    name: z.string().min(1, "Name is required"),
-    lastname: z.string().min(1, "Last name is required"),
-    email: z.string().email("Invalid email address"),
-    phone: z.string().min(1, "Phone number is required"),
-    country: z.literal("Canada"),
-    province: z.enum(canadaProvinceValues, {
-      errorMap: () => ({ message: "Please select a valid province" }),
-    }),
-    city: z.string().min(1, "City is required"),
-    address: z.string().min(1, "Address is required"),
-    leadType: z.enum(leadTypeTuple, {
-      errorMap: () => ({ message: "Please select a valid lead type" }),
-    }),
-    hearAboutUs: z.string().min(1, "Please select how you heard about us"),
-    currentSituation: z
-      .array(z.string())
-      .min(1, "Please select at least one option"),
-    lookingFor: z.enum(lookingForTypeValues as [string, ...string[]], {
-      errorMap: () => ({ message: "Please select what you are looking for" }),
-    }),
-    lead_owner_id: z.string(),
+  hearAboutUs: z.string().min(1, "Please select how you heard about us"),
+  currentSituation: z
+    .array(z.string())
+    .min(1, "Please select at least one option"),
+  lookingFor: z.enum(lookingForTypeValues as [string, ...string[]], {
+    errorMap: () => ({ message: "Please select what you are looking for" }),
   }),
-]);
+  lead_owner_id: z.string(),
+});
 
 export type StepQualificationOneFormValues = z.infer<
   typeof stepOneLeadQualificationSchema

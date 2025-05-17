@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react"; // Remove useEffect import
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
@@ -27,11 +27,6 @@ import {
   StepQualificationOneFormValues,
 } from "@/schemas/leadQualificationSchema";
 import { currentSituation, hearAboutUs, leadType, lookingFor } from "@/types";
-import {
-  countryOptions,
-  stateOptions,
-  provinceOptions,
-} from "@/app/forms/utils/options";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -50,7 +45,7 @@ export default function StepOneContent({
 }: StepOneContentProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { contact } = useContactStore();
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
 
   const hubspotOwnerId = session?.user.hubspotOwnerId;
 
@@ -61,40 +56,14 @@ export default function StepOneContent({
       lastname: initialData?.lastname || contact?.lastname || "",
       email: initialData?.email || contact?.email || "",
       phone: initialData?.phone || contact?.phone || "",
-      country: initialData?.country || "",
-      city: initialData?.city || contact?.city || "",
-      address: initialData?.address || contact?.address || "",
+      zipCode: initialData?.zipCode || "",
       leadType: initialData?.leadType || "",
-      // Only include state if it has a valid value
-      ...(initialData?.country === "USA" && initialData?.state
-        ? { state: initialData.state }
-        : {}),
-      // Only include province if it has a valid value
-      ...(initialData?.country === "Canada" && initialData?.province
-        ? { province: initialData.province }
-        : {}),
       hearAboutUs: initialData?.hearAboutUs || "",
       currentSituation: initialData?.currentSituation || [],
       lookingFor: initialData?.lookingFor || "",
       lead_owner_id: hubspotOwnerId,
     },
   });
-
-  // Watch the country field directly outside of useEffect
-  const country = form.watch("country");
-
-  // Handle country change with form reset logic
-  const handleCountryChange = (value: "USA" | "Canada") => {
-    form.setValue("country", value);
-
-    if (value === "USA") {
-      // Don't set a default value for state, just unregister province
-      form.unregister("province");
-    } else if (value === "Canada") {
-      // Don't set a default value for province, just unregister state
-      form.unregister("state");
-    }
-  };
 
   const handleSubmit = async (data: StepQualificationOneFormValues) => {
     setIsSubmitting(true);
@@ -171,119 +140,16 @@ export default function StepOneContent({
             )}
           />
         </div>
-        <div className="grid grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="country"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Country</FormLabel>
-                <Select
-                  onValueChange={handleCountryChange}
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select country" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {countryOptions.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          {country === "USA" && (
-            <FormField
-              control={form.control}
-              name="state"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>State</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select state" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {stateOptions.map((option) => (
-                        <SelectItem key={option.value} value={option.value}>
-                          {option.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          )}
-
-          {country === "Canada" && (
-            <FormField
-              control={form.control}
-              name="province"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Province</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select province" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {provinceOptions.map((option) => (
-                        <SelectItem key={option.value} value={option.value}>
-                          {option.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          )}
-        </div>
 
         <div className="grid grid-cols-2 gap-4">
           <FormField
             control={form.control}
-            name="city"
+            name="zipCode"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>City</FormLabel>
+                <FormLabel>Zip Code</FormLabel>
                 <FormControl>
-                  <Input placeholder="City" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="address"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Address</FormLabel>
-                <FormControl>
-                  <Input placeholder="Address" {...field} />
+                  <Input placeholder="Zip Code" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
