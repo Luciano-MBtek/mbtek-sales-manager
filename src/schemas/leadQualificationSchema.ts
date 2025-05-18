@@ -28,6 +28,9 @@ export const stepOneLeadQualificationSchema = z.object({
   email: z.string().email("Invalid email address"),
   phone: z.string().min(1, "Phone number is required"),
   zipCode: z.string().min(1, "Zip code is required"),
+  country: z.string().min(1, "Country is required"),
+  state: z.string().optional(),
+  city: z.string().optional(),
   leadType: z.enum(leadTypeTuple, {
     errorMap: () => ({ message: "Please select a valid lead type" }),
   }),
@@ -232,6 +235,19 @@ export const reviewQualificationSchema = z.object({
 
 export type ReviewQualificationFormValues = z.infer<
   typeof reviewQualificationSchema
+>;
+
+export const stepSevenQualificationSchema = z.object({
+  shipping_address: z.string().min(1, "Shipping address is required"),
+  shipping_city: z.string().min(1, "City is required"),
+  shipping_state: z.string().min(1, "State is required"),
+  shipping_zip_code: z.string().min(1, "Zip code is required"),
+  shipping_country: z.string().min(1, "Country is required"),
+  shipping_notes: z.string().optional(),
+});
+
+export type StepSevenQualificationFormValues = z.infer<
+  typeof stepSevenQualificationSchema
 >;
 
 export const disqualifiedLeadSchema = z.object({

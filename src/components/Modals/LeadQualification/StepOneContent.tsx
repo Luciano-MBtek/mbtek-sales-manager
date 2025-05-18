@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback, useRef, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
@@ -31,6 +31,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useSession } from "next-auth/react";
+import debounce from "lodash/debounce";
 
 interface StepOneContentProps {
   onComplete: (data: StepQualificationOneFormValues) => void;
@@ -43,9 +44,13 @@ export default function StepOneContent({
   initialData,
   formRef,
 }: StepOneContentProps) {
+  const [isPending, startTransition] = useTransition();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { contact } = useContactStore();
   const { data: session } = useSession();
+  const [selectedCountry, setSelectedCountry] = useState<string>(
+    initialData?.country || ""
+  );
 
   const hubspotOwnerId = session?.user.hubspotOwnerId;
 
@@ -57,6 +62,9 @@ export default function StepOneContent({
       email: initialData?.email || contact?.email || "",
       phone: initialData?.phone || contact?.phone || "",
       zipCode: initialData?.zipCode || "",
+      country: initialData?.country || "",
+      state: initialData?.state || "",
+      city: initialData?.city || "",
       leadType: initialData?.leadType || "",
       hearAboutUs: initialData?.hearAboutUs || "",
       currentSituation: initialData?.currentSituation || [],
@@ -69,10 +77,107 @@ export default function StepOneContent({
     setIsSubmitting(true);
     try {
       await onComplete(data);
+    } catch (error) {
+      console.error("Error al guardar la información:", error);
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  const debouncedFnRef = useRef<((value: string) => void) | null>(null);
+
+  // Función para precargar datos basados en el código postal
+  const handleZipCodeChange = useCallback(
+    async (zipCode: string) => {
+      console.log("handleZipCodeChange llamado con:", zipCode);
+      if (!zipCode || zipCode.length < 3) {
+        return;
+      }
+
+      startTransition(async () => {
+        try {
+          console.log("Intentando obtener datos de ubicación...");
+          const isCanada = /[a-zA-Z]/.test(zipCode);
+          const country = isCanada ? "CA" : "US";
+          const postalCode = isCanada
+            ? zipCode.slice(0, 3).toUpperCase()
+            : zipCode;
+          const response = await fetch(
+            `https://api.zippopotam.us/${country}/${postalCode}`
+          );
+          if (!response.ok) {
+            console.error("Código postal inválido");
+            return;
+          }
+
+          const data = await response.json();
+          if (!data.places || !data.places[0]) {
+            console.error("No se encontró información para este código postal");
+            return;
+          }
+
+          console.log("Llegó a procesar los datos:", data.places[0]);
+          const placeName = data.places[0]["place name"];
+          const locationData = {
+            city: placeName.includes("(")
+              ? placeName.split("(")[0].trim()
+              : placeName,
+            state: data.places[0]["state"],
+            country: isCanada ? "Canada" : "USA",
+          };
+
+          form.setValue("country", locationData.country);
+          form.setValue("state", locationData.state);
+          form.setValue("city", locationData.city);
+          setSelectedCountry(locationData.country);
+        } catch (error) {
+          console.error("Error al buscar el código postal:", error);
+        }
+      });
+    },
+    [form]
+  );
+
+  // Crear versión con debounce de handleZipCodeChange
+  const debouncedZipCodeChange = useCallback(
+    (zipCode: string) => {
+      // Limpiar los campos siempre que el usuario escriba
+      form.setValue("country", "");
+      form.setValue("state", "");
+      form.setValue("city", "");
+      setSelectedCountry("");
+
+      if (zipCode.length < 3) {
+        if (debouncedFnRef.current) {
+          (debouncedFnRef.current as any).cancel?.();
+        }
+        return;
+      }
+
+      if (!debouncedFnRef.current) {
+        debouncedFnRef.current = debounce((value: string) => {
+          handleZipCodeChange(value);
+        }, 1000);
+      }
+      debouncedFnRef.current(zipCode);
+    },
+    [handleZipCodeChange, form]
+  );
+
+  // Observar cambios en el código postal
+  useEffect(() => {
+    const subscription = form.watch((value, { name }) => {
+      if (name === "zipCode") {
+        debouncedZipCodeChange(value.zipCode || "");
+      }
+    });
+    return () => {
+      subscription.unsubscribe();
+      if (debouncedFnRef.current) {
+        (debouncedFnRef.current as any).cancel?.();
+      }
+    };
+  }, [form, debouncedZipCodeChange]);
 
   return (
     <Form {...form}>
@@ -141,21 +246,73 @@ export default function StepOneContent({
           />
         </div>
 
+        <FormField
+          control={form.control}
+          name="zipCode"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Zip Code</FormLabel>
+              <FormControl>
+                <Input
+                  placeholder="Zip Code"
+                  {...field}
+                  onChange={(e) => {
+                    // Solo permitir letras y números
+                    const value = e.target.value.replace(/[^a-zA-Z0-9]/g, "");
+                    field.onChange(value);
+                  }}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         <div className="grid grid-cols-2 gap-4">
           <FormField
             control={form.control}
-            name="zipCode"
+            name="country"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Zip Code</FormLabel>
+                <FormLabel>Country</FormLabel>
                 <FormControl>
-                  <Input placeholder="Zip Code" {...field} />
+                  <Input value={field.value} readOnly className="bg-muted" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="state"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>
+                  {selectedCountry === "USA" ? "State" : "Province"}
+                </FormLabel>
+                <FormControl>
+                  <Input value={field.value} readOnly className="bg-muted" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
         </div>
+
+        <FormField
+          control={form.control}
+          name="city"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>City</FormLabel>
+              <FormControl>
+                <Input value={field.value} readOnly className="bg-muted" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         <div className="grid grid-cols-2 gap-4">
           <FormField

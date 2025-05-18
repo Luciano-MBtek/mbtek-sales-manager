@@ -32,6 +32,7 @@ import {
 } from "./handleStepComplete";
 
 import DisqualificationContent from "./DisqualificationContent";
+import StepSevenContent from "./StepSevenContent";
 
 // Modal component
 interface QualificationModalProps {
@@ -171,6 +172,15 @@ export function QualificationModal({
             onBantScoreChange={(score) => setCurrentBantTotal(score.total)}
           />
         );
+      case "step-seven":
+        return (
+          <StepSevenContent
+            key={`step-seven-${resetVersion}`}
+            onComplete={handleStepComplete}
+            initialData={data}
+            formRef={formRef}
+          />
+        );
 
       case "disqualified":
         return (
@@ -221,7 +231,7 @@ export function QualificationModal({
 
         {shouldShowStepIndicator && (
           <StepIndicator
-            steps={6}
+            steps={7}
             currentStep={getCurrentStepNumber(currentStep)}
             labels={stepLabels}
           />

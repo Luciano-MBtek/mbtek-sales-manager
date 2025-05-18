@@ -6,6 +6,7 @@ import {
   StepQualificationFiveFormValues,
   ReviewQualificationFormValues,
   disqualifiedLeadFormValues,
+  StepSevenQualificationFormValues,
 } from "@/schemas/leadQualificationSchema";
 import { create } from "zustand";
 import { persist, StateStorage, createJSONStorage } from "zustand/middleware";
@@ -30,6 +31,7 @@ export type QualificationStep =
   | "step-four"
   | "step-five"
   | "review"
+  | "step-seven"
   | "disqualified";
 
 // Step titles
@@ -40,6 +42,7 @@ export const stepTitles: Record<QualificationStep, string> = {
   "step-four": "Authority",
   "step-five": "Budget",
   review: "Review & Submit",
+  "step-seven": "Shipping",
   disqualified: "Disqualification Reason",
 };
 
@@ -50,7 +53,8 @@ export type QualificationData = StepQualificationOneFormValues &
   StepQualificationFourFormValues &
   StepQualificationFiveFormValues &
   ReviewQualificationFormValues &
-  disqualifiedLeadFormValues & {
+  disqualifiedLeadFormValues &
+  StepSevenQualificationFormValues & {
     contactId?: string;
   };
 
@@ -75,10 +79,10 @@ const initialData: QualificationData = {
   lastname: "",
   email: "",
   phone: "",
+  zipCode: "",
   country: "USA",
   state: "Alabama",
   city: "",
-  address: "",
   leadType: "",
   hearAboutUs: "",
   currentSituation: [],
@@ -106,6 +110,12 @@ const initialData: QualificationData = {
   hs_lead_status: "",
   disqualification_reason: "",
   disqualification_explanation: "",
+  shipping_address: "",
+  shipping_city: "",
+  shipping_state: "",
+  shipping_zip_code: "",
+  shipping_country: "",
+  shipping_notes: "",
 };
 
 const initialState = {

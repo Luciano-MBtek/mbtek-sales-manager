@@ -140,18 +140,6 @@ export const handleStepComplete = async (
         title: "Success",
         description: "Qualification process completed successfully",
       });
-
-      console.log("About to reset qualification store...");
-
-      // Reset store directly
-      if (resetData) {
-        resetData();
-        console.log("Store reset completed");
-      }
-
-      // Close modal
-      onClose();
-      return;
     }
 
     // Regular steps processing
@@ -182,8 +170,13 @@ export const handleStepComplete = async (
         });
       }
     } else {
-      // Close modal if no next step
-      onClose();
+      if (currentStep === "step-seven") {
+        if (resetData) {
+          resetData();
+          console.log("Store reset completed");
+        }
+        onClose();
+      }
     }
   } catch (error) {
     console.error("Error saving step data:", error);
@@ -324,6 +317,7 @@ export const getNextStep = (
     "step-four",
     "step-five",
     "review",
+    "step-seven",
   ];
 
   const currentIndex = stepSequence.indexOf(currentStep);
@@ -351,6 +345,7 @@ export const getPreviousStep = (
     "step-four",
     "step-five",
     "review",
+    "step-seven",
   ];
 
   const currentIndex = stepSequence.indexOf(currentStep);
@@ -369,6 +364,7 @@ export const stepLabels = [
   "Authority",
   "Budget",
   "Bant score",
+  "Shipping",
 ];
 
 export const getCurrentStepNumber = (
@@ -387,6 +383,8 @@ export const getCurrentStepNumber = (
       return 5;
     case "review":
       return 6;
+    case "step-seven":
+      return 7;
     default:
       return 1;
   }
