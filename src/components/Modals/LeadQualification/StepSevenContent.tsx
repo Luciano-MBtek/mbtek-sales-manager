@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -17,6 +17,7 @@ import {
   stepSevenQualificationSchema,
   StepSevenQualificationFormValues,
 } from "@/schemas/leadQualificationSchema";
+import { debounce } from "lodash";
 
 interface StepSevenContentProps {
   onComplete: (data: StepSevenQualificationFormValues) => void;
@@ -30,9 +31,11 @@ export default function StepSevenContent({
   formRef,
 }: StepSevenContentProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isPending, startTransition] = useTransition();
   const [selectedCountry, setSelectedCountry] = useState<string>(
     initialData?.shipping_country || initialData?.country || ""
   );
+  const debouncedFnRef = useRef<((value: string) => void) | null>(null);
 
   const form = useForm<StepSevenQualificationFormValues>({
     resolver: zodResolver(stepSevenQualificationSchema),
@@ -52,6 +55,8 @@ export default function StepSevenContent({
     setIsSubmitting(true);
     try {
       await onComplete(data);
+    } catch (error) {
+      console.error("Error al guardar la información:", error);
     } finally {
       setIsSubmitting(false);
     }
@@ -60,41 +65,92 @@ export default function StepSevenContent({
   // Función para precargar datos basados en el código postal
   const handleZipCodeChange = useCallback(
     async (zipCode: string) => {
-      if (zipCode.length >= 5) {
+      if (!zipCode || zipCode.length < 3) {
+        return;
+      }
+
+      startTransition(async () => {
         try {
-          // Aquí deberías hacer la llamada a tu API para obtener los datos del código postal
-          // Por ahora usamos un mock
-          const mockData = {
-            city: "Sample City",
-            state: "Sample test",
-            country: zipCode.length === 6 ? "Canada" : "USA",
-            address: "Sample Address",
+          const isCanada = /[a-zA-Z]/.test(zipCode);
+          const country = isCanada ? "CA" : "US";
+          const postalCode = isCanada
+            ? zipCode.slice(0, 3).toUpperCase()
+            : zipCode;
+          const response = await fetch(
+            `https://api.zippopotam.us/${country}/${postalCode}`
+          );
+          if (!response.ok) {
+            console.error("Código postal inválido");
+            return;
+          }
+
+          const data = await response.json();
+          if (!data.places || !data.places[0]) {
+            console.error("No se encontró información para este código postal");
+            return;
+          }
+
+          const placeName = data.places[0]["place name"];
+          const locationData = {
+            city: placeName.includes("(")
+              ? placeName.split("(")[0].trim()
+              : placeName,
+            state: data.places[0]["state"],
+            country: isCanada ? "Canada" : "USA",
           };
 
-          // Actualizar los campos del formulario
-          form.setValue("shipping_city", mockData.city);
-          form.setValue("shipping_state", mockData.state);
-          form.setValue("shipping_country", mockData.country);
-          form.setValue("shipping_address", mockData.address);
-          // Actualizar el estado del país
-          setSelectedCountry(mockData.country);
+          form.setValue("shipping_country", locationData.country);
+          form.setValue("shipping_state", locationData.state);
+          form.setValue("shipping_city", locationData.city);
+          setSelectedCountry(locationData.country);
         } catch (error) {
-          console.error("Error fetching zip code data:", error);
+          console.error("Error al buscar el código postal:", error);
         }
-      }
+      });
     },
     [form]
+  );
+
+  // Crear versión con debounce de handleZipCodeChange
+  const debouncedZipCodeChange = useCallback(
+    (zipCode: string) => {
+      // Limpiar los campos siempre que el usuario escriba
+      form.setValue("shipping_country", "");
+      form.setValue("shipping_state", "");
+      form.setValue("shipping_city", "");
+      setSelectedCountry("");
+
+      if (zipCode.length < 3) {
+        if (debouncedFnRef.current) {
+          (debouncedFnRef.current as any).cancel?.();
+        }
+        return;
+      }
+
+      if (!debouncedFnRef.current) {
+        debouncedFnRef.current = debounce((value: string) => {
+          handleZipCodeChange(value);
+        }, 1000);
+      }
+      debouncedFnRef.current(zipCode);
+    },
+    [handleZipCodeChange, form]
   );
 
   // Observar cambios en el código postal
   useEffect(() => {
     const subscription = form.watch((value, { name }) => {
       if (name === "shipping_zip_code") {
-        handleZipCodeChange(value.shipping_zip_code || "");
+        debouncedZipCodeChange(value.shipping_zip_code || "");
       }
     });
-    return () => subscription.unsubscribe();
-  }, [form, handleZipCodeChange]);
+    return () => {
+      subscription.unsubscribe();
+      if (debouncedFnRef.current) {
+        (debouncedFnRef.current as any).cancel?.();
+      }
+    };
+  }, [form, debouncedZipCodeChange]);
 
   // Efecto para cargar datos iniciales si hay un zipCode
   useEffect(() => {
@@ -110,21 +166,21 @@ export default function StepSevenContent({
         onSubmit={form.handleSubmit(handleSubmit)}
         className="space-y-4 py-4"
       >
-        <FormField
-          control={form.control}
-          name="shipping_zip_code"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Zip Code</FormLabel>
-              <FormControl>
-                <Input placeholder="Enter zip code" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
         <div className="grid grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="shipping_zip_code"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Zip Code</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter zip code" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
           <FormField
             control={form.control}
             name="shipping_country"
@@ -138,7 +194,9 @@ export default function StepSevenContent({
               </FormItem>
             )}
           />
+        </div>
 
+        <div className="grid grid-cols-2 gap-4">
           {(selectedCountry === "USA" || selectedCountry === "Canada") && (
             <FormField
               control={form.control}
@@ -156,6 +214,20 @@ export default function StepSevenContent({
               )}
             />
           )}
+
+          <FormField
+            control={form.control}
+            name="shipping_city"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>City</FormLabel>
+                <FormControl>
+                  <Input value={field.value} readOnly className="bg-muted" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </div>
 
         <FormField
@@ -166,20 +238,6 @@ export default function StepSevenContent({
               <FormLabel>Address</FormLabel>
               <FormControl>
                 <Input placeholder="Enter shipping address" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="shipping_city"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>City</FormLabel>
-              <FormControl>
-                <Input placeholder="Enter city" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
