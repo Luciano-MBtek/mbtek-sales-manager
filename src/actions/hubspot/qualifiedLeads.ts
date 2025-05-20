@@ -1,9 +1,62 @@
 "use server";
 
 import { getHubspotOwnerIdSession } from "@/actions/user/getHubspotOwnerId";
-import { getCurrentWeekDateRange } from "@/lib/utils";
+import {
+  getCurrentWeekDateRange,
+  getCurrentMonthDateRange,
+  getAllTimeDateRange,
+} from "@/lib/utils";
 
-async function leadsQualified(userId: string) {
+const leadQualificationProperties = [
+  // Step 1 - Basic contact info
+  "createdate",
+  "firstname",
+  "lastname",
+  "email",
+  "phone",
+  "country_us_ca",
+  "state_usa",
+  "province_territory",
+  "city",
+  "address",
+  "lead_type",
+  "hear_about_us",
+  "current_situation",
+  "looking_for",
+  "lead_owner_id",
+  "hs_lead_status",
+
+  // Step 2 - Project details
+  "building_type",
+  "project_type",
+  "current_system_type",
+  "system_age",
+  "main_project_goals",
+  "competitors_previously_contacted",
+  "competitors_name",
+
+  // Step 3 - Timing
+  "desired_timeframe",
+  "decisive_timing_factor",
+  "other_timing_factor",
+
+  // Step 4 - Decision making
+  "decision_making_status",
+  "property_type",
+  "type_of_decision",
+  "additional_comments",
+
+  // Step 5 - Budget
+  "defined_a_budget",
+  "budget_range",
+  "aware_of_available_financial_incentives",
+  "planned_financial_method",
+
+  // Final score and status
+  "bant_score",
+];
+
+async function leadsQualified(userId: string, timeRange: string = "weekly") {
   try {
     const apiKey = process.env.HUBSPOT_API_KEY;
 
@@ -11,8 +64,23 @@ async function leadsQualified(userId: string) {
       throw new Error("HUBSPOT_API_KEY is not defined");
     }
 
-    const { startDate: startDateISO, endDate: endDateISO } =
-      getCurrentWeekDateRange();
+    let startDateISO, endDateISO;
+
+    // Select date range based on timeRange parameter
+    if (timeRange === "monthly") {
+      const dateRange = getCurrentMonthDateRange();
+      startDateISO = dateRange.startDate;
+      endDateISO = dateRange.endDate;
+    } else if (timeRange === "allTime") {
+      const dateRange = getAllTimeDateRange();
+      startDateISO = dateRange.startDate;
+      endDateISO = dateRange.endDate;
+    } else {
+      // Default to weekly
+      const dateRange = getCurrentWeekDateRange();
+      startDateISO = dateRange.startDate;
+      endDateISO = dateRange.endDate;
+    }
 
     const response = await fetch(
       `https://api.hubapi.com/crm/v3/objects/contacts/search`,
@@ -23,19 +91,10 @@ async function leadsQualified(userId: string) {
           "Content-Type": "application/json",
         },
         next: {
-          revalidate: 250,
+          tags: ["qualify-lead"],
         },
         body: JSON.stringify({
-          properties: [
-            "createdate",
-            "firstname",
-            "lastname",
-            "email",
-            "phone",
-            "bant_score",
-            "country",
-            "looking_for",
-          ],
+          properties: leadQualificationProperties,
           filterGroups: [
             {
               filters: [
@@ -77,8 +136,8 @@ async function leadsQualified(userId: string) {
   }
 }
 
-export async function getQualifiedLeads() {
+export async function getQualifiedLeads(timeRange: string = "weekly") {
   const userId = await getHubspotOwnerIdSession();
-  // const managerIdTest = "719106449"; // Byron
-  return leadsQualified(userId);
+  //const managerIdTest = "719106449"; // Byron
+  return leadsQualified(userId, timeRange);
 }

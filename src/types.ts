@@ -113,6 +113,61 @@ export type PropertyDetail = {
   type: string;
 };
 
+export interface LeadProps {
+  id: string;
+  properties: {
+    createdate: string;
+    firstname: string;
+    lastname: string;
+    email: string | null;
+    phone: string | null;
+    country_us_ca: string | null;
+    state_usa: string | null;
+    province_territory: string | null;
+    city: string | null;
+    address: string | null;
+    lead_type: string | null;
+    hear_about_us: string | null;
+    current_situation: string | null;
+    looking_for: string;
+    lead_owner_id: string | null;
+    hs_lead_status: string | null;
+    // Step 2 - Project details
+    building_type: string | null;
+    project_type: string | null;
+    current_system_type: string | null;
+    system_age: string | null;
+    main_project_goals: string | null;
+    competitors_previously_contacted: string | null;
+    competitors_name: string | null;
+
+    // Step 3 - Timing
+    desired_timeframe: string | null;
+    decisive_timing_factor: string | null;
+    other_timing_factor: string | null;
+
+    // Step 4 - Decision making
+    decision_making_status: string | null;
+    property_type: string | null;
+    type_of_decision: string | null;
+    additional_comments: string | null;
+
+    // Step 5 - Budget
+    defined_a_budget: string | null;
+    budget_range: string | null;
+    aware_of_available_financial_incentives: string | null;
+    planned_financial_method: string | null;
+
+    bant_score: string | null;
+
+    // default properties
+    lastmodifieddate: string | null;
+    hs_object_id: string;
+  };
+  createdAt: string;
+  updatedAt: string;
+  archived: boolean;
+}
 export interface FormErrors {
   [key: string]: string | undefined;
 }

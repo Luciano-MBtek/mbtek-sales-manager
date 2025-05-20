@@ -1,12 +1,24 @@
 import { Suspense } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { LeadsQualifiedContent } from "./LeadQualificationContent";
+import { getQualifiedLeads } from "@/actions/hubspot/qualifiedLeads";
 
-export function LeadsQualifiedList() {
+type SearchParams = { timeRange?: "weekly" | "monthly" | "allTime" };
+
+export async function LeadsQualifiedList({
+  searchParams,
+}: {
+  searchParams: SearchParams;
+}) {
+  const timeRange = (searchParams.timeRange ?? "monthly") as
+    | "weekly"
+    | "monthly"
+    | "allTime";
+  const leads = await getQualifiedLeads(timeRange);
   return (
     <Suspense fallback={<LeadsQualifiedSkeleton />}>
-      <LeadsQualifiedContent />
+      <LeadsQualifiedContent initialLeads={leads} timeRange={timeRange} />
     </Suspense>
   );
 }
