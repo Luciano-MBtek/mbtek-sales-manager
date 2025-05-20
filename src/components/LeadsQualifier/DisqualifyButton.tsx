@@ -1,8 +1,7 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { LeadProps } from "@/components/LeadsQualifier/LeadQualificationContent";
 import { useToast } from "@/components/ui/use-toast";
 import { createDisqualifyProperties } from "@/lib/utils";
 import { patchContactProperties } from "@/actions/patchContactProperties";
@@ -31,7 +30,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { disqualificationReason } from "@/types";
+import { disqualificationReason, LeadProps } from "@/types";
 import {
   disqualifiedLeadSchema,
   type disqualifiedLeadFormValues,
