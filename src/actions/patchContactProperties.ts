@@ -38,6 +38,9 @@ export async function patchContactProperties(
 
     revalidatePath(`/contacts/${id}/properties`);
 
+    revalidatePath("/active-qualifications");
+    revalidatePath("qualify-lead");
+
     return data;
   } catch (error) {
     console.error("Error updating contact property:", error);

@@ -27,11 +27,17 @@ export default function PhoneInputForm({
 }: PhoneInputFormProps) {
   const normalizedValue = useMemo(() => {
     if (!value) return "";
-    // If it's already a valid E.164 format (starts with +), leave it as is
-    if (value.startsWith("+")) return value;
+    // If it's already a valid E.164 format (starts with +), clean it
+    if (value.startsWith("+")) {
+      // Remove all spaces, dashes and other non-digit characters except the leading +
+      return "+" + value.slice(1).replace(/\D/g, "");
+    }
     // If it starts with a number (and not with +), assume it's a number without the + prefix
-    // By default, use the US country code (+1)
     if (/^\d+$/.test(value)) return `+${value}`;
+
+    // For any other format, try to extract just the digits
+    const digits = value.replace(/\D/g, "");
+    if (digits) return `+${digits}`;
 
     return value;
   }, [value]);
