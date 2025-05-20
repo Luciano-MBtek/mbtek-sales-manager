@@ -9,6 +9,7 @@ import {
   BotMessageSquare,
   CircleUserRound,
   Calendar,
+  ListTodo,
 } from "lucide-react";
 import Shopify from "./Icons/Shopify";
 
@@ -36,6 +37,13 @@ const items = [
     title: "Overview",
     url: "/",
     icon: Home,
+  },
+  {
+    title: "Active Qualifications",
+    url: "/active-qualifications",
+    icon: ListTodo,
+    requireAuth: true,
+    requireRole: ["owner", "lead_agent"],
   },
   {
     title: "Search Contacts",

@@ -19,6 +19,7 @@ const ROUTES = {
     PRODUCTS: "/products",
     RESOURCES: "/resources/",
     AI: "/agent-ai",
+    ACTIVE_QUALIFICATIONS: "/active-qualifications",
   },
 } as const;
 
@@ -34,6 +35,7 @@ const ACCESS_LEVELS = {
     ROUTES.PROTECTED.MY_CONTACTS,
     ROUTES.PROTECTED.DEALS,
     ROUTES.PROTECTED.AI,
+    ROUTES.PROTECTED.ACTIVE_QUALIFICATIONS,
   ],
   admin: [
     ROUTES.PROTECTED.CONTACTS,
@@ -71,6 +73,7 @@ const ACCESS_LEVELS = {
     ROUTES.PROTECTED.MY_CONTACTS,
     ROUTES.PROTECTED.DEALS,
     ROUTES.PROTECTED.AI,
+    ROUTES.PROTECTED.ACTIVE_QUALIFICATIONS,
   ],
 } as const;
 

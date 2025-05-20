@@ -50,6 +50,63 @@ export function getCurrentWeekDateRange(): {
   return { startDate: startDateISO, endDate: endDateISO };
 }
 
+export function getCurrentMonthDateRange(): {
+  startDate: string;
+  endDate: string;
+} {
+  const now = new Date();
+
+  // First day of current month
+  const startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+  startDate.setHours(0, 0, 0, 0);
+
+  // Current date as end date
+  const endDate = new Date();
+  endDate.setHours(23, 59, 59, 999);
+
+  // Format dates to ISO strings
+  const startDateISO = startDate.toISOString();
+  const endDateISO = endDate.toISOString();
+
+  return { startDate: startDateISO, endDate: endDateISO };
+}
+
+export function getAllTimeDateRange(): {
+  startDate: string;
+  endDate: string;
+} {
+  // Use a very old date for start date (e.g., 10 years ago)
+  const startDate = new Date();
+  startDate.setFullYear(startDate.getFullYear() - 10);
+  startDate.setHours(0, 0, 0, 0);
+
+  // Current date as end date
+  const endDate = new Date();
+  endDate.setHours(23, 59, 59, 999);
+
+  // Format dates to ISO strings
+  const startDateISO = startDate.toISOString();
+  const endDateISO = endDate.toISOString();
+
+  return { startDate: startDateISO, endDate: endDateISO };
+}
+
+export function getDateRangeByType(type: string): {
+  startDate: string;
+  endDate: string;
+} {
+  switch (type) {
+    case "weekly":
+      return getCurrentWeekDateRange();
+    case "monthly":
+      return getCurrentMonthDateRange();
+    case "allTime":
+      return getAllTimeDateRange();
+    default:
+      return getCurrentWeekDateRange();
+  }
+}
+
 export const createContactProperties = (
   contact: StepQualificationOneFormValues,
   ownerId?: string

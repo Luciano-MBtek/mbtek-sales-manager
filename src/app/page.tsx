@@ -31,9 +31,6 @@ async function HomePage() {
           <div className="w-[250px]">
             <LeadCountCard />
           </div>
-          <div className="w-full pr-4">
-            <LeadsQualifiedList />
-          </div>
         </div>
       )}
     </div>

@@ -1,102 +1,65 @@
+// components/LeadsQualifier/LeadQualificationContent.tsx  (CLIENT component)
 "use client";
-import { getQualifiedLeads } from "@/actions/hubspot/qualifiedLeads";
-import { useEffect, useState } from "react";
-import { LeadsQualifiedSkeleton } from "./LeadsQualifiedList";
+import { useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { LeadCard } from "./LeadQualificationCard";
 import { Button } from "../ui/button";
 import {
   ArrowDown,
   ArrowUp,
-  BarChart4,
   BoxIcon,
   Calendar,
-  FilesIcon,
   LayersIcon,
-  Mail,
-  Phone,
-  User,
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { formatDateWithDay } from "@/lib/utils";
 import { ContactModal } from "../Modals/Contact/ContactModal";
+import { LeadProps } from "@/types";
 
-interface LeadProps {
-  id: string;
-  properties: {
-    firstname: string;
-    lastname: string;
-    email: string | null;
-    phone: string | null;
-    bant_score: string | null;
-    country: string | null;
-    createdate: string;
-    looking_for: string; // complete_system or single_products_quote
-  };
-  createdAt: string;
-  updatedAt: string;
-  archived: boolean;
-}
+export type TimeRange = "weekly" | "monthly" | "allTime";
 
-export function LeadsQualifiedContent() {
-  const [leads, setLeads] = useState<LeadProps[]>([]);
+export function LeadsQualifiedContent({
+  initialLeads,
+  timeRange,
+}: {
+  initialLeads: LeadProps[];
+  timeRange: TimeRange;
+}) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
   const [filter, setFilter] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc"); // Default sort newest first
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Fetch data on component mount
-  useEffect(() => {
-    async function fetchLeads() {
-      try {
-        const qualifiedLeads = await getQualifiedLeads();
-        setLeads(qualifiedLeads);
-        setIsLoading(false);
-      } catch (error) {
-        console.error("Error fetching leads:", error);
-        setIsLoading(false);
-      }
-    }
+  const leadsInView = useMemo(() => {
+    const base =
+      filter === null
+        ? initialLeads
+        : initialLeads.filter((l) => l.properties.looking_for === filter);
 
-    fetchLeads();
-  }, []);
+    return base.sort((a, b) => {
+      const dateA = Date.parse(a.properties.createdate);
+      const dateB = Date.parse(b.properties.createdate);
+      return sortOrder === "asc" ? dateA - dateB : dateB - dateA;
+    });
+  }, [initialLeads, filter, sortOrder]);
 
-  // Toggle sort order
-  const toggleSortOrder = () => {
-    setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+  const changeTimeRange = (newRange: TimeRange) => {
+    const qs = new URLSearchParams(searchParams);
+    qs.set("timeRange", newRange);
+    router.replace(`/active-qualifications?${qs.toString()}`);
   };
 
-  // Filter leads based on selected filter
-  const filteredLeads = filter
-    ? leads.filter((lead) => lead.properties.looking_for === filter)
-    : leads;
-
-  // Sort leads by createdate
-  const sortedLeads = [...filteredLeads].sort((a, b) => {
-    const dateA = new Date(a.properties.createdate).getTime();
-    const dateB = new Date(b.properties.createdate).getTime();
-    return sortOrder === "asc" ? dateA - dateB : dateB - dateA;
-  });
-
-  const handleOpenModal = (lead: LeadProps) => {
-    setSelectedLeadId(lead.id);
-    setIsModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setSelectedLeadId(null);
-  };
-
-  if (isLoading) {
-    return <LeadsQualifiedSkeleton />;
-  }
+  const toggleSortOrder = () =>
+    setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
 
   return (
     <div className="space-y-4 w-full">
+      {/* filters */}
       <div className="flex justify-between">
         <div className="flex gap-2">
           <Button
-            variant={filter === null ? "default" : "outline"}
+            variant={filter ? "outline" : "default"}
             onClick={() => setFilter(null)}
           >
             All
@@ -106,42 +69,58 @@ export function LeadsQualifiedContent() {
             onClick={() => setFilter("complete_system")}
             className="flex items-center gap-2"
           >
-            <LayersIcon className="h-4 w-4" />
-            Complete System
+            <LayersIcon className="h-4 w-4" /> Complete System
           </Button>
           <Button
             variant={filter === "single_products_quote" ? "default" : "outline"}
             onClick={() => setFilter("single_products_quote")}
             className="flex items-center gap-2"
           >
-            <BoxIcon className="h-4 w-4" />
-            Single Product
+            <BoxIcon className="h-4 w-4" /> Single Product
           </Button>
         </div>
-        <Button
-          variant="outline"
-          onClick={toggleSortOrder}
-          className="flex items-center gap-2"
-        >
-          {sortOrder === "asc" ? (
-            <>
-              <ArrowUp className="h-4 w-4" /> Oldest First
-            </>
-          ) : (
-            <>
-              <ArrowDown className="h-4 w-4" /> Newest First
-            </>
-          )}
-        </Button>
+
+        <div className="flex gap-2">
+          {/* time-range buttons */}
+          {(["weekly", "monthly", "allTime"] as const).map((rng) => (
+            <Button
+              key={rng}
+              variant={timeRange === rng ? "default" : "outline"}
+              onClick={() => changeTimeRange(rng)}
+              className="flex items-center gap-2"
+            >
+              <Calendar className="h-4 w-4" />{" "}
+              {rng[0].toUpperCase() + rng.slice(1)}
+            </Button>
+          ))}
+
+          {/* sort */}
+          <Button
+            variant="outline"
+            onClick={toggleSortOrder}
+            className="flex items-center gap-2 ml-8"
+          >
+            {sortOrder === "asc" ? (
+              <ArrowUp className="h-4 w-4" />
+            ) : (
+              <ArrowDown className="h-4 w-4" />
+            )}
+            {sortOrder === "asc" ? "Oldest First" : "Newest First"}
+          </Button>
+        </div>
       </div>
 
+      {/* list */}
       <div className="flex flex-col w-full gap-2">
-        {sortedLeads.length > 0 ? (
-          sortedLeads.map((lead: LeadProps) => (
+        {leadsInView.length ? (
+          leadsInView.map((lead) => (
             <LeadCard
               key={lead.id}
               lead={lead}
-              onClick={() => handleOpenModal(lead)}
+              onClick={() => {
+                setSelectedLeadId(lead.id);
+                setIsModalOpen(true);
+              }}
             />
           ))
         ) : (
@@ -151,91 +130,12 @@ export function LeadsQualifiedContent() {
         )}
       </div>
 
+      {/* modal */}
       <ContactModal
         contactId={selectedLeadId}
         isOpen={isModalOpen}
-        onClose={handleCloseModal}
+        onClose={() => setIsModalOpen(false)}
       />
     </div>
-  );
-}
-
-function LeadCard({ lead, onClick }: { lead: LeadProps; onClick: () => void }) {
-  // Parse BANT score if available
-  const bantScore = lead.properties.bant_score
-    ? JSON.parse(lead.properties.bant_score)
-    : null;
-
-  const totalScore = bantScore?.total || 0;
-  const scoreColor = totalScore >= 75 ? "text-green-600" : "text-amber-600";
-
-  return (
-    <Card
-      className="border-slate-200 hover:border-slate-300 transition-all cursor-pointer"
-      onClick={onClick}
-    >
-      <CardHeader className="pb-2">
-        <div className="flex justify-between items-center">
-          <CardTitle className="text-lg flex items-center gap-2">
-            <User className="h-4 w-4 text-slate-500" />
-            {lead.properties.firstname} {lead.properties.lastname}
-          </CardTitle>
-          <div className="flex items-center gap-2 text-sm text-slate-500">
-            <Calendar className="h-4 w-4" />
-            {formatDateWithDay(lead.properties.createdate)}
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-2">
-        <div className="flex justify-between">
-          <div>
-            {lead.properties.email && (
-              <div className="flex items-center gap-2 text-sm">
-                <Mail className="h-4 w-4 text-slate-500" />
-                <span className="text-slate-700 truncate">
-                  {lead.properties.email}
-                </span>
-              </div>
-            )}
-
-            {lead.properties.phone && (
-              <div className="flex items-center gap-2 text-sm">
-                <Phone className="h-4 w-4 text-slate-500" />
-                <span className="text-slate-700">{lead.properties.phone}</span>
-              </div>
-            )}
-
-            {bantScore && (
-              <div className="flex items-center gap-2 text-sm">
-                <BarChart4 className="h-4 w-4 text-slate-500" />
-                <span className={`font-medium ${scoreColor}`}>
-                  BANT Score: {bantScore.total}%
-                </span>
-              </div>
-            )}
-          </div>
-          <div>
-            {lead.properties.looking_for && (
-              <div className="flex items-center gap-2 text-sm">
-                {lead.properties.looking_for === "complete_system" ? (
-                  <LayersIcon className="h-4 w-4 text-slate-500" />
-                ) : lead.properties.looking_for === "single_products_quote" ? (
-                  <BoxIcon className="h-4 w-4 text-slate-500" />
-                ) : (
-                  <FilesIcon className="h-4 w-4 text-slate-500" />
-                )}
-                <p className="font-bold">
-                  {lead.properties.looking_for === "complete_system"
-                    ? "Complete System"
-                    : lead.properties.looking_for === "single_products_quote"
-                      ? "Single Product"
-                      : lead.properties.looking_for}
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
-      </CardContent>
-    </Card>
   );
 }
