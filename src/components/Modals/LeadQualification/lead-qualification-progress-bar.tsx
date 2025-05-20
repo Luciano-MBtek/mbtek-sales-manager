@@ -31,7 +31,6 @@ export function LeadQualificationProgress({
         {/* Steps positioned on top of the progress bar */}
         <div className="absolute top-4 left-0 w-full flex justify-between transform -translate-y-1/2">
           {steps.map((step, index) => {
-            // Determine the icon and styling based on step status
             const isCompleted = currentStep > step.step;
             const isCurrent = currentStep === step.step;
             const isLast = index === steps.length - 1;
@@ -41,7 +40,6 @@ export function LeadQualificationProgress({
                 key={index}
                 className="flex flex-col items-center gap-2"
                 style={{
-                  // Position each step evenly along the progress bar
                   position: "relative",
                   left:
                     index === 0 ? "0%" : index === steps.length - 1 ? "0%" : "",

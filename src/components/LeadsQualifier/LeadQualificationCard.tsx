@@ -16,11 +16,11 @@ import {
   qualificationSteps,
 } from "./leadQualificationProgress";
 import { formatDateWithDay } from "@/lib/utils";
-import { LeadProps } from "./LeadQualificationContent";
 import { LeadQualificationProgress } from "../Modals/LeadQualification/lead-qualification-progress-bar";
 
 import QualificationButton from "../Modals/LeadQualification/QualificationButton";
 import DisqualifyButton from "./DisqualifyButton";
+import { LeadProps } from "@/types";
 
 export function LeadCard({
   lead,

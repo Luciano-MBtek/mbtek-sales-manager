@@ -1,16 +1,16 @@
-// src/components/QualificationButton.tsx
 "use client";
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { QualificationModal } from "@/components/Modals/LeadQualification/QualificationModal";
-import { LeadProps } from "@/components/LeadsQualifier/LeadQualificationContent";
+
 import {
   QualificationData,
   QualificationStep,
   useQualificationStore,
 } from "@/store/qualification-store";
 import { getCurrentQualificationStep } from "@/components/LeadsQualifier/leadQualificationProgress";
+import { LeadProps } from "@/types";
 
 interface QualificationButtonProps {
   lead?: LeadProps;
@@ -35,18 +35,13 @@ export default function QualificationButton({
   const { updateData, setStep, resetData } = useQualificationStore();
 
   const handleOpenModal = () => {
-    // If there's lead data, prepare the qualification store
     if (lead) {
-      // Reset data first to ensure we have a clean state
       resetData();
 
-      // Map lead properties to QualificationData format
       const leadData = mapLeadToQualificationData(lead);
 
-      // Update the store with lead data
       updateData(leadData);
 
-      // Set the appropriate step based on progress
       const step = determineStartingStep(lead.properties);
       setStep(step);
     }
@@ -67,7 +62,6 @@ export default function QualificationButton({
   );
 }
 
-// Helper function to map lead properties to qualification data format
 function mapLeadToQualificationData(lead: {
   id: string;
   properties: Record<string, any>;
@@ -80,12 +74,10 @@ function mapLeadToQualificationData(lead: {
     if (!value) return [];
     if (Array.isArray(value)) return value;
 
-    // If it's a JSON string, try to parse it
     try {
       const parsed = JSON.parse(value);
       return Array.isArray(parsed) ? parsed : [value];
     } catch (e) {
-      // If not JSON, it might be semicolon-separated
       return value.includes(";") ? value.split(";") : [value];
     }
   };
@@ -133,11 +125,9 @@ function mapLeadToQualificationData(lead: {
   };
 }
 
-// Helper function to determine starting step based on progress
 function determineStartingStep(
   properties: Record<string, any>
 ): QualificationStep {
-  // If we have a BANT score, start at review
   if (properties.bant_score) {
     return "review";
   }
@@ -154,11 +144,9 @@ function determineStartingStep(
 
   const currentStepNumber = getCurrentQualificationStep(properties);
 
-  // If the step is completed, move to the next step, otherwise stay on the current step
   if (currentStepNumber >= 1 && currentStepNumber <= 6) {
     return stepMap[currentStepNumber];
   }
 
-  // Default to step one
   return "step-one";
 }
