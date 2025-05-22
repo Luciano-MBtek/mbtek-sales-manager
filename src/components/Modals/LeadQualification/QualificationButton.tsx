@@ -84,6 +84,7 @@ function mapLeadToQualificationData(lead: {
 
   return {
     contactId: lead.id,
+    ownerId: props.hubspot_owner_id,
     name: props.firstname || "",
     lastname: props.lastname || "",
     email: props.email || "",
@@ -140,6 +141,7 @@ function determineStartingStep(
     4: "step-four",
     5: "step-five",
     6: "review",
+    7: "meeting",
   };
 
   const currentStepNumber = getCurrentQualificationStep(properties);

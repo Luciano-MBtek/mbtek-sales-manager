@@ -13,6 +13,7 @@ interface CreateOrModifyReturnType {
   errorMsg?: string;
   success?: boolean;
   contactId?: string;
+  ownerId?: string;
 }
 
 export const createOrModify = async (
@@ -79,6 +80,7 @@ export const createOrModify = async (
       return {
         success: true,
         contactId: contactExist.id,
+        ownerId: contactExist.hubspot_owner_id,
       };
     }
 

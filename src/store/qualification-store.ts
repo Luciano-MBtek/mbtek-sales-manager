@@ -30,6 +30,7 @@ export type QualificationStep =
   | "step-four"
   | "step-five"
   | "review"
+  | "meeting"
   | "disqualified";
 
 // Step titles
@@ -40,6 +41,7 @@ export const stepTitles: Record<QualificationStep, string> = {
   "step-four": "Authority",
   "step-five": "Budget",
   review: "Review & Submit",
+  meeting: "Schedule a meeting",
   disqualified: "Disqualification Reason",
 };
 
@@ -52,6 +54,7 @@ export type QualificationData = StepQualificationOneFormValues &
   ReviewQualificationFormValues &
   disqualifiedLeadFormValues & {
     contactId?: string;
+    ownerId?: string;
   };
 
 export interface QualificationStore {
@@ -106,6 +109,7 @@ const initialData: QualificationData = {
   hs_lead_status: "",
   disqualification_reason: "",
   disqualification_explanation: "",
+  ownerId: undefined,
 };
 
 const initialState = {
