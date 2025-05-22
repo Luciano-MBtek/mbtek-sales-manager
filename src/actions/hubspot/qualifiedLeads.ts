@@ -25,6 +25,7 @@ const leadQualificationProperties = [
   "looking_for",
   "lead_owner_id",
   "hs_lead_status",
+  "hubspot_owner_id",
 
   // Step 2 - Project details
   "building_type",
@@ -138,6 +139,6 @@ async function leadsQualified(userId: string, timeRange: string = "weekly") {
 
 export async function getQualifiedLeads(timeRange: string = "weekly") {
   const userId = await getHubspotOwnerIdSession();
-  //const managerIdTest = "719106449"; // Byron
+  // const managerIdTest = "719106449"; // Byron
   return leadsQualified(userId, timeRange);
 }

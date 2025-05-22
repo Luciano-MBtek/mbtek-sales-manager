@@ -132,6 +132,7 @@ export interface LeadProps {
     looking_for: string;
     lead_owner_id: string | null;
     hs_lead_status: string | null;
+    hubspot_owner_id: string | null;
     // Step 2 - Project details
     building_type: string | null;
     project_type: string | null;
@@ -159,6 +160,8 @@ export interface LeadProps {
     planned_financial_method: string | null;
 
     bant_score: string | null;
+
+    // step 6 - meeting:
 
     // default properties
     lastmodifieddate: string | null;

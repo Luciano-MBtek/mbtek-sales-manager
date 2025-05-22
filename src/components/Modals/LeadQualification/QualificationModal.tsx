@@ -7,6 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import StepOneContent from "./StepOneContent";
@@ -34,6 +35,9 @@ import {
 
 import DisqualificationContent from "./DisqualificationContent";
 import StepSevenContent from "./StepSevenContent";
+import MeetingModal from "./MeetingModal";
+import { MeetingLink } from "@/actions/hubspot/meetings/getMeetingsLink";
+import { useMeetingLink } from "@/hooks/useMeetingLink";
 
 // Modal component
 interface QualificationModalProps {
@@ -56,10 +60,13 @@ export function QualificationModal({
     previousStep,
     setHasChanges,
     resetData,
-    resetVersion, // Use the reset version
+    resetVersion,
   } = useQualificationStore();
   const [isSaving, setIsSaving] = useState(false);
   const [currentBantTotal, setCurrentBantTotal] = useState<number | null>(null);
+  const { meetingLink, isLoading: isMeetingLinkLoading } = useMeetingLink(
+    data.ownerId
+  );
 
   const { toast } = useToast();
   const router = useRouter();
@@ -89,11 +96,56 @@ export function QualificationModal({
   };
 
   const handleStepComplete = async (stepData: Partial<QualificationData>) => {
+    console.log("STEP Meeting DATA:", stepData);
+
+    /* 
+      {
+    "meetingBookSucceeded": true,
+    "meetingsPayload": {
+        "linkType": "PERSONAL_LINK",
+        "offline": false,
+        "userSlug": "luciano-emilio",
+        "formGuid": "c92db5fd-0d7d-4b91-93f4-2fe071611c2b",
+        "bookingResponse": {
+            "event": {
+                "bookingTimeConflictStatus": false,
+                "dateString": "2025-05-22",
+                "dateTime": 1747927800000,
+                "duration": 900000,
+                "formFields": []
+            },
+            "postResponse": {
+                "timerange": {
+                    "start": 1747927800000,
+                    "end": 1747928700000
+                },
+                "organizer": {
+                    "firstName": "Luciano Emilio",
+                    "lastName": "Pérez",
+                    "email": "",
+                    "fullName": "",
+                    "name": "Luciano Emilio Pérez",
+                    "userId": null
+                },
+                "bookedOffline": false,
+                "contact": {
+                    "firstName": "Luciano",
+                    "lastName": "Emilio Perez",
+                    "email": "info.luciano.design@gmail.com",
+                    "fullName": "",
+                    "name": "Luciano Emilio Perez",
+                    "userId": null
+                }
+            }
+        },
+        "isPaidMeeting": false
+    }
+}
+    */
     await handleStepCompleteFunc(stepData, currentStep, stepDependencies);
   };
 
   const handleDisqualify = () => {
-    console.log("DISQUALIFY BUTTON CLICKED");
     if (!data.contactId) {
       toast({
         title: "Error",
@@ -102,13 +154,11 @@ export function QualificationModal({
       });
       return;
     }
-    console.log("SETTING PREVIOUS STEP:", currentStep);
+
     setPreviousStep(currentStep);
 
-    console.log("CHANGING TO DISQUALIFIED STEP");
     setStep("disqualified");
 
-    console.log("FORCING CHANGES FLAG");
     setHasChanges(true);
   };
 
@@ -239,6 +289,20 @@ export function QualificationModal({
           />
         );
 
+      case "meeting":
+        return (
+          <MeetingModal
+            key={`meeting-${resetVersion}`}
+            onComplete={handleStepComplete}
+            //formRef={formRef}
+            meetingLink={meetingLink ?? ({} as MeetingLink)}
+            contactEmail={data.email}
+            contactFirstName={data.name}
+            contactLastName={data.lastname}
+          />
+        );
+
+
       case "disqualified":
         return (
           <DisqualificationContent
@@ -296,7 +360,7 @@ export function QualificationModal({
 
         {shouldShowStepIndicator && (
           <StepIndicator
-            steps={7}
+            steps={8}
             currentStep={getCurrentStepNumber(currentStep)}
             labels={stepLabels}
           />
@@ -304,7 +368,7 @@ export function QualificationModal({
 
         {renderStepContent()}
 
-        <div className="mt-4 flex justify-between">
+        <div className="mt-4 flex justify-between  bg-white pb-4">
           <div className="flex gap-2">
             {/* Only show disqualify button after step one, if we have a contact ID, and we're not in disqualification step */}
             {currentStep !== "step-one" &&

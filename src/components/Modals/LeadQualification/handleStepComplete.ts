@@ -140,6 +140,18 @@ export const handleStepComplete = async (
         title: "Success",
         description: "Qualification process completed successfully",
       });
+
+      console.log("About to reset qualification store...");
+
+      // Reset store directly
+      /*  if (resetData) {
+        resetData();
+        console.log("Store reset completed");
+      } */
+
+      // Close modal
+      // onClose();
+      //  return;
     }
 
     // Regular steps processing
@@ -211,8 +223,10 @@ export const processStepData = async (
 
       const contactId = newContact.contactId;
 
+      const ownerId = newContact.ownerId;
+
       if (contactId) {
-        updateData({ contactId: contactId });
+        updateData({ contactId: contactId, ownerId: ownerId });
       }
 
       // Handle redirect for single products quote
@@ -276,21 +290,21 @@ export const processStepData = async (
 
     case "review":
       if (!data.contactId) throw new Error("Contact ID not found");
-      await patchContactProperties(
+      /*  await patchContactProperties(
         data.contactId,
         createContactPropertiesReview(stepData as ReviewQualificationFormValues)
-      );
+      ); */
 
       const contactOwnerId = await GetContactOwner(data.contactId);
 
-      // await createCompleteDeal(
-      //   data.contactId,
-      //   data.name,
-      //   data.lastname,
-      //   contactOwnerId
-      // );
+      /*await createCompleteDeal(
+        data.contactId,
+        data.name,
+        data.lastname,
+        contactOwnerId
+      );
 
-      // await triggerLeadQualificationWebhook(data.contactId, data.lookingFor);
+      await triggerLeadQualificationWebhook(data.contactId, data.lookingFor); */
 
       // send the data via webhook to lead qualified complete system
       break;
@@ -317,6 +331,7 @@ export const getNextStep = (
     "step-four",
     "step-five",
     "review",
+    "meeting",
     "step-seven",
   ];
 
@@ -345,6 +360,7 @@ export const getPreviousStep = (
     "step-four",
     "step-five",
     "review",
+    "meeting",
     "step-seven",
   ];
 
@@ -364,6 +380,7 @@ export const stepLabels = [
   "Authority",
   "Budget",
   "Bant score",
+  "Meeting",
   "Shipping",
 ];
 
@@ -383,6 +400,8 @@ export const getCurrentStepNumber = (
       return 5;
     case "review":
       return 6;
+    case "meeting":
+      return 7;
     case "step-seven":
       return 7;
     default:

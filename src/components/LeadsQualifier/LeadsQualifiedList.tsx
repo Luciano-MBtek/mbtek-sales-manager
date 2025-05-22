@@ -3,6 +3,9 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { LeadsQualifiedContent } from "./LeadQualificationContent";
 import { getQualifiedLeads } from "@/actions/hubspot/qualifiedLeads";
+import { LeadProps } from "@/types";
+import { getContactMeetings } from "@/actions/hubspot/meetings/getContactMeetings";
+import { getMeetingDetails } from "@/actions/hubspot/meetings/getMeetingDetails";
 
 type SearchParams = { timeRange?: "weekly" | "monthly" | "allTime" };
 
@@ -16,6 +19,18 @@ export async function LeadsQualifiedList({
     | "monthly"
     | "allTime";
   const leads = await getQualifiedLeads(timeRange);
+
+  /*   const leadsIds = leads.map((lead: LeadProps) => lead.id);
+
+  console.log("LEADS:", leadsIds);
+
+ 
+  const meetingsAssociations = await Promise.all(
+    leadsIds.map((leadId) => getContactMeetings(leadId))
+  );
+
+  console.log("MEETINGS ASSOCIATIONS:", meetingsAssociations); */
+
   return (
     <Suspense fallback={<LeadsQualifiedSkeleton />}>
       <LeadsQualifiedContent initialLeads={leads} timeRange={timeRange} />
