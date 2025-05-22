@@ -88,6 +88,7 @@ function mapLeadToQualificationData(lead: {
     lastname: props.lastname || "",
     email: props.email || "",
     phone: props.phone || "",
+    zipCode: props.zip_code || "",
     country: props.country_us_ca || "USA",
     state: props.state_usa || "Alabama",
     province: props.province_territory || "",
@@ -122,6 +123,12 @@ function mapLeadToQualificationData(lead: {
     hs_lead_status: props.hs_lead_status || "",
     disqualification_reason: props.disqualification_reason || "",
     disqualification_explanation: props.disqualification_explanation || "",
+    shipping_address: props.shipping_address || "",
+    shipping_city: props.shipping_city || "",
+    shipping_state: props.shipping_state || "",
+    shipping_zip_code: props.shipping_zip_code || "",
+    shipping_country: props.shipping_country || "",
+    shipping_notes: props.shipping_notes || "",
   };
 }
 

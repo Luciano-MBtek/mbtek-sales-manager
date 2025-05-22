@@ -51,6 +51,7 @@ export default function StepOneContent({
   const [selectedCountry, setSelectedCountry] = useState<string>(
     initialData?.country || ""
   );
+  const [stateFullName, setStateFullName] = useState<string>("");
 
   const hubspotOwnerId = session?.user.hubspotOwnerId;
 
@@ -122,14 +123,22 @@ export default function StepOneContent({
             city: placeName.includes("(")
               ? placeName.split("(")[0].trim()
               : placeName,
-            state: data.places[0]["state"],
+            state: isCanada ? data.places[0]["state"] : data.places[0]["state"],
+            stateAbbreviation: data.places[0]["state abbreviation"],
             country: isCanada ? "Canada" : "USA",
           };
 
           form.setValue("country", locationData.country);
-          form.setValue("state", locationData.state);
+          if (isCanada) {
+            form.setValue("province", locationData.stateAbbreviation);
+            form.setValue("state", "");
+          } else {
+            form.setValue("state", locationData.state);
+            form.setValue("province", "");
+          }
           form.setValue("city", locationData.city);
           setSelectedCountry(locationData.country);
+          setStateFullName(locationData.state);
         } catch (error) {
           console.error("Error al buscar el código postal:", error);
         }
@@ -285,14 +294,14 @@ export default function StepOneContent({
 
           <FormField
             control={form.control}
-            name="state"
+            name={selectedCountry === "Canada" ? "province" : "state"}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>
                   {selectedCountry === "USA" ? "State" : "Province"}
                 </FormLabel>
                 <FormControl>
-                  <Input value={field.value} readOnly className="bg-muted" />
+                  <Input value={stateFullName} readOnly className="bg-muted" />
                 </FormControl>
                 <FormMessage />
               </FormItem>

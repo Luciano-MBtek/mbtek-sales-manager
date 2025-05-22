@@ -113,6 +113,7 @@ const initialData: QualificationData = {
   shipping_address: "",
   shipping_city: "",
   shipping_state: "",
+  shipping_province: "",
   shipping_zip_code: "",
   shipping_country: "",
   shipping_notes: "",

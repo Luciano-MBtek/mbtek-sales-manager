@@ -30,7 +30,9 @@ export const stepOneLeadQualificationSchema = z.object({
   zipCode: z.string().min(1, "Zip code is required"),
   country: z.string().min(1, "Country is required"),
   state: z.string().optional(),
+  province: z.string().optional(),
   city: z.string().optional(),
+  address: z.string().optional(),
   leadType: z.enum(leadTypeTuple, {
     errorMap: () => ({ message: "Please select a valid lead type" }),
   }),
@@ -240,7 +242,8 @@ export type ReviewQualificationFormValues = z.infer<
 export const stepSevenQualificationSchema = z.object({
   shipping_address: z.string().min(1, "Shipping address is required"),
   shipping_city: z.string().min(1, "City is required"),
-  shipping_state: z.string().min(1, "State is required"),
+  shipping_state: z.string().optional(),
+  shipping_province: z.string().optional(),
   shipping_zip_code: z.string().min(1, "Zip code is required"),
   shipping_country: z.string().min(1, "Country is required"),
   shipping_notes: z.string().optional(),

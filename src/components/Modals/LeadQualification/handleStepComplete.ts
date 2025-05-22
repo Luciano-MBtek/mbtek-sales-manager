@@ -172,7 +172,7 @@ export const handleStepComplete = async (
     } else {
       if (currentStep === "step-seven") {
         if (resetData) {
-          resetData();
+          // resetData();
           console.log("Store reset completed");
         }
         onClose();
@@ -283,14 +283,14 @@ export const processStepData = async (
 
       const contactOwnerId = await GetContactOwner(data.contactId);
 
-      await createCompleteDeal(
-        data.contactId,
-        data.name,
-        data.lastname,
-        contactOwnerId
-      );
+      // await createCompleteDeal(
+      //   data.contactId,
+      //   data.name,
+      //   data.lastname,
+      //   contactOwnerId
+      // );
 
-      await triggerLeadQualificationWebhook(data.contactId, data.lookingFor);
+      // await triggerLeadQualificationWebhook(data.contactId, data.lookingFor);
 
       // send the data via webhook to lead qualified complete system
       break;

@@ -35,6 +35,7 @@ export default function StepSevenContent({
   const [selectedCountry, setSelectedCountry] = useState<string>(
     initialData?.shipping_country || initialData?.country || ""
   );
+  const [stateFullName, setStateFullName] = useState<string>("");
   const debouncedFnRef = useRef<((value: string) => void) | null>(null);
 
   const form = useForm<StepSevenQualificationFormValues>({
@@ -43,6 +44,7 @@ export default function StepSevenContent({
       shipping_address: initialData?.shipping_address || "",
       shipping_city: initialData?.shipping_city || initialData?.city || "",
       shipping_state: initialData?.shipping_state || initialData?.state || "",
+      shipping_province: initialData?.shipping_province || "",
       shipping_zip_code:
         initialData?.shipping_zip_code || initialData?.zipCode || "",
       shipping_country:
@@ -96,13 +98,21 @@ export default function StepSevenContent({
               ? placeName.split("(")[0].trim()
               : placeName,
             state: data.places[0]["state"],
+            stateAbbreviation: data.places[0]["state abbreviation"],
             country: isCanada ? "Canada" : "USA",
           };
 
           form.setValue("shipping_country", locationData.country);
-          form.setValue("shipping_state", locationData.state);
+          if (isCanada) {
+            form.setValue("shipping_province", locationData.stateAbbreviation);
+            form.setValue("shipping_state", "");
+          } else {
+            form.setValue("shipping_state", locationData.state);
+            form.setValue("shipping_province", "");
+          }
           form.setValue("shipping_city", locationData.city);
           setSelectedCountry(locationData.country);
+          setStateFullName(locationData.state);
         } catch (error) {
           console.error("Error al buscar el código postal:", error);
         }
@@ -200,14 +210,22 @@ export default function StepSevenContent({
           {(selectedCountry === "USA" || selectedCountry === "Canada") && (
             <FormField
               control={form.control}
-              name="shipping_state"
+              name={
+                selectedCountry === "Canada"
+                  ? "shipping_province"
+                  : "shipping_state"
+              }
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>
                     {selectedCountry === "USA" ? "State" : "Province"}
                   </FormLabel>
                   <FormControl>
-                    <Input value={field.value} readOnly className="bg-muted" />
+                    <Input
+                      value={stateFullName}
+                      readOnly
+                      className="bg-muted"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
