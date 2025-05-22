@@ -106,6 +106,12 @@ export const qualificationSteps: StepInfo[] = [
   },
   {
     step: 7,
+    name: "Shipping Address",
+    description: "Shipping address",
+    completed: false,
+  },
+  {
+    step: 8,
     name: "Meeting",
     description: "Book a meeting with Sales",
     completed: false,

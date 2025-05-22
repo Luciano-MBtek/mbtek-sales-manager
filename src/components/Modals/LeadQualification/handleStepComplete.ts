@@ -331,8 +331,8 @@ export const getNextStep = (
     "step-four",
     "step-five",
     "review",
-    "meeting",
     "step-seven",
+    "meeting",
   ];
 
   const currentIndex = stepSequence.indexOf(currentStep);
@@ -360,8 +360,8 @@ export const getPreviousStep = (
     "step-four",
     "step-five",
     "review",
-    "meeting",
     "step-seven",
+    "meeting",
   ];
 
   const currentIndex = stepSequence.indexOf(currentStep);
@@ -380,8 +380,8 @@ export const stepLabels = [
   "Authority",
   "Budget",
   "Bant score",
-  "Meeting",
   "Shipping",
+  "Meeting",
 ];
 
 export const getCurrentStepNumber = (
@@ -400,10 +400,10 @@ export const getCurrentStepNumber = (
       return 5;
     case "review":
       return 6;
-    case "meeting":
-      return 7;
     case "step-seven":
       return 7;
+    case "meeting":
+      return 8;
     default:
       return 1;
   }

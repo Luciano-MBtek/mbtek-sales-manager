@@ -171,12 +171,12 @@ export const useQualificationStore = create(
             }
           }
 
-          console.log(
-            "Changes detected:",
-            changesDetected,
-            "for keys:",
-            Object.keys(newData)
-          );
+          // console.log(
+          //   "Changes detected:",
+          //   changesDetected,
+          //   "for keys:",
+          //   Object.keys(newData)
+          // );
 
           return {
             data: {
