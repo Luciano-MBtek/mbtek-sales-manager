@@ -346,9 +346,9 @@ export const getPreviousStep = (
 
 export const stepLabels = [
   "Basic Info",
-  "Need - Priority Qualification",
-  "Timing - Determining Factor",
-  "Authority",
+  "Project Details",
+  "Timing",
+  "Decision Making",
   "Budget",
   "Bant score",
   "Shipping",
