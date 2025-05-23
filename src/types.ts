@@ -159,9 +159,29 @@ export interface LeadProps {
     aware_of_available_financial_incentives: string | null;
     planned_financial_method: string | null;
 
+    // Step 6 - Bant Score
     bant_score: string | null;
 
-    // step 6 - meeting:
+    // step 7 - shipping:
+    shipping_address: string | null;
+    shipping_city: string | null;
+    shipping_state: string | null;
+    shipping_province: string | null;
+    shipping_zip_code: string | null;
+    shipping_country: string | null;
+    shipping_notes: string | null;
+
+    // step 8 - meetings:
+    meetings: {
+      meetingIds: string[];
+      upcoming: {
+        id: string;
+        title: string;
+        start: string;
+        end: string | null;
+        link: string | null;
+      } | null;
+    };
 
     // default properties
     lastmodifieddate: string | null;

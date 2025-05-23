@@ -22,7 +22,7 @@ import StepTwoContent from "./StepTwoContent";
 import StepThreeContent from "./StepThreeContent";
 import StepFourContent from "./StepFourContent";
 import StepFiveContent from "./stepFiveContent";
-import ReviewContent from "./ReviewContent";
+import StepSixContent from "./StepSixContent";
 import { Loader2, Trash, BrushCleaning } from "lucide-react";
 import {
   handleStepComplete as handleStepCompleteFunc,
@@ -38,6 +38,7 @@ import StepSevenContent from "./StepSevenContent";
 import MeetingModal from "./MeetingModal";
 import { MeetingLink } from "@/actions/hubspot/meetings/getMeetingsLink";
 import { useMeetingLink } from "@/hooks/useMeetingLink";
+import { Skeleton } from "@/components/ui/skeleton";
 
 // Modal component
 interface QualificationModalProps {
@@ -50,6 +51,8 @@ export function QualificationModal({
   onClose,
 }: QualificationModalProps) {
   const formRef = useRef<HTMLFormElement | null>(null);
+  const { toast } = useToast();
+  const router = useRouter();
   const {
     data,
     currentStep,
@@ -64,12 +67,49 @@ export function QualificationModal({
   } = useQualificationStore();
   const [isSaving, setIsSaving] = useState(false);
   const [currentBantTotal, setCurrentBantTotal] = useState<number | null>(null);
-  const { meetingLink, isLoading: isMeetingLinkLoading } = useMeetingLink(
-    data.ownerId
+  const [cachedOwnerId, setCachedOwnerId] = useState<string | undefined>(
+    undefined
   );
 
-  const { toast } = useToast();
-  const router = useRouter();
+  const effectiveOwnerId = data.ownerId || cachedOwnerId;
+
+  useEffect(() => {
+    console.log("Store ownerId:", data.ownerId);
+    console.log("Cached ownerId:", cachedOwnerId);
+    console.log("Effective ownerId:", effectiveOwnerId);
+
+    if (data.ownerId) {
+      setCachedOwnerId(data.ownerId);
+    }
+  }, [data.ownerId, cachedOwnerId, effectiveOwnerId]);
+
+  const {
+    meetingLink,
+    isLoading: isMeetingLinkLoading,
+    refetchAll,
+  } = useMeetingLink(effectiveOwnerId);
+
+  console.log("Meeting link:", meetingLink);
+
+  useEffect(() => {
+    let retryTimeout: NodeJS.Timeout;
+
+    if (!isMeetingLinkLoading && !meetingLink && effectiveOwnerId) {
+      console.log(
+        "Meeting link not found, retrying with ownerId:",
+        effectiveOwnerId
+      );
+      retryTimeout = setTimeout(() => {
+        if (refetchAll) {
+          refetchAll();
+        }
+      }, 2000);
+    }
+
+    return () => {
+      if (retryTimeout) clearTimeout(retryTimeout);
+    };
+  }, [isMeetingLinkLoading, meetingLink, refetchAll, effectiveOwnerId]);
 
   useEffect(() => {
     // When resetVersion changes, we can force reset the form if it exists
@@ -96,52 +136,6 @@ export function QualificationModal({
   };
 
   const handleStepComplete = async (stepData: Partial<QualificationData>) => {
-    console.log("STEP Meeting DATA:", stepData);
-
-    /* 
-      {
-    "meetingBookSucceeded": true,
-    "meetingsPayload": {
-        "linkType": "PERSONAL_LINK",
-        "offline": false,
-        "userSlug": "luciano-emilio",
-        "formGuid": "c92db5fd-0d7d-4b91-93f4-2fe071611c2b",
-        "bookingResponse": {
-            "event": {
-                "bookingTimeConflictStatus": false,
-                "dateString": "2025-05-22",
-                "dateTime": 1747927800000,
-                "duration": 900000,
-                "formFields": []
-            },
-            "postResponse": {
-                "timerange": {
-                    "start": 1747927800000,
-                    "end": 1747928700000
-                },
-                "organizer": {
-                    "firstName": "Luciano Emilio",
-                    "lastName": "Pérez",
-                    "email": "",
-                    "fullName": "",
-                    "name": "Luciano Emilio Pérez",
-                    "userId": null
-                },
-                "bookedOffline": false,
-                "contact": {
-                    "firstName": "Luciano",
-                    "lastName": "Emilio Perez",
-                    "email": "info.luciano.design@gmail.com",
-                    "fullName": "",
-                    "name": "Luciano Emilio Perez",
-                    "userId": null
-                }
-            }
-        },
-        "isPaidMeeting": false
-    }
-}
-    */
     await handleStepCompleteFunc(stepData, currentStep, stepDependencies);
   };
 
@@ -269,10 +263,10 @@ export function QualificationModal({
           />
         );
 
-      case "review":
+      case "step-six":
         return (
-          <ReviewContent
-            key={`review-${resetVersion}`}
+          <StepSixContent
+            key={`step-six-${resetVersion}`}
             onComplete={handleStepComplete}
             initialData={data}
             formRef={formRef}
@@ -290,7 +284,13 @@ export function QualificationModal({
         );
 
       case "meeting":
-        return (
+        return isMeetingLinkLoading ? (
+          <div className="w-full h-full min-h-[500px]">
+            <div className="w-full h-[700px]">
+              <Skeleton className="w-full h-full" />
+            </div>
+          </div>
+        ) : (
           <MeetingModal
             key={`meeting-${resetVersion}`}
             onComplete={handleStepComplete}
@@ -301,7 +301,6 @@ export function QualificationModal({
             contactLastName={data.lastname}
           />
         );
-
 
       case "disqualified":
         return (
@@ -318,7 +317,13 @@ export function QualificationModal({
   };
 
   const handleContinue = () => {
-    if (formRef.current) {
+    if (currentStep === "meeting") {
+      if (resetData) {
+        resetData();
+        console.log("Store reset completed");
+      }
+      onClose();
+    } else if (formRef.current) {
       formRef.current.requestSubmit();
     }
   };
@@ -407,10 +412,10 @@ export function QualificationModal({
             </Button>
             <Button
               onClick={handleContinue}
-              className={`w-[200px] ${currentStep === "review" ? "bg-green-500" : ""}`}
+              className={`w-[200px] ${currentStep === "step-seven" ? "bg-green-500" : ""}`}
               disabled={
                 isSaving ||
-                (currentStep === "review" &&
+                (currentStep === "step-six" &&
                   (currentBantTotal !== null ? currentBantTotal < 50 : false))
               }
               variant={
@@ -424,8 +429,10 @@ export function QualificationModal({
                 </>
               ) : currentStep === "disqualified" ? (
                 "Confirm Disqualification"
-              ) : currentStep === "review" ? (
+              ) : currentStep === "step-seven" ? (
                 "Qualify"
+              ) : currentStep === "meeting" ? (
+                "Finish"
               ) : (
                 "Continue"
               )}

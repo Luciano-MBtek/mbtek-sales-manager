@@ -7,22 +7,24 @@ import {
 } from "@/store/qualification-store";
 import {
   disqualifiedLeadFormValues,
-  ReviewQualificationFormValues,
+  StepSixQualificationFormValues,
   StepQualificationFiveFormValues,
   StepQualificationFourFormValues,
   StepQualificationOneFormValues,
   StepQualificationThreeFormValues,
   StepQualificationTwoFormValues,
+  StepSevenQualificationFormValues,
 } from "@/schemas/leadQualificationSchema";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { patchContactProperties } from "@/actions/patchContactProperties";
 import {
-  createContactPropertiesReview,
+  createContactPropertiesStep6,
   createContactPropertiesStep2,
   createContactPropertiesStep3,
   createContactPropertiesStep4,
   createContactPropertiesStep5,
   createDisqualifyProperties,
+  createContactPropertiesStep7,
 } from "@/lib/utils";
 import { triggerLeadQualificationWebhook } from "@/actions/webhooks/leadQualificationWebhook";
 import { createCompleteDeal } from "@/actions/contact/createCompleteDeal";
@@ -54,48 +56,28 @@ export const handleStepComplete = async (
 
   setIsSaving(true);
 
-  console.log(
-    "⭐ CURRENT STEP TYPE:",
-    typeof currentStep,
-    "VALUE:",
-    currentStep
-  );
-  console.log("⭐ IS DISQUALIFIED STEP?", currentStep === "disqualified");
-
   try {
-    // Para asegurarnos que no hay problema de comparación de strings:
     if (String(currentStep) === "disqualified") {
-      console.log("🚨 DISQUALIFICATION PATH ACTIVATED");
-
-      // Actualizar datos primero
       updateData(stepData);
 
-      // Procesar descalificación
       if (!deps.data.contactId) {
         throw new Error("Contact ID not found");
       }
 
       try {
-        // Actualizar contacto directamente
         await patchContactProperties(
           deps.data.contactId,
           createDisqualifyProperties(stepData as disqualifiedLeadFormValues)
         );
 
-        // Mostrar mensaje de éxito
         toast({
           title: "Success",
           description: "Lead has been disqualified",
         });
 
-        console.log("🚨 ABOUT TO RESET STORE");
-
-        // Reset directo del store - borrar todos los datos
         if (typeof resetData === "function") {
-          console.log("🚨 RESET FUNCTION EXISTS");
           try {
             resetData();
-            console.log("🚨 STORE RESET COMPLETED");
           } catch (resetError) {
             console.error("ERROR DURING RESET:", resetError);
           }
@@ -103,8 +85,6 @@ export const handleStepComplete = async (
           console.log("🚨 NO RESET FUNCTION AVAILABLE", typeof resetData);
         }
 
-        // Cerrar modal inmediatamente
-        console.log("🚨 CLOSING MODAL");
         onClose();
         return;
       } catch (error) {
@@ -121,17 +101,8 @@ export const handleStepComplete = async (
     console.log("Current has changes from store:", currentHasChanges);
 
     const shouldProcessStep = currentHasChanges || forceProcess;
-    console.log(
-      "Should process step:",
-      shouldProcessStep,
-      "for step:",
-      currentStep
-    );
 
-    // Complete "review" step specially
-    if (currentStep === "review" && shouldProcessStep) {
-      console.log("REVIEW COMPLETION PATH ACTIVATED");
-
+    if (currentStep === "step-seven" && shouldProcessStep) {
       // Process step data
       await processStepData(currentStep, stepData, deps);
 
@@ -140,18 +111,6 @@ export const handleStepComplete = async (
         title: "Success",
         description: "Qualification process completed successfully",
       });
-
-      console.log("About to reset qualification store...");
-
-      // Reset store directly
-      /*  if (resetData) {
-        resetData();
-        console.log("Store reset completed");
-      } */
-
-      // Close modal
-      // onClose();
-      //  return;
     }
 
     // Regular steps processing
@@ -182,12 +141,13 @@ export const handleStepComplete = async (
         });
       }
     } else {
-      if (currentStep === "step-seven") {
+      if (currentStep === "meeting") {
         if (resetData) {
-          // resetData();
+          resetData();
           console.log("Store reset completed");
         }
         onClose();
+        return;
       }
     }
   } catch (error) {
@@ -288,26 +248,37 @@ export const processStepData = async (
       );
       break;
 
-    case "review":
+    case "step-six":
       if (!data.contactId) throw new Error("Contact ID not found");
-      /*  await patchContactProperties(
+      await patchContactProperties(
         data.contactId,
-        createContactPropertiesReview(stepData as ReviewQualificationFormValues)
-      ); */
+        createContactPropertiesStep6(stepData as StepSixQualificationFormValues)
+      );
+
+      break;
+
+    case "step-seven":
+      if (!data.contactId) throw new Error("Contact ID not found");
+      await patchContactProperties(
+        data.contactId,
+        createContactPropertiesStep7(
+          stepData as StepSevenQualificationFormValues
+        )
+      );
 
       const contactOwnerId = await GetContactOwner(data.contactId);
 
-      /*await createCompleteDeal(
+      await createCompleteDeal(
         data.contactId,
         data.name,
         data.lastname,
         contactOwnerId
       );
 
-      await triggerLeadQualificationWebhook(data.contactId, data.lookingFor); */
-
+      await triggerLeadQualificationWebhook(data.contactId, data.lookingFor);
       // send the data via webhook to lead qualified complete system
       break;
+
     case "disqualified":
       if (!data.contactId) throw new Error("Contact ID not found");
       await patchContactProperties(
@@ -330,7 +301,7 @@ export const getNextStep = (
     "step-three",
     "step-four",
     "step-five",
-    "review",
+    "step-six",
     "step-seven",
     "meeting",
   ];
@@ -359,7 +330,7 @@ export const getPreviousStep = (
     "step-three",
     "step-four",
     "step-five",
-    "review",
+    "step-six",
     "step-seven",
     "meeting",
   ];
@@ -398,7 +369,7 @@ export const getCurrentStepNumber = (
       return 4;
     case "step-five":
       return 5;
-    case "review":
+    case "step-six":
       return 6;
     case "step-seven":
       return 7;

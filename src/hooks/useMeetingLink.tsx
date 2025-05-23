@@ -9,7 +9,11 @@ import { getAllOwners } from "@/actions/getAllOwners";
  */
 export const useMeetingLink = (ownerId: string | undefined) => {
   // 1. Get all owners
-  const { data: ownersData, isLoading: isOwnersLoading } = useQuery({
+  const {
+    data: ownersData,
+    isLoading: isOwnersLoading,
+    refetch: refetchOwners,
+  } = useQuery({
     queryKey: ["allOwners"],
     queryFn: async () => {
       const allOwners = await getAllOwners();
@@ -26,7 +30,11 @@ export const useMeetingLink = (ownerId: string | undefined) => {
   const ownerUserId = leadOwner?.userId;
 
   // 3. Get the meeting link using the userId
-  const { data: meetingLinkData, isLoading: isMeetingLinkLoading } = useQuery({
+  const {
+    data: meetingLinkData,
+    isLoading: isMeetingLinkLoading,
+    refetch: refetchMeetingLink,
+  } = useQuery({
     queryKey: ["meetingLink", ownerUserId],
     queryFn: async () => {
       if (!ownerUserId) return null;
@@ -37,9 +45,17 @@ export const useMeetingLink = (ownerId: string | undefined) => {
 
   const meetingLink = meetingLinkData?.results?.[0];
 
+  const refetchAll = async () => {
+    await refetchOwners();
+    if (ownerUserId) {
+      await refetchMeetingLink();
+    }
+  };
+
   return {
     meetingLink,
     isLoading: isOwnersLoading || isMeetingLinkLoading,
     leadOwner,
+    refetchAll,
   };
 };

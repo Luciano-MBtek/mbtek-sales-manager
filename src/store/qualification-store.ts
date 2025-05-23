@@ -4,7 +4,7 @@ import {
   StepQualificationTwoFormValues,
   StepQualificationFourFormValues,
   StepQualificationFiveFormValues,
-  ReviewQualificationFormValues,
+  StepSixQualificationFormValues,
   disqualifiedLeadFormValues,
   StepSevenQualificationFormValues,
 } from "@/schemas/leadQualificationSchema";
@@ -30,7 +30,7 @@ export type QualificationStep =
   | "step-three"
   | "step-four"
   | "step-five"
-  | "review"
+  | "step-six"
   | "step-seven"
   | "meeting"
   | "disqualified";
@@ -42,7 +42,7 @@ export const stepTitles: Record<QualificationStep, string> = {
   "step-three": "Timing",
   "step-four": "Authority",
   "step-five": "Budget",
-  review: "Review & Submit",
+  "step-six": "Bant Score",
   "step-seven": "Shipping",
   meeting: "Schedule a meeting",
   disqualified: "Disqualification Reason",
@@ -54,11 +54,18 @@ export type QualificationData = StepQualificationOneFormValues &
   StepQualificationThreeFormValues &
   StepQualificationFourFormValues &
   StepQualificationFiveFormValues &
-  ReviewQualificationFormValues &
+  StepSixQualificationFormValues &
   disqualifiedLeadFormValues &
   StepSevenQualificationFormValues & {
     contactId?: string;
     ownerId?: string;
+    meetings: {
+      meetingIds: string[];
+      upcoming: {
+        id: string;
+        title: string;
+      } | null;
+    };
   };
 
 export interface QualificationStore {
@@ -121,6 +128,10 @@ const initialData: QualificationData = {
   shipping_country: "",
   shipping_notes: "",
   ownerId: undefined,
+  meetings: {
+    meetingIds: [],
+    upcoming: null,
+  },
 };
 
 const initialState = {

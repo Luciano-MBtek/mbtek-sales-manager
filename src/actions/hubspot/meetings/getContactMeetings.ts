@@ -1,84 +1,114 @@
 "use server";
 
-export interface MeetingLink {
+type UpcomingMeeting = {
   id: string;
-  slug: string;
-  link: string;
-  name: string;
-  type: string;
-  organizerUserId: string;
-  userIdsOfLinkMembers: string[];
-  defaultLink: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
+  title: string | null;
+  start: string;
+  end: string | null;
+  link: string | null;
+};
 
-export interface MeetingAssociationResponse {
-  results: {
-    id: string;
-    type: string;
-  }[];
-}
+type ContactMeetingsResult = {
+  meetingIds: string[];
+  upcoming: UpcomingMeeting | null;
+};
 
-// https://api.hubapi.com/crm/v3/objects/meetings/39950624311
+type MeetingsByContact = Record<number, ContactMeetingsResult>;
 
+const MEETING_PROPS = [
+  "hs_meeting_title",
+  "hs_meeting_start_time",
+  "hs_meeting_end_time",
+  "hs_meeting_external_url",
+] as const;
+
+/**
+ * Retrieves all meetings associated with the specified contacts
+ * and determines the next upcoming meeting (if any) for each contact.
+ */
 export async function getContactMeetings(
-  contactId: number | number[]
-): Promise<MeetingAssociationResponse | null> {
-  const apiKey = process.env.HUBSPOT_API_KEY;
+  contactIds: number | number[]
+): Promise<MeetingsByContact> {
+  const apiKey = process.env.HUBSPOT_API_KEY!;
+  const ids = Array.isArray(contactIds) ? contactIds : [contactIds];
 
-  // Si es un array, procesamos cada ID individualmente
-  if (Array.isArray(contactId)) {
-    try {
-      // Usamos Promise.all para hacer todas las solicitudes en paralelo
-      const results = await Promise.all(
-        contactId.map((id) => getContactMeetings(id))
-      );
+  const assocResults = await Promise.all(
+    ids.map(async (cid) => {
+      const url =
+        `https://api.hubapi.com/crm/v3/objects/contacts/` +
+        `${cid}/associations/meetings`;
 
-      // Combinamos los resultados
-      const combinedResults: MeetingAssociationResponse = {
-        results: [],
-      };
-
-      results.forEach((result) => {
-        if (result && result.results) {
-          combinedResults.results = [
-            ...combinedResults.results,
-            ...result.results,
-          ];
-        }
+      const res = await fetch(url, {
+        headers: { Authorization: `Bearer ${apiKey}` },
+        next: { tags: [`meeting-association-${cid}`], revalidate: 300 },
       });
 
-      return combinedResults;
-    } catch (error) {
-      console.error("Error getting meetings for multiple contacts:", error);
-      return null;
-    }
-  }
+      if (!res.ok) {
+        console.error(`❌ Assoc error (${cid}):`, res.statusText);
+        return { cid, meetingIds: [] as string[] };
+      }
 
-  // Procesamiento para un solo ID
-  const url = `https://api.hubapi.com/crm/v3/objects/contacts/${contactId}/associations/meetings`;
+      const data: { results: { id: string }[] } = await res.json();
+      return { cid, meetingIds: data.results.map((r) => r.id) };
+    })
+  );
 
-  try {
-    const response = await fetch(url, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      next: { tags: [`meeting-association-${contactId}`], revalidate: 300 },
-    });
+  const allMeetingIds = [...new Set(assocResults.flatMap((r) => r.meetingIds))];
+  const detailById = new Map<string, UpcomingMeeting>();
 
-    if (!response.ok) {
+  if (allMeetingIds.length) {
+    const batchRes = await fetch(
+      "https://api.hubapi.com/crm/v3/objects/meetings/batch/read",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          properties: MEETING_PROPS,
+          inputs: allMeetingIds.map((id) => ({ id })),
+        }),
+      }
+    );
+
+    if (!batchRes.ok) {
       throw new Error(
-        `Error retrieving meeting links for Hubspot contact: ${contactId}: ${response.statusText}`
+        `HubSpot batch meeting read failed: ${batchRes.statusText}`
       );
     }
 
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error(`Error in getMeetingsLink for user ${contactId}:`, error);
-    return null;
+    const batchData: {
+      results: {
+        id: string;
+        properties: Record<(typeof MEETING_PROPS)[number], string | null>;
+      }[];
+    } = await batchRes.json();
+
+    batchData.results.forEach((m) =>
+      detailById.set(m.id, {
+        id: m.id,
+        title: m.properties.hs_meeting_title,
+        start: m.properties.hs_meeting_start_time!,
+        end: m.properties.hs_meeting_end_time,
+        link: m.properties.hs_meeting_external_url,
+      })
+    );
   }
+
+  const now = Date.now();
+
+  return assocResults.reduce<MeetingsByContact>((acc, { cid, meetingIds }) => {
+    const futureSorted = meetingIds
+      .map((mid) => detailById.get(mid))
+      .filter((m): m is UpcomingMeeting => !!m && Date.parse(m.start) > now)
+      .sort((a, b) => Date.parse(a.start) - Date.parse(b.start));
+
+    acc[cid] = {
+      meetingIds,
+      upcoming: futureSorted[0] ?? null,
+    };
+
+    return acc;
+  }, {});
 }

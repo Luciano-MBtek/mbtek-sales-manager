@@ -219,7 +219,7 @@ const bantScoreSchema = z.object({
 });
 
 // Add this to your existing review schema or create one if it doesn't exist
-export const reviewQualificationSchema = z.object({
+export const stepSixQualificationSchema = z.object({
   bant_score: z.string().refine(
     (str) => {
       try {
@@ -235,8 +235,8 @@ export const reviewQualificationSchema = z.object({
   ),
 });
 
-export type ReviewQualificationFormValues = z.infer<
-  typeof reviewQualificationSchema
+export type StepSixQualificationFormValues = z.infer<
+  typeof stepSixQualificationSchema
 >;
 
 export const stepSevenQualificationSchema = z.object({

@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "@/components/ui/button";
+
 import {
   Form,
   FormField,
@@ -13,7 +13,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Loader2 } from "lucide-react";
+
 import {
   Select,
   SelectContent,
@@ -62,10 +62,10 @@ export default function StepOneContent({
       lastname: initialData?.lastname || contact?.lastname || "",
       email: initialData?.email || contact?.email || "",
       phone: initialData?.phone || contact?.phone || "",
-      zipCode: initialData?.zipCode || "",
-      country: initialData?.country || "",
-      state: initialData?.state || "",
-      city: initialData?.city || "",
+      zipCode: initialData?.zipCode || contact?.zip || "",
+      country: initialData?.country || contact?.country || "",
+      state: initialData?.state || contact?.state || "",
+      city: initialData?.city || contact?.city || "" || "",
       leadType: initialData?.leadType || "",
       hearAboutUs: initialData?.hearAboutUs || "",
       currentSituation: initialData?.currentSituation || [],
@@ -73,6 +73,14 @@ export default function StepOneContent({
       lead_owner_id: hubspotOwnerId,
     },
   });
+
+  useEffect(() => {
+    const zipCode = form.getValues("zipCode");
+    if (zipCode && zipCode.length >= 3) {
+      handleZipCodeChange(zipCode);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleSubmit = async (data: StepQualificationOneFormValues) => {
     setIsSubmitting(true);
@@ -87,7 +95,7 @@ export default function StepOneContent({
 
   const debouncedFnRef = useRef<((value: string) => void) | null>(null);
 
-  // Función para precargar datos basados en el código postal
+  // Function to preload data based on the postal code
   const handleZipCodeChange = useCallback(
     async (zipCode: string) => {
       console.log("handleZipCodeChange llamado con:", zipCode);
@@ -113,11 +121,10 @@ export default function StepOneContent({
 
           const data = await response.json();
           if (!data.places || !data.places[0]) {
-            console.error("No se encontró información para este código postal");
+            console.error("No information found for this postal code");
             return;
           }
 
-          console.log("Llegó a procesar los datos:", data.places[0]);
           const placeName = data.places[0]["place name"];
           const locationData = {
             city: placeName.includes("(")
@@ -140,17 +147,17 @@ export default function StepOneContent({
           setSelectedCountry(locationData.country);
           setStateFullName(locationData.state);
         } catch (error) {
-          console.error("Error al buscar el código postal:", error);
+          console.error("Error fetching the postal code:", error);
         }
       });
     },
     [form]
   );
 
-  // Crear versión con debounce de handleZipCodeChange
+  // Create debounced version of handleZipCodeChange
   const debouncedZipCodeChange = useCallback(
     (zipCode: string) => {
-      // Limpiar los campos siempre que el usuario escriba
+      // Clear the fields whenever the user types
       form.setValue("country", "");
       form.setValue("state", "");
       form.setValue("city", "");
@@ -173,7 +180,7 @@ export default function StepOneContent({
     [handleZipCodeChange, form]
   );
 
-  // Observar cambios en el código postal
+  // Observe changes in the postal code
   useEffect(() => {
     const subscription = form.watch((value, { name }) => {
       if (name === "zipCode") {
@@ -260,13 +267,13 @@ export default function StepOneContent({
           name="zipCode"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Zip Code</FormLabel>
+              <FormLabel>Postal / Zip Code</FormLabel>
               <FormControl>
                 <Input
-                  placeholder="Zip Code"
+                  placeholder="Postal / Zip Code"
                   {...field}
                   onChange={(e) => {
-                    // Solo permitir letras y números
+                    // Only allow letters and numbers
                     const value = e.target.value.replace(/[^a-zA-Z0-9]/g, "");
                     field.onChange(value);
                   }}

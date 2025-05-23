@@ -29,7 +29,6 @@ export function LeadCard({
   lead: LeadProps;
   onClick: () => void;
 }) {
-  // Parse BANT score if available
   const bantScore = lead.properties.bant_score
     ? JSON.parse(lead.properties.bant_score)
     : null;
@@ -37,7 +36,6 @@ export function LeadCard({
   const totalScore = bantScore?.total || 0;
   const scoreColor = totalScore >= 75 ? "text-green-600" : "text-amber-600";
 
-  // Get qualification progress
   const currentStep = getCurrentQualificationStep(lead.properties);
   const progressPercentage = getQualificationProgress(lead.properties);
 
@@ -55,8 +53,8 @@ export function LeadCard({
           </div>
         </div>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex justify-between">
+      <CardContent className="space-y-4 px-10 pb-10">
+        <div className="flex justify-between items-center">
           <div
             onClick={onClick}
             className="cursor-pointer rounded p-4 hover:bg-slate-100 transition-colors"
@@ -93,6 +91,46 @@ export function LeadCard({
               </div>
             ) : null}
           </div>
+
+          {/* Upcoming Meetings Section */}
+          {lead.properties.meetings?.upcoming && (
+            <div className="space-y-2 ">
+              <div className="flex justify-between items-center text-sm mb-2">
+                <p className="text-slate-700 font-medium">Upcoming Meeting</p>
+              </div>
+              <div className="bg-blue-50 rounded-md p-3 border border-blue-100">
+                <div className="flex items-center gap-2 text-sm">
+                  <Calendar className="h-4 w-4 text-blue-500" />
+                  <span className="text-slate-700 font-medium">
+                    {lead.properties.meetings.upcoming.title}
+                  </span>
+                </div>
+                <div className="mt-1 text-xs text-slate-500">
+                  {new Date(
+                    lead.properties.meetings.upcoming.start ?? new Date()
+                  ).toLocaleString()}{" "}
+                  -{" "}
+                  {new Date(
+                    lead.properties.meetings.upcoming.end ?? new Date()
+                  ).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </div>
+                {lead.properties.meetings.upcoming.link && (
+                  <a
+                    href={lead.properties.meetings.upcoming.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-2 text-xs text-blue-600 hover:underline inline-block"
+                  >
+                    Join meeting
+                  </a>
+                )}
+              </div>
+            </div>
+          )}
+          {/* Open progress section */}
           <div className="flex flex-col gap-2">
             {lead.properties.looking_for && (
               <div className="flex items-center justify-end gap-2 text-sm">

@@ -4,8 +4,9 @@ import {
   StepQualificationThreeFormValues,
   StepQualificationFourFormValues,
   StepQualificationFiveFormValues,
-  ReviewQualificationFormValues,
+  StepSixQualificationFormValues,
   disqualifiedLeadFormValues,
+  StepSevenQualificationFormValues,
 } from "@/schemas/leadQualificationSchema";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -118,6 +119,8 @@ export const createContactProperties = (
     email: contact.email,
     phone: contact.phone,
     city: contact.city,
+    zip: contact.zipCode,
+    zip_postal_code: contact.zipCode,
     address: contact.address,
     country_us_ca: contact.country,
     state_usa: contact.country === "USA" ? contact.state : "",
@@ -190,11 +193,24 @@ export const createContactPropertiesStep5 = (
   };
 };
 
-export const createContactPropertiesReview = (
-  data: ReviewQualificationFormValues
+export const createContactPropertiesStep6 = (
+  data: StepSixQualificationFormValues
 ) => {
   return {
     bant_score: data.bant_score,
+  };
+};
+export const createContactPropertiesStep7 = (
+  data: StepSevenQualificationFormValues
+) => {
+  return {
+    shipping_address: data.shipping_address,
+    shipping_city: data.shipping_city,
+    shipping_state: data.shipping_state,
+    shipping_province: data.shipping_province,
+    shipping_zip_code: data.shipping_zip_code,
+    shipping_country: data.shipping_country,
+    shipping_notes: data.shipping_notes,
   };
 };
 
