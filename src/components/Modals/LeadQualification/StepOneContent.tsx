@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react"; // Remove useEffect import
+import { useState, useEffect, useCallback, useRef, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "@/components/ui/button";
+
 import {
   Form,
   FormField,
@@ -13,7 +13,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Loader2 } from "lucide-react";
+
 import {
   Select,
   SelectContent,
@@ -27,15 +27,11 @@ import {
   StepQualificationOneFormValues,
 } from "@/schemas/leadQualificationSchema";
 import { currentSituation, hearAboutUs, leadType, lookingFor } from "@/types";
-import {
-  countryOptions,
-  stateOptions,
-  provinceOptions,
-} from "@/app/forms/utils/options";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useSession } from "next-auth/react";
+import debounce from "lodash/debounce";
 
 interface StepOneContentProps {
   onComplete: (data: StepQualificationOneFormValues) => void;
@@ -48,9 +44,14 @@ export default function StepOneContent({
   initialData,
   formRef,
 }: StepOneContentProps) {
+  const [isPending, startTransition] = useTransition();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { contact } = useContactStore();
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
+  const [selectedCountry, setSelectedCountry] = useState<string>(
+    initialData?.country || ""
+  );
+  const [stateFullName, setStateFullName] = useState<string>("");
 
   const hubspotOwnerId = session?.user.hubspotOwnerId;
 
@@ -61,18 +62,11 @@ export default function StepOneContent({
       lastname: initialData?.lastname || contact?.lastname || "",
       email: initialData?.email || contact?.email || "",
       phone: initialData?.phone || contact?.phone || "",
-      country: initialData?.country || "",
-      city: initialData?.city || contact?.city || "",
-      address: initialData?.address || contact?.address || "",
+      zipCode: initialData?.zipCode || contact?.zip || "",
+      country: initialData?.country || contact?.country || "",
+      state: initialData?.state || contact?.state || "",
+      city: initialData?.city || contact?.city || "" || "",
       leadType: initialData?.leadType || "",
-      // Only include state if it has a valid value
-      ...(initialData?.country === "USA" && initialData?.state
-        ? { state: initialData.state }
-        : {}),
-      // Only include province if it has a valid value
-      ...(initialData?.country === "Canada" && initialData?.province
-        ? { province: initialData.province }
-        : {}),
       hearAboutUs: initialData?.hearAboutUs || "",
       currentSituation: initialData?.currentSituation || [],
       lookingFor: initialData?.lookingFor || "",
@@ -80,30 +74,126 @@ export default function StepOneContent({
     },
   });
 
-  // Watch the country field directly outside of useEffect
-  const country = form.watch("country");
-
-  // Handle country change with form reset logic
-  const handleCountryChange = (value: "USA" | "Canada") => {
-    form.setValue("country", value);
-
-    if (value === "USA") {
-      // Don't set a default value for state, just unregister province
-      form.unregister("province");
-    } else if (value === "Canada") {
-      // Don't set a default value for province, just unregister state
-      form.unregister("state");
+  useEffect(() => {
+    const zipCode = form.getValues("zipCode");
+    if (zipCode && zipCode.length >= 3) {
+      handleZipCodeChange(zipCode);
     }
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleSubmit = async (data: StepQualificationOneFormValues) => {
     setIsSubmitting(true);
     try {
       await onComplete(data);
+    } catch (error) {
+      console.error("Error al guardar la información:", error);
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  const debouncedFnRef = useRef<((value: string) => void) | null>(null);
+
+  // Function to preload data based on the postal code
+  const handleZipCodeChange = useCallback(
+    async (zipCode: string) => {
+      console.log("handleZipCodeChange llamado con:", zipCode);
+      if (!zipCode || zipCode.length < 3) {
+        return;
+      }
+
+      startTransition(async () => {
+        try {
+          console.log("Intentando obtener datos de ubicación...");
+          const isCanada = /[a-zA-Z]/.test(zipCode);
+          const country = isCanada ? "CA" : "US";
+          const postalCode = isCanada
+            ? zipCode.slice(0, 3).toUpperCase()
+            : zipCode;
+          const response = await fetch(
+            `https://api.zippopotam.us/${country}/${postalCode}`
+          );
+          if (!response.ok) {
+            console.error("Código postal inválido");
+            return;
+          }
+
+          const data = await response.json();
+          if (!data.places || !data.places[0]) {
+            console.error("No information found for this postal code");
+            return;
+          }
+
+          const placeName = data.places[0]["place name"];
+          const locationData = {
+            city: placeName.includes("(")
+              ? placeName.split("(")[0].trim()
+              : placeName,
+            state: isCanada ? data.places[0]["state"] : data.places[0]["state"],
+            stateAbbreviation: data.places[0]["state abbreviation"],
+            country: isCanada ? "Canada" : "USA",
+          };
+
+          form.setValue("country", locationData.country);
+          if (isCanada) {
+            form.setValue("province", locationData.stateAbbreviation);
+            form.setValue("state", "");
+          } else {
+            form.setValue("state", locationData.state);
+            form.setValue("province", "");
+          }
+          form.setValue("city", locationData.city);
+          setSelectedCountry(locationData.country);
+          setStateFullName(locationData.state);
+        } catch (error) {
+          console.error("Error fetching the postal code:", error);
+        }
+      });
+    },
+    [form]
+  );
+
+  // Create debounced version of handleZipCodeChange
+  const debouncedZipCodeChange = useCallback(
+    (zipCode: string) => {
+      // Clear the fields whenever the user types
+      form.setValue("country", "");
+      form.setValue("state", "");
+      form.setValue("city", "");
+      setSelectedCountry("");
+
+      if (zipCode.length < 3) {
+        if (debouncedFnRef.current) {
+          (debouncedFnRef.current as any).cancel?.();
+        }
+        return;
+      }
+
+      if (!debouncedFnRef.current) {
+        debouncedFnRef.current = debounce((value: string) => {
+          handleZipCodeChange(value);
+        }, 1000);
+      }
+      debouncedFnRef.current(zipCode);
+    },
+    [handleZipCodeChange, form]
+  );
+
+  // Observe changes in the postal code
+  useEffect(() => {
+    const subscription = form.watch((value, { name }) => {
+      if (name === "zipCode") {
+        debouncedZipCodeChange(value.zipCode || "");
+      }
+    });
+    return () => {
+      subscription.unsubscribe();
+      if (debouncedFnRef.current) {
+        (debouncedFnRef.current as any).cancel?.();
+      }
+    };
+  }, [form, debouncedZipCodeChange]);
 
   return (
     <Form {...form}>
@@ -171,6 +261,29 @@ export default function StepOneContent({
             )}
           />
         </div>
+
+        <FormField
+          control={form.control}
+          name="zipCode"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Postal / Zip Code</FormLabel>
+              <FormControl>
+                <Input
+                  placeholder="Postal / Zip Code"
+                  {...field}
+                  onChange={(e) => {
+                    // Only allow letters and numbers
+                    const value = e.target.value.replace(/[^a-zA-Z0-9]/g, "");
+                    field.onChange(value);
+                  }}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         <div className="grid grid-cols-2 gap-4">
           <FormField
             control={form.control}
@@ -178,98 +291,8 @@ export default function StepOneContent({
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Country</FormLabel>
-                <Select
-                  onValueChange={handleCountryChange}
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select country" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {countryOptions.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          {country === "USA" && (
-            <FormField
-              control={form.control}
-              name="state"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>State</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select state" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {stateOptions.map((option) => (
-                        <SelectItem key={option.value} value={option.value}>
-                          {option.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          )}
-
-          {country === "Canada" && (
-            <FormField
-              control={form.control}
-              name="province"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Province</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select province" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {provinceOptions.map((option) => (
-                        <SelectItem key={option.value} value={option.value}>
-                          {option.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          )}
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="city"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>City</FormLabel>
                 <FormControl>
-                  <Input placeholder="City" {...field} />
+                  <Input value={field.value} readOnly className="bg-muted" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -278,18 +301,34 @@ export default function StepOneContent({
 
           <FormField
             control={form.control}
-            name="address"
+            name={selectedCountry === "Canada" ? "province" : "state"}
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Address</FormLabel>
+                <FormLabel>
+                  {selectedCountry === "USA" ? "State" : "Province"}
+                </FormLabel>
                 <FormControl>
-                  <Input placeholder="Address" {...field} />
+                  <Input value={stateFullName} readOnly className="bg-muted" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
         </div>
+
+        <FormField
+          control={form.control}
+          name="city"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>City</FormLabel>
+              <FormControl>
+                <Input value={field.value} readOnly className="bg-muted" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         <div className="grid grid-cols-2 gap-4">
           <FormField

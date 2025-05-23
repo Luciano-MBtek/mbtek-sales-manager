@@ -22,54 +22,29 @@ import {
   lookingForTypeValues,
 } from "@/types";
 
-export const stepOneLeadQualificationSchema = z.discriminatedUnion("country", [
-  z.object({
-    name: z.string().min(1, "Name is required"),
-    lastname: z.string().min(1, "Last name is required"),
-    email: z.string().email("Invalid email address"),
-    phone: z.string().min(1, "Phone number is required"),
-    country: z.literal("USA"),
-    state: z.enum(USStates, {
-      errorMap: () => ({ message: "Please select a valid state" }),
-    }),
-    city: z.string().min(1, "City is required"),
-    address: z.string().min(1, "Address is required"),
-    leadType: z.enum(leadTypeTuple, {
-      errorMap: () => ({ message: "Please select a valid lead type" }),
-    }),
-    hearAboutUs: z.string().min(1, "Please select how you heard about us"),
-    currentSituation: z
-      .array(z.string())
-      .min(1, "Please select at least one option"),
-    lookingFor: z.enum(lookingForTypeValues as [string, ...string[]], {
-      errorMap: () => ({ message: "Please select what you are looking for" }),
-    }),
-    lead_owner_id: z.string(),
+export const stepOneLeadQualificationSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  lastname: z.string().min(1, "Last name is required"),
+  email: z.string().email("Invalid email address"),
+  phone: z.string().min(1, "Phone number is required"),
+  zipCode: z.string().min(1, "Zip code is required"),
+  country: z.string().min(1, "Country is required"),
+  state: z.string().optional(),
+  province: z.string().optional(),
+  city: z.string().optional(),
+  address: z.string().optional(),
+  leadType: z.enum(leadTypeTuple, {
+    errorMap: () => ({ message: "Please select a valid lead type" }),
   }),
-  z.object({
-    name: z.string().min(1, "Name is required"),
-    lastname: z.string().min(1, "Last name is required"),
-    email: z.string().email("Invalid email address"),
-    phone: z.string().min(1, "Phone number is required"),
-    country: z.literal("Canada"),
-    province: z.enum(canadaProvinceValues, {
-      errorMap: () => ({ message: "Please select a valid province" }),
-    }),
-    city: z.string().min(1, "City is required"),
-    address: z.string().min(1, "Address is required"),
-    leadType: z.enum(leadTypeTuple, {
-      errorMap: () => ({ message: "Please select a valid lead type" }),
-    }),
-    hearAboutUs: z.string().min(1, "Please select how you heard about us"),
-    currentSituation: z
-      .array(z.string())
-      .min(1, "Please select at least one option"),
-    lookingFor: z.enum(lookingForTypeValues as [string, ...string[]], {
-      errorMap: () => ({ message: "Please select what you are looking for" }),
-    }),
-    lead_owner_id: z.string(),
+  hearAboutUs: z.string().min(1, "Please select how you heard about us"),
+  currentSituation: z
+    .array(z.string())
+    .min(1, "Please select at least one option"),
+  lookingFor: z.enum(lookingForTypeValues as [string, ...string[]], {
+    errorMap: () => ({ message: "Please select what you are looking for" }),
   }),
-]);
+  lead_owner_id: z.string(),
+});
 
 export type StepQualificationOneFormValues = z.infer<
   typeof stepOneLeadQualificationSchema
@@ -244,7 +219,7 @@ const bantScoreSchema = z.object({
 });
 
 // Add this to your existing review schema or create one if it doesn't exist
-export const reviewQualificationSchema = z.object({
+export const stepSixQualificationSchema = z.object({
   bant_score: z.string().refine(
     (str) => {
       try {
@@ -260,8 +235,22 @@ export const reviewQualificationSchema = z.object({
   ),
 });
 
-export type ReviewQualificationFormValues = z.infer<
-  typeof reviewQualificationSchema
+export type StepSixQualificationFormValues = z.infer<
+  typeof stepSixQualificationSchema
+>;
+
+export const stepSevenQualificationSchema = z.object({
+  shipping_address: z.string().min(1, "Shipping address is required"),
+  shipping_city: z.string().min(1, "City is required"),
+  shipping_state: z.string().optional(),
+  shipping_province: z.string().optional(),
+  shipping_zip_code: z.string().min(1, "Zip code is required"),
+  shipping_country: z.string().min(1, "Country is required"),
+  shipping_notes: z.string().optional(),
+});
+
+export type StepSevenQualificationFormValues = z.infer<
+  typeof stepSevenQualificationSchema
 >;
 
 export const disqualifiedLeadSchema = z.object({

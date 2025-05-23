@@ -84,12 +84,14 @@ function mapLeadToQualificationData(lead: {
 
   return {
     contactId: lead.id,
+    ownerId: props.hubspot_owner_id,
     name: props.firstname || "",
     lastname: props.lastname || "",
     email: props.email || "",
     phone: props.phone || "",
-    country: props.country_us_ca || "USA",
-    state: props.state_usa || "Alabama",
+    zipCode: props.zip || "",
+    country: props.country_us_ca || "",
+    state: props.state_usa || "",
     province: props.province_territory || "",
     city: props.city || "",
     address: props.address || "",
@@ -122,14 +124,24 @@ function mapLeadToQualificationData(lead: {
     hs_lead_status: props.hs_lead_status || "",
     disqualification_reason: props.disqualification_reason || "",
     disqualification_explanation: props.disqualification_explanation || "",
+    shipping_address: props.shipping_address || "",
+    shipping_city: props.shipping_city || "",
+    shipping_state: props.shipping_state || "",
+    shipping_zip_code: props.shipping_zip_code || "",
+    shipping_country: props.shipping_country || "",
+    shipping_notes: props.shipping_notes || "",
+    meetings: {
+      meetingIds: props.meetings.meetingIds || [],
+      upcoming: props.meetings.upcoming || null,
+    },
   };
 }
 
 function determineStartingStep(
   properties: Record<string, any>
 ): QualificationStep {
-  if (properties.bant_score) {
-    return "review";
+  if (properties.meetings && properties.meetings.upcoming) {
+    return "meeting";
   }
 
   // Map the step number to the corresponding step type
@@ -139,12 +151,16 @@ function determineStartingStep(
     3: "step-three",
     4: "step-four",
     5: "step-five",
-    6: "review",
+    6: "step-six",
+    7: "step-seven",
+    8: "meeting",
   };
 
   const currentStepNumber = getCurrentQualificationStep(properties);
 
-  if (currentStepNumber >= 1 && currentStepNumber <= 6) {
+  console.log("currentStepNumber", currentStepNumber);
+
+  if (currentStepNumber >= 1 && currentStepNumber <= 8) {
     return stepMap[currentStepNumber];
   }
 

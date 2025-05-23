@@ -17,6 +17,7 @@ const leadQualificationProperties = [
   "country_us_ca",
   "state_usa",
   "province_territory",
+  "zip",
   "city",
   "address",
   "lead_type",
@@ -25,6 +26,7 @@ const leadQualificationProperties = [
   "looking_for",
   "lead_owner_id",
   "hs_lead_status",
+  "hubspot_owner_id",
 
   // Step 2 - Project details
   "building_type",
@@ -52,8 +54,18 @@ const leadQualificationProperties = [
   "aware_of_available_financial_incentives",
   "planned_financial_method",
 
-  // Final score and status
+  // step 6
   "bant_score",
+
+  // step 7
+
+  "shipping_address",
+  "shipping_city",
+  "shipping_state",
+  "shipping_province",
+  "shipping_zip_code",
+  "shipping_country",
+  "shipping_notes",
 ];
 
 async function leadsQualified(userId: string, timeRange: string = "weekly") {
@@ -138,6 +150,6 @@ async function leadsQualified(userId: string, timeRange: string = "weekly") {
 
 export async function getQualifiedLeads(timeRange: string = "weekly") {
   const userId = await getHubspotOwnerIdSession();
-  //const managerIdTest = "719106449"; // Byron
+  // const managerIdTest = "719106449"; // Byron
   return leadsQualified(userId, timeRange);
 }

@@ -4,8 +4,9 @@ import {
   StepQualificationTwoFormValues,
   StepQualificationFourFormValues,
   StepQualificationFiveFormValues,
-  ReviewQualificationFormValues,
+  StepSixQualificationFormValues,
   disqualifiedLeadFormValues,
+  StepSevenQualificationFormValues,
 } from "@/schemas/leadQualificationSchema";
 import { create } from "zustand";
 import { persist, StateStorage, createJSONStorage } from "zustand/middleware";
@@ -29,7 +30,9 @@ export type QualificationStep =
   | "step-three"
   | "step-four"
   | "step-five"
-  | "review"
+  | "step-six"
+  | "step-seven"
+  | "meeting"
   | "disqualified";
 
 // Step titles
@@ -39,7 +42,9 @@ export const stepTitles: Record<QualificationStep, string> = {
   "step-three": "Timing",
   "step-four": "Authority",
   "step-five": "Budget",
-  review: "Review & Submit",
+  "step-six": "Bant Score",
+  "step-seven": "Shipping",
+  meeting: "Schedule a meeting",
   disqualified: "Disqualification Reason",
 };
 
@@ -49,9 +54,18 @@ export type QualificationData = StepQualificationOneFormValues &
   StepQualificationThreeFormValues &
   StepQualificationFourFormValues &
   StepQualificationFiveFormValues &
-  ReviewQualificationFormValues &
-  disqualifiedLeadFormValues & {
+  StepSixQualificationFormValues &
+  disqualifiedLeadFormValues &
+  StepSevenQualificationFormValues & {
     contactId?: string;
+    ownerId?: string;
+    meetings: {
+      meetingIds: string[];
+      upcoming: {
+        id: string;
+        title: string;
+      } | null;
+    };
   };
 
 export interface QualificationStore {
@@ -75,10 +89,10 @@ const initialData: QualificationData = {
   lastname: "",
   email: "",
   phone: "",
+  zipCode: "",
   country: "USA",
   state: "Alabama",
   city: "",
-  address: "",
   leadType: "",
   hearAboutUs: "",
   currentSituation: [],
@@ -106,6 +120,18 @@ const initialData: QualificationData = {
   hs_lead_status: "",
   disqualification_reason: "",
   disqualification_explanation: "",
+  shipping_address: "",
+  shipping_city: "",
+  shipping_state: "",
+  shipping_province: "",
+  shipping_zip_code: "",
+  shipping_country: "",
+  shipping_notes: "",
+  ownerId: undefined,
+  meetings: {
+    meetingIds: [],
+    upcoming: null,
+  },
 };
 
 const initialState = {
@@ -156,12 +182,12 @@ export const useQualificationStore = create(
             }
           }
 
-          console.log(
-            "Changes detected:",
-            changesDetected,
-            "for keys:",
-            Object.keys(newData)
-          );
+          // console.log(
+          //   "Changes detected:",
+          //   changesDetected,
+          //   "for keys:",
+          //   Object.keys(newData)
+          // );
 
           return {
             data: {

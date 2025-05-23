@@ -13,6 +13,7 @@ interface CreateOrModifyReturnType {
   errorMsg?: string;
   success?: boolean;
   contactId?: string;
+  ownerId?: string;
 }
 
 export const createOrModify = async (
@@ -61,16 +62,6 @@ export const createOrModify = async (
         }
       }
 
-      // const webhook = await triggerLeadQualificationWebhook(contactExist.id);
-
-      /* if (!webhook) {
-        return {
-          errorMsg:
-            "Failed to trigger webhook for workflow on hubspot, contact developer.",
-          success: false,
-        };
-      } */
-
       revalidatePath(`/contacts/${contactExist.id}`);
       revalidatePath(`/contacts/${contactExist.id}/properties`);
       revalidatePath(`/contacts/${contactExist.id}/deals`);
@@ -79,6 +70,7 @@ export const createOrModify = async (
       return {
         success: true,
         contactId: contactExist.id,
+        ownerId: contactExist.hubspot_owner_id,
       };
     }
 

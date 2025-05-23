@@ -57,8 +57,16 @@ const stepRequirements = {
     ],
     conditionalGroups: [],
   },
-  stepFinal: {
+  step6: {
     required: ["bant_score"],
+    conditionalGroups: [],
+  },
+  step7: {
+    required: ["shipping_address"],
+    conditionalGroups: [],
+  },
+  stepMeeting: {
+    required: ["meeting_scheduled"],
     conditionalGroups: [],
   },
 };
@@ -98,6 +106,18 @@ export const qualificationSteps: StepInfo[] = [
     step: 6,
     name: "BANT Score",
     description: "Final qualification score",
+    completed: false,
+  },
+  {
+    step: 7,
+    name: "Shipping Address",
+    description: "Shipping address",
+    completed: false,
+  },
+  {
+    step: 8,
+    name: "Meeting",
+    description: "Book a meeting with Sales",
     completed: false,
   },
 ];
@@ -212,9 +232,30 @@ export function getCompletedQualificationSteps(
     properties.bant_score !== null &&
     properties.bant_score !== "";
 
+  // The Shipping step is completed if shipping_address property exists
+  steps[6].completed =
+    properties.shipping_address !== undefined &&
+    properties.shipping_address !== null &&
+    properties.shipping_address !== "";
+
+  // The Meeting step is completed if meeting_scheduled property exists
+  steps[7].completed =
+    properties.meeting_scheduled === true ||
+    (properties.meetings && properties.meetings.upcoming);
+
   // If BANT score exists, mark all previous steps as effectively completed
   if (steps[5].completed) {
     for (let i = 0; i < 5; i++) {
+      steps[i].completed = true;
+    }
+  }
+
+  // If meeting is scheduled, mark ALL steps as completed
+  if (
+    steps[7].completed ||
+    (properties.meetings && properties.meetings.upcoming)
+  ) {
+    for (let i = 0; i < steps.length; i++) {
       steps[i].completed = true;
     }
   }
@@ -230,10 +271,23 @@ export function getCompletedQualificationSteps(
 export function getCurrentQualificationStep(
   properties: Record<string, any>
 ): number {
-  // If BANT score exists, we're at step 6 regardless of other properties
+  // If meeting is scheduled, we're at step 8 regardless of other properties
+  if (
+    properties.meetings.upcoming ||
+    (properties.meetings && properties.meetings.upcoming)
+  ) {
+    return 8;
+  }
+
   if (properties.bant_score) {
     return 6;
   }
+  // If shipping info exists, we're at step 7
+  if (properties.shipping_address) {
+    return 7;
+  }
+
+  // If BANT score exists, we're at step 6 regardless of other properties
 
   const steps = getCompletedQualificationSteps(properties);
 
@@ -252,20 +306,27 @@ export function getCurrentQualificationStep(
   return 0;
 }
 
-/**
- * Calculate the progress percentage (0-100)
- * @param properties The HubSpot contact properties
- * @returns Progress percentage
- */
 export function getQualificationProgress(
   properties: Record<string, any>
 ): number {
-  // If BANT score exists, progress is 100%
-  if (properties.bant_score) {
+  // If meeting is scheduled, progress is 100%
+
+  if (properties.meetings && properties.meetings.upcoming) {
     return 100;
   }
 
+  // If shipping info exists, progress is around 90%
+  if (properties.shipping_address) {
+    return 90;
+  }
+
+  // If BANT score exists but no meeting yet, progress is around 85%
+  if (properties.bant_score) {
+    return 85;
+  }
+
   const steps = getCompletedQualificationSteps(properties);
+
   const completedSteps = steps.filter((step) => step.completed).length;
   return Math.round((completedSteps / steps.length) * 100);
 }

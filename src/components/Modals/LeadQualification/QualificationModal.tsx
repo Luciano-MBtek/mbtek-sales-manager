@@ -7,6 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import StepOneContent from "./StepOneContent";
@@ -21,7 +22,7 @@ import StepTwoContent from "./StepTwoContent";
 import StepThreeContent from "./StepThreeContent";
 import StepFourContent from "./StepFourContent";
 import StepFiveContent from "./stepFiveContent";
-import ReviewContent from "./ReviewContent";
+import StepSixContent from "./StepSixContent";
 import { Loader2, Trash, BrushCleaning } from "lucide-react";
 import {
   handleStepComplete as handleStepCompleteFunc,
@@ -33,6 +34,11 @@ import {
 } from "./handleStepComplete";
 
 import DisqualificationContent from "./DisqualificationContent";
+import StepSevenContent from "./StepSevenContent";
+import MeetingModal from "./MeetingModal";
+import { MeetingLink } from "@/actions/hubspot/meetings/getMeetingsLink";
+import { useMeetingLink } from "@/hooks/useMeetingLink";
+import { Skeleton } from "@/components/ui/skeleton";
 
 // Modal component
 interface QualificationModalProps {
@@ -45,6 +51,8 @@ export function QualificationModal({
   onClose,
 }: QualificationModalProps) {
   const formRef = useRef<HTMLFormElement | null>(null);
+  const { toast } = useToast();
+  const router = useRouter();
   const {
     data,
     currentStep,
@@ -55,13 +63,53 @@ export function QualificationModal({
     previousStep,
     setHasChanges,
     resetData,
-    resetVersion, // Use the reset version
+    resetVersion,
   } = useQualificationStore();
   const [isSaving, setIsSaving] = useState(false);
   const [currentBantTotal, setCurrentBantTotal] = useState<number | null>(null);
+  const [cachedOwnerId, setCachedOwnerId] = useState<string | undefined>(
+    undefined
+  );
 
-  const { toast } = useToast();
-  const router = useRouter();
+  const effectiveOwnerId = data.ownerId || cachedOwnerId;
+
+  useEffect(() => {
+    console.log("Store ownerId:", data.ownerId);
+    console.log("Cached ownerId:", cachedOwnerId);
+    console.log("Effective ownerId:", effectiveOwnerId);
+
+    if (data.ownerId) {
+      setCachedOwnerId(data.ownerId);
+    }
+  }, [data.ownerId, cachedOwnerId, effectiveOwnerId]);
+
+  const {
+    meetingLink,
+    isLoading: isMeetingLinkLoading,
+    refetchAll,
+  } = useMeetingLink(effectiveOwnerId);
+
+  console.log("Meeting link:", meetingLink);
+
+  useEffect(() => {
+    let retryTimeout: NodeJS.Timeout;
+
+    if (!isMeetingLinkLoading && !meetingLink && effectiveOwnerId) {
+      console.log(
+        "Meeting link not found, retrying with ownerId:",
+        effectiveOwnerId
+      );
+      retryTimeout = setTimeout(() => {
+        if (refetchAll) {
+          refetchAll();
+        }
+      }, 2000);
+    }
+
+    return () => {
+      if (retryTimeout) clearTimeout(retryTimeout);
+    };
+  }, [isMeetingLinkLoading, meetingLink, refetchAll, effectiveOwnerId]);
 
   useEffect(() => {
     // When resetVersion changes, we can force reset the form if it exists
@@ -92,7 +140,6 @@ export function QualificationModal({
   };
 
   const handleDisqualify = () => {
-    console.log("DISQUALIFY BUTTON CLICKED");
     if (!data.contactId) {
       toast({
         title: "Error",
@@ -101,13 +148,11 @@ export function QualificationModal({
       });
       return;
     }
-    console.log("SETTING PREVIOUS STEP:", currentStep);
+
     setPreviousStep(currentStep);
 
-    console.log("CHANGING TO DISQUALIFIED STEP");
     setStep("disqualified");
 
-    console.log("FORCING CHANGES FLAG");
     setHasChanges(true);
   };
 
@@ -218,14 +263,42 @@ export function QualificationModal({
           />
         );
 
-      case "review":
+      case "step-six":
         return (
-          <ReviewContent
-            key={`review-${resetVersion}`}
+          <StepSixContent
+            key={`step-six-${resetVersion}`}
             onComplete={handleStepComplete}
             initialData={data}
             formRef={formRef}
             onBantScoreChange={(score) => setCurrentBantTotal(score.total)}
+          />
+        );
+      case "step-seven":
+        return (
+          <StepSevenContent
+            key={`step-seven-${resetVersion}`}
+            onComplete={handleStepComplete}
+            initialData={data}
+            formRef={formRef}
+          />
+        );
+
+      case "meeting":
+        return isMeetingLinkLoading ? (
+          <div className="w-full h-full min-h-[500px]">
+            <div className="w-full h-[700px]">
+              <Skeleton className="w-full h-full" />
+            </div>
+          </div>
+        ) : (
+          <MeetingModal
+            key={`meeting-${resetVersion}`}
+            onComplete={handleStepComplete}
+            //formRef={formRef}
+            meetingLink={meetingLink ?? ({} as MeetingLink)}
+            contactEmail={data.email}
+            contactFirstName={data.name}
+            contactLastName={data.lastname}
           />
         );
 
@@ -244,7 +317,13 @@ export function QualificationModal({
   };
 
   const handleContinue = () => {
-    if (formRef.current) {
+    if (currentStep === "meeting") {
+      if (resetData) {
+        resetData();
+        console.log("Store reset completed");
+      }
+      onClose();
+    } else if (formRef.current) {
       formRef.current.requestSubmit();
     }
   };
@@ -286,7 +365,7 @@ export function QualificationModal({
 
         {shouldShowStepIndicator && (
           <StepIndicator
-            steps={6}
+            steps={8}
             currentStep={getCurrentStepNumber(currentStep)}
             labels={stepLabels}
           />
@@ -294,7 +373,7 @@ export function QualificationModal({
 
         {renderStepContent()}
 
-        <div className="mt-4 flex justify-between">
+        <div className="mt-4 flex justify-between  bg-white pb-4">
           <div className="flex gap-2">
             {/* Only show disqualify button after step one, if we have a contact ID, and we're not in disqualification step */}
             {currentStep !== "step-one" &&
@@ -333,10 +412,10 @@ export function QualificationModal({
             </Button>
             <Button
               onClick={handleContinue}
-              className={`w-[200px] ${currentStep === "review" ? "bg-green-500" : ""}`}
+              className={`w-[200px] ${currentStep === "step-seven" ? "bg-green-500" : ""}`}
               disabled={
                 isSaving ||
-                (currentStep === "review" &&
+                (currentStep === "step-six" &&
                   (currentBantTotal !== null ? currentBantTotal < 50 : false))
               }
               variant={
@@ -350,8 +429,10 @@ export function QualificationModal({
                 </>
               ) : currentStep === "disqualified" ? (
                 "Confirm Disqualification"
-              ) : currentStep === "review" ? (
+              ) : currentStep === "step-seven" ? (
                 "Qualify"
+              ) : currentStep === "meeting" ? (
+                "Finish"
               ) : (
                 "Continue"
               )}

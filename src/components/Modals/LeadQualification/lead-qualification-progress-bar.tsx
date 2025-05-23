@@ -29,26 +29,23 @@ export function LeadQualificationProgress({
         <Progress value={progressPercentage} className="h-2 bg-slate-200" />
 
         {/* Steps positioned on top of the progress bar */}
-        <div className="absolute top-4 left-0 w-full flex justify-between transform -translate-y-1/2">
+
+        <div className="absolute bottom-4 left-0 w-full flex justify-between transform -translate-y-1/2">
           {steps.map((step, index) => {
             const isCompleted = currentStep > step.step;
             const isCurrent = currentStep === step.step;
             const isLast = index === steps.length - 1;
+            const position = `${(index / (steps.length - 1)) * 100}%`;
 
             return (
               <div
                 key={index}
-                className="flex flex-col items-center gap-2"
+                className="flex flex-col items-center gap-1"
                 style={{
-                  position: "relative",
-                  left:
-                    index === 0 ? "0%" : index === steps.length - 1 ? "0%" : "",
-                  transform:
-                    index === 0
-                      ? "translateX(0%)"
-                      : index === steps.length - 1
-                        ? "translateX(0%)"
-                        : "translateX(-50%)",
+                  position: "absolute",
+                  left: position,
+                  transform: "translateX(-50%)",
+                  maxWidth: "80px", // Limita el ancho máximo
                 }}
               >
                 <div className="flex items-center justify-center size-8 rounded-full bg-white border-2 border-slate-200">
@@ -62,7 +59,7 @@ export function LeadQualificationProgress({
                     <div className="h-2 w-2 rounded-full bg-slate-300" />
                   )}
                 </div>
-                <span className="text-xs font-medium mt-1 text-slate-700">
+                <span className="text-xs font-medium mt-1 text-slate-700 text-center  w-full">
                   {step.name}
                 </span>
               </div>

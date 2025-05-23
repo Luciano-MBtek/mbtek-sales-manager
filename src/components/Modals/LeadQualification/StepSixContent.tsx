@@ -10,23 +10,23 @@ import {
 } from "@/store/qualification-store";
 import { Form } from "@/components/ui/form";
 import {
-  reviewQualificationSchema,
-  ReviewQualificationFormValues,
+  stepSixQualificationSchema,
+  StepSixQualificationFormValues,
 } from "@/schemas/leadQualificationSchema";
 
-interface ReviewContentProps {
+interface StepSixContentProps {
   onComplete: (data: Partial<QualificationData>) => void;
   initialData: QualificationData;
   formRef: React.RefObject<HTMLFormElement | null>;
   onBantScoreChange?: (score: { total: number }) => void;
 }
 
-export default function ReviewContent({
+export default function StepSixContent({
   onComplete,
   initialData,
   formRef,
   onBantScoreChange,
-}: ReviewContentProps) {
+}: StepSixContentProps) {
   const [bantScore, setBantScore] = useState({
     need: 0,
     needMax: 30,
@@ -39,8 +39,8 @@ export default function ReviewContent({
     total: 0,
   });
 
-  const form = useForm<ReviewQualificationFormValues>({
-    resolver: zodResolver(reviewQualificationSchema),
+  const form = useForm<StepSixQualificationFormValues>({
+    resolver: zodResolver(stepSixQualificationSchema),
     defaultValues: {
       bant_score: JSON.stringify(bantScore),
     },
@@ -251,7 +251,7 @@ export default function ReviewContent({
     return "Cold Lead (disqualified)";
   };
 
-  const handleSubmit = (formData: ReviewQualificationFormValues) => {
+  const handleSubmit = (formData: StepSixQualificationFormValues) => {
     onComplete({
       bant_score: formData.bant_score,
     });
