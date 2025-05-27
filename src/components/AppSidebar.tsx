@@ -10,6 +10,7 @@ import {
   CircleUserRound,
   Calendar,
   ListTodo,
+  Activity,
 } from "lucide-react";
 import Shopify from "./Icons/Shopify";
 
@@ -42,6 +43,13 @@ const items = [
     title: "Active Qualifications",
     url: "/active-qualifications",
     icon: ListTodo,
+    requireAuth: true,
+    requireRole: ["owner", "lead_agent"],
+  },
+  {
+    title: "Activities",
+    url: "/activities",
+    icon: Activity,
     requireAuth: true,
     requireRole: ["owner", "lead_agent"],
   },

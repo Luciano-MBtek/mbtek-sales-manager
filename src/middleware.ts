@@ -20,6 +20,7 @@ const ROUTES = {
     RESOURCES: "/resources/",
     AI: "/agent-ai",
     ACTIVE_QUALIFICATIONS: "/active-qualifications",
+    ACTIVITIES: "/activities",
   },
 } as const;
 
@@ -36,6 +37,7 @@ const ACCESS_LEVELS = {
     ROUTES.PROTECTED.DEALS,
     ROUTES.PROTECTED.AI,
     ROUTES.PROTECTED.ACTIVE_QUALIFICATIONS,
+    ROUTES.PROTECTED.ACTIVITIES,
   ],
   admin: [
     ROUTES.PROTECTED.CONTACTS,
@@ -75,6 +77,7 @@ const ACCESS_LEVELS = {
     ROUTES.PROTECTED.AI,
     ROUTES.PROTECTED.ACTIVE_QUALIFICATIONS,
     ROUTES.PROTECTED.MEETINGS, //TODO
+    ROUTES.PROTECTED.ACTIVITIES,
   ],
 } as const;
 
