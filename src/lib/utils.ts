@@ -257,3 +257,23 @@ export function formatDateWithDay(dateString: string): string {
 
   return `${dayName} ${dayNumber}`;
 }
+
+export function calculatePercentageChange(
+  current: number,
+  previous: number
+): {
+  percentageChange: number;
+  formattedPercentage: string;
+} {
+  let percentageChange = 0;
+
+  if (previous > 0) {
+    percentageChange = ((current - previous) / previous) * 100;
+  } else if (current > 0) {
+    percentageChange = 100; // If previous was 0 and now we have values, it's a 100% increase
+  }
+
+  const formattedPercentage = percentageChange.toFixed(1);
+
+  return { percentageChange, formattedPercentage };
+}
