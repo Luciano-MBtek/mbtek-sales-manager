@@ -15,6 +15,9 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+export const sleep = (ms: number) =>
+  new Promise((resolve) => setTimeout(resolve, ms));
+
 export const formatCurrency = (value: number): string => "$" + value.toFixed(2);
 
 export function getDatePlus30Days(): string {

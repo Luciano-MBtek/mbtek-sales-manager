@@ -20,7 +20,7 @@ type DateRange = {
   getDateRange: () => { from: Date; to: Date };
 };
 
-const dateRanges: DateRange[] = [
+export const dateRanges: DateRange[] = [
   {
     label: "Last day",
     value: "last-day",
@@ -45,15 +45,6 @@ const dateRanges: DateRange[] = [
     getDateRange: () => {
       const to = new Date();
       const from = subMonths(to, 1);
-      return { from, to };
-    },
-  },
-  {
-    label: "Last 6 months",
-    value: "last-six-months",
-    getDateRange: () => {
-      const to = new Date();
-      const from = subMonths(to, 6);
       return { from, to };
     },
   },

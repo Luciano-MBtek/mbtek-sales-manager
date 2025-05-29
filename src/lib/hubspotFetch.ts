@@ -3,11 +3,11 @@
 import pLimit from "p-limit";
 
 const API = "https://api.hubapi.com";
-const KEY = process.env.HUBSPOT_API_KEY!;
+const KEY = process.env.HUBSPOT_API_KEY_LEADS!;
 if (!KEY) throw new Error("HUBSPOT_API_KEY is not defined");
 
-const limiter = pLimit(20); // max 5 concurrent requests
-let MIN_GAP = 200; // ≥250 ms between calls  ≈4 rps
+const limiter = pLimit(30); // max 20 concurrent requests
+let MIN_GAP = 200; // ≥200 ms between calls  ≈4 rps
 let lastCall = 0;
 
 interface HubSpotRateLimitInfo {
@@ -33,15 +33,15 @@ function calculateBackoff(rateLimitInfo: HubSpotRateLimitInfo): number {
 
   // Si quedan menos del 5% de las llamadas diarias, esperamos más tiempo
   if (daily.remaining < daily.limit * 0.05) {
-    return 2000; // 2 segundos
+    return 4000; // 2 segundos
   }
 
   // Si quedan menos del 20% de las llamadas diarias, esperamos un poco
   if (daily.remaining < daily.limit * 0.2) {
-    return 1000; // 1 segundo
+    return 3500; // 1.5 segundos
   }
 
-  return 500; // medio segundo por defecto
+  return 3000; // 1 segundo por defecto
 }
 
 export async function hsFetch<T>(
@@ -62,8 +62,6 @@ export async function hsFetch<T>(
       },
       ...init,
     });
-
-    console.log("Res:", res.status);
 
     /* ──  handle rate limits  ───────────────────────────────── */
     const rateLimitInfo = getRateLimitInfo(res.headers);

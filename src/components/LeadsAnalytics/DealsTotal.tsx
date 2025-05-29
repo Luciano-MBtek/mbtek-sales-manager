@@ -52,7 +52,7 @@ export async function DealsTotalCount({
   }
 
   return (
-    <Card className="bg-slate-50 h-full flex flex-col justify-between">
+    <Card className="bg-slate-50 h-full flex flex-col justify-between mr-4">
       <CardHeader className="flex flex-row items-center gap-2">
         <FileCheck className="h-5 w-5" />
         <CardTitle className="">Assigned Deals</CardTitle>
