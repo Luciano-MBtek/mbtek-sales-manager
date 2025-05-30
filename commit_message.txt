@@ -1,0 +1,4 @@
+feat: Add new steps to technical information modal
+
+- Added new components for steps 2 to 5: Zones, Documentation, Quote and Shipping.
+- Updated modal logic to handle new steps in the technical information flow. 

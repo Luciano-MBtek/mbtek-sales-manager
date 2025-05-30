@@ -10,6 +10,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { StepIndicator } from "@/components/StepIndicator";
 import BuildingNeedsContent from "./BuildingNeedsContent";
+import ZonesInformationContent from "./ZonesInformationContent";
+import DocumentationContent from "./DocumentationContent";
+import QuoteBillingContent from "./QuoteBillingContent";
+import ShippingContent from "./ShippingContent";
 import { useToast } from "@/components/ui/use-toast";
 
 type TechnicalStep =
@@ -98,6 +102,38 @@ export function TechnicalInformationModal({
       case "building-needs":
         return (
           <BuildingNeedsContent
+            onComplete={handleStepComplete}
+            initialData={formData[currentStep]}
+            formRef={formRef}
+          />
+        );
+      case "step-2":
+        return (
+          <ZonesInformationContent
+            onComplete={handleStepComplete}
+            initialData={formData[currentStep]}
+            formRef={formRef}
+          />
+        );
+      case "step-3":
+        return (
+          <DocumentationContent
+            onComplete={handleStepComplete}
+            initialData={formData[currentStep]}
+            formRef={formRef}
+          />
+        );
+      case "step-4":
+        return (
+          <QuoteBillingContent
+            onComplete={handleStepComplete}
+            initialData={formData[currentStep]}
+            formRef={formRef}
+          />
+        );
+      case "step-5":
+        return (
+          <ShippingContent
             onComplete={handleStepComplete}
             initialData={formData[currentStep]}
             formRef={formRef}
