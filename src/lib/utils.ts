@@ -57,8 +57,9 @@ export function getCurrentMonthDateRange(): {
 } {
   const now = new Date();
 
-  // First day of current month
-  const startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+  // Date from 30 days ago
+  const startDate = new Date(now);
+  startDate.setDate(now.getDate() - 30);
   startDate.setHours(0, 0, 0, 0);
 
   // Current date as end date

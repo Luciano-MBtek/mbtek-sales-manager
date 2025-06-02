@@ -24,69 +24,115 @@ import {
 
 import {
   Phone,
-  Mail,
   FileText,
   Clock,
   Calendar,
   CheckSquare,
   Tag,
   TextSearch,
+  Flag,
+  AlertCircle,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { useState, useCallback, useEffect, useMemo } from "react";
 import { ContactModal } from "../Modals/Contact/ContactModal";
 import { BorderBeam } from "../magicui/border-beam";
 import { useRouter } from "next/navigation";
-import {
-  Engagement,
-  getContactEmail,
-  getContactInitials,
-  getContactName,
-  getEngagementSource,
-  getEngagementStatus,
-  getMessagePreview,
-  getStatusBadgeVariant,
-  truncateMessage,
-} from "./utils";
-import { getLeadsBatchActivities } from "@/actions/activities/leadsBatchActivities";
 import { getPageNumbers } from "@/app/my-contacts/utils";
 import { FilterCard, FilterState, FilterGroup } from "@/components/FilterCard";
+import { getUserBatchTasks } from "@/actions/tasks/userBatchTasks";
+import { Task } from "@/types/Tasks";
 
-interface ActivitiesTableProps {
-  activities: Engagement[];
+interface TasksTableProps {
+  tasks: Task[];
   timeRange: "weekly" | "monthly" | "allTime";
   initialNextAfter?: string;
 }
 
-export const getEngagementIcon = (type: string) => {
+// Helper functions
+const getTaskIcon = (type: string) => {
   switch (type) {
-    case "EMAIL":
-      return <Mail className="h-4 w-4" />;
     case "CALL":
       return <Phone className="h-4 w-4" />;
     case "NOTE":
       return <FileText className="h-4 w-4" />;
     case "MEETING":
       return <Calendar className="h-4 w-4" />;
-    case "TASK":
+    case "TODO":
       return <CheckSquare className="h-4 w-4" />;
     default:
-      return <FileText className="h-4 w-4" />;
+      return <CheckSquare className="h-4 w-4" />;
   }
 };
 
-export function ActivitiesTable({
-  activities: initialActivities,
+const getTaskPriorityIcon = (priority: string) => {
+  switch (priority) {
+    case "HIGH":
+      return <Flag className="h-4 w-4 text-red-500" />;
+    case "MEDIUM":
+      return <Flag className="h-4 w-4 text-amber-500" />;
+    case "LOW":
+      return <Flag className="h-4 w-4 text-green-500" />;
+    default:
+      return <Flag className="h-4 w-4 text-gray-500" />;
+  }
+};
+
+const getStatusBadgeVariant = (status: string) => {
+  switch (status) {
+    case "COMPLETED":
+      return "success";
+    case "IN_PROGRESS":
+      return "warning";
+    case "NOT_STARTED":
+      return "secondary";
+    default:
+      return "outline";
+  }
+};
+
+const truncateText = (text: string, maxLength: number = 120) => {
+  if (!text) return "";
+  const strippedText = text.replace(/<[^>]*>/g, "");
+  return strippedText.length > maxLength
+    ? `${strippedText.substring(0, maxLength)}...`
+    : strippedText;
+};
+
+const getContactInitials = (task: Task) => {
+  if (!task.contactsData?.[0]) return "?";
+
+  const firstName = task.contactsData[0].properties.firstname || "";
+  const lastName = task.contactsData[0].properties.lastname || "";
+
+  return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
+};
+
+const getContactName = (task: Task) => {
+  if (!task.contactsData?.[0]) return "Unknown Contact";
+
+  const firstName = task.contactsData[0].properties.firstname || "";
+  const lastName = task.contactsData[0].properties.lastname || "";
+
+  return `${firstName} ${lastName}`.trim() || "Unknown Contact";
+};
+
+const getContactEmail = (task: Task) => {
+  return task.contactsData?.[0]?.properties.email || "No email";
+};
+
+export function TasksTable({
+  tasks: initialTasks,
   timeRange,
   initialNextAfter,
-}: ActivitiesTableProps) {
+}: TasksTableProps) {
   const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
 
-  // pagination & data loading
+  // Pagination & data loading
   const [currentPage, setCurrentPage] = useState(1);
-  const [activities, setActivities] = useState(initialActivities);
+  const [tasks, setTasks] = useState(initialTasks);
   const [isLoading, setIsLoading] = useState(false);
   const [hasMore, setHasMore] = useState(!!initialNextAfter);
   const [nextAfter, setNextAfter] = useState(initialNextAfter);
@@ -96,67 +142,79 @@ export function ActivitiesTable({
     searchQuery: "",
     selectedFilters: {
       status: [],
-      source: [],
+      priority: [],
+      type: [],
     },
     sortDesc: true,
   });
 
   const itemsPerPage = 10;
 
-  // Load more activities ----------------------------------------------------
-  const loadMoreActivities = useCallback(async () => {
+  // Load more tasks
+  const loadMoreTasks = useCallback(async () => {
     if (isLoading || !hasMore || !nextAfter) return;
 
     setIsLoading(true);
     try {
-      const result = await getLeadsBatchActivities(timeRange, nextAfter);
+      const result = await getUserBatchTasks(timeRange, nextAfter);
 
-      if (result.engagements && result.engagements.length > 0) {
-        setActivities((prev) => [...prev, ...result.engagements]);
+      if (result.tasks && result.tasks.length > 0) {
+        setTasks((prev) => [...prev, ...result.tasks]);
         setNextAfter(result.nextAfter);
         setHasMore(!!result.nextAfter);
       } else {
         setHasMore(false);
       }
     } catch (error) {
-      console.error("Error loading more activities:", error);
+      console.error("Error loading more tasks:", error);
       setHasMore(false);
     } finally {
       setIsLoading(false);
     }
   }, [timeRange, nextAfter, isLoading, hasMore]);
 
-  // Unique status and source lists as Options for FilterGroups ---------
+  // Filter groups
   const filterGroups = useMemo<FilterGroup[]>(() => {
     const statuses = new Set<string>();
-    const sources = new Set<string>();
+    const priorities = new Set<string>();
+    const types = new Set<string>();
 
-    activities.forEach((a) => {
-      statuses.add(getEngagementStatus(a));
-      sources.add(getEngagementSource(a));
+    tasks.forEach((task) => {
+      statuses.add(task.properties.hs_task_status);
+      priorities.add(task.properties.hs_task_priority);
+      types.add(task.properties.hs_task_type);
     });
 
     return [
       {
         id: "status",
         label: "Status",
-        icon: <Tag className="h-4 w-4 text-muted-foreground" />,
+        icon: <AlertCircle className="h-4 w-4 text-muted-foreground" />,
         options: Array.from(statuses).map((status) => ({
           value: status,
           label: status,
         })),
       },
       {
-        id: "source",
-        label: "Source",
-        icon: <TextSearch className="h-4 w-4 text-muted-foreground" />,
-        options: Array.from(sources).map((source) => ({
-          value: source,
-          label: source,
+        id: "priority",
+        label: "Priority",
+        icon: <Flag className="h-4 w-4 text-muted-foreground" />,
+        options: Array.from(priorities).map((priority) => ({
+          value: priority,
+          label: priority,
+        })),
+      },
+      {
+        id: "type",
+        label: "Type",
+        icon: <Tag className="h-4 w-4 text-muted-foreground" />,
+        options: Array.from(types).map((type) => ({
+          value: type,
+          label: type,
         })),
       },
     ];
-  }, [activities]);
+  }, [tasks]);
 
   // Handle filter changes
   const handleFilterChange = (newState: FilterState) => {
@@ -164,43 +222,50 @@ export function ActivitiesTable({
     setCurrentPage(1);
   };
 
-  // Processed activities: search -> filters -> sort -------------------------
-  // Processed activities: search -> filters -> sort -------------------------
-  const processedActivities = useMemo(() => {
+  // Processed tasks: search -> filters -> sort
+  const processedTasks = useMemo(() => {
     const { searchQuery, selectedFilters, sortDesc } = filterState;
 
-    let result = activities.filter((activity) => {
+    let result = tasks.filter((task) => {
       const searchLower = searchQuery.toLowerCase().trim();
       if (!searchLower) return true;
 
-      // Search by contact name, message content or engagement type
-      const contactName = getContactName(activity).toLowerCase();
-      const messageContent = getMessagePreview(activity).toLowerCase();
-      const engagementType =
-        activity.properties.hs_engagement_type.toLowerCase();
+      // Search by contact name, task subject, task body
+      const contactName = getContactName(task).toLowerCase();
+      const taskSubject = task.properties.hs_task_subject?.toLowerCase() || "";
+      const taskBody = task.properties.hs_task_body?.toLowerCase() || "";
+      const taskType = task.properties.hs_task_type?.toLowerCase() || "";
 
       return (
         contactName.includes(searchLower) ||
-        messageContent.includes(searchLower) ||
-        engagementType.includes(searchLower)
+        taskSubject.includes(searchLower) ||
+        taskBody.includes(searchLower) ||
+        taskType.includes(searchLower)
       );
     });
 
-    // Filter by status (multiple)
+    // Filter by status
     if (selectedFilters.status?.length > 0) {
-      result = result.filter((a) =>
-        selectedFilters.status.includes(getEngagementStatus(a))
+      result = result.filter((task) =>
+        selectedFilters.status.includes(task.properties.hs_task_status)
       );
     }
 
-    // Filter by source (multiple)
-    if (selectedFilters.source?.length > 0) {
-      result = result.filter((a) =>
-        selectedFilters.source.includes(getEngagementSource(a))
+    // Filter by priority
+    if (selectedFilters.priority?.length > 0) {
+      result = result.filter((task) =>
+        selectedFilters.priority.includes(task.properties.hs_task_priority)
       );
     }
 
-    // Sort by time
+    // Filter by type
+    if (selectedFilters.type?.length > 0) {
+      result = result.filter((task) =>
+        selectedFilters.type.includes(task.properties.hs_task_type)
+      );
+    }
+
+    // Sort by timestamp
     result.sort((a, b) => {
       const timeA = new Date(a.properties.hs_timestamp).getTime();
       const timeB = new Date(b.properties.hs_timestamp).getTime();
@@ -208,69 +273,56 @@ export function ActivitiesTable({
     });
 
     return result;
-  }, [activities, filterState]);
+  }, [tasks, filterState]);
 
-  // Pagination --------------------------------------------------------------
-  const totalPages = Math.ceil(processedActivities.length / itemsPerPage);
-  const paginatedActivities = processedActivities.slice(
+  // Pagination
+  const totalPages = Math.ceil(processedTasks.length / itemsPerPage);
+  const paginatedTasks = processedTasks.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
 
-  // Auto‑load more when hitting last page -----------------------------------
+  // Auto-load more when hitting last page
   useEffect(() => {
-    if (
-      currentPage === totalPages &&
-      hasMore &&
-      paginatedActivities.length > 0
-    ) {
-      loadMoreActivities();
+    if (currentPage === totalPages && hasMore && paginatedTasks.length > 0) {
+      loadMoreTasks();
     }
-  }, [
-    currentPage,
-    totalPages,
-    hasMore,
-    loadMoreActivities,
-    paginatedActivities.length,
-  ]);
+  }, [currentPage, totalPages, hasMore, loadMoreTasks, paginatedTasks.length]);
 
-  // UI ----------------------------------------------------------------------
   return (
     <div className="w-full">
-      {/* Using the reusable FilterCard component */}
+      {/* Filter Card */}
       <FilterCard
         filterGroups={filterGroups}
         filterState={filterState}
         onFilterChange={handleFilterChange}
-        searchPlaceholder="Search activities..."
-        resultCount={processedActivities.length}
+        searchPlaceholder="Search tasks..."
+        resultCount={processedTasks.length}
         className="mb-4"
       />
-
-      {/* Table ----------------------------------------------------------------*/}
+      {/* Table */}
       <div className="rounded-md border">
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>Contact</TableHead>
-              <TableHead>Message</TableHead>
-              <TableHead>Source</TableHead>
-              <TableHead>Time</TableHead>
+              <TableHead>Task</TableHead>
+              <TableHead>Type</TableHead>
+              <TableHead>Priority</TableHead>
+              <TableHead>Due Date</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead>Open</TableHead>
+              <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {paginatedActivities.length > 0 ? (
-              paginatedActivities.map((activity) => (
-                <TableRow key={activity.id} className="group">
+            {paginatedTasks.length > 0 ? (
+              paginatedTasks.map((task) => (
+                <TableRow key={task.id} className="group">
                   <TableCell
                     className="cursor-pointer relative overflow-hidden"
                     onClick={() => {
                       setIsModalOpen(true);
-                      setSelectedLeadId(
-                        activity?.contactsData?.[0]?.id || null
-                      );
+                      setSelectedLeadId(task?.contactsData?.[0]?.id || null);
                     }}
                   >
                     <BorderBeam
@@ -289,33 +341,42 @@ export function ActivitiesTable({
                     <div className="flex items-center space-x-3">
                       <Avatar className="h-8 w-8">
                         <AvatarFallback className="text-xs">
-                          {getContactInitials(activity)}
+                          {getContactInitials(task)}
                         </AvatarFallback>
                       </Avatar>
                       <div>
                         <div className="font-medium text-sm">
-                          {getContactName(activity)}
+                          {getContactName(task)}
                         </div>
                         <div className="text-xs text-muted-foreground">
-                          {getContactEmail(activity)}
+                          {getContactEmail(task)}
                         </div>
                       </div>
                     </div>
                   </TableCell>
                   <TableCell>
                     <div className="max-w-xs">
-                      <div className="text-sm">
-                        {truncateMessage(getMessagePreview(activity))}
+                      <div className="text-sm font-medium">
+                        {truncateText(task.properties.hs_task_subject, 50)}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {truncateText(task.properties.hs_task_body, 70)}
                       </div>
                     </div>
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center space-x-2">
-                      {getEngagementIcon(
-                        activity.properties.hs_engagement_type
-                      )}
+                      {getTaskIcon(task.properties.hs_task_type)}
                       <span className="text-sm">
-                        {getEngagementSource(activity)}
+                        {task.properties.hs_task_type}
+                      </span>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center space-x-2">
+                      {getTaskPriorityIcon(task.properties.hs_task_priority)}
+                      <span className="text-sm">
+                        {task.properties.hs_task_priority}
                       </span>
                     </div>
                   </TableCell>
@@ -324,7 +385,7 @@ export function ActivitiesTable({
                       <Clock className="h-3 w-3" />
                       <span>
                         {formatDistanceToNow(
-                          new Date(activity.properties.hs_timestamp),
+                          new Date(task.properties.hs_timestamp),
                           {
                             addSuffix: true,
                           }
@@ -335,45 +396,48 @@ export function ActivitiesTable({
                   <TableCell>
                     <Badge
                       variant={getStatusBadgeVariant(
-                        getEngagementStatus(activity)
+                        task.properties.hs_task_status
                       )}
                     >
-                      {getEngagementStatus(activity)}
+                      {task.properties.hs_task_status}
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    {activity?.contactsData?.[0]?.id && (
-                      <Button
-                        onClick={() =>
-                          router.push(
-                            `/contacts/${activity?.contactsData?.[0].id}`
-                          )
-                        }
-                      >
-                        View Contact
-                      </Button>
-                    )}
+                    <div className="flex space-x-2">
+                      {task?.contactsData?.[0]?.id && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() =>
+                            router.push(
+                              `/contacts/${task?.contactsData?.[0].id}`
+                            )
+                          }
+                        >
+                          View Contact
+                        </Button>
+                      )}
+                    </div>
                   </TableCell>
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-8">
+                <TableCell colSpan={7} className="text-center py-8">
                   {filterState.searchQuery ||
                   Object.values(filterState.selectedFilters).some(
                     (arr) => arr.length > 0
                   )
-                    ? "No matching activities found"
-                    : "No activities available"}
+                    ? "No matching tasks found"
+                    : "No tasks available"}
                 </TableCell>
               </TableRow>
             )}
           </TableBody>
         </Table>
       </div>
-
-      {/* Pagination ----------------------------------------------------------*/}
-      {processedActivities.length > 0 && (
+      {/* Pagination */} {/* Pagination */}
+      {processedTasks.length > 0 && (
         <Pagination className="mt-4">
           <PaginationContent>
             <PaginationItem>
@@ -422,7 +486,6 @@ export function ActivitiesTable({
           </PaginationContent>
         </Pagination>
       )}
-
       {/* Modal */}
       <ContactModal
         contactId={selectedLeadId}
