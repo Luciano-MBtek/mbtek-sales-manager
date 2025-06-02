@@ -11,6 +11,7 @@ import {
   Calendar,
   ListTodo,
   Activity,
+  ChartLine,
 } from "lucide-react";
 import Shopify from "./Icons/Shopify";
 
@@ -32,6 +33,7 @@ import { useSession } from "next-auth/react";
 import { Role } from "@prisma/client";
 
 import { SidebarResources } from "@/app/resources/SidebarResources";
+import { SidebarSkeleton } from "./SidebarSkeleton";
 
 const items = [
   {
@@ -60,6 +62,13 @@ const items = [
     icon: Search,
   },
   {
+    title: "Analytics",
+    url: "/analytics",
+    icon: ChartLine,
+    requireAuth: true,
+    requireRole: ["owner", "lead_agent"],
+  },
+  {
     title: "AI chat (Beta)",
     url: "/agent-ai",
     icon: BotMessageSquare,
@@ -70,6 +79,7 @@ const items = [
     url: "/my-meetings",
     icon: Calendar,
     requireAuth: true,
+    requireRole: ["owner", "sales_agent", "manager", "admin"],
   },
   {
     title: "User Dashboard",
@@ -111,7 +121,7 @@ export function AppSidebar() {
   const { data: session, status } = useSession();
 
   if (status === "loading") {
-    return null;
+    return <SidebarSkeleton />;
   }
 
   const filteredItems = items.filter((item) => {
