@@ -1,16 +1,10 @@
 "use server";
 
-import { getHubspotOwnerIdSession } from "@/actions/user/getHubspotOwnerId";
 import { getCurrentWeekDateRange } from "@/lib/utils";
 import { hsFetch } from "@/lib/hubspotFetch";
 
-async function leadsCount(
-  userId: string,
-  startDateISO?: string,
-  endDateISO?: string
-) {
+async function contactsCount(startDateISO?: string, endDateISO?: string) {
   try {
-    // default
     const dateRange =
       startDateISO && endDateISO
         ? { startDate: startDateISO, endDate: endDateISO }
@@ -25,11 +19,6 @@ async function leadsCount(
           filterGroups: [
             {
               filters: [
-                {
-                  propertyName: "lead_owner_id",
-                  operator: "EQ",
-                  value: userId,
-                },
                 {
                   propertyName: "createdate",
                   operator: "BETWEEN",
@@ -51,8 +40,6 @@ async function leadsCount(
   }
 }
 
-export async function getLeadsCount(fromDate?: string, toDate?: string) {
-  const userId = await getHubspotOwnerIdSession();
-  // const managerIdTest = "719106449"; // Byron
-  return leadsCount(userId, fromDate, toDate);
+export async function getContactsCount(fromDate?: string, toDate?: string) {
+  return contactsCount(fromDate, toDate);
 }

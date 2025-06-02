@@ -1,17 +1,20 @@
 import * as motion from "framer-motion/client";
 import { LucideProps } from "lucide-react";
+import { cn } from "../lib/utils";
 
 export default function PageHeader({
   title,
   subtitle,
   icon: Icon,
+  className,
 }: {
   title: string;
   subtitle?: string;
   icon?: React.ComponentType<LucideProps>;
+  className?: string;
 }) {
   return (
-    <div className="w-full px-4 py-8 ">
+    <div className={cn("w-full px-4 py-8", className)}>
       <div className="flex flex-col items-center sm:flex-row sm:items-start sm:justify-start space-y-4 sm:space-y-0 sm:space-x-6">
         {Icon && (
           <motion.div

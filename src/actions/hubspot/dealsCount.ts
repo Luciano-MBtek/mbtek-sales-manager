@@ -4,7 +4,7 @@ import { getHubspotOwnerIdSession } from "@/actions/user/getHubspotOwnerId";
 import { getCurrentWeekDateRange } from "@/lib/utils";
 import { hsFetch } from "@/lib/hubspotFetch";
 
-async function leadsCount(
+async function dealsCount(
   userId: string,
   startDateISO?: string,
   endDateISO?: string
@@ -17,7 +17,7 @@ async function leadsCount(
         : getCurrentWeekDateRange();
 
     const data = await hsFetch<{ total: number }>(
-      `/crm/v3/objects/contacts/search`,
+      `/crm/v3/objects/deals/search`,
       {
         method: "POST",
         body: JSON.stringify({
@@ -51,8 +51,8 @@ async function leadsCount(
   }
 }
 
-export async function getLeadsCount(fromDate?: string, toDate?: string) {
+export async function getDealsCount(fromDate?: string, toDate?: string) {
   const userId = await getHubspotOwnerIdSession();
-  // const managerIdTest = "719106449"; // Byron
-  return leadsCount(userId, fromDate, toDate);
+  //const managerIdTest = "719106449"; // Byron
+  return dealsCount(userId, fromDate, toDate);
 }
