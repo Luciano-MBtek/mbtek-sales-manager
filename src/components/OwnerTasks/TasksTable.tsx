@@ -1,7 +1,7 @@
 "use client";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
+
 import { Badge } from "@/components/ui/badge";
 import {
   Table,
@@ -22,113 +22,42 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 
-import {
-  Phone,
-  FileText,
-  Clock,
-  Calendar,
-  CheckSquare,
-  Tag,
-  TextSearch,
-  Flag,
-  AlertCircle,
-} from "lucide-react";
+import { Clock, Tag, Flag, AlertCircle } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { useState, useCallback, useEffect, useMemo } from "react";
 import { ContactModal } from "../Modals/Contact/ContactModal";
 import { BorderBeam } from "../magicui/border-beam";
-import { useRouter } from "next/navigation";
 import { getPageNumbers } from "@/app/my-contacts/utils";
 import { FilterCard, FilterState, FilterGroup } from "@/components/FilterCard";
 import { getUserBatchTasks } from "@/actions/tasks/userBatchTasks";
-import { Task } from "@/types/Tasks";
+import { Task, TaskStatus, taskStatusLabels } from "@/types/Tasks";
+import { TaskActionsMenu } from "./TaskActionMenu";
+import {
+  getContactEmail,
+  getContactInitials,
+  getContactName,
+  getStatusBadgeVariant,
+  getTaskIcon,
+  getTaskPriorityIcon,
+  truncateText,
+} from "./utils";
+import TaskModalBody from "./TaskModalBody";
 
 interface TasksTableProps {
   tasks: Task[];
-  timeRange: "weekly" | "monthly" | "allTime";
+  timeRange: "weekly" | "monthly" | "daily";
   initialNextAfter?: string;
 }
-
-// Helper functions
-const getTaskIcon = (type: string) => {
-  switch (type) {
-    case "CALL":
-      return <Phone className="h-4 w-4" />;
-    case "NOTE":
-      return <FileText className="h-4 w-4" />;
-    case "MEETING":
-      return <Calendar className="h-4 w-4" />;
-    case "TODO":
-      return <CheckSquare className="h-4 w-4" />;
-    default:
-      return <CheckSquare className="h-4 w-4" />;
-  }
-};
-
-const getTaskPriorityIcon = (priority: string) => {
-  switch (priority) {
-    case "HIGH":
-      return <Flag className="h-4 w-4 text-red-500" />;
-    case "MEDIUM":
-      return <Flag className="h-4 w-4 text-amber-500" />;
-    case "LOW":
-      return <Flag className="h-4 w-4 text-green-500" />;
-    default:
-      return <Flag className="h-4 w-4 text-gray-500" />;
-  }
-};
-
-const getStatusBadgeVariant = (status: string) => {
-  switch (status) {
-    case "COMPLETED":
-      return "success";
-    case "IN_PROGRESS":
-      return "warning";
-    case "NOT_STARTED":
-      return "secondary";
-    default:
-      return "outline";
-  }
-};
-
-const truncateText = (text: string, maxLength: number = 120) => {
-  if (!text) return "";
-  const strippedText = text.replace(/<[^>]*>/g, "");
-  return strippedText.length > maxLength
-    ? `${strippedText.substring(0, maxLength)}...`
-    : strippedText;
-};
-
-const getContactInitials = (task: Task) => {
-  if (!task.contactsData?.[0]) return "?";
-
-  const firstName = task.contactsData[0].properties.firstname || "";
-  const lastName = task.contactsData[0].properties.lastname || "";
-
-  return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
-};
-
-const getContactName = (task: Task) => {
-  if (!task.contactsData?.[0]) return "Unknown Contact";
-
-  const firstName = task.contactsData[0].properties.firstname || "";
-  const lastName = task.contactsData[0].properties.lastname || "";
-
-  return `${firstName} ${lastName}`.trim() || "Unknown Contact";
-};
-
-const getContactEmail = (task: Task) => {
-  return task.contactsData?.[0]?.properties.email || "No email";
-};
 
 export function TasksTable({
   tasks: initialTasks,
   timeRange,
   initialNextAfter,
 }: TasksTableProps) {
-  const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
+  const [taskDetailOpen, setTaskDetailOpen] = useState(false);
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
   // Pagination & data loading
   const [currentPage, setCurrentPage] = useState(1);
@@ -147,6 +76,13 @@ export function TasksTable({
     },
     sortDesc: true,
   });
+
+  useEffect(() => {
+    setTasks(initialTasks);
+    setCurrentPage(1);
+    setNextAfter(initialNextAfter);
+    setHasMore(!!initialNextAfter);
+  }, [initialTasks, initialNextAfter]);
 
   const itemsPerPage = 10;
 
@@ -354,7 +290,13 @@ export function TasksTable({
                       </div>
                     </div>
                   </TableCell>
-                  <TableCell>
+                  <TableCell
+                    className="cursor-pointer"
+                    onClick={() => {
+                      setSelectedTask(task);
+                      setTaskDetailOpen(true);
+                    }}
+                  >
                     <div className="max-w-xs">
                       <div className="text-sm font-medium">
                         {truncateText(task.properties.hs_task_subject, 50)}
@@ -399,25 +341,28 @@ export function TasksTable({
                         task.properties.hs_task_status
                       )}
                     >
-                      {task.properties.hs_task_status}
+                      {taskStatusLabels[task.properties.hs_task_status]}
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    <div className="flex space-x-2">
-                      {task?.contactsData?.[0]?.id && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() =>
-                            router.push(
-                              `/contacts/${task?.contactsData?.[0].id}`
-                            )
-                          }
-                        >
-                          View Contact
-                        </Button>
-                      )}
-                    </div>
+                    <TaskActionsMenu
+                      task={task}
+                      mutateLocal={(id, status) =>
+                        setTasks((prev) =>
+                          prev.map((t) =>
+                            t.id === id
+                              ? {
+                                  ...t,
+                                  properties: {
+                                    ...t.properties,
+                                    hs_task_status: status as TaskStatus,
+                                  },
+                                }
+                              : t
+                          )
+                        )
+                      }
+                    />
                   </TableCell>
                 </TableRow>
               ))
@@ -491,6 +436,11 @@ export function TasksTable({
         contactId={selectedLeadId}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
+      />
+      <TaskModalBody
+        taskDetailOpen={taskDetailOpen}
+        setTaskDetailOpen={setTaskDetailOpen}
+        selectedTask={selectedTask}
       />
     </div>
   );

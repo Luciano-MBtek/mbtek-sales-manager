@@ -54,6 +54,17 @@ export function getCurrentWeekDateRange(): {
   return { startDate: startDateISO, endDate: endDateISO };
 }
 
+export function getCurrentDayDateRange() {
+  const now = new Date();
+  const yesterday = new Date(now);
+  yesterday.setDate(yesterday.getDate() - 1);
+
+  return {
+    startDate: yesterday.toISOString(),
+    endDate: now.toISOString(),
+  };
+}
+
 export function getCurrentMonthDateRange(): {
   startDate: string;
   endDate: string;

@@ -2,7 +2,7 @@
 
 import pLimit from "p-limit";
 import {
-  getAllTimeDateRange,
+  getCurrentDayDateRange,
   getCurrentMonthDateRange,
   getCurrentWeekDateRange,
 } from "@/lib/utils";
@@ -12,7 +12,7 @@ import { Association, Associations, ContactData, Task } from "@/types/Tasks";
 // CONFIG ------------------------------------------------------------------
 const CONTACT_BATCH_SIZE = 100;
 const API = "https://api.hubapi.com";
-const limiter = pLimit(6); // max 6 concurrent requests (~60 rps)
+const limiter = pLimit(6);
 
 // HELPERS -----------------------------------------------------------------
 const hubFetch = (
@@ -51,18 +51,31 @@ const taskProperties = [
 // MAIN --------------------------------------------------------------------
 async function getOwnerTasks(
   ownerId: string,
-  timeRange: "weekly" | "monthly" | "allTime" = "weekly",
-  after?: string
+  timeRange: "daily" | "weekly" | "monthly" = "weekly",
+  after?: string,
+  fromDate?: string,
+  toDate?: string
 ): Promise<{ tasks: Task[]; nextAfter?: string }> {
   if (!process.env.HUBSPOT_API_KEY) throw new Error("Missing HUBSPOT_API_KEY");
 
   // 1️⃣ Date range ---------------------------------------------------------
-  const { startDate, endDate } =
-    timeRange === "monthly"
-      ? getCurrentMonthDateRange()
-      : timeRange === "allTime"
-        ? getAllTimeDateRange()
-        : getCurrentWeekDateRange();
+  let startDate: string;
+  let endDate: string;
+
+  if (fromDate && toDate) {
+    startDate = new Date(fromDate).toISOString();
+    endDate = new Date(toDate).toISOString();
+  } else {
+    const dateRange =
+      timeRange === "daily"
+        ? getCurrentDayDateRange()
+        : timeRange === "monthly"
+          ? getCurrentMonthDateRange()
+          : getCurrentWeekDateRange();
+
+    startDate = dateRange.startDate;
+    endDate = dateRange.endDate;
+  }
 
   // 2️⃣ SEARCH -------------------------------------------------------------
   const limit = 50;
@@ -92,13 +105,10 @@ async function getOwnerTasks(
     60
   );
 
-  console.log(searchRes);
-
   if (!searchRes.ok) throw new Error("search error " + searchRes.statusText);
   const searchJson = await searchRes.json();
   const tasks: Task[] = searchJson.results;
 
-  console.log(tasks);
   const nextAfter = searchJson.paging?.next?.after;
 
   if (tasks.length === 0) return { tasks: [], nextAfter: undefined };
@@ -189,12 +199,22 @@ async function getOwnerTasks(
 }
 
 // PUBLIC WRAPPER -----------------------------------------------------------
-export async function getUserBatchTasks(
-  timeRange: "weekly" | "monthly" | "allTime" = "weekly",
-  after?: string
-) {
-  const ownerId = await getHubspotOwnerIdSession();
 
-  // const managerIdTest = "719106449"; // Byron (test)
-  return getOwnerTasks(ownerId, timeRange, after);
+export async function getUserBatchTasks(
+  timeRange: "daily" | "weekly" | "monthly" = "weekly",
+  after?: string,
+  fromDate?: string,
+  toDate?: string
+) {
+  try {
+    const ownerId = await getHubspotOwnerIdSession();
+    //const ownerId = "719106449"; // Byron
+    return getOwnerTasks(ownerId, timeRange, after, fromDate, toDate);
+  } catch (error) {
+    console.error("Error in getUserBatchTasks:", error);
+    throw new Error(
+      "Failed to fetch user tasks: " +
+        (error instanceof Error ? error.message : String(error))
+    );
+  }
 }

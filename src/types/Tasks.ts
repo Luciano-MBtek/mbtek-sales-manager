@@ -1,10 +1,10 @@
 export type TaskProperties = {
   // Task information
   hs_task_subject: string;
-  hs_task_status: string;
-  hs_task_priority: string;
+  hs_task_status: TaskStatus;
+  hs_task_priority: TaskPriority;
   hs_task_body: string;
-  hs_task_type: string;
+  hs_task_type: TaskType;
   hs_body_preview?: string;
   hs_body_preview_html?: string;
   hs_body_preview_is_truncated?: boolean;
@@ -167,3 +167,46 @@ export interface Association {
   id: string;
   type: string;
 }
+
+export type TaskStatus =
+  | "COMPLETED"
+  | "DEFERRED"
+  | "IN_PROGRESS"
+  | "NOT_STARTED"
+  | "WAITING";
+
+export const taskStatusLabels: Record<TaskStatus, string> = {
+  COMPLETED: "Completed",
+  DEFERRED: "Deferred",
+  IN_PROGRESS: "In Progress",
+  NOT_STARTED: "Not Started",
+  WAITING: "Waiting",
+};
+
+export type TaskType =
+  | "CALL"
+  | "EMAIL"
+  | "LINKED_IN"
+  | "MEETING"
+  | "LINKED_IN_CONNECT"
+  | "LINKED_IN_MESSAGE"
+  | "TODO";
+
+export const taskTypeLabels: Record<TaskType, string> = {
+  CALL: "Call",
+  EMAIL: "Email",
+  LINKED_IN: "LinkedIn",
+  MEETING: "Meeting",
+  LINKED_IN_CONNECT: "Sales Navigator - Connection Request",
+  LINKED_IN_MESSAGE: "Sales Navigator - InMail",
+  TODO: "To Do",
+};
+
+export type TaskPriority = "NONE" | "LOW" | "MEDIUM" | "HIGH";
+
+export const taskPriorityLabels: Record<TaskPriority, string> = {
+  NONE: "None",
+  LOW: "Low",
+  MEDIUM: "Medium",
+  HIGH: "High",
+};
