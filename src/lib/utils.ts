@@ -54,14 +54,26 @@ export function getCurrentWeekDateRange(): {
   return { startDate: startDateISO, endDate: endDateISO };
 }
 
+export function getCurrentDayDateRange() {
+  const now = new Date();
+  const yesterday = new Date(now);
+  yesterday.setDate(yesterday.getDate() - 1);
+
+  return {
+    startDate: yesterday.toISOString(),
+    endDate: now.toISOString(),
+  };
+}
+
 export function getCurrentMonthDateRange(): {
   startDate: string;
   endDate: string;
 } {
   const now = new Date();
 
-  // First day of current month
-  const startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+  // Date from 30 days ago
+  const startDate = new Date(now);
+  startDate.setDate(now.getDate() - 30);
   startDate.setHours(0, 0, 0, 0);
 
   // Current date as end date

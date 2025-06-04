@@ -11,6 +11,7 @@ import {
   Calendar,
   ListTodo,
   Activity,
+  ListChecks,
   ChartLine,
 } from "lucide-react";
 import Shopify from "./Icons/Shopify";
@@ -60,6 +61,12 @@ const items = [
     url: "/contacts",
     requireAuth: true,
     icon: Search,
+  },
+  {
+    title: "My Tasks",
+    url: "/tasks",
+    icon: ListChecks,
+    requireAuth: true,
   },
   {
     title: "Analytics",

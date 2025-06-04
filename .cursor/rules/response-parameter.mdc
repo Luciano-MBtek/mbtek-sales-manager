@@ -1,0 +1,6 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+- Always give me the portion of the code that i request to change, unless i explicity ask for the hole new file.
