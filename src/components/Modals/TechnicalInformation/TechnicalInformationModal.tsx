@@ -34,11 +34,15 @@ const STEPS: Array<{ id: TechnicalStep; label: string }> = [
 interface TechnicalInformationModalProps {
   isOpen: boolean;
   onClose: () => void;
+  contactData: any;
+  dealData: any;
 }
 
 export function TechnicalInformationModal({
   isOpen,
   onClose,
+  contactData,
+  dealData,
 }: TechnicalInformationModalProps) {
   const [currentStep, setCurrentStep] =
     useState<TechnicalStep>("building-needs");
@@ -68,6 +72,8 @@ export function TechnicalInformationModal({
     try {
       // Here goes the logic to save the data
       console.log("Step data:", stepData);
+      console.log("Contact data:", contactData);
+      console.log("Deal data:", dealData);
 
       // Update form data
       setFormData((prev) => ({
@@ -127,7 +133,10 @@ export function TechnicalInformationModal({
         return (
           <QuoteBillingContent
             onComplete={handleStepComplete}
-            initialData={formData[currentStep]}
+            initialData={{
+              ...formData[currentStep],
+              zipCode: contactData?.zip || "",
+            }}
             formRef={formRef}
           />
         );

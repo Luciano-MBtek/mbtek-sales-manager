@@ -23,6 +23,7 @@ export async function getDealById(dealId: string): Promise<Deal | null> {
     }
 
     const data = await response.json();
+    console.log("Deal data loaded:", data);
     return data;
   } catch (error) {
     console.error(`Error in getDealDetails for deal ${dealId}:`, error);
