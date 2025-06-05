@@ -4,7 +4,6 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
 import QualificationButton from "@/components/Modals/LeadQualification/QualificationButton";
 import { LeadCountCard } from "@/components/LeadsQualifier/LeadsCountCard";
-import { LeadsQualifiedList } from "@/components/LeadsQualifier/LeadsQualifiedList";
 
 async function HomePage() {
   const session = await getServerSession(authOptions);

@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { PaperclipIcon, SendIcon, XIcon, ArrowRight, Bug } from "lucide-react";
+import { PaperclipIcon, SendIcon, XIcon, Bug } from "lucide-react";
 import { Badge } from "../ui/badge";
 import { useSession } from "next-auth/react";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -31,19 +31,18 @@ import {
 } from "@/components/ui/form";
 import { useToast } from "../ui/use-toast";
 import { Textarea } from "../ui/textarea";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "../ui/tooltip";
 
 interface BugProps {
   isSideBar: boolean;
+  isOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
-export default function BugModal({ isSideBar }: BugProps) {
-  const [isOpen, setIsOpen] = useState(false);
+export default function BugModal({
+  isSideBar,
+  isOpen,
+  onOpenChange,
+}: BugProps) {
   const [isLoading, setIsLoading] = useState(false);
 
   const { data } = useSession();
@@ -73,6 +72,12 @@ export default function BugModal({ isSideBar }: BugProps) {
       attachments: [],
     });
   }, [userEmail, form, userName]);
+
+  const setIsOpen = (value: boolean) => {
+    if (onOpenChange) {
+      onOpenChange(value);
+    }
+  };
 
   const onSubmit = async (values: bugSchemaType) => {
     setIsLoading(true);
@@ -150,13 +155,8 @@ export default function BugModal({ isSideBar }: BugProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        {isSideBar ? (
-          <div className="relative flex cursor-default hover:bg-accent hover:text-accent-foreground select-none justify-between items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 w-full">
-            <span>Report Bug</span>
-            <Bug width={15} />
-          </div>
-        ) : (
+      <DialogTrigger asChild onClick={() => setIsOpen(true)}>
+        {!isSideBar && (
           <Button variant="destructive" className="gap-3 p-2 rounded-full">
             <Bug />
           </Button>

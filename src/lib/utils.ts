@@ -15,6 +15,9 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+export const sleep = (ms: number) =>
+  new Promise((resolve) => setTimeout(resolve, ms));
+
 export const formatCurrency = (value: number): string => "$" + value.toFixed(2);
 
 export function getDatePlus30Days(): string {
@@ -51,14 +54,26 @@ export function getCurrentWeekDateRange(): {
   return { startDate: startDateISO, endDate: endDateISO };
 }
 
+export function getCurrentDayDateRange() {
+  const now = new Date();
+  const yesterday = new Date(now);
+  yesterday.setDate(yesterday.getDate() - 1);
+
+  return {
+    startDate: yesterday.toISOString(),
+    endDate: now.toISOString(),
+  };
+}
+
 export function getCurrentMonthDateRange(): {
   startDate: string;
   endDate: string;
 } {
   const now = new Date();
 
-  // First day of current month
-  const startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+  // Date from 30 days ago
+  const startDate = new Date(now);
+  startDate.setDate(now.getDate() - 30);
   startDate.setHours(0, 0, 0, 0);
 
   // Current date as end date
@@ -256,4 +271,24 @@ export function formatDateWithDay(dateString: string): string {
   const dayNumber = date.getDate();
 
   return `${dayName} ${dayNumber}`;
+}
+
+export function calculatePercentageChange(
+  current: number,
+  previous: number
+): {
+  percentageChange: number;
+  formattedPercentage: string;
+} {
+  let percentageChange = 0;
+
+  if (previous > 0) {
+    percentageChange = ((current - previous) / previous) * 100;
+  } else if (current > 0) {
+    percentageChange = 100; // If previous was 0 and now we have values, it's a 100% increase
+  }
+
+  const formattedPercentage = percentageChange.toFixed(1);
+
+  return { percentageChange, formattedPercentage };
 }
