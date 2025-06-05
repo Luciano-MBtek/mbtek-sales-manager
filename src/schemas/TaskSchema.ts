@@ -13,3 +13,15 @@ export const updateTaskSchema = z.object({
 });
 
 export type updateTaskSchemaType = z.infer<typeof updateTaskSchema>;
+
+export const createTaskSchema = z.object({
+  hs_task_subject: z.string().min(1, "Task title is required"),
+  hs_task_body: z.string().min(1, "Task body is required"),
+  hs_task_type: z.string().min(1, "Task type is required"),
+  hs_task_priority: z.string().min(1, "Task priority is required"),
+  hubspot_owner_id: z.string().min(1, "Task owner is required"),
+  hs_timestamp: z.string().min(1, "Task date is required"),
+  contactId: z.string().optional(),
+});
+
+export type createTaskSchemaType = z.infer<typeof createTaskSchema>;

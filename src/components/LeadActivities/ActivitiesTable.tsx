@@ -1,7 +1,6 @@
 "use client";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
   Table,
@@ -51,6 +50,8 @@ import {
 import { getLeadsBatchActivities } from "@/actions/activities/leadsBatchActivities";
 import { getPageNumbers } from "@/app/my-contacts/utils";
 import { FilterCard, FilterState, FilterGroup } from "@/components/FilterCard";
+import { TaskActionActivitiesMenu } from "./TaskACtionActivitiesMenu";
+import ActivityModalBody from "./ActivityModalBody";
 
 interface ActivitiesTableProps {
   activities: Engagement[];
@@ -90,6 +91,11 @@ export function ActivitiesTable({
   const [isLoading, setIsLoading] = useState(false);
   const [hasMore, setHasMore] = useState(!!initialNextAfter);
   const [nextAfter, setNextAfter] = useState(initialNextAfter);
+
+  const [activityDetailOpen, setActivityDetailOpen] = useState(false);
+  const [selectedActivity, setSelectedActivity] = useState<Engagement | null>(
+    null
+  );
 
   // Filter state
   const [filterState, setFilterState] = useState<FilterState>({
@@ -257,7 +263,7 @@ export function ActivitiesTable({
               <TableHead>Source</TableHead>
               <TableHead>Time</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead>Open</TableHead>
+              <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -302,7 +308,13 @@ export function ActivitiesTable({
                       </div>
                     </div>
                   </TableCell>
-                  <TableCell>
+                  <TableCell
+                    className="cursor-pointer"
+                    onClick={() => {
+                      setSelectedActivity(activity);
+                      setActivityDetailOpen(true);
+                    }}
+                  >
                     <div className="max-w-xs">
                       <div className="text-sm">
                         {truncateMessage(getMessagePreview(activity))}
@@ -342,17 +354,7 @@ export function ActivitiesTable({
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    {activity?.contactsData?.[0]?.id && (
-                      <Button
-                        onClick={() =>
-                          router.push(
-                            `/contacts/${activity?.contactsData?.[0].id}`
-                          )
-                        }
-                      >
-                        View Contact
-                      </Button>
-                    )}
+                    <TaskActionActivitiesMenu engagement={activity} />
                   </TableCell>
                 </TableRow>
               ))
@@ -428,6 +430,11 @@ export function ActivitiesTable({
         contactId={selectedLeadId}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
+      />
+      <ActivityModalBody
+        activityDetailOpen={activityDetailOpen}
+        setActivityDetailOpen={setActivityDetailOpen}
+        selectedActivity={selectedActivity}
       />
     </div>
   );
