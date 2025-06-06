@@ -133,7 +133,7 @@ export const createSingleProductQuote = async ({
     };
     onProgress?.("Updating contact properties...", 85);
 
-    patchContactProperties(id, properties);
+    await patchContactProperties(id, properties);
 
     const shopifyItems = products.map((product) => ({
       sku: product.sku,
