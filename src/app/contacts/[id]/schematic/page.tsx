@@ -48,7 +48,7 @@ const ContactDealsPage = async (props: Props) => {
   };
 
   return (
-    <div className="flex flex-col w-full items-center justify-center gap-4">
+    <div className="flex flex-col w-full items-center justify-center gap-4 mt-[--header-height]">
       <div>
         <PageHeader
           title="Schematic Data"

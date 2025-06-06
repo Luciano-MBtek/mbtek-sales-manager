@@ -13,7 +13,7 @@ const QuotesDetails = async (props: Props) => {
   const quotes = await getAllQuotes(id);
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8 mt-[--header-height]">
       <h1 className="text-2xl font-bold mb-6">Quotes</h1>
       {quotes.length > 0 ? (
         quotes.map((quote) => <QuoteItem key={quote.id} quote={quote} />)

@@ -33,7 +33,7 @@ export default async function DashboardPage({
   const params = await searchParams;
 
   return (
-    <div className="flex w-full flex-col  justify-center">
+    <div className="flex w-full flex-col mt-[--header-height] justify-center">
       {/* AGREGA UNA CARD PARA AVISAR QUE ESTA EN DEVELOPMENT */}
       <div className="pt-4 pr-8 pl-8">
         <Card className="mb-4 w-full bg-yellow-100 dark:bg-yellow-900 ">

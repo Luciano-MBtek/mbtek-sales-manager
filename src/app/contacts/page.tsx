@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 const Contacts = () => {
   return (
-    <div className="flex w-full justify-center mt-10 ">
+    <div className="flex w-full justify-center mt-[--header-height] ">
       <SingleProductContextProvider>
         <SearchContactTab />
       </SingleProductContextProvider>

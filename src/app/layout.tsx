@@ -49,13 +49,15 @@ export default async function RootLayout({
         <Providers>
           <HydrationBoundary state={dehydrate(queryClient)}>
             <AccessDeniedToast />
-            <AppSidebar />
             <div className="flex flex-col w-full">
               <AppHeader />
-              <main className="flex w-full">
-                <SidebarTrigger />
-                {children}
-              </main>
+              <div className="flex w-full">
+                <AppSidebar />
+                <main className="flex w-full">
+                  <SidebarTrigger />
+                  {children}
+                </main>
+              </div>
             </div>
             <FloatingChatWrapper />
           </HydrationBoundary>

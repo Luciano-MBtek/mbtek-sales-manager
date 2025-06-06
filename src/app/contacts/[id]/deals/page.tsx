@@ -13,7 +13,7 @@ const ContactDealsPage = async (props: Props) => {
   const deals = await getAllDealsDataWithLineItems(id);
 
   return (
-    <div className="flex flex-col w-full  ">
+    <div className="flex flex-col w-full  mt-[--header-height]">
       <PageHeader
         title="Contact Deals"
         subtitle={`${deals.length} ${deals.length > 1 ? "deals" : "deal"} with the contact.`}

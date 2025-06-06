@@ -59,7 +59,7 @@ async function AnalyticsPage({ searchParams }: { searchParams: SearchParams }) {
   };
 
   return (
-    <div className="flex flex-col w-full h-full">
+    <div className="flex flex-col w-full h-full mt-[--header-height]">
       <div className="w-full flex items-center justify-between">
         <PageHeader
           title="Reports and analytics"

@@ -3,9 +3,10 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
-import { Bell } from "lucide-react";
+import { Bell, Search } from "lucide-react";
 import { useContactSearch } from "@/hooks/useContactSearch";
 import { Input } from "@/components/ui/input";
+import { Contact } from "@/types";
 
 export function AppHeader() {
   const { data: session } = useSession();
@@ -31,25 +32,29 @@ export function AppHeader() {
       : "Lead Qualification Dashboard";
 
   return (
-    <header className="flex items-center justify-between w-full border-b bg-background px-4 py-2">
+    <header className="flex fixed items-center justify-between w-full border-b bg-background/80 backdrop-blur-sm px-4 py-2 max-h-[--header-height] z-[9999]">
       <div className="flex items-center gap-3">
         <Image src="/Logo_Vector.png" alt="Logo" width={120} height={40} />
+        <div className="h-8 w-px bg-border"></div>
         <h1 className="text-lg font-semibold whitespace-nowrap">{title}</h1>
       </div>
       <div className="flex items-center gap-4">
-        <div className="relative">
-          <Input
-            type="text"
-            placeholder="Search contacts..."
-            className="w-56"
-            value={searchValue}
-            onChange={(e) => {
-              setSearchValue(e.target.value);
-              setShowDropdown(true);
-            }}
-            onFocus={() => setShowDropdown(true)}
-            onBlur={() => setTimeout(() => setShowDropdown(false), 150)}
-          />
+        <div className="relative w-[400px]">
+          <div className="relative">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder="Search contacts..."
+              className="w-full pl-9"
+              value={searchValue}
+              onChange={(e) => {
+                setSearchValue(e.target.value);
+                setShowDropdown(true);
+              }}
+              onFocus={() => setShowDropdown(true)}
+              onBlur={() => setTimeout(() => setShowDropdown(false), 150)}
+            />
+          </div>
           {showDropdown && searchValue.trim() && (
             <div className="absolute left-0 right-0 z-10 mt-1 rounded-md border bg-popover text-popover-foreground shadow-md">
               {isPending && (
@@ -58,8 +63,9 @@ export function AppHeader() {
               {!isPending && contacts === 0 && (
                 <div className="px-4 py-2 text-sm">No results</div>
               )}
-              {!isPending && Array.isArray(contacts) &&
-                contacts.map((contact) => (
+              {!isPending &&
+                Array.isArray(contacts) &&
+                (contacts as Contact[]).map((contact: Contact) => (
                   <div
                     key={contact.id}
                     className="px-4 py-2 text-sm hover:bg-accent"

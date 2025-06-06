@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 
 const page = () => {
   return (
-    <div className="flex w-full  flex-col">
+    <div className="flex w-full mt-[--header-height]  flex-col">
       <ChatInterface isFloating={false} />
     </div>
   );

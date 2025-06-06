@@ -14,7 +14,7 @@ const ContactEngagementsPage = async (props: Props) => {
 
   const length = engagements.results.length;
   return (
-    <div className="flex flex-col w-full  p-2 ">
+    <div className="flex flex-col w-full mt-[--header-height] p-2 ">
       <PageHeader
         title="Contact Engagements"
         subtitle={`${length} Engagements with the contact.`}
