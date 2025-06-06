@@ -28,7 +28,7 @@ export default function SingleProductLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="w-full px-2 lg:px-0">
+    <div className="w-full px-2 lg:px-0 mt-[--header-height]">
       <PageHeader
         title="Standard Quote creation"
         subtitle="Fill the form to generate a standard Quote."

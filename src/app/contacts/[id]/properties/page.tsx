@@ -30,7 +30,7 @@ const ContactProperties = async (props: Props) => {
     });
 
   return (
-    <div className="flex w-full flex-col items-center ">
+    <div className="flex w-full flex-col items-center mt-[--header-height]">
       <DataTable columns={columns} data={formattedProperties} />
     </div>
   );

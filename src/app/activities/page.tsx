@@ -10,7 +10,7 @@ export default async function Page({
 }) {
   const params = await searchParams;
   return (
-    <div className="flex flex-col w-full h-full">
+    <div className="flex flex-col w-full h-full mt-[--header-height]">
       <PageHeader
         title="Activities"
         subtitle="Manage income lead communications"

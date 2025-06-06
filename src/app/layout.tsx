@@ -11,6 +11,7 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { AccessDeniedToast } from "@/components/AccessDeniedToast";
 import { FloatingChatWrapper } from "@/components/ChatBot/FloatingChatWrapper";
+import { AppHeader } from "@/components/AppHeader";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -48,11 +49,16 @@ export default async function RootLayout({
         <Providers>
           <HydrationBoundary state={dehydrate(queryClient)}>
             <AccessDeniedToast />
-            <AppSidebar />
-            <main className="flex w-full ">
-              <SidebarTrigger />
-              {children}
-            </main>
+            <div className="flex flex-col w-full">
+              <AppHeader />
+              <div className="flex w-full">
+                <AppSidebar />
+                <main className="flex w-full">
+                  <SidebarTrigger />
+                  {children}
+                </main>
+              </div>
+            </div>
             <FloatingChatWrapper />
           </HydrationBoundary>
         </Providers>
