@@ -13,6 +13,7 @@ import {
   PencilRuler,
   Quote,
   MessagesSquare,
+  X,
 } from "lucide-react";
 import {
   Collapsible,
@@ -58,7 +59,6 @@ interface SideBarContactGroupProps {
 const SideBarContactGroup = ({ session }: SideBarContactGroupProps) => {
   const { contact, update, clear } = useContactStore();
   const [isFavorite, setIsFavorite] = useState(false);
-  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
   const [isCheckingFav, setIsCheckingFav] = useState(true);
   const pathname = usePathname();
   const router = useRouter();
@@ -151,206 +151,207 @@ const SideBarContactGroup = ({ session }: SideBarContactGroupProps) => {
   const displayItems = isTechAgent ? techAgentItems : items;
 
   return (
-    <SidebarGroup>
-      <SidebarGroupLabel>
-        Contact {`${firstname} ${lastname ?? ""}`}
-      </SidebarGroupLabel>
+    <>
+      <div className="h-px bg-border my-2 mx-4" />
+      <div className="p-2">
+        <SidebarGroup className="bg-background rounded-lg">
+          <SidebarGroupLabel className="flex items-center justify-between">
+            <span className="text-blue-500 text-base">{`${firstname} ${lastname ?? ""}`}</span>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={handleClearContact}
+                    className="p-1 rounded-lg hover:bg-muted bg-background"
+                    aria-label="Clear contact"
+                  >
+                    <X className="h-4 w-4 text-red-500" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent sideOffset={10} side="right">
+                  Just clears the contact from the sidebar, it does not delete.
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </SidebarGroupLabel>
 
-      <SidebarMenu>
-        <SidebarMenuItem>
-          {isMainActive ? (
-            <SidebarMenuButton isActive={true}>
-              <CircleUser />
-              <span>Main</span>
-            </SidebarMenuButton>
-          ) : (
-            <SidebarMenuButton asChild>
-              <Link
-                href={{
-                  pathname: mainPath,
-                }}
-              >
-                <CircleUser />
-                <span>Main</span>
-              </Link>
-            </SidebarMenuButton>
-          )}
-
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <SidebarMenuAction>
-                <MoreHorizontal />
-              </SidebarMenuAction>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent side="right" align="start">
-              <SideBarAddToFavourite
-                contact={contact}
-                isFavorite={isFavorite}
-                setIsFavorite={setIsFavorite}
-                isLoading={isCheckingFav}
-              />
-
-              <EmailModal isSideBar={true} />
-
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <DropdownMenuItem
-                      className="hover:bg-red-300 dark:hover:bg-red-800 focus:bg-red-300 dark:focus:bg-red-800"
-                      onClick={handleClearContact}
-                    >
-                      <div className="flex w-full items-center justify-between gap-2">
-                        <span>Clear Contact</span>
-                        <Trash width={15} />
-                      </div>
-                    </DropdownMenuItem>
-                  </TooltipTrigger>
-                  <TooltipContent sideOffset={10} side="right">
-                    Just clears the contact from the sidebar, it does not
-                    delete.
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </SidebarMenuItem>
-        <SidebarMenuItem>
-          {isEngagementsPathActive ? (
-            <SidebarMenuButton isActive={true}>
-              <MessagesSquare />
-              <span>Engagements</span>
-            </SidebarMenuButton>
-          ) : (
-            <SidebarMenuButton asChild>
-              <Link
-                href={{
-                  pathname: engagementsPath,
-                }}
-              >
-                <MessagesSquare />
-                <span>Engagements</span>
-              </Link>
-            </SidebarMenuButton>
-          )}
-        </SidebarMenuItem>
-        <SidebarMenuItem>
-          {isPropertiesActive ? (
-            <SidebarMenuButton isActive={true}>
-              <Table />
-              <span>Properties</span>
-            </SidebarMenuButton>
-          ) : (
-            <SidebarMenuButton asChild>
-              <Link
-                href={{
-                  pathname: propertiesPath,
-                }}
-              >
-                <Table />
-                <span>Properties</span>
-              </Link>
-            </SidebarMenuButton>
-          )}
-        </SidebarMenuItem>
-        {areDeals && (
-          <SidebarMenuItem>
-            {isDealsActive ? (
-              <SidebarMenuButton isActive={true}>
-                <Handshake />
-                <span>Deals</span>
-              </SidebarMenuButton>
-            ) : (
-              <SidebarMenuButton asChild>
-                <Link
-                  href={{
-                    pathname: dealsPath,
-                  }}
-                >
-                  <Handshake />
-                  <span>Deals</span>
-                </Link>
-              </SidebarMenuButton>
-            )}
-          </SidebarMenuItem>
-        )}
-        {hasSchematic && (
-          <SidebarMenuItem>
-            {isSchematicActive ? (
-              <SidebarMenuButton isActive={true}>
-                <PencilRuler />
-                <span>Schematic</span>
-              </SidebarMenuButton>
-            ) : (
-              <SidebarMenuButton asChild>
-                <Link
-                  href={{
-                    pathname: schematicPath,
-                  }}
-                >
-                  <PencilRuler />
-                  <span>Schematic</span>
-                </Link>
-              </SidebarMenuButton>
-            )}
-          </SidebarMenuItem>
-        )}
-
-        {hasQuotes && (
-          <SidebarMenuItem>
-            {isQuotesPathActive ? (
-              <SidebarMenuButton isActive={true}>
-                <Quote />
-                <span>Quotes</span>
-              </SidebarMenuButton>
-            ) : (
-              <SidebarMenuButton asChild>
-                <Link
-                  href={{
-                    pathname: quotesPath,
-                  }}
-                >
-                  <Quote />
-                  <span>Quotes</span>
-                </Link>
-              </SidebarMenuButton>
-            )}
-          </SidebarMenuItem>
-        )}
-
-        <Collapsible defaultOpen={true}>
-          <CollapsibleTrigger asChild>
+          <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton>
-                <NotepadText />
-                Forms
-              </SidebarMenuButton>
-              <SidebarMenuAction className="transition-transform duration-200 data-[state=open]:rotate-90">
-                <ChevronRight />
-                <span className="sr-only">Toggle Forms</span>
-              </SidebarMenuAction>
+              {isMainActive ? (
+                <SidebarMenuButton isActive={true}>
+                  <CircleUser />
+                  <span>Main</span>
+                </SidebarMenuButton>
+              ) : (
+                <SidebarMenuButton asChild>
+                  <Link
+                    href={{
+                      pathname: mainPath,
+                    }}
+                  >
+                    <CircleUser />
+                    <span>Main</span>
+                  </Link>
+                </SidebarMenuButton>
+              )}
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <SidebarMenuAction>
+                    <MoreHorizontal />
+                  </SidebarMenuAction>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent side="right" align="start">
+                  <SideBarAddToFavourite
+                    contact={contact}
+                    isFavorite={isFavorite}
+                    setIsFavorite={setIsFavorite}
+                    isLoading={isCheckingFav}
+                  />
+
+                  <EmailModal isSideBar={true} />
+                </DropdownMenuContent>
+              </DropdownMenu>
             </SidebarMenuItem>
-          </CollapsibleTrigger>
-          <CollapsibleContent asChild>
-            <SidebarMenuSub>
-              {displayItems.map((item) => (
-                <SidebarMenuSubItem key={item.title}>
+            <SidebarMenuItem>
+              {isEngagementsPathActive ? (
+                <SidebarMenuButton isActive={true}>
+                  <MessagesSquare />
+                  <span>Engagements</span>
+                </SidebarMenuButton>
+              ) : (
+                <SidebarMenuButton asChild>
+                  <Link
+                    href={{
+                      pathname: engagementsPath,
+                    }}
+                  >
+                    <MessagesSquare />
+                    <span>Engagements</span>
+                  </Link>
+                </SidebarMenuButton>
+              )}
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              {isPropertiesActive ? (
+                <SidebarMenuButton isActive={true}>
+                  <Table />
+                  <span>Properties</span>
+                </SidebarMenuButton>
+              ) : (
+                <SidebarMenuButton asChild>
+                  <Link
+                    href={{
+                      pathname: propertiesPath,
+                    }}
+                  >
+                    <Table />
+                    <span>Properties</span>
+                  </Link>
+                </SidebarMenuButton>
+              )}
+            </SidebarMenuItem>
+            {areDeals && (
+              <SidebarMenuItem>
+                {isDealsActive ? (
+                  <SidebarMenuButton isActive={true}>
+                    <Handshake />
+                    <span>Deals</span>
+                  </SidebarMenuButton>
+                ) : (
                   <SidebarMenuButton asChild>
                     <Link
                       href={{
-                        pathname: item.url,
+                        pathname: dealsPath,
                       }}
                     >
-                      <item.icon />
-                      <span>{item.title}</span>
+                      <Handshake />
+                      <span>Deals</span>
                     </Link>
                   </SidebarMenuButton>
-                </SidebarMenuSubItem>
-              ))}
-            </SidebarMenuSub>
-          </CollapsibleContent>
-        </Collapsible>
-      </SidebarMenu>
-    </SidebarGroup>
+                )}
+              </SidebarMenuItem>
+            )}
+            {hasSchematic && (
+              <SidebarMenuItem>
+                {isSchematicActive ? (
+                  <SidebarMenuButton isActive={true}>
+                    <PencilRuler />
+                    <span>Schematic</span>
+                  </SidebarMenuButton>
+                ) : (
+                  <SidebarMenuButton asChild>
+                    <Link
+                      href={{
+                        pathname: schematicPath,
+                      }}
+                    >
+                      <PencilRuler />
+                      <span>Schematic</span>
+                    </Link>
+                  </SidebarMenuButton>
+                )}
+              </SidebarMenuItem>
+            )}
+
+            {hasQuotes && (
+              <SidebarMenuItem>
+                {isQuotesPathActive ? (
+                  <SidebarMenuButton isActive={true}>
+                    <Quote />
+                    <span>Quotes</span>
+                  </SidebarMenuButton>
+                ) : (
+                  <SidebarMenuButton asChild>
+                    <Link
+                      href={{
+                        pathname: quotesPath,
+                      }}
+                    >
+                      <Quote />
+                      <span>Quotes</span>
+                    </Link>
+                  </SidebarMenuButton>
+                )}
+              </SidebarMenuItem>
+            )}
+
+            <Collapsible defaultOpen={true}>
+              <CollapsibleTrigger asChild>
+                <SidebarMenuItem>
+                  <SidebarMenuButton>
+                    <NotepadText />
+                    Forms
+                  </SidebarMenuButton>
+                  <SidebarMenuAction className="transition-transform duration-200 data-[state=open]:rotate-90">
+                    <ChevronRight />
+                    <span className="sr-only">Toggle Forms</span>
+                  </SidebarMenuAction>
+                </SidebarMenuItem>
+              </CollapsibleTrigger>
+              <CollapsibleContent asChild>
+                <SidebarMenuSub>
+                  {displayItems.map((item) => (
+                    <SidebarMenuSubItem key={item.title}>
+                      <SidebarMenuButton asChild>
+                        <Link
+                          href={{
+                            pathname: item.url,
+                          }}
+                        >
+                          <item.icon />
+                          <span>{item.title}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuSubItem>
+                  ))}
+                </SidebarMenuSub>
+              </CollapsibleContent>
+            </Collapsible>
+          </SidebarMenu>
+        </SidebarGroup>
+      </div>
+    </>
   );
 };
 

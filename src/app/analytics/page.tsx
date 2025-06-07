@@ -3,21 +3,20 @@ import { LeadTotalCount } from "@/components/LeadsAnalytics/LeadsTotal";
 import { DateRangeSelect } from "@/components/DateRangeSelect";
 import { ContactTotalCount } from "@/components/LeadsAnalytics/ContactsTotal";
 import { getDateRange, getPreviousRange } from "@/lib/range-date";
-import { Suspense } from "react";
+
 import { AverageQualificationTime } from "@/components/LeadsAnalytics/AverageQTime";
 import { DealsTotalCount } from "@/components/LeadsAnalytics/DealsTotal";
-import { AnalyticsSkeleton } from "@/components/LeadsAnalytics/AnalyticsSkeleton";
+
 import {
   ChartContainer,
   ChartDataPoint,
 } from "@/components/LeadsAnalytics/ChartContainer";
-import { sleep } from "@/lib/utils";
+
 import {
   getContactsAndLeadsInRange,
   getDealsInRange,
   getQualificationTimesInRange,
   ContactLeadInfo,
-  DealInfo,
   QualificationInfo,
 } from "@/actions/hubspot/analyticsData";
 import {
@@ -32,35 +31,6 @@ import {
 } from "date-fns";
 
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
-
-const StaggeredSuspense = ({
-  children,
-  fallback,
-  delay = 0,
-}: {
-  children: React.ReactNode;
-  fallback: React.ReactNode;
-  delay?: number;
-}) => {
-  return (
-    <Suspense fallback={fallback}>
-      <Delayed delay={delay}>{children}</Delayed>
-    </Suspense>
-  );
-};
-
-const Delayed = async ({
-  children,
-  delay,
-}: {
-  children: React.ReactNode;
-  delay: number;
-}) => {
-  if (delay > 0) {
-    await sleep(delay);
-  }
-  return <>{children}</>;
-};
 
 async function AnalyticsPage({ searchParams }: { searchParams: SearchParams }) {
   const params = await searchParams;
@@ -87,24 +57,24 @@ async function AnalyticsPage({ searchParams }: { searchParams: SearchParams }) {
     isWithinInterval(new Date(d), { start: previousFrom, end: previousTo });
 
   const contactsCurrent = contactsLeads.contacts.filter((c) =>
-    isCurrent(c.createdate),
+    isCurrent(c.createdate)
   );
   const contactsPrevious = contactsLeads.contacts.filter((c) =>
-    isPrevious(c.createdate),
+    isPrevious(c.createdate)
   );
 
   const leadsCurrent = contactsCurrent.filter(
-    (c) => c.lead_owner_id === contactsLeads.ownerId,
+    (c) => c.lead_owner_id === contactsLeads.ownerId
   );
   const leadsPrevious = contactsPrevious.filter(
-    (c) => c.lead_owner_id === contactsLeads.ownerId,
+    (c) => c.lead_owner_id === contactsLeads.ownerId
   );
 
   const dealsCurrentCount = dealsData.filter((d) =>
-    isCurrent(d.createdate),
+    isCurrent(d.createdate)
   ).length;
   const dealsPreviousCount = dealsData.filter((d) =>
-    isPrevious(d.createdate),
+    isPrevious(d.createdate)
   ).length;
 
   const qCurrent = qtimes.filter((q) => isCurrent(q.createdate));
@@ -130,7 +100,7 @@ async function AnalyticsPage({ searchParams }: { searchParams: SearchParams }) {
     contacts: ContactLeadInfo[],
     leads: ContactLeadInfo[],
     from: Date,
-    to: Date,
+    to: Date
   ): ChartDataPoint[] => {
     const daysDiff = differenceInDays(to, from);
     const result: ChartDataPoint[] = [];
@@ -143,10 +113,10 @@ async function AnalyticsPage({ searchParams }: { searchParams: SearchParams }) {
         const end = new Date(current);
         end.setHours(23, 59, 59, 999);
         const lc = leads.filter((l) =>
-          isWithinInterval(new Date(l.createdate), { start, end }),
+          isWithinInterval(new Date(l.createdate), { start, end })
         ).length;
         const cc = contacts.filter((c) =>
-          isWithinInterval(new Date(c.createdate), { start, end }),
+          isWithinInterval(new Date(c.createdate), { start, end })
         ).length;
         result.push({ label: format(current, "EEE"), leads: lc, contacts: cc });
         current = addDays(current, 1);
@@ -160,13 +130,13 @@ async function AnalyticsPage({ searchParams }: { searchParams: SearchParams }) {
           isWithinInterval(new Date(l.createdate), {
             start: currentStart,
             end: adjustedEnd,
-          }),
+          })
         ).length;
         const cc = contacts.filter((c) =>
           isWithinInterval(new Date(c.createdate), {
             start: currentStart,
             end: adjustedEnd,
-          }),
+          })
         ).length;
         result.push({
           label: `${format(currentStart, "MMM d")} - ${format(adjustedEnd, "MMM d")}`,
@@ -184,13 +154,13 @@ async function AnalyticsPage({ searchParams }: { searchParams: SearchParams }) {
           isWithinInterval(new Date(l.createdate), {
             start: currentMonth,
             end: adjustedEnd,
-          }),
+          })
         ).length;
         const cc = contacts.filter((c) =>
           isWithinInterval(new Date(c.createdate), {
             start: currentMonth,
             end: adjustedEnd,
-          }),
+          })
         ).length;
         result.push({
           label: format(currentMonth, "MMM"),
@@ -200,7 +170,7 @@ async function AnalyticsPage({ searchParams }: { searchParams: SearchParams }) {
         currentMonth = new Date(
           currentMonth.getFullYear(),
           currentMonth.getMonth() + 1,
-          1,
+          1
         );
       }
     }
@@ -211,7 +181,7 @@ async function AnalyticsPage({ searchParams }: { searchParams: SearchParams }) {
     contactsCurrent,
     leadsCurrent,
     new Date(dateRange.fromISO),
-    new Date(dateRange.toISO),
+    new Date(dateRange.toISO)
   );
 
   return (
@@ -226,55 +196,38 @@ async function AnalyticsPage({ searchParams }: { searchParams: SearchParams }) {
       </div>
 
       <div className="flex w-full gap-4 justify-between">
-        <StaggeredSuspense fallback={<AnalyticsSkeleton />} delay={0}>
-          <div className="w-[250px]">
-            <ContactTotalCount
-              currentPeriodCount={contactsCurrent.length}
-              previousPeriodCount={contactsPrevious.length}
-            />
-          </div>
-        </StaggeredSuspense>
+        <div className="w-[250px]">
+          <ContactTotalCount
+            currentPeriodCount={contactsCurrent.length}
+            previousPeriodCount={contactsPrevious.length}
+          />
+        </div>
 
-        <StaggeredSuspense fallback={<AnalyticsSkeleton />} delay={700}>
-          <div className="w-[250px]">
-            <LeadTotalCount
-              currentPeriodCount={leadsCurrent.length}
-              previousPeriodCount={leadsPrevious.length}
-            />
-          </div>
-        </StaggeredSuspense>
+        <div className="w-[250px]">
+          <LeadTotalCount
+            currentPeriodCount={leadsCurrent.length}
+            previousPeriodCount={leadsPrevious.length}
+          />
+        </div>
 
-        <StaggeredSuspense fallback={<AnalyticsSkeleton />} delay={1000}>
-          <div className="w-[250px]">
-            <AverageQualificationTime
-              current={avgCurrent}
-              previous={avgPrevious}
-            />
-          </div>
-        </StaggeredSuspense>
+        <div className="w-[250px]">
+          <AverageQualificationTime
+            current={avgCurrent}
+            previous={avgPrevious}
+          />
+        </div>
 
-        <StaggeredSuspense fallback={<AnalyticsSkeleton />} delay={1800}>
-          <div className="w-[250px]">
-            <DealsTotalCount
-              currentPeriodCount={dealsCurrentCount}
-              previousPeriodCount={dealsPreviousCount}
-            />
-          </div>
-        </StaggeredSuspense>
+        <div className="w-[250px]">
+          <DealsTotalCount
+            currentPeriodCount={dealsCurrentCount}
+            previousPeriodCount={dealsPreviousCount}
+          />
+        </div>
       </div>
 
-      <StaggeredSuspense
-        fallback={
-          <div className="w-full flex items-center justify-center mt-4">
-            <AnalyticsSkeleton />
-          </div>
-        }
-        delay={1200}
-      >
-        <div className="w-full flex items-center justify-center mt-4">
-          <ChartContainer data={chartData} range={range} />
-        </div>
-      </StaggeredSuspense>
+      <div className="w-full flex items-center justify-center mt-4">
+        <ChartContainer data={chartData} range={range} />
+      </div>
     </div>
   );
 }

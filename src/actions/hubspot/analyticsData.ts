@@ -10,7 +10,7 @@ export type ContactLeadInfo = {
 
 export async function getContactsAndLeadsInRange(
   fromISO: string,
-  toISO: string,
+  toISO: string
 ) {
   const ownerId = await getHubspotOwnerIdSession();
   const contacts: ContactLeadInfo[] = [];
@@ -42,6 +42,7 @@ export async function getContactsAndLeadsInRange(
       }>;
     }>("/crm/v3/objects/contacts/search", {
       method: "POST",
+      next: { tags: [`contacts`], revalidate: 3600 },
       body: JSON.stringify(body),
     });
 
@@ -85,6 +86,7 @@ export async function getDealsInRange(fromISO: string, toISO: string) {
       results: Array<{ properties: { createdate: string } }>;
     }>("/crm/v3/objects/deals/search", {
       method: "POST",
+      next: { tags: [`deals`], revalidate: 3600 },
       body: JSON.stringify(body),
     });
 
@@ -97,14 +99,14 @@ export async function getDealsInRange(fromISO: string, toISO: string) {
 
 const chunk = <T>(arr: T[], size = 100) =>
   Array.from({ length: Math.ceil(arr.length / size) }, (_, i) =>
-    arr.slice(i * size, (i + 1) * size),
+    arr.slice(i * size, (i + 1) * size)
   );
 
 export type QualificationInfo = { createdate: string; diffMs: number };
 
 export async function getQualificationTimesInRange(
   fromISO: string,
-  toISO: string,
+  toISO: string
 ) {
   const ownerId = await getHubspotOwnerIdSession();
   const ids: string[] = [];
@@ -138,6 +140,7 @@ export async function getQualificationTimesInRange(
 
     const page = await hsFetch<SearchResp>("/crm/v3/objects/contacts/search", {
       method: "POST",
+      next: { tags: [`contacts`], revalidate: 3600 },
       body: JSON.stringify(body),
     });
 
@@ -169,6 +172,7 @@ export async function getQualificationTimesInRange(
           }>;
         }>("/crm/v3/objects/contacts/batch/read", {
           method: "POST",
+          next: { tags: [`contacts`], revalidate: 3600 },
           body: JSON.stringify(body),
         });
 
@@ -183,7 +187,7 @@ export async function getQualificationTimesInRange(
           }
 
           const historyItems = c.propertiesWithHistory.lead_owner_id.filter(
-            (v) => v.value === ownerId,
+            (v) => v.value === ownerId
           );
 
           if (historyItems.length === 0) {
@@ -191,7 +195,7 @@ export async function getQualificationTimesInRange(
           }
 
           const first = [...historyItems].sort(
-            (a, b) => Date.parse(a.timestamp) - Date.parse(b.timestamp),
+            (a, b) => Date.parse(a.timestamp) - Date.parse(b.timestamp)
           )[0];
 
           if (first) {
@@ -203,7 +207,7 @@ export async function getQualificationTimesInRange(
       } catch (error) {
         console.error(`Error processing chunk ${chunkIndex}:`, error);
       }
-    }),
+    })
   );
 
   return results;
