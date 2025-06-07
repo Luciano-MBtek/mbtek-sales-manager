@@ -2,7 +2,8 @@
 
 import { getHubspotOwnerIdSession } from "./user/getHubspotOwnerId";
 
-async function searchOwnedContacts(userId: string, after?: string) {
+// First function to get just the IDs of contacts
+async function searchOwnedContactIds(userId: string, after?: string) {
   try {
     const apiKey = process.env.HUBSPOT_API_KEY;
 
@@ -22,19 +23,7 @@ async function searchOwnedContacts(userId: string, after?: string) {
           revalidate: 250,
         },
         body: JSON.stringify({
-          properties: [
-            "createdate",
-            "email",
-            "firstname",
-            "hs_object_id",
-            "address",
-            "lastmodifieddate",
-            "lastname",
-            "phone",
-            "company",
-            "lead_type",
-            "total_revenue",
-          ],
+          properties: ["hs_object_id"],
           filterGroups: [
             {
               filters: [
@@ -47,7 +36,7 @@ async function searchOwnedContacts(userId: string, after?: string) {
             },
           ],
           sorts: ["-createdate"],
-          limit: 25,
+          limit: 200,
           after: after,
         }),
       }
@@ -57,17 +46,103 @@ async function searchOwnedContacts(userId: string, after?: string) {
       throw new Error(`HubSpot API error: ${response.statusText}`);
     }
 
-    const data = await response.json();
-
-    return data;
+    return await response.json();
   } catch (error) {
-    console.error("Error fetching owned contacts:", error);
-    throw new Error("Failed to fetch owned contacts");
+    console.error("Error fetching owned contact IDs:", error);
+    throw new Error("Failed to fetch owned contact IDs");
+  }
+}
+
+// Helper function to chunk array into smaller arrays
+function chunk(array: any[], size: number) {
+  return Array.from({ length: Math.ceil(array.length / size) }, (_, i) =>
+    array.slice(i * size, i * size + size)
+  );
+}
+
+// Second function to get the full contact details using batch API
+async function getContactsBatch(contactIds: string[]) {
+  try {
+    const apiKey = process.env.HUBSPOT_API_KEY;
+
+    if (!apiKey) {
+      throw new Error("HUBSPOT_API_KEY is not defined");
+    }
+
+    if (contactIds.length === 0) {
+      return { results: [] };
+    }
+
+    // Split ids into chunks of 100 (HubSpot batch limit)
+    const BATCH_SIZE = 100;
+    const idChunks = chunk(contactIds, BATCH_SIZE);
+
+    // Process each chunk with a batch request
+    const batchResults = await Promise.all(
+      idChunks.map(async (ids) => {
+        const response = await fetch(
+          `https://api.hubapi.com/crm/v3/objects/contacts/batch/read`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${apiKey}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              properties: [
+                "createdate",
+                "email",
+                "firstname",
+                "hs_object_id",
+                "address",
+                "lastmodifieddate",
+                "lastname",
+                "phone",
+                "company",
+                "lead_type",
+                "total_revenue",
+              ],
+              inputs: ids.map((id) => ({ id })),
+            }),
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(`HubSpot batch API error: ${response.statusText}`);
+        }
+
+        return await response.json();
+      })
+    );
+
+    // Combine results from all batch requests
+    const combinedResults = {
+      results: batchResults.flatMap((batch) => batch.results),
+    };
+
+    return combinedResults;
+  } catch (error) {
+    console.error("Error fetching contacts batch:", error);
+    throw new Error("Failed to fetch contacts batch");
   }
 }
 
 export async function getContactsByOwnerId(after?: string) {
-  const userId = await getHubspotOwnerIdSession();
-  //const managerIdTest = "719106449";
-  return searchOwnedContacts(userId, after);
+  // const userId = await getHubspotOwnerIdSession();
+  const managerIdTest = "719106449";
+
+  // Step 1: Get contact IDs
+  const idData = await searchOwnedContactIds(managerIdTest, after);
+
+  // Step 2: Extract just the IDs from the results
+  const contactIds = idData.results.map((contact: any) => contact.id);
+
+  // Step 3: Get full contact details in batch
+  const contactsData = await getContactsBatch(contactIds);
+
+  // Step 4: Return with the same structure as before for compatibility
+  return {
+    ...idData,
+    results: contactsData.results,
+  };
 }

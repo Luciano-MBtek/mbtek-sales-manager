@@ -89,13 +89,13 @@ export default function DealCard({
             <span>Shipping cost: ${shipping_cost}</span>
           </Badge>
           <Badge className="bg-accent text-primary p-2" variant="outline">
-            Sub total ammount: ${subTotal}
+            Sub total amount: ${subTotal}
           </Badge>
           <Badge
             className="bg-success text-success-foreground p-2"
             variant="outline"
           >
-            Total ammount: ${amount}
+            Total amount: ${amount}
           </Badge>
         </div>
       </CardHeader>
