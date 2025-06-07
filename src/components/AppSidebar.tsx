@@ -57,12 +57,6 @@ const items = [
     requireRole: ["owner", "lead_agent"],
   },
   {
-    title: "Search Contacts",
-    url: "/contacts",
-    requireAuth: true,
-    icon: Search,
-  },
-  {
     title: "My Tasks",
     url: "/tasks",
     icon: ListChecks,

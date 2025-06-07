@@ -6,6 +6,15 @@ export type Contact = {
   updatedAt: string;
 };
 
+export type LEAD_STATUS =
+  | "NEW"
+  | "IN_PROGRESS"
+  | "OPEN_DISCOVERY"
+  | "OPEN_DEAL"
+  | "Not sales related"
+  | "Unable to Contact"
+  | "Disqualified";
+
 export type Product = {
   id: string;
   name: string;
@@ -24,6 +33,8 @@ type ContactProperties = {
   firstname: string;
   hs_object_id: string;
   lastmodifieddate: string;
+  hs_lead_status: LEAD_STATUS;
+  company: string;
   lastname: string;
   phone: string;
 };

@@ -113,7 +113,7 @@ const SchematicRequestForm = () => {
   };
 
   return (
-    <div className="flex flex-col w-full">
+    <div className="flex flex-col w-full mt-[--header-height]">
       <PageHeader
         title="Request schematic form"
         subtitle="Request a technical drawing to the team."

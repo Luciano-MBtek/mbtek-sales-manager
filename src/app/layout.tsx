@@ -54,7 +54,7 @@ export default async function RootLayout({
               <div className="flex w-full">
                 <AppSidebar />
                 <main className="flex w-full">
-                  <SidebarTrigger />
+                  <SidebarTrigger className="mt-[--header-height]" />
                   {children}
                 </main>
               </div>

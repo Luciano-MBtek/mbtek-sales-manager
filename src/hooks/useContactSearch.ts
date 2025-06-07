@@ -1,10 +1,11 @@
 import { useState, useTransition } from "react";
 import { searchContacts } from "@/actions/searchContactsByName";
 import { useToast } from "@/components/ui/use-toast";
+import { Contact } from "@/types";
 
 export function useContactSearch() {
-  const [contact, setContact] = useState(null);
-  const [contacts, setContacts] = useState(null);
+  const [contact, setContact] = useState<Contact | null>(null);
+  const [contacts, setContacts] = useState<Contact[] | number | null>(null);
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
@@ -20,7 +21,7 @@ export function useContactSearch() {
           result = await searchContacts(searchValue);
         }
 
-        setContacts(result);
+        setContacts(result ?? null);
       } catch (err: unknown) {
         if (err instanceof Error) {
           setError(err.message);
