@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useSession } from "next-auth/react";
-import { Bell } from "lucide-react";
+import { TaskNotifications } from "@/components/TaskNotifications";
 
 import { SearchInput } from "@/components/SearchInput";
 
@@ -24,10 +24,7 @@ export function AppHeader() {
       </div>
       <div className="flex items-center gap-4">
         <SearchInput />
-        <button type="button" className="p-2">
-          <Bell className="h-5 w-5" />
-          <span className="sr-only">Notifications</span>
-        </button>
+        <TaskNotifications />
       </div>
     </header>
   );
