@@ -10,6 +10,7 @@ import { Contact } from "@/types";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 export function getInitials(first?: string, last?: string) {
   return (
@@ -160,62 +161,63 @@ export function SearchInput() {
                   const isActive = i === focusIdx;
                   const status = getContactStatus(c);
                   return (
-                    <div
+                    <Link
+                      href={`/contacts/${c.id}?name=${c.properties.firstname}&lastname=${c.properties.lastname}`}
                       key={c.id}
-                      className={cn(
-                        "flex items-center gap-3 px-3 py-3 cursor-pointer border-l-2 transition-colors",
-                        isActive
-                          ? "bg-accent/80 border-l-primary"
-                          : "hover:bg-accent/50 border-l-transparent"
-                      )}
-                      onMouseEnter={() => setFocusIdx(i)}
-                      onMouseDown={() => {
-                        // Handle selection if needed
-                        setShowDropdown(false);
-                      }}
                     >
-                      <Avatar className="h-10 w-10 ring-2 ring-background">
-                        <AvatarImage
-                          src={`https://api.dicebear.com/7.x/initials/svg?seed=${c.properties.firstname} ${c.properties.lastname}`}
-                        />
-                        <AvatarFallback className="bg-primary/10 text-primary font-medium">
-                          {getInitials(
-                            c.properties.firstname,
-                            c.properties.lastname
-                          )}
-                        </AvatarFallback>
-                      </Avatar>
-
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <p className="truncate text-sm font-medium text-foreground">
-                            {c.properties.firstname} {c.properties.lastname}
-                          </p>
-                          <Badge
-                            variant="secondary"
-                            className={cn(
-                              "text-xs px-2 py-0.5",
-                              status.className
+                      <div
+                        className={cn(
+                          "flex items-center gap-3 px-3 py-3 cursor-pointer border-l-2 transition-colors",
+                          isActive
+                            ? "bg-accent/80 border-l-primary"
+                            : "hover:bg-accent/50 border-l-transparent"
+                        )}
+                        onMouseEnter={() => setFocusIdx(i)}
+                      >
+                        <Avatar className="h-10 w-10 ring-2 ring-background">
+                          <AvatarImage
+                            src={`https://api.dicebear.com/7.x/initials/svg?seed=${c.properties.firstname} ${c.properties.lastname}`}
+                          />
+                          <AvatarFallback className="bg-primary/10 text-primary font-medium">
+                            {getInitials(
+                              c.properties.firstname,
+                              c.properties.lastname
                             )}
-                          >
-                            {status.label}
-                          </Badge>
-                        </div>
-                        <div className="flex gap-4 text-xs text-muted-foreground">
-                          {c.properties.email && (
-                            <span className="flex items-center gap-1 max-w-[150px]">
-                              <Mail className="h-3 w-3" /> {c.properties.email}
-                            </span>
-                          )}
-                          {c.properties.company && (
-                            <span className="flex items-center gap-1 truncate max-w-[120px]">
-                              <Building2 className="h-3 w-3" />{" "}
-                              {c.properties.company}
-                            </span>
-                          )}
+                          </AvatarFallback>
+                        </Avatar>
+
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <p className="truncate text-sm font-medium text-foreground">
+                              {c.properties.firstname} {c.properties.lastname}
+                            </p>
+                            <Badge
+                              variant="secondary"
+                              className={cn(
+                                "text-xs px-2 py-0.5",
+                                status.className
+                              )}
+                            >
+                              {status.label}
+                            </Badge>
+                          </div>
+                          <div className="flex gap-4 text-xs text-muted-foreground">
+                            {c.properties.email && (
+                              <span className="flex items-center gap-1 max-w-[150px]">
+                                <Mail className="h-3 w-3" />{" "}
+                                {c.properties.email}
+                              </span>
+                            )}
+                            {c.properties.company && (
+                              <span className="flex items-center gap-1 truncate max-w-[120px]">
+                                <Building2 className="h-3 w-3" />{" "}
+                                {c.properties.company}
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
+                    </Link>
                   );
                 })}
               </>

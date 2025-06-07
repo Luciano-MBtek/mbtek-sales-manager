@@ -15,6 +15,7 @@ import { updateTaskStatus } from "@/actions/tasks/updateTaskStatus";
 import { useRouter } from "next/navigation";
 import { TaskUpdateModal } from "./TaskUpdateModal";
 import { updateTask } from "@/actions/tasks/updateTask";
+import { useQueryClient } from "@tanstack/react-query";
 
 const ALL_STATUSES: TaskStatus[] = [
   "COMPLETED",
@@ -42,6 +43,7 @@ export function TaskActionsMenu({
   const [isPending, startTransition] = useTransition();
   const [open, setOpen] = useState(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  const queryClient = useQueryClient();
 
   const { toast } = useToast();
   const router = useRouter();
@@ -52,6 +54,7 @@ export function TaskActionsMenu({
       try {
         await updateTaskStatus(task.id, status);
         mutateLocal(task.id, status);
+        queryClient.refetchQueries({ queryKey: ["incompleteTasks"] });
         toast({
           title: "Success",
           description: `Task marked as ${status.toLowerCase().replace("_", " ")}`,
@@ -79,7 +82,7 @@ export function TaskActionsMenu({
           task.properties.hs_task_status
       );
       const response = await updateTask(taskId, updatedData);
-
+      queryClient.refetchQueries({ queryKey: ["incompleteTasks"] });
       if (response) {
         toast({
           title: "Success",

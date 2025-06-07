@@ -70,12 +70,6 @@ const items = [
     requireRole: ["owner", "lead_agent"],
   },
   {
-    title: "AI chat (Beta)",
-    url: "/agent-ai",
-    icon: BotMessageSquare,
-    requireAuth: true,
-  },
-  {
     title: "My Meetings",
     url: "/my-meetings",
     icon: Calendar,

@@ -2,7 +2,7 @@
 
 import { ChatInterface } from "./Chatbotn8n";
 import { Button } from "../ui/button";
-import { X, BotMessageSquare } from "lucide-react";
+import { X, Bot } from "lucide-react";
 import { RainbowButton } from "../magicui/rainbow-button";
 import { HyperText } from "../magicui/hyper-text";
 import { BorderBeam } from "../magicui/border-beam";
@@ -57,7 +57,7 @@ export default function FloatingChat() {
           className="!h-20 !w-20 !p-0 rounded-full flex items-center justify-center"
           onClick={() => setIsOpen(true)}
         >
-          <BotMessageSquare />
+          <Bot />
         </RainbowButton>
       </div>
     </div>
