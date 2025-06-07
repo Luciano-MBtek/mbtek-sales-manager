@@ -8,36 +8,19 @@ import {
 import { FileCheck, TrendingUp, TrendingDown } from "lucide-react";
 
 import { calculatePercentageChange } from "@/lib/utils";
-import { getDealsCount } from "@/actions/hubspot/dealsCount";
 
 type LeadTotalCountProps = {
-  currentDateParams: {
-    from: string;
-    to: string;
-  };
-  previousDateParams: {
-    from: string;
-    to: string;
-  };
+  currentPeriodCount: number;
+  previousPeriodCount: number;
 };
 
-export async function DealsTotalCount({
-  currentDateParams,
-  previousDateParams,
+export function DealsTotalCount({
+  currentPeriodCount,
+  previousPeriodCount,
 }: LeadTotalCountProps) {
-  const currentPeriodLeadCount = await getDealsCount(
-    currentDateParams.from,
-    currentDateParams.to
-  );
-
-  const previousPeriodLeadCount = await getDealsCount(
-    previousDateParams.from,
-    previousDateParams.to
-  );
-
   const { percentageChange, formattedPercentage } = calculatePercentageChange(
-    currentPeriodLeadCount,
-    previousPeriodLeadCount
+    currentPeriodCount,
+    previousPeriodCount,
   );
 
   let textColorClass = "text-primary";
@@ -58,7 +41,7 @@ export async function DealsTotalCount({
         <CardTitle className="">Assigned Deals</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="text-3xl font-bold">{currentPeriodLeadCount}</div>
+        <div className="text-3xl font-bold">{currentPeriodCount}</div>
         <div className="flex items-center gap-1">
           {ComparisonIcon && (
             <ComparisonIcon className={`h-4 w-4 ${textColorClass}`} />
@@ -66,13 +49,13 @@ export async function DealsTotalCount({
           <CardDescription
             className={`${textColorClass} font-medium flex items-center`}
           >
-            {previousPeriodLeadCount > 0 ? (
+            {previousPeriodCount > 0 ? (
               <>
                 {Math.abs(percentageChange) === 0
                   ? "No change"
                   : `${formattedPercentage}% ${percentageChange >= 0 ? "increase" : "decrease"}`}
                 <span className="ml-1 text-gray-500">
-                  vs previous: {previousPeriodLeadCount}
+                  vs previous: {previousPeriodCount}
                 </span>
               </>
             ) : (

@@ -9,36 +9,18 @@ import {
 import { TrendingDown, TrendingUp } from "lucide-react";
 import { calculatePercentageChange } from "@/lib/utils";
 import { HubspotIcon } from "../HubspotIcon";
-import { getContactsCount } from "@/actions/hubspot/contactsCount";
-
 type ContactTotalCountProps = {
-  currentDateParams: {
-    from: string;
-    to: string;
-  };
-  previousDateParams: {
-    from: string;
-    to: string;
-  };
+  currentPeriodCount: number;
+  previousPeriodCount: number;
 };
 
-export async function ContactTotalCount({
-  currentDateParams,
-  previousDateParams,
+export function ContactTotalCount({
+  currentPeriodCount,
+  previousPeriodCount,
 }: ContactTotalCountProps) {
-  const currentPeriodContactCount = await getContactsCount(
-    currentDateParams.from,
-    currentDateParams.to
-  );
-
-  const previousPeriodContactCount = await getContactsCount(
-    previousDateParams.from,
-    previousDateParams.to
-  );
-
   const { percentageChange, formattedPercentage } = calculatePercentageChange(
-    currentPeriodContactCount,
-    previousPeriodContactCount
+    currentPeriodCount,
+    previousPeriodCount,
   );
 
   let textColorClass = "text-primary";
@@ -59,7 +41,7 @@ export async function ContactTotalCount({
         <CardTitle className="">Total new contacts</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="text-3xl font-bold">{currentPeriodContactCount}</div>
+        <div className="text-3xl font-bold">{currentPeriodCount}</div>
         <div className="flex items-center gap-1">
           {ComparisonIcon && (
             <ComparisonIcon className={`h-4 w-4 ${textColorClass}`} />
@@ -67,13 +49,13 @@ export async function ContactTotalCount({
           <CardDescription
             className={`${textColorClass} font-medium flex items-center`}
           >
-            {previousPeriodContactCount > 0 ? (
+            {previousPeriodCount > 0 ? (
               <>
                 {Math.abs(percentageChange) === 0
                   ? "No change"
                   : `${formattedPercentage}% ${percentageChange >= 0 ? "increase" : "decrease"}`}
                 <span className="ml-1 text-gray-500">
-                  vs previous: {previousPeriodContactCount}
+                  vs previous: {previousPeriodCount}
                 </span>
               </>
             ) : (
