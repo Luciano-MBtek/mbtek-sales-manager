@@ -74,10 +74,6 @@ export function QualificationModal({
   const effectiveOwnerId = data.ownerId || cachedOwnerId;
 
   useEffect(() => {
-    console.log("Store ownerId:", data.ownerId);
-    console.log("Cached ownerId:", cachedOwnerId);
-    console.log("Effective ownerId:", effectiveOwnerId);
-
     if (data.ownerId) {
       setCachedOwnerId(data.ownerId);
     }
@@ -88,8 +84,6 @@ export function QualificationModal({
     isLoading: isMeetingLinkLoading,
     refetchAll,
   } = useMeetingLink(effectiveOwnerId);
-
-  console.log("Meeting link:", meetingLink);
 
   useEffect(() => {
     let retryTimeout: NodeJS.Timeout;

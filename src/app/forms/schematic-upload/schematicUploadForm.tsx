@@ -76,7 +76,7 @@ const SchematicUploadForm = () => {
   };
 
   return (
-    <div className="flex flex-col w-full">
+    <div className="flex flex-col w-full mt-[--header-height]">
       <PageHeader
         title="Schematic upload."
         subtitle="Attach technical drawing to contact."

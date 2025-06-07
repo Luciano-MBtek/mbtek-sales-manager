@@ -11,7 +11,7 @@ export default async function Page({
 }) {
   const params = await searchParams;
   return (
-    <div className="flex flex-col w-full h-full">
+    <div className="flex flex-col w-full h-full mt-[--header-height]">
       <div className="w-full flex items-center justify-between">
         <PageHeader
           title="Tasks"

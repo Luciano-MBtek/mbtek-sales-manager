@@ -20,7 +20,7 @@ async function HomePage() {
         : "Lead Qualification Dashboard";
 
   return (
-    <div className="flex flex-col w-full h-full">
+    <div className="flex flex-col w-full h-full mt-[--header-height]">
       <PageHeader title={title} subtitle={`Welcome back, ${firstname}.`} />
       {accessLevel === "lead_agent" && (
         <div className="flex flex-col w-full gap-4">

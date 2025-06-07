@@ -107,7 +107,7 @@ const ContactFullData = async (props: Props) => {
   };
 
   return (
-    <div className="flex w-full flex-col items-center justify-center gap-4">
+    <div className="flex w-full flex-col items-center justify-center gap-4 mt-[--header-height]">
       <ContactOwnerCard
         owner={
           contactOwner && contactOwner.id
