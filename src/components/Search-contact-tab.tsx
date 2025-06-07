@@ -77,7 +77,7 @@ export function SearchContactTab() {
       {contacts === 0 ? (
         <NoContactCard value="contact" />
       ) : (
-        contacts && (
+        Array.isArray(contacts) && (
           <ContactList contacts={contacts} searchValue={searchValue} />
         )
       )}
