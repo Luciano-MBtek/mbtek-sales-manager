@@ -52,7 +52,7 @@ export async function getAverageQualificationTime(
         },
       ],
       properties: ["createdate"],
-      limit: 100,
+      limit: 200,
       sorts: ["createdate"],
       ...(after ? { after } : {}),
     };

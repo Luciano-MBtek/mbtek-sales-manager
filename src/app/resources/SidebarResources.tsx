@@ -14,13 +14,14 @@ import {
 import { SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import Shopify from "@/components/Icons/Shopify";
 
 const resourceItems = [
-  /*  {
-    title: "Knowledge Base",
-    icon: BookOpen,
-    path: "/resources/knowledge-base",
-  }, */
+  {
+    title: "Products",
+    path: "/products",
+    icon: Shopify,
+  },
   {
     title: "Calculators",
     icon: Calculator,

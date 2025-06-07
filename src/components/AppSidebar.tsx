@@ -43,7 +43,13 @@ const items = [
     icon: Home,
   },
   {
-    title: "Active Qualifications",
+    title: "My Meetings",
+    url: "/my-meetings",
+    icon: Calendar,
+    requireAuth: true,
+  },
+  {
+    title: "Qualification",
     url: "/active-qualifications",
     icon: ListTodo,
     requireAuth: true,
@@ -69,13 +75,7 @@ const items = [
     requireAuth: true,
     requireRole: ["owner", "lead_agent"],
   },
-  {
-    title: "My Meetings",
-    url: "/my-meetings",
-    icon: Calendar,
-    requireAuth: true,
-    requireRole: ["owner", "sales_agent", "manager", "admin"],
-  },
+
   {
     title: "User Dashboard",
     url: "/dashboard",
@@ -95,20 +95,14 @@ const items = [
     url: "/my-contacts",
     icon: CircleUserRound,
     requireAuth: true,
+    requireRole: ["admin", "owner", "sales_agent", "manager"],
   },
-
   {
     title: "Admin Dashboard",
     url: "/admin-dashboard",
     icon: MonitorCog,
     requireAuth: true,
     requireRole: ["admin", "owner"],
-  },
-  {
-    title: "Products",
-    url: "/products",
-    icon: Shopify,
-    requireAuth: true,
   },
 ];
 
@@ -135,7 +129,6 @@ export function AppSidebar() {
     <Sidebar>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Sales Manager</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {filteredItems.map((item) => (

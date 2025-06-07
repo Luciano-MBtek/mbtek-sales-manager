@@ -3,43 +3,34 @@ import { LeadTotalCount } from "@/components/LeadsAnalytics/LeadsTotal";
 import { DateRangeSelect } from "@/components/DateRangeSelect";
 import { ContactTotalCount } from "@/components/LeadsAnalytics/ContactsTotal";
 import { getDateRange, getPreviousRange } from "@/lib/range-date";
-import { Suspense } from "react";
+
 import { AverageQualificationTime } from "@/components/LeadsAnalytics/AverageQTime";
 import { DealsTotalCount } from "@/components/LeadsAnalytics/DealsTotal";
-import { AnalyticsSkeleton } from "@/components/LeadsAnalytics/AnalyticsSkeleton";
-import { ChartContainer } from "@/components/LeadsAnalytics/ChartContainer";
-import { sleep } from "@/lib/utils";
+
+import {
+  ChartContainer,
+  ChartDataPoint,
+} from "@/components/LeadsAnalytics/ChartContainer";
+
+import {
+  getContactsAndLeadsInRange,
+  getDealsInRange,
+  getQualificationTimesInRange,
+  ContactLeadInfo,
+  QualificationInfo,
+} from "@/actions/hubspot/analyticsData";
+import {
+  differenceInDays,
+  addDays,
+  startOfWeek,
+  endOfWeek,
+  startOfMonth,
+  endOfMonth,
+  format,
+  isWithinInterval,
+} from "date-fns";
 
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
-
-const StaggeredSuspense = ({
-  children,
-  fallback,
-  delay = 0,
-}: {
-  children: React.ReactNode;
-  fallback: React.ReactNode;
-  delay?: number;
-}) => {
-  return (
-    <Suspense fallback={fallback}>
-      <Delayed delay={delay}>{children}</Delayed>
-    </Suspense>
-  );
-};
-
-const Delayed = async ({
-  children,
-  delay,
-}: {
-  children: React.ReactNode;
-  delay: number;
-}) => {
-  if (delay > 0) {
-    await sleep(delay);
-  }
-  return <>{children}</>;
-};
 
 async function AnalyticsPage({ searchParams }: { searchParams: SearchParams }) {
   const params = await searchParams;
@@ -48,15 +39,150 @@ async function AnalyticsPage({ searchParams }: { searchParams: SearchParams }) {
   const dateRange = getDateRange(params);
   const { previousFrom, previousTo } = getPreviousRange(dateRange);
 
-  const currentDateParams = {
-    from: dateRange.fromISO,
-    to: dateRange.toISO,
+  const fullFrom = previousFrom.toISOString();
+  const fullTo = dateRange.toISO;
+
+  const [contactsLeads, dealsData, qtimes] = await Promise.all([
+    getContactsAndLeadsInRange(fullFrom, fullTo),
+    getDealsInRange(fullFrom, fullTo),
+    getQualificationTimesInRange(fullFrom, fullTo),
+  ]);
+
+  const isCurrent = (d: string) =>
+    isWithinInterval(new Date(d), {
+      start: new Date(dateRange.fromISO),
+      end: new Date(dateRange.toISO),
+    });
+  const isPrevious = (d: string) =>
+    isWithinInterval(new Date(d), { start: previousFrom, end: previousTo });
+
+  const contactsCurrent = contactsLeads.contacts.filter((c) =>
+    isCurrent(c.createdate)
+  );
+  const contactsPrevious = contactsLeads.contacts.filter((c) =>
+    isPrevious(c.createdate)
+  );
+
+  const leadsCurrent = contactsCurrent.filter(
+    (c) => c.lead_owner_id === contactsLeads.ownerId
+  );
+  const leadsPrevious = contactsPrevious.filter(
+    (c) => c.lead_owner_id === contactsLeads.ownerId
+  );
+
+  const dealsCurrentCount = dealsData.filter((d) =>
+    isCurrent(d.createdate)
+  ).length;
+  const dealsPreviousCount = dealsData.filter((d) =>
+    isPrevious(d.createdate)
+  ).length;
+
+  const qCurrent = qtimes.filter((q) => isCurrent(q.createdate));
+  const qPrevious = qtimes.filter((q) => isPrevious(q.createdate));
+
+  const avgFormat = (values: QualificationInfo[]) => {
+    if (!values.length) return { displayValue: 0, unit: "Minutes" };
+    const avgMs = values.reduce((sum, v) => sum + v.diffMs, 0) / values.length;
+    const mins = +(avgMs / 60_000).toFixed(1);
+    const hours = +(avgMs / 3_600_000).toFixed(1);
+    const days = +(avgMs / 86_400_000).toFixed(2);
+    return days >= 1
+      ? { displayValue: days, unit: "Days" }
+      : hours >= 1
+        ? { displayValue: hours, unit: "Hours" }
+        : { displayValue: mins, unit: "Minutes" };
   };
 
-  const previousDateParams = {
-    from: previousFrom.toISOString(),
-    to: previousTo.toISOString(),
+  const avgCurrent = avgFormat(qCurrent);
+  const avgPrevious = avgFormat(qPrevious);
+
+  const aggregateChart = (
+    contacts: ContactLeadInfo[],
+    leads: ContactLeadInfo[],
+    from: Date,
+    to: Date
+  ): ChartDataPoint[] => {
+    const daysDiff = differenceInDays(to, from);
+    const result: ChartDataPoint[] = [];
+
+    if (daysDiff <= 7) {
+      let current = new Date(from);
+      while (current <= to) {
+        const start = new Date(current);
+        start.setHours(0, 0, 0, 0);
+        const end = new Date(current);
+        end.setHours(23, 59, 59, 999);
+        const lc = leads.filter((l) =>
+          isWithinInterval(new Date(l.createdate), { start, end })
+        ).length;
+        const cc = contacts.filter((c) =>
+          isWithinInterval(new Date(c.createdate), { start, end })
+        ).length;
+        result.push({ label: format(current, "EEE"), leads: lc, contacts: cc });
+        current = addDays(current, 1);
+      }
+    } else if (daysDiff <= 31) {
+      let currentStart = startOfWeek(from, { weekStartsOn: 1 });
+      while (currentStart <= to) {
+        const weekEnd = endOfWeek(currentStart, { weekStartsOn: 1 });
+        const adjustedEnd = weekEnd > to ? to : weekEnd;
+        const lc = leads.filter((l) =>
+          isWithinInterval(new Date(l.createdate), {
+            start: currentStart,
+            end: adjustedEnd,
+          })
+        ).length;
+        const cc = contacts.filter((c) =>
+          isWithinInterval(new Date(c.createdate), {
+            start: currentStart,
+            end: adjustedEnd,
+          })
+        ).length;
+        result.push({
+          label: `${format(currentStart, "MMM d")} - ${format(adjustedEnd, "MMM d")}`,
+          leads: lc,
+          contacts: cc,
+        });
+        currentStart = addDays(weekEnd, 1);
+      }
+    } else {
+      let currentMonth = startOfMonth(from);
+      while (currentMonth <= to) {
+        const monthEnd = endOfMonth(currentMonth);
+        const adjustedEnd = monthEnd > to ? to : monthEnd;
+        const lc = leads.filter((l) =>
+          isWithinInterval(new Date(l.createdate), {
+            start: currentMonth,
+            end: adjustedEnd,
+          })
+        ).length;
+        const cc = contacts.filter((c) =>
+          isWithinInterval(new Date(c.createdate), {
+            start: currentMonth,
+            end: adjustedEnd,
+          })
+        ).length;
+        result.push({
+          label: format(currentMonth, "MMM"),
+          leads: lc,
+          contacts: cc,
+        });
+        currentMonth = new Date(
+          currentMonth.getFullYear(),
+          currentMonth.getMonth() + 1,
+          1
+        );
+      }
+    }
+    return result;
   };
+
+  const chartData = aggregateChart(
+    contactsCurrent,
+    leadsCurrent,
+    new Date(dateRange.fromISO),
+    new Date(dateRange.toISO)
+  );
 
   return (
     <div className="flex flex-col w-full h-full mt-[--header-height]">
@@ -70,55 +196,38 @@ async function AnalyticsPage({ searchParams }: { searchParams: SearchParams }) {
       </div>
 
       <div className="flex w-full gap-4 justify-between">
-        <StaggeredSuspense fallback={<AnalyticsSkeleton />} delay={0}>
-          <div className="w-[250px]">
-            <ContactTotalCount
-              currentDateParams={currentDateParams}
-              previousDateParams={previousDateParams}
-            />
-          </div>
-        </StaggeredSuspense>
+        <div className="w-[250px]">
+          <ContactTotalCount
+            currentPeriodCount={contactsCurrent.length}
+            previousPeriodCount={contactsPrevious.length}
+          />
+        </div>
 
-        <StaggeredSuspense fallback={<AnalyticsSkeleton />} delay={700}>
-          <div className="w-[250px]">
-            <LeadTotalCount
-              currentDateParams={currentDateParams}
-              previousDateParams={previousDateParams}
-            />
-          </div>
-        </StaggeredSuspense>
+        <div className="w-[250px]">
+          <LeadTotalCount
+            currentPeriodCount={leadsCurrent.length}
+            previousPeriodCount={leadsPrevious.length}
+          />
+        </div>
 
-        <StaggeredSuspense fallback={<AnalyticsSkeleton />} delay={1000}>
-          <div className="w-[250px]">
-            <AverageQualificationTime
-              currentDateParams={currentDateParams}
-              previousDateParams={previousDateParams}
-            />
-          </div>
-        </StaggeredSuspense>
+        <div className="w-[250px]">
+          <AverageQualificationTime
+            current={avgCurrent}
+            previous={avgPrevious}
+          />
+        </div>
 
-        <StaggeredSuspense fallback={<AnalyticsSkeleton />} delay={1800}>
-          <div className="w-[250px]">
-            <DealsTotalCount
-              currentDateParams={currentDateParams}
-              previousDateParams={previousDateParams}
-            />
-          </div>
-        </StaggeredSuspense>
+        <div className="w-[250px]">
+          <DealsTotalCount
+            currentPeriodCount={dealsCurrentCount}
+            previousPeriodCount={dealsPreviousCount}
+          />
+        </div>
       </div>
 
-      <StaggeredSuspense
-        fallback={
-          <div className="w-full flex items-center justify-center mt-4">
-            <AnalyticsSkeleton />
-          </div>
-        }
-        delay={1200}
-      >
-        <div className="w-full flex items-center justify-center mt-4">
-          <ChartContainer currentDateParams={currentDateParams} range={range} />
-        </div>
-      </StaggeredSuspense>
+      <div className="w-full flex items-center justify-center mt-4">
+        <ChartContainer data={chartData} range={range} />
+      </div>
     </div>
   );
 }
