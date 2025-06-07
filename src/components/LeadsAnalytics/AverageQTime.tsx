@@ -7,36 +7,19 @@ import {
 } from "@/components/ui/card";
 import { Clock, TrendingDown, TrendingUp } from "lucide-react";
 import { calculatePercentageChange } from "@/lib/utils";
-import { getAverageQualificationTime } from "@/actions/hubspot/getAverageQtime";
 
 type AverageQualificationTimeProps = {
-  currentDateParams: {
-    from: string;
-    to: string;
-  };
-  previousDateParams: {
-    from: string;
-    to: string;
-  };
+  current: { displayValue: number; unit: string };
+  previous: { displayValue: number; unit: string };
 };
 
-export async function AverageQualificationTime({
-  currentDateParams,
-  previousDateParams,
+export function AverageQualificationTime({
+  current,
+  previous,
 }: AverageQualificationTimeProps) {
-  const qualificationTime = await getAverageQualificationTime(
-    currentDateParams.from,
-    currentDateParams.to
-  );
-
-  const previousQualificationTime = await getAverageQualificationTime(
-    previousDateParams.from,
-    previousDateParams.to
-  );
-
   const { percentageChange, formattedPercentage } = calculatePercentageChange(
-    qualificationTime.displayValue,
-    previousQualificationTime.displayValue
+    current.displayValue,
+    previous.displayValue,
   );
 
   let textColorClass = "text-primary";
@@ -61,7 +44,7 @@ export async function AverageQualificationTime({
       </CardHeader>
       <CardContent>
         <div className="text-3xl font-bold">
-          {qualificationTime.displayValue} {qualificationTime.unit}
+          {current.displayValue} {current.unit}
         </div>
         <div className="flex items-center gap-1">
           {ComparisonIcon && (
@@ -70,14 +53,13 @@ export async function AverageQualificationTime({
           <CardDescription
             className={`${textColorClass} font-medium flex items-center`}
           >
-            {previousQualificationTime.displayValue > 0 ? (
+            {previous.displayValue > 0 ? (
               <>
                 {Math.abs(percentageChange) === 0
                   ? "No change"
                   : `${formattedPercentage}% ${percentageChange >= 0 ? "decrease speed" : "increase speed"}`}
                 <span className="ml-1 text-gray-500">
-                  vs previous: {previousQualificationTime.displayValue}{" "}
-                  {previousQualificationTime.unit}
+                  vs previous: {previous.displayValue} {previous.unit}
                 </span>
               </>
             ) : (

@@ -130,7 +130,7 @@ async function leadsQualified(userId: string, timeRange: string = "weekly") {
             },
           ],
           sorts: ["-createdate"],
-          limit: 100,
+          limit: 200,
         }),
       }
     );
