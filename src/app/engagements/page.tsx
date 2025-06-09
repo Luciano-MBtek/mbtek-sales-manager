@@ -12,8 +12,8 @@ export default async function Page({
   return (
     <div className="flex flex-col w-full h-full mt-[--header-height]">
       <PageHeader
-        title="Activities"
-        subtitle="Manage income lead communications"
+        title="Engagements"
+        subtitle="Manage your lead's engagements and activities"
       />
       <div className="w-full pr-4">
         <LeadsActivitiesList searchParams={params} />

@@ -2,17 +2,15 @@
 
 import {
   Home,
-  Search,
   LayoutDashboard,
   MonitorCog,
   Handshake,
-  BotMessageSquare,
   CircleUserRound,
   Calendar,
   ListTodo,
-  Activity,
   ListChecks,
   ChartLine,
+  MessagesSquare,
 } from "lucide-react";
 import Shopify from "./Icons/Shopify";
 
@@ -56,9 +54,9 @@ const items = [
     requireRole: ["owner", "lead_agent"],
   },
   {
-    title: "Activities",
-    url: "/activities",
-    icon: Activity,
+    title: "Engagements",
+    url: "/engagements",
+    icon: MessagesSquare,
     requireAuth: true,
     requireRole: ["owner", "lead_agent"],
   },

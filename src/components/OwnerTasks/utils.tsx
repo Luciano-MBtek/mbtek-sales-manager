@@ -1,4 +1,4 @@
-import { Task } from "@/types/Tasks";
+import { Task, TaskStatus } from "@/types/Tasks";
 import { Phone, FileText, Calendar, CheckSquare, Flag } from "lucide-react";
 
 export const getTaskIcon = (type: string) => {
@@ -29,7 +29,7 @@ export const getTaskPriorityIcon = (priority: string) => {
   }
 };
 
-export const getStatusBadgeVariant = (status: string) => {
+export const getStatusBadgeVariant = (status: TaskStatus) => {
   switch (status) {
     case "COMPLETED":
       return "success";
