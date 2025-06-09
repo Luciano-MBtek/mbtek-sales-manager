@@ -42,31 +42,35 @@ import {
   truncateText,
 } from "./utils";
 import TaskModalBody from "./TaskModalBody";
+import { useRouter, useSearchParams } from "next/navigation";
 
 interface TasksTableProps {
   tasks: Task[];
   timeRange: "weekly" | "monthly" | "daily";
   initialNextAfter?: string;
+  initialTaskId?: string;
 }
 
 export function TasksTable({
   tasks: initialTasks,
   timeRange,
   initialNextAfter,
+  initialTaskId,
 }: TasksTableProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
   const [taskDetailOpen, setTaskDetailOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
-  // Pagination & data loading
   const [currentPage, setCurrentPage] = useState(1);
   const [tasks, setTasks] = useState(initialTasks);
   const [isLoading, setIsLoading] = useState(false);
   const [hasMore, setHasMore] = useState(!!initialNextAfter);
   const [nextAfter, setNextAfter] = useState(initialNextAfter);
 
-  // Filter state
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
   const [filterState, setFilterState] = useState<FilterState>({
     searchQuery: "",
     selectedFilters: {
@@ -84,9 +88,25 @@ export function TasksTable({
     setHasMore(!!initialNextAfter);
   }, [initialTasks, initialNextAfter]);
 
+  useEffect(() => {
+    if (initialTaskId) {
+      const taskToOpen = initialTasks.find((task) => task.id === initialTaskId);
+      if (taskToOpen) {
+        setSelectedTask(taskToOpen);
+        setTaskDetailOpen(true);
+
+        // Clean up the URL by removing the task ID parameter
+        const params = new URLSearchParams(searchParams.toString());
+        params.delete("taskId"); // Assuming 'taskId' is the parameter name
+
+        // Replace the current URL without the taskId parameter
+        router.replace(`/tasks?${params.toString()}`);
+      }
+    }
+  }, [initialTaskId, initialTasks, router, searchParams]);
+
   const itemsPerPage = 10;
 
-  // Load more tasks
   const loadMoreTasks = useCallback(async () => {
     if (isLoading || !hasMore || !nextAfter) return;
 
@@ -109,7 +129,6 @@ export function TasksTable({
     }
   }, [timeRange, nextAfter, isLoading, hasMore]);
 
-  // Filter groups
   const filterGroups = useMemo<FilterGroup[]>(() => {
     const statuses = new Set<string>();
     const priorities = new Set<string>();
@@ -152,13 +171,11 @@ export function TasksTable({
     ];
   }, [tasks]);
 
-  // Handle filter changes
   const handleFilterChange = (newState: FilterState) => {
     setFilterState(newState);
     setCurrentPage(1);
   };
 
-  // Processed tasks: search -> filters -> sort
   const processedTasks = useMemo(() => {
     const { searchQuery, selectedFilters, sortDesc } = filterState;
 
@@ -166,7 +183,6 @@ export function TasksTable({
       const searchLower = searchQuery.toLowerCase().trim();
       if (!searchLower) return true;
 
-      // Search by contact name, task subject, task body
       const contactName = getContactName(task).toLowerCase();
       const taskSubject = task.properties.hs_task_subject?.toLowerCase() || "";
       const taskBody = task.properties.hs_task_body?.toLowerCase() || "";
@@ -180,28 +196,24 @@ export function TasksTable({
       );
     });
 
-    // Filter by status
     if (selectedFilters.status?.length > 0) {
       result = result.filter((task) =>
         selectedFilters.status.includes(task.properties.hs_task_status)
       );
     }
 
-    // Filter by priority
     if (selectedFilters.priority?.length > 0) {
       result = result.filter((task) =>
         selectedFilters.priority.includes(task.properties.hs_task_priority)
       );
     }
 
-    // Filter by type
     if (selectedFilters.type?.length > 0) {
       result = result.filter((task) =>
         selectedFilters.type.includes(task.properties.hs_task_type)
       );
     }
 
-    // Sort by timestamp
     result.sort((a, b) => {
       const timeA = new Date(a.properties.hs_timestamp).getTime();
       const timeB = new Date(b.properties.hs_timestamp).getTime();
@@ -211,7 +223,6 @@ export function TasksTable({
     return result;
   }, [tasks, filterState]);
 
-  // Pagination
   const totalPages = Math.ceil(processedTasks.length / itemsPerPage);
   const paginatedTasks = processedTasks.slice(
     (currentPage - 1) * itemsPerPage,
@@ -253,7 +264,14 @@ export function TasksTable({
           <TableBody>
             {paginatedTasks.length > 0 ? (
               paginatedTasks.map((task) => (
-                <TableRow key={task.id} className="group">
+                <TableRow
+                  key={task.id}
+                  className={`group ${
+                    task.properties.hs_task_status === "NOT_STARTED"
+                      ? "bg-white font-medium"
+                      : "bg-gray-50 font-normal"
+                  }`}
+                >
                   <TableCell
                     className="cursor-pointer relative overflow-hidden"
                     onClick={() => {
@@ -281,7 +299,9 @@ export function TasksTable({
                         </AvatarFallback>
                       </Avatar>
                       <div>
-                        <div className="font-medium text-sm">
+                        <div
+                          className={`text-sm ${task.properties.hs_task_status === "NOT_STARTED" ? "font-bold" : ""}`}
+                        >
                           {getContactName(task)}
                         </div>
                         <div className="text-xs text-muted-foreground">
@@ -298,7 +318,9 @@ export function TasksTable({
                     }}
                   >
                     <div className="max-w-xs">
-                      <div className="text-sm font-medium">
+                      <div
+                        className={`text-sm ${task.properties.hs_task_status === "NOT_STARTED" ? "font-bold" : ""}`}
+                      >
                         {truncateText(task.properties.hs_task_subject, 50)}
                       </div>
                       <div className="text-xs text-muted-foreground">
@@ -309,7 +331,9 @@ export function TasksTable({
                   <TableCell>
                     <div className="flex items-center space-x-2">
                       {getTaskIcon(task.properties.hs_task_type)}
-                      <span className="text-sm">
+                      <span
+                        className={`text-sm ${task.properties.hs_task_status === "NOT_STARTED" ? "font-bold" : ""}`}
+                      >
                         {task.properties.hs_task_type}
                       </span>
                     </div>
@@ -317,7 +341,9 @@ export function TasksTable({
                   <TableCell>
                     <div className="flex items-center space-x-2">
                       {getTaskPriorityIcon(task.properties.hs_task_priority)}
-                      <span className="text-sm">
+                      <span
+                        className={`text-sm ${task.properties.hs_task_status === "NOT_STARTED" ? "font-bold" : ""}`}
+                      >
                         {task.properties.hs_task_priority}
                       </span>
                     </div>
@@ -325,7 +351,13 @@ export function TasksTable({
                   <TableCell>
                     <div className="flex items-center space-x-1 text-sm text-muted-foreground">
                       <Clock className="h-3 w-3" />
-                      <span>
+                      <span
+                        className={
+                          task.properties.hs_task_status === "NOT_STARTED"
+                            ? "font-bold"
+                            : ""
+                        }
+                      >
                         {formatDistanceToNow(
                           new Date(task.properties.hs_timestamp),
                           {

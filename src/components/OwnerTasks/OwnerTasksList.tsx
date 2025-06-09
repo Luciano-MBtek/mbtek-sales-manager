@@ -7,6 +7,7 @@ type SearchParams = {
   from?: string;
   to?: string;
   timeRange?: "weekly" | "monthly" | "daily";
+  taskId?: string;
 };
 
 export async function OwnerTasksList({
@@ -44,6 +45,7 @@ export async function OwnerTasksList({
         tasks={tasks}
         timeRange={timeRange}
         initialNextAfter={nextAfter}
+        initialTaskId={searchParams.taskId}
       />
     </Suspense>
   );

@@ -13,6 +13,7 @@ import { useIncompleteTasks } from "@/hooks/useIncompleteTasks";
 import { taskStatusLabels } from "@/types/Tasks";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
+import { getStatusBadgeVariant } from "./OwnerTasks/utils";
 
 export function TaskNotifications() {
   const { data: tasks, isPending } = useIncompleteTasks();
@@ -40,30 +41,52 @@ export function TaskNotifications() {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-72">
         {count > 0 ? (
-          tasks?.map((task) => (
-            <DropdownMenuItem
-              key={task.id}
-              className="flex flex-col items-start py-2"
-              onClick={() => setOpen(false)}
-            >
-              <Link href="/tasks" className="w-full">
-                <div className="font-medium">
-                  {task.properties.hs_task_subject}
-                </div>
-                <div className="flex items-center justify-between w-full mt-1 text-xs text-muted-foreground">
-                  <Badge variant="outline" className="text-xs">
-                    {taskStatusLabels[task.properties.hs_task_status]}
-                  </Badge>
-                  <span>
-                    {task.createdAt &&
-                      formatDistanceToNow(new Date(task.createdAt), {
-                        addSuffix: true,
-                      })}
-                  </span>
-                </div>
+          <>
+            <div className="border-b mt-2 pt-2 px-2 py-1.5 text-sm flex justify-between items-center font-medium">
+              My tasks
+            </div>
+            {tasks?.map((task) => (
+              <DropdownMenuItem
+                key={task.id}
+                className="flex flex-col items-start py-2"
+                onClick={() => setOpen(false)}
+              >
+                <Link href={`/tasks?taskId=${task.id}`} className="w-full">
+                  <div className="font-normal">
+                    {task.properties.hs_task_subject}
+                  </div>
+                  <div className="flex items-center justify-between w-full mt-1 text-xs text-muted-foreground">
+                    <Badge
+                      variant={getStatusBadgeVariant(
+                        task.properties.hs_task_status
+                      )}
+                      className="text-xs"
+                    >
+                      {taskStatusLabels[task.properties.hs_task_status]}
+                    </Badge>
+                    <span>
+                      {task.createdAt &&
+                        formatDistanceToNow(new Date(task.createdAt), {
+                          addSuffix: true,
+                        })}
+                    </span>
+                  </div>
+                </Link>
+              </DropdownMenuItem>
+            ))}
+            <div className="border-t mt-2 pt-2 px-2 py-1.5 text-sm flex justify-between items-center">
+              <span className="text-muted-foreground">
+                {count} pending tasks
+              </span>
+              <Link
+                href="/tasks"
+                className="text-primary hover:underline"
+                onClick={() => setOpen(false)}
+              >
+                View all
               </Link>
-            </DropdownMenuItem>
-          ))
+            </div>
+          </>
         ) : (
           <DropdownMenuItem disabled>No pending tasks</DropdownMenuItem>
         )}

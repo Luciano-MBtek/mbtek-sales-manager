@@ -15,12 +15,12 @@ import {
   getQualificationProgress,
   qualificationSteps,
 } from "./leadQualificationProgress";
-import { formatDateWithDay } from "@/lib/utils";
 import { LeadQualificationProgress } from "../Modals/LeadQualification/lead-qualification-progress-bar";
 
 import QualificationButton from "../Modals/LeadQualification/QualificationButton";
 import DisqualifyButton from "./DisqualifyButton";
 import { LeadProps } from "@/types";
+import { format } from "date-fns";
 
 export function LeadCard({
   lead,
@@ -49,7 +49,7 @@ export function LeadCard({
           </CardTitle>
           <div className="flex items-center gap-2 text-sm text-slate-500">
             <Calendar className="h-4 w-4" />
-            {formatDateWithDay(lead.properties.createdate)}
+            {format(new Date(lead.properties.createdate), "d MMM")}
           </div>
         </div>
       </CardHeader>

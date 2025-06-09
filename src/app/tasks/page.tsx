@@ -2,7 +2,10 @@ import { DateRangeSelect } from "@/components/DateRangeSelect";
 import { OwnerTasksList } from "@/components/OwnerTasks/OwnerTasksList";
 import PageHeader from "@/components/PageHeader";
 
-type SearchParams = { timeRange?: "weekly" | "monthly" | "daily" };
+type SearchParams = {
+  timeRange?: "weekly" | "monthly" | "daily";
+  taskId?: string;
+};
 
 export default async function Page({
   searchParams,
