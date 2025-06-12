@@ -11,7 +11,9 @@ import {
   ListChecks,
   ChartLine,
   MessagesSquare,
+  PlusCircle,
 } from "lucide-react";
+import { Fragment } from "react";
 import Shopify from "./Icons/Shopify";
 
 import {
@@ -130,14 +132,29 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {filteredItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <Link href={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
+                <Fragment key={item.title}>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild>
+                      <Link href={item.url}>
+                        <item.icon />
+                        <span>{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  {item.title === "Qualification" && (
+                    <SidebarMenuItem key="new-qualification">
+                      <SidebarMenuButton
+                        asChild
+                        className="pl-6"
+                      >
+                        <Link href="/active-qualifications?startQualification=true">
+                          <PlusCircle />
+                          <span>New Qualification</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  )}
+                </Fragment>
               ))}
               {session?.user?.accessLevel &&
                 [
