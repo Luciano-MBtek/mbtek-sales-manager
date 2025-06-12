@@ -14,14 +14,13 @@ import {
 } from "@/components/LeadActivities/utils";
 import { getHubspotOwnerIdSession } from "../user/getHubspotOwnerId";
 
-// CONFIG ------------------------------------------------------------------
 const ASSOC_TYPES = ["contacts", "companies", "deals"] as const;
 const CONTACT_BATCH_SIZE = 100;
+const ENGAGEMENT_BATCH_SIZE = 100;
 const API = "https://api.hubapi.com";
-const limiter = pLimit(6); // max 6 concurrent requests (~60 rps)
+const limiter = pLimit(6);
 
 // TYPES -------------------------------------------------------------------
-
 interface Association {
   id: string;
   type: string;
@@ -48,15 +47,14 @@ const chunk = <T>(arr: T[], size: number) =>
     arr.slice(i * size, i * size + size)
   );
 
-// MAIN --------------------------------------------------------------------
-async function getOwnerEngagements(
+// SEARCH FUNCTIONS --------------------------------------------------------
+async function searchEngagementIds(
   ownerId: string,
   timeRange: "weekly" | "monthly" | "allTime" = "weekly",
   after?: string
-): Promise<{ engagements: Engagement[]; nextAfter?: string }> {
+) {
   if (!process.env.HUBSPOT_API_KEY) throw new Error("Missing HUBSPOT_API_KEY");
 
-  // 1️⃣ rango de fechas ----------------------------------------------------
   const { startDate, endDate } =
     timeRange === "monthly"
       ? getCurrentMonthDateRange()
@@ -64,10 +62,9 @@ async function getOwnerEngagements(
         ? getAllTimeDateRange()
         : getCurrentWeekDateRange();
 
-  // 2️⃣ SEARCH -------------------------------------------------------------
-  const limit = 50;
+  const limit = 200;
   const searchBody = {
-    properties: engagementProperties,
+    properties: ["hs_object_id"],
     filterGroups: [
       {
         filters: [
@@ -77,6 +74,16 @@ async function getOwnerEngagements(
             operator: "BETWEEN",
             value: startDate,
             highValue: endDate,
+          },
+          {
+            propertyName: "hs_engagement_type",
+            operator: "NEQ",
+            value: "TASK",
+          },
+          {
+            propertyName: "hs_engagement_type",
+            operator: "NEQ",
+            value: "MEETING",
           },
         ],
       },
@@ -91,13 +98,72 @@ async function getOwnerEngagements(
     { method: "POST", body: JSON.stringify(searchBody) },
     60
   );
-  if (!searchRes.ok) throw new Error("search error " + searchRes.statusText);
-  const searchJson = await searchRes.json();
-  const engagements: Engagement[] = searchJson.results;
-  const nextAfter = searchJson.paging?.next?.after;
 
-  if (engagements.length === 0)
+  if (!searchRes.ok) throw new Error("search error " + searchRes.statusText);
+
+  return await searchRes.json();
+}
+
+// BATCH FUNCTIONS --------------------------------------------------------
+async function getEngagementsBatch(engagementIds: string[]) {
+  if (engagementIds.length === 0) {
+    return { results: [] };
+  }
+
+  const idChunks = chunk(engagementIds, ENGAGEMENT_BATCH_SIZE);
+
+  const batchResults = await Promise.all(
+    idChunks.map((ids) =>
+      limiter(async () => {
+        const response = await hubFetch(
+          `${API}/crm/v3/objects/engagements/batch/read`,
+          {
+            method: "POST",
+            body: JSON.stringify({
+              properties: engagementProperties,
+              inputs: ids.map((id) => ({ id })),
+            }),
+          },
+          300
+        );
+
+        if (!response.ok) {
+          throw new Error(`Engagements batch error: ${response.statusText}`);
+        }
+
+        return await response.json();
+      })
+    )
+  );
+
+  return {
+    results: batchResults.flatMap((batch) => batch.results),
+  };
+}
+
+// MAIN --------------------------------------------------------------------
+async function getOwnerEngagements(
+  ownerId: string,
+  timeRange: "weekly" | "monthly" | "allTime" = "weekly",
+  after?: string
+): Promise<{ engagements: Engagement[]; nextAfter?: string }> {
+  // 1️⃣ Buscar IDs de engagements -----------------------------------------
+  const idData = await searchEngagementIds(ownerId, timeRange, after);
+
+  if (idData.total === 0) {
     return { engagements: [], nextAfter: undefined };
+  }
+
+  const engagementIds = idData.results.map((eng: any) => eng.id);
+  const nextAfter = idData.paging?.next?.after;
+
+  // 2️⃣ Obtener datos completos de engagements en batch ------------------
+  const engagementsData = await getEngagementsBatch(engagementIds);
+  const engagements: Engagement[] = engagementsData.results;
+
+  if (engagements.length === 0) {
+    return { engagements: [], nextAfter };
+  }
 
   // 3️⃣ ASSOCIATIONS BATCH -------------------------------------------------
   // mapa engagementId -> Associations
@@ -146,29 +212,37 @@ async function getOwnerEngagements(
   );
 
   const contactMap = new Map<string, ContactData>();
-  await Promise.all(
-    chunk(contactIds, CONTACT_BATCH_SIZE).map((chunkIds) =>
-      limiter(async () => {
-        const cRes = await hubFetch(
-          `${API}/crm/v3/objects/contacts/batch/read`,
-          {
-            method: "POST",
-            body: JSON.stringify({
-              properties: ["firstname", "lastname", "email", "hs_lead_status"],
-              inputs: chunkIds.map((id) => ({ id })),
-            }),
-          },
-          300
-        );
-        if (!cRes.ok) {
-          console.error("contacts batch error:", cRes.statusText);
-          return;
-        }
-        const { results } = await cRes.json();
-        results.forEach((c: ContactData) => contactMap.set(c.id, c));
-      })
-    )
-  );
+
+  if (contactIds.length > 0) {
+    await Promise.all(
+      chunk(contactIds, CONTACT_BATCH_SIZE).map((chunkIds) =>
+        limiter(async () => {
+          const cRes = await hubFetch(
+            `${API}/crm/v3/objects/contacts/batch/read`,
+            {
+              method: "POST",
+              body: JSON.stringify({
+                properties: [
+                  "firstname",
+                  "lastname",
+                  "email",
+                  "hs_lead_status",
+                ],
+                inputs: chunkIds.map((id) => ({ id })),
+              }),
+            },
+            300
+          );
+          if (!cRes.ok) {
+            console.error("contacts batch error:", cRes.statusText);
+            return;
+          }
+          const { results } = await cRes.json();
+          results.forEach((c: ContactData) => contactMap.set(c.id, c));
+        })
+      )
+    );
+  }
 
   // 5️⃣ ENRICH + RETURN ----------------------------------------------------
   const enriched: Engagement[] = engagements.map((e) => {

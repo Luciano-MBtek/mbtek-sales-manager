@@ -26,20 +26,24 @@ export function TaskNotifications() {
         <button type="button" className="relative p-2">
           {isPending ? (
             <Bell className="h-5 w-5" />
-          ) : count > 0 ? (
+          ) : (
             <>
               <Bell className="h-5 w-5" />
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full px-1">
-                {count}
-              </span>
+              {count > 0 ? (
+                <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-xs rounded-full px-1">
+                  {count}
+                </span>
+              ) : (
+                <span className="absolute -top-0.5 -right-0.5">
+                  <CheckCircle className="h-4 w-4 text-green-500" />
+                </span>
+              )}
             </>
-          ) : (
-            <CheckCircle className="h-5 w-5 text-green-500" />
           )}
           <span className="sr-only">Tasks Notifications</span>
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-72">
+      <DropdownMenuContent align="end" className="w-72 z-50 mt-2">
         {count > 0 ? (
           <>
             <div className="border-b mt-2 pt-2 px-2 py-1.5 text-sm flex justify-between items-center font-medium">

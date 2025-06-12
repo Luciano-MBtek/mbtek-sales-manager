@@ -12,6 +12,8 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { AccessDeniedToast } from "@/components/AccessDeniedToast";
 import { FloatingChatWrapper } from "@/components/ChatBot/FloatingChatWrapper";
 import { AppHeader } from "@/components/AppHeader";
+import { AppHeaderSkeleton } from "@/components/Skeletons/AppHeaderSkeleton";
+import { Suspense } from "react";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -50,7 +52,9 @@ export default async function RootLayout({
           <HydrationBoundary state={dehydrate(queryClient)}>
             <AccessDeniedToast />
             <div className="flex flex-col w-full">
-              <AppHeader />
+              <Suspense fallback={<AppHeaderSkeleton />}>
+                <AppHeader />
+              </Suspense>
               <div className="flex w-full">
                 <AppSidebar />
                 <main className="flex w-full">
@@ -60,9 +64,9 @@ export default async function RootLayout({
               </div>
             </div>
             <FloatingChatWrapper />
+            <Toaster />
           </HydrationBoundary>
         </Providers>
-        <Toaster />
       </body>
     </html>
   );

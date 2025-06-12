@@ -185,7 +185,7 @@ export function ContactModal({
                         Contact Info
                       </TabsTrigger>
                       <TabsTrigger value="deals">Deals</TabsTrigger>
-                      <TabsTrigger value="activities">Activities</TabsTrigger>
+                      <TabsTrigger value="engagements">Engagements</TabsTrigger>
                       <TabsTrigger value="notes">Notes</TabsTrigger>
                     </TabsList>
 
