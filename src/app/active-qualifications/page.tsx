@@ -1,7 +1,11 @@
 import { LeadsQualifiedList } from "@/components/LeadsQualifier/LeadsQualifiedList";
 import PageHeader from "@/components/PageHeader";
+import StartQualificationModal from "@/components/LeadsQualifier/StartQualificationModal";
 
-type SearchParams = { timeRange?: "weekly" | "monthly" | "allTime" };
+type SearchParams = {
+  timeRange?: "weekly" | "monthly" | "allTime";
+  startQualification?: string;
+};
 
 export default async function Page({
   searchParams,
@@ -15,6 +19,8 @@ export default async function Page({
         title="Active Qualifications"
         subtitle="Manage your active qualifications"
       />
+      {/* Trigger modal when URL contains startQualification */}
+      <StartQualificationModal />
       <div className="w-full pr-4">
         <LeadsQualifiedList searchParams={params} />
       </div>
