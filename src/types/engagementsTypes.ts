@@ -22,6 +22,22 @@ export type Engagement = {
   };
 };
 
+type EngagementsTypes =
+  | "CALL"
+  | "CONVERSATION_SESSION"
+  | "INCOMING_EMAIL"
+  | "EMAIL"
+  | "FORWARDED_EMAIL"
+  | "LINKEDIN_MESSAGE"
+  | "MEETING"
+  | "NOTE"
+  | "POSTAL_MAIL"
+  | "PUBLISHING_TASK"
+  | "SMS"
+  | "TASK"
+  | "WHATS_APP"
+  | "CUSTOM_CHANNEL_CONVERSATION";
+
 export type EngagementProperties = {
   hs_object_id: string;
   hubspot_owner_id: string;
@@ -36,7 +52,7 @@ export type EngagementProperties = {
   hs_communication_channel_type: string | null;
   hs_communication_logged_from: string | null;
   hs_engagement_source: string | null;
-  hs_engagement_type: string;
+  hs_engagement_type: EngagementsTypes | null;
   hs_created_by: string | null;
   hs_modified_by: string | null;
   hs_attachment_ids: string | null;

@@ -39,22 +39,42 @@ export interface Engagement {
 
 export const getEngagementSource = (engagement: Engagement) => {
   const { properties } = engagement;
-  if (properties.hs_engagement_type === "EMAIL") {
-    return "Email";
+  const type = properties.hs_engagement_type as EngagementStatus;
+
+  if (type === "NOTE" && properties.hs_object_source_detail_1 === "Tidio") {
+    return "SMS";
   }
-  if (properties.hs_engagement_type === "CALL") {
-    return "Voice";
+
+  switch (type) {
+    case "EMAIL":
+    case "INCOMING_EMAIL":
+    case "FORWARDED_EMAIL":
+      return "Email";
+    case "CALL":
+      return "Voice";
+    case "NOTE":
+      return "Note";
+    case "TASK":
+      return "Task";
+    case "MEETING":
+      return "Meeting";
+    case "SMS":
+      return "SMS";
+    case "WHATS_APP":
+      return "WhatsApp";
+    case "LINKEDIN_MESSAGE":
+      return "LinkedIn";
+    case "POSTAL_MAIL":
+      return "Mail";
+    case "CONVERSATION_SESSION":
+      return "Conversation";
+    case "PUBLISHING_TASK":
+      return "Publishing";
+    case "CUSTOM_CHANNEL_CONVERSATION":
+      return "Custom Channel";
+    default:
+      return type || "Unknown";
   }
-  if (properties.hs_engagement_type === "NOTE") {
-    return "Note";
-  }
-  if (properties.hs_engagement_type === "TASK") {
-    return "Task";
-  }
-  if (properties.hs_engagement_type === "MEETING") {
-    return "Meeting";
-  }
-  return properties.hs_engagement_source || "Unknown";
 };
 
 export const getEngagementStatus = (

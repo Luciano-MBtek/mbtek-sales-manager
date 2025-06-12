@@ -125,7 +125,7 @@ export function AppSidebar() {
 
   return (
     <Sidebar>
-      <SidebarContent>
+      <SidebarContent className="p-2">
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>

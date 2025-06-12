@@ -36,11 +36,6 @@ const CalendarMeeting = ({ meetings = [] }: CalendarMeetingProps) => {
     setIsClient(true);
   }, []);
 
-  // console.log("MEETINGS:", meetings);
-
-  console.log("Selected Meeting:", selectedMeeting);
-
-  // Transform meetings into calendar events
   const events = meetings.map((meeting) => {
     const defaultDate = new Date("2023-01-01T00:00:00Z");
 
@@ -120,8 +115,12 @@ const CalendarMeeting = ({ meetings = [] }: CalendarMeetingProps) => {
                 <ChevronRight size={20} />
                 <span className="sr-only">Next</span>
               </CalendarNextTrigger>
-              <Button onClick={() => setIsAddDialogOpen(true)}>
-                Add Meeting
+              <Button
+                onClick={() => setIsAddDialogOpen(true)}
+                disabled={true}
+                className="flex flex-col"
+              >
+                Add Meeting <span className="text-xs">Coming soon</span>
               </Button>
               <AddMeetingDialog
                 open={isAddDialogOpen}

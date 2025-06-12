@@ -98,7 +98,7 @@ const EngagementsModalTab = ({ contactId }: EngagementsModalTabProps) => {
   };
 
   return (
-    <TabsContent value="activities" className="mt-4">
+    <TabsContent value="engagements" className="mt-4">
       {isLoading ? (
         <div className="min-h-[200px] flex flex-col items-center justify-center gap-2">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />

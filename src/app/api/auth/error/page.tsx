@@ -20,6 +20,8 @@ function ErrorContent() {
 
   const errorMessages = {
     Signin: "There was a problem trying to sign in. Please try again.",
+    RefreshAccessTokenError:
+      "Your session has expired. Please sign in again to continue.",
     OAuthSignin:
       "An error occurred while building the authorization URL. Our technical team has been notified.",
     OAuthCallback:
