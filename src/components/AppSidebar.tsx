@@ -35,6 +35,7 @@ import { Role } from "@prisma/client";
 
 import { SidebarResources } from "@/app/resources/SidebarResources";
 import { SidebarSkeleton } from "./SidebarSkeleton";
+import { SidebarQualification } from "./LeadsQualifier/SidebarQualification";
 
 const items = [
   {
@@ -131,9 +132,15 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              {filteredItems.map((item) => (
-                <Fragment key={item.title}>
-                  <SidebarMenuItem>
+              {filteredItems.map((item) =>
+                item.title === "Qualification" ? (
+                  session?.user?.accessLevel &&
+                  ["owner", "lead_agent"].includes(
+                    session.user.accessLevel
+                  ) && <SidebarQualification key={item.title} />
+                ) : (
+                  // Para los demás ítems, renderizamos normalmente
+                  <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild>
                       <Link href={item.url}>
                         <item.icon />
@@ -141,21 +148,8 @@ export function AppSidebar() {
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
-                  {item.title === "Qualification" && (
-                    <SidebarMenuItem key="new-qualification">
-                      <SidebarMenuButton
-                        asChild
-                        className="pl-6"
-                      >
-                        <Link href="/active-qualifications?startQualification=true">
-                          <PlusCircle />
-                          <span>New Qualification</span>
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  )}
-                </Fragment>
-              ))}
+                )
+              )}
               {session?.user?.accessLevel &&
                 [
                   "admin",
