@@ -2,7 +2,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export function AppHeaderSkeleton() {
   return (
-    <header className="flex fixed items-center justify-between w-full border-b bg-background/80 backdrop-blur-sm p-8 max-h-[--header-height] z-[9999]">
+    <header className="flex fixed items-center justify-between w-full border-b bg-background/80 backdrop-blur-sm p-8 max-h-[--header-height] z-[9998]">
       <div className="flex items-center gap-3">
         <Skeleton className="w-[120px] h-[40px]" />
         <div className="h-8 w-px bg-border"></div>

@@ -16,7 +16,7 @@ export function StepIndicator({
   className,
 }: StepIndicatorProps) {
   return (
-    <div className={cn("w-full flex flex-col items-center py-4", className)}>
+    <div className={cn("w-full flex flex-col items-center", className)}>
       <div className="flex items-center justify-center w-full max-w-3xl">
         {Array.from({ length: steps }).map((_, index) => (
           <div key={index} className="flex items-center flex-1">

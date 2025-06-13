@@ -28,7 +28,7 @@ export function AppHeader() {
     window.open("/agent-ai", "_blank", "noopener,noreferrer");
   };
   return (
-    <header className="flex fixed items-center justify-between w-full border-b bg-background/80 backdrop-blur-sm p-8 max-h-[--header-height] z-[9999]">
+    <header className="flex fixed items-center justify-between w-full border-b bg-background/80 backdrop-blur-sm p-8 max-h-[--header-height] z-[9998]">
       <div className="flex items-center gap-3">
         <Image src="/Logo_Vector.png" alt="Logo" width={120} height={40} />
         <div className="h-8 w-px bg-border"></div>
