@@ -89,5 +89,6 @@ export type EngagementProperties = {
   hs_communication_conversations_first_message_at: string | null;
   hs_communication_conversation_associations_synced_at: string | null;
   hubspot_owner_assigneddate: string | null;
+  hs_call_body: string | null;
   [key: string]: string | null;
 };
