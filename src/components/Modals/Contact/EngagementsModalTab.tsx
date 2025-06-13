@@ -54,7 +54,7 @@ const EngagementsModalTab = ({ contactId }: EngagementsModalTabProps) => {
       try {
         const engagements = await getEngagementsById(contactId);
         setEngagements(
-          (engagements.results || []).sort(
+          (engagements?.results || []).sort(
             (a: Engagement, b: Engagement) =>
               b.engagement.timestamp - a.engagement.timestamp
           )

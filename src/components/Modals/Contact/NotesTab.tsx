@@ -78,7 +78,7 @@ const NotesTab = ({ contactId }: NotesTabProps) => {
       try {
         const engagements = await getEngagementsById(contactId);
 
-        const noteEngagements = (engagements.results || [])
+        const noteEngagements = (engagements?.results || [])
           .filter(
             (engagement: Engagement) => engagement.engagement.type === "NOTE"
           )
@@ -110,7 +110,7 @@ const NotesTab = ({ contactId }: NotesTabProps) => {
 
       // Refetch notes after creating a new one
       const engagements = await getEngagementsById(contactId);
-      const noteEngagements = (engagements.results || [])
+      const noteEngagements = (engagements?.results || [])
         .filter(
           (engagement: Engagement) => engagement.engagement.type === "NOTE"
         )

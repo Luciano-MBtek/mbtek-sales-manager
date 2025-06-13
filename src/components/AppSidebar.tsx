@@ -11,7 +11,9 @@ import {
   ListChecks,
   ChartLine,
   MessagesSquare,
+  PlusCircle,
 } from "lucide-react";
+import { Fragment } from "react";
 import Shopify from "./Icons/Shopify";
 
 import {
@@ -33,6 +35,7 @@ import { Role } from "@prisma/client";
 
 import { SidebarResources } from "@/app/resources/SidebarResources";
 import { SidebarSkeleton } from "./SidebarSkeleton";
+import { SidebarQualification } from "./LeadsQualifier/SidebarQualification";
 
 const items = [
   {
@@ -129,16 +132,24 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              {filteredItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <Link href={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {filteredItems.map((item) =>
+                item.title === "Qualification" ? (
+                  session?.user?.accessLevel &&
+                  ["owner", "lead_agent"].includes(
+                    session.user.accessLevel
+                  ) && <SidebarQualification key={item.title} />
+                ) : (
+                  // Para los demás ítems, renderizamos normalmente
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild>
+                      <Link href={item.url}>
+                        <item.icon />
+                        <span>{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                )
+              )}
               {session?.user?.accessLevel &&
                 [
                   "admin",
