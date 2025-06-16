@@ -1,7 +1,10 @@
 import { LeadsActivitiesList } from "@/components/LeadActivities/LeadActivitiesList";
 import PageHeader from "@/components/PageHeader";
 
-type SearchParams = { timeRange?: "weekly" | "monthly" | "allTime" };
+type SearchParams = {
+  timeRange?: "weekly" | "monthly" | "allTime";
+  filter?: string;
+};
 
 export default async function Page({
   searchParams,
