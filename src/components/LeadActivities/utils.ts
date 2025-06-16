@@ -51,7 +51,7 @@ export const getEngagementSource = (engagement: Engagement) => {
     case "FORWARDED_EMAIL":
       return "Email";
     case "CALL":
-      return "Voice";
+      return "Call";
     case "NOTE":
       return "Note";
     case "TASK":
