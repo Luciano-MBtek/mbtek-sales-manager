@@ -132,10 +132,9 @@ async function getLineItemsByDealId(dealId: string): Promise<string[]> {
 
     const data = await response.json();
     if (!data.results || data.results.length === 0) {
-      return []; // No hay line items asociados
+      return [];
     }
 
-    // Extraer los IDs de los line items
     return data.results.map((association: { id: string }) => association.id);
   } catch (error) {
     console.error(
@@ -150,7 +149,7 @@ async function getLineItemDetails(
   lineItemId: string
 ): Promise<LineItem | null> {
   const apiKey = process.env.HUBSPOT_API_KEY;
-  const url = `https://api.hubapi.com/crm/v3/objects/line_items/${lineItemId}?properties=quantity,price,name,hs_product_id,hs_images,createdate,`;
+  const url = `https://api.hubapi.com/crm/v3/objects/line_items/${lineItemId}?properties=quantity,price,name,hs_product_id,hs_images,createdate`;
 
   try {
     const response = await fetch(url, {

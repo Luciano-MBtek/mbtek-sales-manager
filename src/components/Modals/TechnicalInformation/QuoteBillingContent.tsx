@@ -8,13 +8,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+
 import PhoneInputForm from "@/components/StepForm/PhoneInputForm";
 import React, {
   useState,
@@ -89,13 +83,13 @@ export default function QuoteBillingContent({
             `https://api.zippopotam.us/${country}/${postalCode}`
           );
           if (!response.ok) {
-            console.error("Código postal inválido");
+            console.error("Invalid postal code");
             return;
           }
 
           const data = await response.json();
           if (!data.places || !data.places[0]) {
-            console.error("No se encontró información para este código postal");
+            console.error("No information found for this postal code");
             return;
           }
 
@@ -115,7 +109,7 @@ export default function QuoteBillingContent({
           setSelectedCountry(locationData.country);
           setStateFullName(locationData.state);
         } catch (error) {
-          console.error("Error al buscar el código postal:", error);
+          console.error("Error looking up postal code:", error);
         }
       });
     },
