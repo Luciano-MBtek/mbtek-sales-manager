@@ -217,7 +217,6 @@ export function TechnicalInformationModal({
         console.log("Saving zones data to HubSpot:", zonesData);
         await patchDealProperties(dealData.id, zonesData);
       } else if (currentStep === "step-3") {
-        // El patch ya se maneja en actions.ts a través de uploadCompleteSystemDocumentation
         setFormData((prev) => ({
           ...prev,
           [currentStep]: {
@@ -328,14 +327,12 @@ export function TechnicalInformationModal({
           />
         );
       case "step-3": {
-        // Fallback inteligente: si no hay datos guardados o están vacíos, usar dealData
         const docData = files.map((file: any) => ({
           id: file.id,
           name: file.name,
           url: file.url,
         }));
 
-        // Si hay datos en el estado del formulario, usarlos
         const currentStepData = formData[currentStep] || {};
         const existingFiles = currentStepData.files || docData;
 
