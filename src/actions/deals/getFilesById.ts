@@ -8,7 +8,6 @@ export async function getFilesById(fileIds: string[]) {
       throw new Error("HUBSPOT_API_KEY is not defined");
     }
 
-    // Construir la URL con los IDs de los archivos
     const idsQuery = fileIds.map((id) => `ids=${id}`).join("&");
     const url = `https://api.hubapi.com/files/v3/files/search?${idsQuery}`;
 

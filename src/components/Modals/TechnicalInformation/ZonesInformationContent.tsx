@@ -76,7 +76,6 @@ export default function ZonesInformationContent({
     name: "zones",
   });
 
-  // Sincronizar el número de zonas con el array de zonas
   React.useEffect(() => {
     const num = parseInt(form.watch("numberOfZones"), 10) || 1;
     if (fields.length < num) {
@@ -91,7 +90,6 @@ export default function ZonesInformationContent({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [form.watch("numberOfZones")]);
 
-  // Sincronizar numberOfZones al agregar o quitar zonas manualmente
   const handleAddZone = () => {
     append({ name: "", size: "", distribution: "" });
     form.setValue("numberOfZones", String(fields.length + 1));

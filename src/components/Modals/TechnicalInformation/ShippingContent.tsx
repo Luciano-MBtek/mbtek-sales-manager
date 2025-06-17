@@ -25,7 +25,6 @@ import React, {
 } from "react";
 import { debounce } from "lodash";
 
-// Me falta validar estos valores
 const deliveryTypes = [
   { value: "residential", label: "Residential (requires a liftgate)" },
   { value: "commercial", label: "Commercial (access to a dock or a forklift)" },
@@ -89,7 +88,6 @@ export default function ShippingContent({
     },
   });
 
-  // Función para precargar datos basados en el código postal
   const handleZipCodeChange = useCallback(
     async (zipCode: string) => {
       if (!zipCode || zipCode.length < 3) {
@@ -139,11 +137,8 @@ export default function ShippingContent({
     },
     [form]
   );
-
-  // Crear versión con debounce de handleZipCodeChange
   const debouncedZipCodeChange = useCallback(
     (zipCode: string) => {
-      // Limpiar los campos siempre que el usuario escriba
       form.setValue("shipping_country", "");
       form.setValue("shipping_province", "");
       form.setValue("shipping_city", "");
@@ -166,12 +161,11 @@ export default function ShippingContent({
     [handleZipCodeChange, form]
   );
 
-  // Observar cambios en el código postal SOLO si sameAsBilling es false
   useEffect(() => {
     const subscription = form.watch((value, { name }) => {
       if (
         name === "shipping_zip_code" &&
-        !form.getValues("sameAsBilling") // Solo si no está tildado
+        !form.getValues("sameAsBilling") 
       ) {
         debouncedZipCodeChange(value.shipping_zip_code || "");
       }
@@ -184,14 +178,12 @@ export default function ShippingContent({
     };
   }, [form, debouncedZipCodeChange]);
 
-  // Efecto para cargar datos iniciales si hay un zipCode
   useEffect(() => {
     if (initialData?.shipping_zip_code) {
       handleZipCodeChange(initialData.shipping_zip_code);
     }
   }, [initialData?.shipping_zip_code, handleZipCodeChange]);
 
-  // Copiar datos de billing al marcar sameAsBilling
   useEffect(() => {
     if (form.watch("sameAsBilling") && billingData) {
       isAutoFilling.current = true;
@@ -209,7 +201,6 @@ export default function ShippingContent({
     // eslint-disable-next-line
   }, [form.watch("sameAsBilling")]);
 
-  // Destildar sameAsBilling si se modifica cualquier campo de envío manualmente
   useEffect(() => {
     const subscription = form.watch((values, { name }) => {
       if (

@@ -160,13 +160,11 @@ export function TechnicalInformationModal({
   const [formData, setFormData] =
     useState<Record<string, any>>(getInitialFormData());
 
-  // Actualizar formData si dealData o contactData cambian
   useEffect(() => {
     setFormData(getInitialFormData());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dealData, contactData]);
 
-  // Actualizar currentStep cuando cambie dealData
   useEffect(() => {
     if (dealData?.properties?.last_step) {
       setCurrentStep(dealData.properties.last_step as TechnicalStep);
@@ -269,7 +267,6 @@ export function TechnicalInformationModal({
       if (currentStepIndex < STEPS.length - 1) {
         setCurrentStep(STEPS[currentStepIndex + 1].id);
       } else {
-        // Si es el último paso, cerrar el modal
         onClose();
       }
     } catch (error) {

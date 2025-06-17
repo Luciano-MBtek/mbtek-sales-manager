@@ -71,7 +71,6 @@ export default function DocumentationContent({
             description: result.message,
           });
 
-          // Obtener los nuevos archivos del resultado
           const newFiles = Array.isArray(result.newFiles)
             ? result.newFiles.filter(
                 (file): file is FileData =>
@@ -84,13 +83,11 @@ export default function DocumentationContent({
           const updatedFiles = [...existingFiles, ...newFiles];
           setExistingFiles(updatedFiles);
 
-          // Notificar al componente padre con los datos actualizados
           onComplete({
             existingFileIds: updatedFiles.map((file) => file.id),
             files: updatedFiles,
           });
 
-          // Limpiar los archivos temporales después de subir
           setFiles([]);
         } else {
           setError(result.message);

@@ -32,6 +32,6 @@ export async function getDealById(
     return data;
   } catch (error) {
     console.error(`Error in getDealDetails for deal ${dealId}:`, error);
-    return null; // Retornar null para manejar errores individualmente
+    return null;
   }
 }

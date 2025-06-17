@@ -25,18 +25,6 @@ import React, {
 } from "react";
 import { debounce } from "lodash";
 
-const stateOptions = [
-  { value: "NY", label: "New York" },
-  { value: "CA", label: "California" },
-  // ...otros estados
-];
-
-const countryOptions = [
-  { value: "USA", label: "United States" },
-  { value: "Canada", label: "Canada" },
-  // ...otros países
-];
-
 interface QuoteBillingFormValues {
   firstName: string;
   lastName: string;
@@ -84,7 +72,6 @@ export default function QuoteBillingContent({
     await onComplete(data);
   };
 
-  // Función para precargar datos basados en el código postal
   const handleZipCodeChange = useCallback(
     async (zipCode: string) => {
       if (!zipCode || zipCode.length < 3) {
@@ -135,10 +122,8 @@ export default function QuoteBillingContent({
     [form]
   );
 
-  // Crear versión con debounce de handleZipCodeChange
   const debouncedZipCodeChange = useCallback(
     (zipCode: string) => {
-      // Limpiar los campos siempre que el usuario escriba
       form.setValue("country", "");
       form.setValue("state", "");
       form.setValue("city", "");
@@ -161,7 +146,6 @@ export default function QuoteBillingContent({
     [handleZipCodeChange, form]
   );
 
-  // Observar cambios en el código postal
   useEffect(() => {
     const subscription = form.watch((value, { name }) => {
       if (name === "zipCode") {
@@ -176,7 +160,6 @@ export default function QuoteBillingContent({
     };
   }, [form, debouncedZipCodeChange]);
 
-  // Efecto para cargar datos iniciales si hay un zipCode
   useEffect(() => {
     if (initialData?.zipCode) {
       handleZipCodeChange(initialData.zipCode);
