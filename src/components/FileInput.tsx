@@ -14,8 +14,9 @@ interface FileInputProps {
     type: string;
     size: number;
     buffer?: Buffer;
-  };
-  onChange: (file: File) => void;
+  }[];
+  onChange: (files: File[]) => void;
+  multiple?: boolean;
 }
 
 export default function FileInput({
@@ -25,11 +26,12 @@ export default function FileInput({
   onChange,
   description,
   value,
+  multiple = false,
 }: FileInputProps) {
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      onChange(file);
+    const files = Array.from(e.target.files || []);
+    if (files.length > 0) {
+      onChange(files);
     }
   };
 
@@ -51,6 +53,7 @@ export default function FileInput({
           type="file"
           onChange={handleChange}
           accept=".pdf,.jpeg,.jpg,.png,.svg"
+          multiple={multiple}
           className="w-full cursor-pointer opacity-0 absolute inset-0 z-10"
         />
         <div
@@ -58,11 +61,15 @@ export default function FileInput({
             errorMsg ? "border-destructive" : "border-input"
           } hover:border-primary`}
         >
-          {value && value.name ? (
-            <>
-              <FileIcon className="w-6 h-6 mr-2 text-muted-foreground" />
-              <span className="text-muted-foreground">{value.name}</span>
-            </>
+          {value && value.length > 0 ? (
+            <div className="flex flex-col gap-1">
+              {value.map((file, index) => (
+                <div key={index} className="flex items-center">
+                  <FileIcon className="w-6 h-6 mr-2 text-muted-foreground" />
+                  <span className="text-muted-foreground">{file.name}</span>
+                </div>
+              ))}
+            </div>
           ) : (
             <>
               <Upload className="w-6 h-6 mr-2 text-muted-foreground" />

@@ -10,6 +10,12 @@ export interface DealProperties {
   pipeline?: string | null;
   shopify_draft_order_url: string;
   shopify_draft_order_id: string;
+  year_of_construction: number;
+  insulation_type: string;
+  specific_needs: string;
+  other_specific_need?: string;
+  installation_responsible: string;
+  complete_system_documentation: string;
 }
 
 export interface Deal {

@@ -188,7 +188,7 @@ const leadQualificationProperties = [
   },
 ];
 
-const shippingData = [
+const locationData = [
   {
     address: {
       friendlyName: "Street address",
@@ -209,12 +209,40 @@ const shippingData = [
   },
 ];
 
+const shippingData = {
+  shipping_address: {
+    friendlyName: "Street address",
+    step: 7,
+  },
+  shipping_city: {
+    friendlyName: "City",
+    step: 7,
+  },
+  shipping_zip_code: {
+    friendlyName: "zip/postal code",
+    step: 7,
+  },
+  shipping_country: {
+    friendlyName: "Country",
+    step: 7,
+  },
+  shipping_province: {
+    friendlyName: "Province",
+    step: 7,
+  },
+  shipping_notes: {
+    friendlyName: "Notes",
+    step: 7,
+  },
+};
+
 export const propertyNameMap: Record<
   string,
   { friendlyName: string; step: number }
 > = {
   ...leadQualificationProperties[0],
-  ...shippingData[0],
+  ...locationData[0],
+  ...shippingData,
   /* installation_type: {
     friendlyName: "Installation type:",
     step: 4,
