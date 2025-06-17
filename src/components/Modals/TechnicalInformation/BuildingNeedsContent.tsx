@@ -22,17 +22,31 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { z } from "zod";
 
 // Validation schema
-const buildingNeedsSchema = z.object({
-  yearOfConstruction: z.string().min(1, "Year of construction is required"),
-  insulationType: z.string().min(1, "Insulation type is required"),
-  specificNeeds: z
-    .array(z.string())
-    .min(1, "At least one specific need is required"),
-  otherSpecificNeed: z.string().optional(),
-  installationResponsible: z
-    .string()
-    .min(1, "Installation responsible is required"),
-});
+const buildingNeedsSchema = z
+  .object({
+    yearOfConstruction: z.string().min(1, "Year of construction is required"),
+    insulationType: z.string().min(1, "Insulation type is required"),
+    specificNeeds: z
+      .array(z.string())
+      .min(1, "At least one specific need is required"),
+    otherSpecificNeed: z.string().optional(),
+    isOtherSelected: z.boolean().default(false),
+    installationResponsible: z
+      .string()
+      .min(1, "Installation responsible is required"),
+  })
+  .refine(
+    (data) => {
+      if (data.isOtherSelected) {
+        return (data.otherSpecificNeed ?? "").trim().length > 0;
+      }
+      return true;
+    },
+    {
+      message: "Please specify the other need",
+      path: ["otherSpecificNeed"],
+    }
+  );
 
 type BuildingNeedsFormValues = z.infer<typeof buildingNeedsSchema>;
 
@@ -52,15 +66,15 @@ const specificNeedsOptions = [
   { id: "house_dehumidification", label: "House dehumidification" },
   { id: "air_conditioning", label: "Air conditioning" },
   { id: "pool_heating", label: "Pool Heating" },
-  { id: "air_purification", label: "Air Purification (ERV)" },
+  { id: "air_purification_erv", label: "Air Purification (ERV)" },
 ];
 
 // Options for installation responsible
 const installationResponsibleOptions = [
-  { value: "owner", label: "Owner (DIY)" },
-  { value: "own_installer", label: "Have its own installer" },
+  { value: "owner_diy", label: "Owner (DIY)" },
+  { value: "have_its_own_installer", label: "Have its own installer" },
   {
-    value: "provided_installer",
+    value: "requires_an_installer_provided_by_us",
     label: "Requires an installer provided by us",
   },
 ];
@@ -83,6 +97,7 @@ export default function BuildingNeedsContent({
       insulationType: initialData.insulationType || "",
       specificNeeds: initialData.specificNeeds || [],
       otherSpecificNeed: initialData.otherSpecificNeed || "",
+      isOtherSelected: Boolean(initialData.otherSpecificNeed),
       installationResponsible: initialData.installationResponsible || "",
     },
   });
@@ -107,7 +122,7 @@ export default function BuildingNeedsContent({
               <FormItem>
                 <FormLabel>Year of construction *</FormLabel>
                 <FormControl>
-                  <Input {...field} />
+                  <Input {...field} type="number" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -192,45 +207,37 @@ export default function BuildingNeedsContent({
                 {/* Other specific need */}
                 <FormField
                   control={form.control}
-                  name="otherSpecificNeed"
+                  name="isOtherSelected"
                   render={({ field }) => (
                     <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                       <FormControl>
                         <Checkbox
-                          checked={field.value !== ""}
+                          checked={field.value}
                           onCheckedChange={(checked) => {
-                            if (!checked) field.onChange("");
-                          }}
-                        />
-                      </FormControl>
-                      <FormControl>
-                        <Input
-                          placeholder="Other"
-                          {...field}
-                          onChange={(e) => {
-                            field.onChange(e.target.value);
-                            const currentNeeds =
-                              form.getValues("specificNeeds");
-                            if (
-                              e.target.value &&
-                              !currentNeeds.includes("other")
-                            ) {
-                              form.setValue("specificNeeds", [
-                                ...currentNeeds,
-                                "other",
-                              ]);
-                            } else if (
-                              !e.target.value &&
-                              currentNeeds.includes("other")
-                            ) {
-                              form.setValue(
-                                "specificNeeds",
-                                currentNeeds.filter((need) => need !== "other")
-                              );
+                            field.onChange(checked);
+                            if (!checked) {
+                              form.setValue("otherSpecificNeed", "");
                             }
                           }}
                         />
                       </FormControl>
+                      <FormLabel className="font-normal">Other</FormLabel>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="otherSpecificNeed"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                      <FormControl>
+                        <Input
+                          placeholder="Specify other need"
+                          {...field}
+                          disabled={!form.watch("isOtherSelected")}
+                        />
+                      </FormControl>
+                      <FormMessage />
                     </FormItem>
                   )}
                 />

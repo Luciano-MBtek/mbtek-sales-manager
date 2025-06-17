@@ -344,6 +344,11 @@ export interface DocumentationFile {
   buffer: Buffer;
 }
 
+export interface CompleteSystemDocumentationData {
+  id: string;
+  documentation?: DocumentationFile[];
+}
+
 export interface SchematicRequestData {
   id: string;
   firstname: string;

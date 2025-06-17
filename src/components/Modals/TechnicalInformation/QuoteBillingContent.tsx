@@ -42,7 +42,7 @@ interface QuoteBillingFormValues {
   lastName: string;
   email: string;
   phone: string;
-  street: string;
+  address: string;
   city: string;
   state: string;
   country: string;
@@ -66,14 +66,13 @@ export default function QuoteBillingContent({
   );
   const [stateFullName, setStateFullName] = useState<string>("");
   const debouncedFnRef = useRef<((value: string) => void) | null>(null);
-
   const form = useForm<QuoteBillingFormValues>({
     defaultValues: {
       firstName: initialData.firstName || "",
       lastName: initialData.lastName || "",
       email: initialData.email || "",
       phone: initialData.phone || "",
-      street: initialData.street || "",
+      address: initialData.address || "",
       city: initialData.city || "",
       state: initialData.state || "",
       country: initialData.country || "",
@@ -317,7 +316,7 @@ export default function QuoteBillingContent({
         </div>
         <FormField
           control={form.control}
-          name="street"
+          name="address"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Street address</FormLabel>

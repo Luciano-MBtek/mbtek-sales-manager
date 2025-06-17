@@ -83,8 +83,9 @@ const SchematicRequestForm = () => {
     updateSchematic({ [fieldId]: value });
   };
 
-  const handleFileUpload = async (file: File) => {
+  const handleFileUpload = async (files: File[]) => {
     try {
+      const file = files[0]; // Tomamos el primer archivo por ahora
       const fileData = {
         name: file.name,
         type: file.type,
@@ -225,9 +226,15 @@ const SchematicRequestForm = () => {
               serverResponse.errors?.documentation
             }
             value={
-              schematic?.documentation as
-                | { name: string; type: string; size: number }
-                | undefined
+              schematic?.documentation
+                ? [
+                    schematic.documentation as {
+                      name: string;
+                      type: string;
+                      size: number;
+                    },
+                  ]
+                : undefined
             }
             onChange={handleFileUpload}
           />
