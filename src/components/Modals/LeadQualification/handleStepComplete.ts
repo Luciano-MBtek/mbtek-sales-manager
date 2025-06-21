@@ -103,19 +103,24 @@ export const handleStepComplete = async (
     const shouldProcessStep = currentHasChanges || forceProcess;
 
     if (currentStep === "step-seven" && shouldProcessStep) {
-      // Process step data
-      await processStepData(currentStep, stepData, deps);
+      const processed = await processStepData(currentStep, stepData, deps);
 
-      // Show success message
-      toast({
-        title: "Success",
-        description: "Qualification process completed successfully",
-      });
+      if (processed) {
+        toast({
+          title: "Success",
+          description: "Qualification process completed successfully",
+        });
+      } else {
+        return;
+      }
     }
 
     // Regular steps processing
     if (shouldProcessStep) {
-      await processStepData(currentStep, stepData, deps);
+      const processed = await processStepData(currentStep, stepData, deps);
+      if (!processed) {
+        return;
+      }
     }
 
     // Mark step as complete and continue
@@ -191,8 +196,6 @@ export const processStepData = async (
 
       // Handle redirect for single products quote
       if (stepData.lookingFor === "single_products_quote" && contactId) {
-        // Reset the store when redirecting to single product quote
-
         const singleProduct = stepData.lookingFor;
 
         await triggerLeadQualificationWebhook(contactId, singleProduct);

@@ -31,6 +31,7 @@ import {
   Tag,
   TextSearch,
   MessageSquareText,
+  MessageCircle,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { useState, useCallback, useEffect, useMemo } from "react";
@@ -74,6 +75,8 @@ export const getEngagementIcon = (activity: Engagement) => {
       return <Calendar className="h-4 w-4" />;
     case "Task":
       return <CheckSquare className="h-4 w-4" />;
+    case "Chat":
+      return <MessageCircle className="h-4 w-4" />;
     case "SMS":
       return <MessageSquareText className="h-4 w-4" />;
     default:
@@ -114,6 +117,8 @@ export function ActivitiesTable({
         return "Note";
       case "sms":
         return "SMS";
+      case "chats":
+        return "Chat";
       default:
         return "";
     }

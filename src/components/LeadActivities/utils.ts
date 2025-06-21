@@ -42,7 +42,7 @@ export const getEngagementSource = (engagement: Engagement) => {
   const type = properties.hs_engagement_type as EngagementStatus;
 
   if (type === "NOTE" && properties.hs_object_source_detail_1 === "Tidio") {
-    return "SMS";
+    return "Chat";
   }
 
   switch (type) {

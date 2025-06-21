@@ -2,14 +2,13 @@
 
 import { useEffect, useState } from "react";
 import {
-  ChevronDown,
   ChevronRight,
   Phone,
   Mail,
   FileText,
-  MessageSquareText,
   MessagesSquare,
   Loader2,
+  MessageCircle,
 } from "lucide-react";
 import {
   SidebarMenuItem,
@@ -45,10 +44,10 @@ const activitiesItems = [
     filter: "Note",
   },
   {
-    title: "SMS",
-    path: "/engagements?filter=sms",
-    icon: MessageSquareText,
-    filter: "SMS",
+    title: "Chats",
+    path: "/engagements?filter=chats",
+    icon: MessageCircle,
+    filter: "Chat",
   },
 ];
 
