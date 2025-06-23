@@ -17,6 +17,7 @@ import { ChevronDown, ChevronUp, Truck } from "lucide-react";
 import { useChatStore } from "@/store/chatbot-store";
 import { sendChatbotMessage } from "./ChatBot/chatbot-service";
 import { useSession } from "next-auth/react";
+import { getDealStageLabel, getPipelineLabel } from "@/app/mydeals/utils";
 
 interface DealCardProps {
   deal: DealWithLineItems;
@@ -33,7 +34,9 @@ export default function DealCard({
     hs_lastmodifieddate,
     pipeline,
     shipping_cost,
+    dealstage,
     amount,
+    closedate,
     shopify_draft_order_url,
   } = deal.properties;
   const { data: session } = useSession();
@@ -55,8 +58,6 @@ export default function DealCard({
 
   const isOrder = dealname && /^\d+$/.test(dealname);
 
-  console.log("SHopify URL:", shopify_draft_order_url);
-
   return (
     <Card className="mb-6 w-full max-w-4xl">
       <CardHeader className="flex flex-row items-center justify-between">
@@ -75,7 +76,17 @@ export default function DealCard({
 
           <div>
             <Badge variant="outline">ID: {deal.id}</Badge>
-            {pipeline && <Badge variant="secondary">{pipeline}</Badge>}
+            {dealstage && (
+              <div>
+                Stage:
+                <Badge variant="secondary">
+                  {getDealStageLabel(dealstage)}
+                </Badge>
+              </div>
+            )}
+            {pipeline && (
+              <Badge variant="secondary">{getPipelineLabel(pipeline)}</Badge>
+            )}
             {!isOrder && (
               <Badge variant="outline" className="ml-2 bg-yellow-100">
                 Draft
@@ -121,6 +132,16 @@ export default function DealCard({
               })}
             </p>
           </div>
+          <div>
+            <p className="font-semibold">Close Date:</p>
+            <p>
+              {new Date(closedate).toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+              })}
+            </p>
+          </div>
           <div className="flex justify-end">
             {isOrder && (
               <Button onClick={() => handleTrackingOrder(dealname)} size="sm">
@@ -133,9 +154,7 @@ export default function DealCard({
           </div>
           <Button
             variant="outline"
-            onClick={() =>
-              window.open(deal.properties.shopify_draft_order_url, "_blank")
-            }
+            onClick={() => window.open(shopify_draft_order_url, "_blank")}
           >
             <Shopify width={20} height={20} className="mr-2" /> Pay Now
           </Button>

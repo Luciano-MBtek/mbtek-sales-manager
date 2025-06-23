@@ -1,5 +1,6 @@
 "use server";
 
+import { getDatePlus30Days } from "@/lib/utils";
 import { revalidatePath } from "next/cache";
 
 export async function createDeal(
@@ -20,6 +21,7 @@ export async function createDeal(
     }
 
     const dealName = `Standard quote ${firstName} ${lastName}`;
+    const closeDate = getDatePlus30Days();
 
     const dealProperties = {
       dealname: dealName,
@@ -28,6 +30,7 @@ export async function createDeal(
       pipeline: "732682097", // Mbtek - Single Product
       amount: amount,
       shipping_cost: shippingCost,
+      closedate: closeDate,
     };
 
     const associations = [

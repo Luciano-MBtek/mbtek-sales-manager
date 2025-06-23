@@ -90,7 +90,7 @@ const items = [
     url: "/mydeals",
     icon: Handshake,
     requireAuth: true,
-    requireRole: ["admin", "owner", "sales_agent", "manager"],
+    // requireRole: ["admin", "owner", "sales_agent", "manager"],
   },
   {
     title: "My Contacts",
