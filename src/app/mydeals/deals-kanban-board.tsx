@@ -21,6 +21,7 @@ import {
 } from "./utils";
 import { Deal } from "./deals";
 import { DealCard } from "./deal-kanban-card";
+import { DealModal } from "./deal-modal";
 
 interface DealsKanbanBoardProps {
   deals: Deal[];
@@ -31,11 +32,13 @@ const DealsKanbanBoard = ({ deals }: DealsKanbanBoardProps) => {
   const [selectedPipeline, setSelectedPipeline] = useState<string>("all");
   const [timeFilter, setTimeFilter] = useState<string>("all");
   const [viewMode, setViewMode] = useState<"column" | "list">("column");
+  const [selectedDealId, setSelectedDealId] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Get unique pipelines for filter
   const pipelines = useMemo(() => {
     const uniquePipelines = Array.from(
-      new Set(deals.map((deal) => deal.properties.pipeline))
+      new Set(deals.map((deal) => deal.properties.pipeline)),
     );
     return uniquePipelines.map((pipeline) => ({
       value: pipeline,
@@ -53,7 +56,7 @@ const DealsKanbanBoard = ({ deals }: DealsKanbanBoardProps) => {
         deal.contacts.some((contact) =>
           `${contact.firstname} ${contact.lastname}`
             .toLowerCase()
-            .includes(searchTerm.toLowerCase())
+            .includes(searchTerm.toLowerCase()),
         );
 
       const matchesPipeline =
@@ -65,7 +68,7 @@ const DealsKanbanBoard = ({ deals }: DealsKanbanBoardProps) => {
 
         const progress = calculateDealProgress(
           deal.properties.createdate,
-          deal.properties.closedate
+          deal.properties.closedate,
         );
 
         if (timeFilter === "early" && progress < 30) return true;
@@ -125,7 +128,14 @@ const DealsKanbanBoard = ({ deals }: DealsKanbanBoardProps) => {
 
         <div className="space-y-2 overflow-y-auto flex-grow">
           {deals.map((deal) => (
-            <DealCard key={deal.id} deal={deal} />
+            <DealCard
+              key={deal.id}
+              deal={deal}
+              onSelect={(id) => {
+                setSelectedDealId(id);
+                setIsModalOpen(true);
+              }}
+            />
           ))}
         </div>
       </div>
@@ -240,10 +250,26 @@ const DealsKanbanBoard = ({ deals }: DealsKanbanBoardProps) => {
       {viewMode === "list" && (
         <div className="grid gap-4">
           {filteredDeals.map((deal) => (
-            <DealCard key={deal.id} deal={deal} />
+            <DealCard
+              key={deal.id}
+              deal={deal}
+              onSelect={(id) => {
+                setSelectedDealId(id);
+                setIsModalOpen(true);
+              }}
+            />
           ))}
         </div>
       )}
+
+      <DealModal
+        dealId={selectedDealId}
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setSelectedDealId(null);
+        }}
+      />
     </div>
   );
 };
