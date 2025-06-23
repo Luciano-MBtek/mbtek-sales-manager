@@ -12,12 +12,17 @@ import { formatCurrency } from "@/lib/utils";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 
-export const DealCard = ({ deal }: { deal: Deal }) => {
+interface DealCardProps {
+  deal: Deal;
+  onSelect?: (id: string) => void;
+}
+
+export const DealCard = ({ deal, onSelect }: DealCardProps) => {
   const contact = deal.contacts[0];
   const amount = Number.parseFloat(deal.properties.amount || "0");
   const progress = calculateDealProgress(
     deal.properties.createdate,
-    deal.properties.closedate
+    deal.properties.closedate,
   );
 
   // Determine progress color based on percentage
@@ -27,8 +32,23 @@ export const DealCard = ({ deal }: { deal: Deal }) => {
     return "bg-red-500";
   };
 
+  const handleSelect = () => {
+    onSelect?.(deal.id);
+  };
+
   return (
-    <Card className="mb-3 hover:shadow-md transition-shadow cursor-pointer">
+    <Card
+      className="mb-3 hover:shadow-md transition-shadow cursor-pointer"
+      onClick={handleSelect}
+      tabIndex={0}
+      role="button"
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          handleSelect();
+        }
+      }}
+    >
       <CardContent className="p-4">
         <div className="space-y-3">
           <div>
