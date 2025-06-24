@@ -14,6 +14,7 @@ import { Search } from "lucide-react";
 import {
   calculateDealProgress,
   calculateTotal,
+  dealStage,
   formatCurrency,
   getDealStageLabel,
   getPipelineLabel,
@@ -21,24 +22,70 @@ import {
 } from "./utils";
 import { Deal } from "./deals";
 import { DealCard } from "./deal-kanban-card";
-import { DealModal } from "./deal-modal";
+import DealModal from "@/components/Modals/Deal/DealModal";
 
 interface DealsKanbanBoardProps {
   deals: Deal[];
 }
 
 const DealsKanbanBoard = ({ deals }: DealsKanbanBoardProps) => {
+  const mostDealsPipeline = useMemo(() => {
+    const pipelineCounts: Record<string, number> = {};
+
+    deals.forEach((deal) => {
+      const pipeline = deal.properties.pipeline;
+      pipelineCounts[pipeline] = (pipelineCounts[pipeline] || 0) + 1;
+    });
+
+    let maxCount = 0;
+    let maxPipeline = "";
+
+    Object.entries(pipelineCounts).forEach(([pipeline, count]) => {
+      if (count > maxCount) {
+        maxCount = count;
+        maxPipeline = pipeline;
+      }
+    });
+
+    return maxPipeline;
+  }, [deals]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedPipeline, setSelectedPipeline] = useState<string>("all");
+  const [selectedPipeline, setSelectedPipeline] =
+    useState<string>(mostDealsPipeline);
   const [timeFilter, setTimeFilter] = useState<string>("all");
   const [viewMode, setViewMode] = useState<"column" | "list">("column");
   const [selectedDealId, setSelectedDealId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  // Define the order of deal stages
+  const dealStageOrder = useMemo(() => {
+    // Complete System pipeline order
+    const completeSystemOrder = [
+      dealStage["1st meet: Info collection"],
+      dealStage["2nd meet: Quote Presentation & Close"],
+      dealStage["Follow-up #1 - Complete System"],
+      dealStage["Follow-up #2 - Complete System"],
+      dealStage["Closed Won - Complete System"],
+      dealStage["Closed Lost - Complete System"],
+    ];
+
+    // Instant Quote pipeline order
+    const instantQuoteOrder = [
+      dealStage["Quote sent"],
+      dealStage["Follow-up #1"],
+      dealStage["Follow-Up #2"],
+      dealStage["Closed Won"],
+      dealStage["Closed Lost"],
+    ];
+
+    // Combine all orders
+    return [...completeSystemOrder, ...instantQuoteOrder];
+  }, []);
+
   // Get unique pipelines for filter
   const pipelines = useMemo(() => {
     const uniquePipelines = Array.from(
-      new Set(deals.map((deal) => deal.properties.pipeline)),
+      new Set(deals.map((deal) => deal.properties.pipeline))
     );
     return uniquePipelines.map((pipeline) => ({
       value: pipeline,
@@ -56,19 +103,17 @@ const DealsKanbanBoard = ({ deals }: DealsKanbanBoardProps) => {
         deal.contacts.some((contact) =>
           `${contact.firstname} ${contact.lastname}`
             .toLowerCase()
-            .includes(searchTerm.toLowerCase()),
+            .includes(searchTerm.toLowerCase())
         );
 
-      const matchesPipeline =
-        selectedPipeline === "all" ||
-        deal.properties.pipeline === selectedPipeline;
+      const matchesPipeline = deal.properties.pipeline === selectedPipeline;
 
       const matchesTime = (() => {
         if (timeFilter === "all") return true;
 
         const progress = calculateDealProgress(
           deal.properties.createdate,
-          deal.properties.closedate,
+          deal.properties.closedate
         );
 
         if (timeFilter === "early" && progress < 30) return true;
@@ -102,6 +147,21 @@ const DealsKanbanBoard = ({ deals }: DealsKanbanBoardProps) => {
 
     return { groups, endingSoon };
   }, [filteredDeals]);
+
+  // Order the stage columns based on dealStageOrder
+  const orderedStages = useMemo(() => {
+    // Get all stages that have deals
+    const stagesWithDeals = Object.keys(groupedDeals.groups);
+
+    // Sort them according to the predefined order
+    return dealStageOrder
+      .filter((stageId) => stagesWithDeals.includes(stageId))
+      .map((stageId) => ({
+        stageId,
+        deals: groupedDeals.groups[stageId],
+        total: calculateTotal(groupedDeals.groups[stageId]),
+      }));
+  }, [groupedDeals.groups, dealStageOrder]);
 
   const Column = ({
     title,
@@ -179,7 +239,6 @@ const DealsKanbanBoard = ({ deals }: DealsKanbanBoardProps) => {
               <SelectValue placeholder="Pipeline" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Pipelines</SelectItem>
               {pipelines.map((pipeline) => (
                 <SelectItem key={pipeline.value} value={pipeline.value}>
                   {pipeline.label}
@@ -224,13 +283,13 @@ const DealsKanbanBoard = ({ deals }: DealsKanbanBoardProps) => {
       {/* Kanban Board */}
       {viewMode === "column" && (
         <div className="flex gap-6 overflow-x-auto pb-4  h-[calc(100vh-18rem)]">
-          {/* Deal Stage Columns */}
-          {Object.entries(groupedDeals.groups).map(([stageId, stageDeals]) => (
+          {/* Deal Stage Columns in Ordered Sequence */}
+          {orderedStages.map(({ stageId, deals, total }) => (
             <Column
               key={stageId}
               title={getDealStageLabel(stageId)}
-              deals={stageDeals}
-              total={calculateTotal(stageDeals)}
+              deals={deals}
+              total={total}
             />
           ))}
 

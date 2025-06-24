@@ -2,49 +2,36 @@ import { differenceInDays } from "date-fns";
 import { Deal } from "./deals";
 
 export const dealStage = {
-  "1st meet: Info collection (Mbtek - Complete System)": "1067281266",
-  "2nd meet: Quote Presentation & Close (Mbtek - Complete System)":
-    "1067281268",
-  "Follow-up #1 (Mbtek - Complete System)": "1067281269",
-  "Follow-up #2 (Mbtek - Complete System)": "1067319836",
-  "Closed Won (Mbtek - Complete System)": "207244921",
-  "Closed Won (B2C - Complete systems and single products)": "1067281271",
-  "Closed Lost (Mbtek - Complete System)": "1067281272",
-  "Quote sent (Mbtek - Single Product)": "1067319842",
-  "Follow-up #1 (Mbtek - Single Product)": "1067319839",
-  "Follow-Up #2 (Mbtek - Single Product)": "1067319838",
-  "Closed Won (Mbtek - Single Product)": "1067319843",
-  "Closed Lost (Mbtek - Single Product)": "1067319844",
-
-  /* Old stages: */
-  "Checkout Abandoned (Shopify prior (June 2025))": "checkout_abandoned",
-  "Checkout Pending (Shopify prior (June 2025))": "checkout_pending",
-  "Deals pipeline- draft (Shopify prior (June 2025))": "991082134",
-  "Checkout Completed (Shopify prior (June 2025))": "checkout_completed",
-  "Processed (Shopify prior (June 2025))": "processed",
-  "Shipped (Shopify prior (June 2025))": "shipped",
-  "Cancelled (Shopify prior (June 2025))": "cancelled",
+  /* Complete System stages: */
+  "1st meet: Info collection": "1067281266",
+  "2nd meet: Quote Presentation & Close": "1067281268",
+  "Follow-up #1 - Complete System": "1067281269",
+  "Follow-up #2 - Complete System": "1067319836",
+  "Closed Won - Complete System": "1067281271",
+  "Closed Lost - Complete System": "1067281272",
+  /* Instant Quote stages: */
+  "Quote sent": "1067319842",
+  "Follow-up #1": "1067319839",
+  "Follow-Up #2": "1067319838",
+  "Closed Won": "1067319843",
+  "Closed Lost": "1067319844",
 };
 
 const dealStageColors: { [key: string]: string } = {
   // Mbtek - Complete System
-  "1st meet: Info collection (Mbtek - Complete System)":
-    "bg-blue-100 text-blue-800",
-  "2nd meet: Quote Presentation & Close (Mbtek - Complete System)":
-    "bg-indigo-100 text-indigo-800",
-  "Follow-up #1 (Mbtek - Complete System)": "bg-yellow-100 text-yellow-800",
-  "Follow-up #2 (Mbtek - Complete System)": "bg-orange-100 text-orange-800",
-  "Closed Won (Mbtek - Complete System)": "bg-green-100 text-green-800",
-  "Closed Won (B2C - Complete systems and single products)":
-    "bg-green-100 text-green-800",
-  "Closed Lost (Mbtek - Complete System)": "bg-red-100 text-red-800",
+  "1st meet: Info collection": "bg-blue-100 text-blue-800",
+  "2nd meet: Quote Presentation & Close": "bg-indigo-100 text-indigo-800",
+  "Follow-up #1 - Complete System": "bg-yellow-100 text-yellow-800",
+  "Follow-up #2 - Complete System": "bg-orange-100 text-orange-800",
+  "Closed Won - Complete System": "bg-green-100 text-green-800",
+  "Closed Lost - Complete System": "bg-red-100 text-red-800",
 
-  // Mbtek - Single Product
-  "Quote sent (Mbtek - Single Product)": "bg-blue-100 text-blue-800",
-  "Follow-up #1 (Mbtek - Single Product)": "bg-yellow-100 text-yellow-800",
-  "Follow-Up #2 (Mbtek - Single Product)": "bg-orange-100 text-orange-800",
-  "Closed Won (Mbtek - Single Product)": "bg-green-100 text-green-800",
-  "Closed Lost (Mbtek - Single Product)": "bg-red-100 text-red-800",
+  // Mbtek - Instant Quote
+  "Quote sent": "bg-blue-100 text-blue-800",
+  "Follow-up #1": "bg-yellow-100 text-yellow-800",
+  "Follow-Up #2": "bg-orange-100 text-orange-800",
+  "Closed Won": "bg-green-100 text-green-800",
+  "Closed Lost": "bg-red-100 text-red-800",
 
   // Shopify prior (June 2025)
   "Checkout Abandoned (Shopify prior (June 2025))": "bg-gray-100 text-gray-800",
@@ -61,7 +48,7 @@ const dealStageColors: { [key: string]: string } = {
 
 const pipelineLabels = {
   "Mbtek - Complete System": "732661879",
-  "Mbtek - Single Product": "732682097",
+  "Mbtek - Instant Quote": "732682097",
   "Shopify prior (June 2025)": "75e28846-ad0d-4be2-a027-5e1da6590b98",
 };
 export const getPipelineLabel = (value: string) => {

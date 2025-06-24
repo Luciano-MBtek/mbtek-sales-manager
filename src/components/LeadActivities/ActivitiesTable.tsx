@@ -43,10 +43,14 @@ import {
   getContactEmail,
   getContactInitials,
   getContactName,
+  getDealId,
+  getDealName,
+  getDealPipeline,
   getEngagementSource,
   getEngagementStatus,
   getMessagePreview,
   getStatusBadgeVariant,
+  isDealEngagement,
   truncateMessage,
 } from "./utils";
 import { getLeadsBatchActivities } from "@/actions/activities/leadsBatchActivities";
@@ -54,6 +58,7 @@ import { getPageNumbers } from "@/app/my-contacts/utils";
 import { FilterCard, FilterState, FilterGroup } from "@/components/FilterCard";
 import { TaskActionActivitiesMenu } from "./TaskACtionActivitiesMenu";
 import ActivityModalBody from "./ActivityModalBody";
+import { DealModal } from "../Modals/Deal/DealModal";
 
 interface ActivitiesTableProps {
   activities: Engagement[];
@@ -94,6 +99,8 @@ export function ActivitiesTable({
   const urlFilter = searchParams.get("filter");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
+  const [isDealModalOpen, setIsDealModalOpen] = useState(false);
+  const [selectedDealId, setSelectedDealId] = useState<string | null>(null);
 
   // pagination & data loading
   const [currentPage, setCurrentPage] = useState(1);
@@ -327,7 +334,7 @@ export function ActivitiesTable({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Contact</TableHead>
+              <TableHead>Contact/Deal</TableHead>
               <TableHead>Message</TableHead>
               <TableHead>Source</TableHead>
               <TableHead>Time</TableHead>
@@ -342,10 +349,15 @@ export function ActivitiesTable({
                   <TableCell
                     className="cursor-pointer relative overflow-hidden"
                     onClick={() => {
-                      setIsModalOpen(true);
-                      setSelectedLeadId(
-                        activity?.contactsData?.[0]?.id || null
-                      );
+                      if (isDealEngagement(activity)) {
+                        setIsDealModalOpen(true);
+                        setSelectedDealId(getDealId(activity));
+                      } else {
+                        setIsModalOpen(true);
+                        setSelectedLeadId(
+                          activity?.contactsData?.[0]?.id || null
+                        );
+                      }
                     }}
                   >
                     <BorderBeam
@@ -369,10 +381,14 @@ export function ActivitiesTable({
                       </Avatar>
                       <div>
                         <div className="font-medium text-sm">
-                          {getContactName(activity)}
+                          {isDealEngagement(activity)
+                            ? getDealName(activity)
+                            : getContactName(activity)}
                         </div>
                         <div className="text-xs text-muted-foreground">
-                          {getContactEmail(activity)}
+                          {isDealEngagement(activity)
+                            ? getDealPipeline(activity)
+                            : getContactEmail(activity)}
                         </div>
                       </div>
                     </div>
@@ -502,6 +518,11 @@ export function ActivitiesTable({
         activityDetailOpen={activityDetailOpen}
         setActivityDetailOpen={setActivityDetailOpen}
         selectedActivity={selectedActivity}
+      />
+      <DealModal
+        dealId={selectedDealId}
+        isOpen={isDealModalOpen}
+        onClose={() => setIsDealModalOpen(false)}
       />
     </div>
   );

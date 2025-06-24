@@ -3,11 +3,11 @@
 import { useEffect, useState } from "react";
 import { TabsContent } from "@/components/ui/tabs";
 import { Engagement } from "@/types/engagementsTypes";
-import { getDealEngagements } from "@/actions/getDealEngagements";
 import { Loader2, Mail } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { getEngagementIcon } from "../Contact/utils";
+import { getDealEngagements } from "@/actions/deals/getDealEngagements";
 
 interface EngagementsTabProps {
   dealId: string;
@@ -26,7 +26,8 @@ const EngagementsTab = ({ dealId }: EngagementsTabProps) => {
         const data = await getDealEngagements(dealId);
         setEngagements(
           (data?.results || []).sort(
-            (a: Engagement, b: Engagement) => b.engagement.timestamp - a.engagement.timestamp
+            (a: Engagement, b: Engagement) =>
+              b.engagement.timestamp - a.engagement.timestamp
           )
         );
       } catch (err) {
@@ -45,7 +46,9 @@ const EngagementsTab = ({ dealId }: EngagementsTabProps) => {
       {loading ? (
         <div className="min-h-[200px] flex flex-col items-center justify-center gap-2">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <span className="text-sm text-muted-foreground">Loading engagements...</span>
+          <span className="text-sm text-muted-foreground">
+            Loading engagements...
+          </span>
         </div>
       ) : error ? (
         <div className="min-h-[200px] flex items-center justify-center text-destructive">
@@ -63,11 +66,14 @@ const EngagementsTab = ({ dealId }: EngagementsTabProps) => {
                         {getEngagementIcon(engagement.engagement.type)}
                       </div>
                       <CardTitle className="text-sm font-medium">
-                        {engagement.metadata.title || engagement.engagement.type}
+                        {engagement.metadata.title ||
+                          engagement.engagement.type}
                       </CardTitle>
                     </div>
                     <span className="text-xs text-muted-foreground">
-                      {new Date(engagement.engagement.timestamp).toLocaleDateString()}
+                      {new Date(
+                        engagement.engagement.timestamp
+                      ).toLocaleDateString()}
                     </span>
                   </div>
                 </CardHeader>
@@ -81,7 +87,9 @@ const EngagementsTab = ({ dealId }: EngagementsTabProps) => {
       ) : (
         <div className="min-h-[200px] flex flex-col items-center justify-center p-6 bg-muted/30 rounded-lg border border-dashed">
           <Mail className="h-10 w-10 text-muted-foreground mb-2 opacity-40" />
-          <p className="text-muted-foreground">No engagements found for this deal</p>
+          <p className="text-muted-foreground">
+            No engagements found for this deal
+          </p>
         </div>
       )}
     </TabsContent>
@@ -89,4 +97,3 @@ const EngagementsTab = ({ dealId }: EngagementsTabProps) => {
 };
 
 export default EngagementsTab;
-

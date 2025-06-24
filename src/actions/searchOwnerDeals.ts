@@ -10,7 +10,7 @@ const HS_HEADERS = {
 
 const PAGE_LIMIT = 100;
 
-/** 1. Busca todos los deals del owner y devuelve los deals con sus propiedades */
+/** 1. Fetch all the owner's deals and return the deals with their properties */
 async function fetchDealsWithProperties(ownerId: string): Promise<Deal[]> {
   let after: string | undefined;
   const deals: Deal[] = [];
@@ -78,7 +78,7 @@ async function fetchDealsWithProperties(ownerId: string): Promise<Deal[]> {
   return deals;
 }
 
-/** 2. Obtiene contactos asociados a un lote de deals */
+/** 2. Retrieves contacts associated with a batch of deals */
 async function fetchContactIdsForDeals(
   dealIds: string[]
 ): Promise<Map<string, string[]>> {
@@ -111,7 +111,7 @@ async function fetchContactIdsForDeals(
   return map;
 }
 
-/** 3. Trae las propiedades de un lote de contactos */
+/** 3. Fetches the properties of a batch of contacts */
 async function fetchContacts(
   contactIds: string[]
 ): Promise<Record<string, Contact>> {
@@ -147,32 +147,27 @@ async function fetchContacts(
   );
 }
 
-/** 4. Función principal que devuelve deals enriquecidos con contactos */
+/** 4. Main function that returns deals enriched with contacts */
 export async function searchOwnerDeals(ownerId: string): Promise<Deal[]> {
   try {
     const deals = await fetchDealsWithProperties(ownerId);
     const dealIds = deals.map((deal) => deal.id);
 
-    // Procesamos en bloques de 100 para respetar límites
     const chunks = Array.from(
       { length: Math.ceil(dealIds.length / PAGE_LIMIT) },
       (_, i) => dealIds.slice(i * PAGE_LIMIT, (i + 1) * PAGE_LIMIT)
     );
 
-    // Creamos un mapa para acceder rápidamente a los deals por ID
     const dealsById = Object.fromEntries(
       deals.map((deal) => [deal.id, { ...deal, contacts: [] as Contact[] }])
     );
 
     for (const dealChunk of chunks) {
-      // Obtenemos asociaciones para este lote
       const assocMap = await fetchContactIdsForDeals(dealChunk);
 
-      // Obtenemos contactos únicos para este lote
       const uniqueContactIds = [...new Set([...assocMap.values()].flat())];
       const contactsById = await fetchContacts(uniqueContactIds);
 
-      // Asignamos contactos a cada deal
       dealChunk.forEach((id) => {
         const contactIds = assocMap.get(id) || [];
         dealsById[id].contacts = contactIds
@@ -190,6 +185,6 @@ export async function searchOwnerDeals(ownerId: string): Promise<Deal[]> {
 
 export async function getDealsByUserId() {
   const userId = await getHubspotOwnerIdSession();
-  // const userId = "719106449"; // Byron test
+  //const userId = "719106449"; // Byron test
   return searchOwnerDeals(userId);
 }

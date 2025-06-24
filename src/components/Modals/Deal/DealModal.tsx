@@ -54,11 +54,16 @@ export function DealModal({ dealId, isOpen, onClose }: DealModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent aria-describedby={undefined} className="sm:max-w-[800px] max-h-[80vh] overflow-y-auto">
+      <DialogContent
+        aria-describedby={undefined}
+        className="sm:max-w-[800px] max-h-[80vh] overflow-y-auto"
+      >
         {isLoading ? (
-          <div className="min-h-[400px] flex items-center justify-center gap-2">
+          <div className="min-h-[400px] flex flex-col items-center justify-center gap-2">
+            <DialogTitle className="text-xl font-semibold">
+              Loading deal data...
+            </DialogTitle>
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            <span className="ml-2">Loading deal information...</span>
           </div>
         ) : error ? (
           <div className="min-h-[400px] flex items-center justify-center text-destructive">
@@ -71,11 +76,16 @@ export function DealModal({ dealId, isOpen, onClose }: DealModalProps) {
                 {deal.properties.dealname}
               </DialogTitle>
               <span className="text-sm text-foreground">
-                Created {new Date(deal.properties.createdate).toLocaleDateString()}
+                Created{" "}
+                {new Date(deal.properties.createdate).toLocaleDateString()}
               </span>
             </DialogHeader>
 
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full mt-2">
+            <Tabs
+              value={activeTab}
+              onValueChange={setActiveTab}
+              className="w-full mt-2"
+            >
               <TabsList className="grid grid-cols-3 w-full">
                 <TabsTrigger value="deal-info">Deal Info</TabsTrigger>
                 <TabsTrigger value="line-items">Line Items</TabsTrigger>
@@ -104,4 +114,3 @@ export function DealModal({ dealId, isOpen, onClose }: DealModalProps) {
 }
 
 export default DealModal;
-
