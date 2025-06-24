@@ -1,3 +1,4 @@
+import { getDealStageLabel, getPipelineLabel } from "@/app/mydeals/utils";
 import { leadStatusValues } from "@/types";
 
 export type EngagementStatus = (typeof leadStatusValues)[number];
@@ -10,6 +11,26 @@ export interface ContactData {
     email: string;
     [key: string]: string;
   };
+  createdAt: string;
+  updatedAt: string;
+  archived: boolean;
+}
+
+export interface DealsData {
+  id: string;
+  properties: {
+    amount: string;
+    closedate: string;
+    createdate: string;
+    dealname: string;
+    dealstage: string;
+    hs_lastmodifieddate: string;
+    pipeline: string;
+    [key: string]: string;
+  };
+  createdAt: string;
+  updatedAt: string;
+  archived: boolean;
 }
 
 export interface Associations {
@@ -35,6 +56,7 @@ export interface Engagement {
   };
   associations: Associations;
   contactsData?: ContactData[];
+  dealsData?: DealsData[];
 }
 
 export const getEngagementSource = (engagement: Engagement) => {
@@ -42,7 +64,7 @@ export const getEngagementSource = (engagement: Engagement) => {
   const type = properties.hs_engagement_type as EngagementStatus;
 
   if (type === "NOTE" && properties.hs_object_source_detail_1 === "Tidio") {
-    return "SMS";
+    return "Chat";
   }
 
   switch (type) {
@@ -51,7 +73,7 @@ export const getEngagementSource = (engagement: Engagement) => {
     case "FORWARDED_EMAIL":
       return "Email";
     case "CALL":
-      return "Voice";
+      return "Call";
     case "NOTE":
       return "Note";
     case "TASK":
@@ -83,9 +105,16 @@ export const getEngagementStatus = (
   const contact = engagement.contactsData?.[0];
   const contactStatus = contact?.properties.hs_lead_status;
 
+  const deal = engagement.dealsData?.[0];
+  const dealStage = deal?.properties.dealstage;
+
   if (contactStatus && leadStatusValues.includes(contactStatus as any)) {
     return contactStatus as EngagementStatus;
   }
+  if (deal && dealStage) {
+    return getDealStageLabel(dealStage);
+  }
+
   return "Unqualified";
 };
 
@@ -130,12 +159,38 @@ export const getContactEmail = (engagement: Engagement) => {
 };
 
 export const getContactInitials = (engagement: Engagement) => {
+  // First check if it's a deal-related activity
+  if (engagement.associations?.deals?.length > 0) {
+    return "Deal";
+  }
+  // Otherwise use contact data as before
   const contact = engagement.contactsData?.[0];
   if (!contact) return "?";
 
   const firstName = contact.properties.firstname || "";
   const lastName = contact.properties.lastname || "";
   return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase() || "?";
+};
+
+export const isDealEngagement = (engagement: Engagement): boolean => {
+  return !!engagement.associations?.deals?.length;
+};
+
+export const getDealPipeline = (engagement: Engagement) => {
+  const deal = engagement.dealsData?.[0];
+  const dealPipeline = getPipelineLabel(deal?.properties.pipeline || "");
+
+  return dealPipeline;
+};
+
+export const getDealId = (engagement: Engagement): string | null => {
+  return engagement.associations?.deals?.[0]?.id || null;
+};
+
+export const getDealName = (engagement: Engagement): string => {
+  const deal = engagement.dealsData?.[0];
+  const dealName = deal?.properties.dealname || "Unknown deal";
+  return dealName;
 };
 
 export const formatCallDuration = (duration: string | null) => {

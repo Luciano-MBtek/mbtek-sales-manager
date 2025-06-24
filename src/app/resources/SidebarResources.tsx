@@ -2,26 +2,44 @@
 
 import { useState } from "react";
 import {
-  ChevronDown,
   ChevronRight,
   FileText,
   Calculator,
   MapPin,
   CreditCard,
-  BookOpen,
-  ClipboardList,
+  Wrench,
 } from "lucide-react";
-import { SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
+import {
+  SidebarMenuItem,
+  SidebarMenuButton,
+  SidebarMenuSub,
+  SidebarMenuSubItem,
+} from "@/components/ui/sidebar";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import Shopify from "@/components/Icons/Shopify";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 
-const resourceItems = [
+interface ResourceItem {
+  title: string;
+  path: string;
+  icon: any;
+  onClick?: () => void;
+}
+
+const productsItems: ResourceItem[] = [
   {
     title: "Products",
     path: "/products",
     icon: Shopify,
   },
+];
+
+const toolsItems: ResourceItem[] = [
   {
     title: "Calculators",
     icon: Calculator,
@@ -43,72 +61,102 @@ const resourceItems = [
     icon: CreditCard,
     path: "/resources/payment",
   },
-  /*  {
-    title: "Onboarding Guide",
-    icon: FileText,
-    path: "/resources/onboarding",
-  },
-  {
-    title: "Sales SOP",
-    icon: ClipboardList,
-    path: "/resources/sales-sop",
-  }, */
 ];
 
 export function SidebarResources() {
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [resourcesOpen, setResourcesOpen] = useState(false);
+  const [toolsOpen, setToolsOpen] = useState(false);
   const router = useRouter();
+  const pathname = usePathname();
 
   const handleResourceClick = (e: React.MouseEvent) => {
     if (
       (e.target as HTMLElement).closest("svg")?.classList.contains("chevron")
     ) {
-      setIsExpanded(!isExpanded);
       return;
     }
     router.push("/resources");
-    setIsExpanded(!isExpanded);
   };
 
   return (
     <>
-      <SidebarMenuItem>
-        <SidebarMenuButton onClick={handleResourceClick}>
-          <FileText />
-          <span>Resources</span>
-          {isExpanded ? (
-            <ChevronDown className="ml-auto h-4 w-4" />
-          ) : (
-            <ChevronRight className="ml-auto h-4 w-4" />
-          )}
-        </SidebarMenuButton>
-      </SidebarMenuItem>
+      <Collapsible open={resourcesOpen} onOpenChange={setResourcesOpen}>
+        <CollapsibleTrigger asChild>
+          <SidebarMenuItem>
+            <SidebarMenuButton onClick={handleResourceClick}>
+              <FileText />
+              <span>Resources</span>
+              <ChevronRight className="ml-auto h-4 w-4 chevron transition-transform duration-200 data-[state=open]:rotate-90" />
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </CollapsibleTrigger>
 
-      {isExpanded && (
-        <div className="ml-4 space-y-1">
-          {resourceItems.map((item) => (
-            <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton
-                asChild={!item.onClick}
-                onClick={item.onClick}
-                className="pl-6"
-              >
-                {item.onClick ? (
-                  <div className="flex items-center">
-                    <item.icon className="h-4 w-4 mr-2" />
-                    <span>{item.title}</span>
+        <CollapsibleContent asChild>
+          <SidebarMenuSub>
+            <div className="space-y-1">
+              {productsItems.map((item) => (
+                <SidebarMenuSubItem key={item.title}>
+                  <SidebarMenuButton
+                    asChild={!item.onClick}
+                    onClick={item.onClick}
+                    className="pl-6"
+                  >
+                    {item.onClick ? (
+                      <div className="flex items-center">
+                        <item.icon className="h-4 w-4 mr-2" />
+                        <span>{item.title}</span>
+                      </div>
+                    ) : (
+                      <Link href={item.path}>
+                        <item.icon className="h-4 w-4 mr-2" />
+                        <span>{item.title}</span>
+                      </Link>
+                    )}
+                  </SidebarMenuButton>
+                </SidebarMenuSubItem>
+              ))}
+
+              <Collapsible open={toolsOpen} onOpenChange={setToolsOpen}>
+                <CollapsibleTrigger asChild>
+                  <SidebarMenuSubItem>
+                    <SidebarMenuButton className="pl-6">
+                      <Wrench className="h-4 w-4 mr-2" />
+                      <span>Tools</span>
+                      <ChevronRight className="ml-auto h-4 w-4 chevron transition-transform duration-200 data-[state=open]:rotate-90" />
+                    </SidebarMenuButton>
+                  </SidebarMenuSubItem>
+                </CollapsibleTrigger>
+
+                <CollapsibleContent>
+                  <div className="space-y-1">
+                    {toolsItems.map((item) => (
+                      <SidebarMenuSubItem key={item.title}>
+                        <SidebarMenuButton
+                          asChild={!item.onClick}
+                          onClick={item.onClick}
+                          className="pl-12"
+                        >
+                          {item.onClick ? (
+                            <div className="flex items-center">
+                              <item.icon className="h-4 w-4 mr-2" />
+                              <span>{item.title}</span>
+                            </div>
+                          ) : (
+                            <Link href={item.path}>
+                              <item.icon className="h-4 w-4 mr-2" />
+                              <span>{item.title}</span>
+                            </Link>
+                          )}
+                        </SidebarMenuButton>
+                      </SidebarMenuSubItem>
+                    ))}
                   </div>
-                ) : (
-                  <Link href={item.path}>
-                    <item.icon className="h-4 w-4 mr-2" />
-                    <span>{item.title}</span>
-                  </Link>
-                )}
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ))}
-        </div>
-      )}
+                </CollapsibleContent>
+              </Collapsible>
+            </div>
+          </SidebarMenuSub>
+        </CollapsibleContent>
+      </Collapsible>
     </>
   );
 }

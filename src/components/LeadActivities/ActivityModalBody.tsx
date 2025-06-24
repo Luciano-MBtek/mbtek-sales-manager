@@ -63,7 +63,7 @@ const ActivityModalBody = ({
         </DialogHeader>
         <div className="mt-4 text-sm space-y-4">
           <div className="flex items-center gap-2 mb-4">
-            {getEngagementIcon(selectedActivity.properties.hs_engagement_type)}
+            {getEngagementIcon(selectedActivity)}
             <span className="font-medium">
               {getEngagementSource(selectedActivity)}
             </span>

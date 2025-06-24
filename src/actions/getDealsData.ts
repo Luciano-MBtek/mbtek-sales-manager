@@ -6,21 +6,17 @@ export async function getAllDealsDataWithLineItems(
   contactId: string
 ): Promise<DealWithLineItems[]> {
   try {
-    // Paso 1: Obtener los IDs de los deals asociados al contacto
     const dealIds = await getDealsByContactId(contactId);
     if (dealIds.length === 0) {
       console.log("No deals associated with the contact were found.");
       return [];
     }
 
-    // Paso 2: Obtener los detalles de todos los deals en paralelo
     const dealDetailsPromises = dealIds.map((dealId) => getDealDetails(dealId));
     const dealsData = await Promise.all(dealDetailsPromises);
 
-    // Filtrar los deals que se obtuvieron correctamente
     const validDeals = dealsData.filter((deal) => deal !== null);
 
-    // Paso 3: Para cada deal, obtener los IDs de los line items asociados
     const dealsWithLineItemsPromises = validDeals.map(async (deal) => {
       const lineItemIds = await getLineItemsByDealId(deal.id);
       return { ...deal, lineItemIds };
@@ -28,7 +24,6 @@ export async function getAllDealsDataWithLineItems(
 
     const dealsWithLineItems = await Promise.all(dealsWithLineItemsPromises);
 
-    // Paso 4: Para cada line item, obtener sus detalles
     const allLineItemsPromises: Promise<(LineItem | null)[]>[] = [];
     dealsWithLineItems.forEach((deal) => {
       const lineItemsPromises = deal.lineItemIds.map((lineItemId) =>
@@ -39,7 +34,6 @@ export async function getAllDealsDataWithLineItems(
 
     const allLineItemsData = await Promise.all(allLineItemsPromises);
 
-    // Paso 5: Combinar los line items con sus respectivos deals
     const finalDealsData = dealsWithLineItems.map((deal, index) => {
       const lineItems = allLineItemsData[index].filter(
         (lineItem) => lineItem !== null
@@ -78,10 +72,9 @@ async function getDealsByContactId(contactId: string): Promise<string[]> {
 
     const data = await response.json();
     if (!data.results || data.results.length === 0) {
-      return []; // No hay deals asociados
+      return [];
     }
 
-    // Extraer los IDs de los deals
     return data.results.map((association: { id: string }) => association.id);
   } catch (error) {
     console.error("Error en getDealsByContactId:", error);
@@ -113,7 +106,7 @@ async function getDealDetails(dealId: string): Promise<Deal | null> {
     return data;
   } catch (error) {
     console.error(`Error in getDealDetails for deal ${dealId}:`, error);
-    return null; // Retornar null para manejar errores individualmente
+    return null;
   }
 }
 
@@ -139,17 +132,16 @@ async function getLineItemsByDealId(dealId: string): Promise<string[]> {
 
     const data = await response.json();
     if (!data.results || data.results.length === 0) {
-      return []; // No hay line items asociados
+      return [];
     }
 
-    // Extraer los IDs de los line items
     return data.results.map((association: { id: string }) => association.id);
   } catch (error) {
     console.error(
       `Error in getLineItemsByDealId for the deal ${dealId}:`,
       error
     );
-    return []; // Retornar un array vacío en caso de error
+    return [];
   }
 }
 

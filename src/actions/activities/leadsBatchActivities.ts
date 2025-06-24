@@ -244,6 +244,51 @@ async function getOwnerEngagements(
     );
   }
 
+  // 4️⃣.5️⃣ DEALS BATCH -----------------------------------------------------
+  const dealIds = Array.from(
+    new Set(
+      engagements.flatMap(
+        (e) => assocMap.get(e.id)?.deals.map((d) => d.id) ?? []
+      )
+    )
+  );
+
+  const dealMap = new Map<string, any>();
+
+  if (dealIds.length > 0) {
+    await Promise.all(
+      chunk(dealIds, CONTACT_BATCH_SIZE).map((chunkIds) =>
+        limiter(async () => {
+          const dRes = await hubFetch(
+            `${API}/crm/v3/objects/deals/batch/read`,
+            {
+              method: "POST",
+              body: JSON.stringify({
+                properties: [
+                  "amount",
+                  "closedate",
+                  "createdate",
+                  "dealname",
+                  "dealstage",
+                  "hs_lastmodifieddate",
+                  "pipeline",
+                ],
+                inputs: chunkIds.map((id) => ({ id })),
+              }),
+            },
+            300
+          );
+          if (!dRes.ok) {
+            console.error("deals batch error:", dRes.statusText);
+            return;
+          }
+          const { results } = await dRes.json();
+          results.forEach((d: any) => dealMap.set(d.id, d));
+        })
+      )
+    );
+  }
+
   // 5️⃣ ENRICH + RETURN ----------------------------------------------------
   const enriched: Engagement[] = engagements.map((e) => {
     const assoc = assocMap.get(e.id)!;
@@ -253,6 +298,7 @@ async function getOwnerEngagements(
       contactsData: assoc.contacts
         .map((c) => contactMap.get(c.id)!)
         .filter(Boolean),
+      dealsData: assoc.deals.map((d) => dealMap.get(d.id)).filter(Boolean),
     };
   });
 

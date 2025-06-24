@@ -36,6 +36,7 @@ import { Role } from "@prisma/client";
 import { SidebarResources } from "@/app/resources/SidebarResources";
 import { SidebarSkeleton } from "./SidebarSkeleton";
 import { SidebarQualification } from "./LeadsQualifier/SidebarQualification";
+import { SidebarActivities } from "./LeadActivities/SidebarActivities";
 
 const items = [
   {
@@ -89,7 +90,7 @@ const items = [
     url: "/mydeals",
     icon: Handshake,
     requireAuth: true,
-    requireRole: ["admin", "owner", "sales_agent", "manager"],
+    // requireRole: ["admin", "owner", "sales_agent", "manager"],
   },
   {
     title: "My Contacts",
@@ -138,6 +139,11 @@ export function AppSidebar() {
                   ["owner", "lead_agent"].includes(
                     session.user.accessLevel
                   ) && <SidebarQualification key={item.title} />
+                ) : item.title === "Engagements" ? (
+                  session?.user?.accessLevel &&
+                  ["owner", "lead_agent"].includes(
+                    session.user.accessLevel
+                  ) && <SidebarActivities key={item.title} />
                 ) : (
                   // Para los demás ítems, renderizamos normalmente
                   <SidebarMenuItem key={item.title}>

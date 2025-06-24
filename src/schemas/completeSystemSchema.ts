@@ -352,3 +352,22 @@ export const completeSystemSchema = z.discriminatedUnion("country", [
 
 export type CompleteSystemType = z.infer<typeof completeSystemSchema>;
 export type zoneDataType = z.infer<typeof zoneDataSchema>;
+
+export const completeSystemDocumentationSchema = z.array(
+  z.object({
+    name: z.string().min(1, "El archivo debe tener un nombre."),
+    type: z.enum(
+      ["application/pdf", "image/jpeg", "image/png", "image/svg+xml"],
+      {
+        errorMap: () => ({ message: "Tipo de archivo no soportado." }),
+      }
+    ),
+    size: z
+      .number()
+      .max(5 * 1024 * 1024, "El tamaño del archivo debe ser menor a 5MB"),
+  })
+);
+
+export type CompleteSystemDocumentationData = z.infer<
+  typeof completeSystemDocumentationSchema
+>;

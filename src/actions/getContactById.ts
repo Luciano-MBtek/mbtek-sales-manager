@@ -4,7 +4,10 @@ import { propertyNameMap } from "@/components/steps/utils";
 
 const properties = Object.keys(propertyNameMap);
 
-export async function GetContactById(id: string) {
+export async function GetContactById(
+  id: string,
+  forceRefresh: boolean = false
+) {
   try {
     const apiKey = process.env.HUBSPOT_API_KEY;
     const propertiesQuery = properties.join(",");
@@ -16,7 +19,9 @@ export async function GetContactById(id: string) {
           Authorization: `Bearer ${apiKey}`,
           "Content-Type": "application/json",
         },
-        next: { tags: [`contact`], revalidate: 300 },
+        ...(forceRefresh
+          ? { cache: "no-store" }
+          : { next: { tags: [`contact`], revalidate: 300 } }),
       }
     );
 

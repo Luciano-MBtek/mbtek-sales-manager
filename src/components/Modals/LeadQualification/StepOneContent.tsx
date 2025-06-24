@@ -200,7 +200,7 @@ export default function StepOneContent({
       <form
         ref={formRef}
         onSubmit={form.handleSubmit(handleSubmit)}
-        className="space-y-2 py-4"
+        className="space-y-2"
       >
         <div className="grid grid-cols-2 gap-4">
           <FormField
@@ -337,10 +337,7 @@ export default function StepOneContent({
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Lead Type</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
+                <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select lead type" />
@@ -364,10 +361,7 @@ export default function StepOneContent({
             render={({ field }) => (
               <FormItem>
                 <FormLabel>How did you hear about us?</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
+                <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select an option" />

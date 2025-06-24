@@ -1,7 +1,10 @@
 import { ActivitiesTable } from "./ActivitiesTable";
 import { getLeadsBatchActivities } from "@/actions/activities/leadsBatchActivities";
 
-type SearchParams = { timeRange?: "weekly" | "monthly" | "allTime" };
+type SearchParams = {
+  timeRange?: "weekly" | "monthly" | "allTime";
+  filter?: string;
+};
 
 export async function LeadsActivitiesList({
   searchParams,
@@ -16,7 +19,7 @@ export async function LeadsActivitiesList({
   const result = await getLeadsBatchActivities(timeRange);
   const activities = result.engagements;
   const nextAfter = result.nextAfter;
-
+  console.log("Engagement:", JSON.stringify(activities, null, 2));
   return (
     <ActivitiesTable
       activities={activities}

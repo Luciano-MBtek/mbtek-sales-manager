@@ -30,21 +30,27 @@ import {
   CheckSquare,
   Tag,
   TextSearch,
+  MessageSquareText,
+  MessageCircle,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { useState, useCallback, useEffect, useMemo } from "react";
 import { ContactModal } from "../Modals/Contact/ContactModal";
 import { BorderBeam } from "../magicui/border-beam";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   Engagement,
   getContactEmail,
   getContactInitials,
   getContactName,
+  getDealId,
+  getDealName,
+  getDealPipeline,
   getEngagementSource,
   getEngagementStatus,
   getMessagePreview,
   getStatusBadgeVariant,
+  isDealEngagement,
   truncateMessage,
 } from "./utils";
 import { getLeadsBatchActivities } from "@/actions/activities/leadsBatchActivities";
@@ -52,6 +58,7 @@ import { getPageNumbers } from "@/app/my-contacts/utils";
 import { FilterCard, FilterState, FilterGroup } from "@/components/FilterCard";
 import { TaskActionActivitiesMenu } from "./TaskACtionActivitiesMenu";
 import ActivityModalBody from "./ActivityModalBody";
+import { DealModal } from "../Modals/Deal/DealModal";
 
 interface ActivitiesTableProps {
   activities: Engagement[];
@@ -59,18 +66,24 @@ interface ActivitiesTableProps {
   initialNextAfter?: string;
 }
 
-export const getEngagementIcon = (type: string) => {
-  switch (type) {
-    case "EMAIL":
+export const getEngagementIcon = (activity: Engagement) => {
+  const source = getEngagementSource(activity);
+
+  switch (source) {
+    case "Email":
       return <Mail className="h-4 w-4" />;
-    case "CALL":
+    case "Call":
       return <Phone className="h-4 w-4" />;
-    case "NOTE":
+    case "Note":
       return <FileText className="h-4 w-4" />;
-    case "MEETING":
+    case "Meeting":
       return <Calendar className="h-4 w-4" />;
-    case "TASK":
+    case "Task":
       return <CheckSquare className="h-4 w-4" />;
+    case "Chat":
+      return <MessageCircle className="h-4 w-4" />;
+    case "SMS":
+      return <MessageSquareText className="h-4 w-4" />;
     default:
       return <FileText className="h-4 w-4" />;
   }
@@ -82,8 +95,12 @@ export function ActivitiesTable({
   initialNextAfter,
 }: ActivitiesTableProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const urlFilter = searchParams.get("filter");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
+  const [isDealModalOpen, setIsDealModalOpen] = useState(false);
+  const [selectedDealId, setSelectedDealId] = useState<string | null>(null);
 
   // pagination & data loading
   const [currentPage, setCurrentPage] = useState(1);
@@ -96,6 +113,23 @@ export function ActivitiesTable({
   const [selectedActivity, setSelectedActivity] = useState<Engagement | null>(
     null
   );
+
+  const getSourceFromUrlFilter = (filter: string) => {
+    switch (filter) {
+      case "calls":
+        return "Call";
+      case "emails":
+        return "Email";
+      case "notes":
+        return "Note";
+      case "sms":
+        return "SMS";
+      case "chats":
+        return "Chat";
+      default:
+        return "";
+    }
+  };
 
   // Filter state
   const [filterState, setFilterState] = useState<FilterState>({
@@ -240,6 +274,48 @@ export function ActivitiesTable({
     paginatedActivities.length,
   ]);
 
+  useEffect(() => {
+    if (urlFilter) {
+      const sourceValue = getSourceFromUrlFilter(urlFilter);
+      if (sourceValue) {
+        setFilterState((prev) => ({
+          ...prev,
+          selectedFilters: {
+            ...prev.selectedFilters,
+            source: [sourceValue],
+          },
+        }));
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (urlFilter) {
+      const sourceValue = getSourceFromUrlFilter(urlFilter);
+      if (sourceValue) {
+        setFilterState((prev) => ({
+          ...prev,
+          selectedFilters: {
+            ...prev.selectedFilters,
+            // Reemplazar el array de source en lugar de añadir
+            source: [sourceValue],
+          },
+        }));
+        setCurrentPage(1);
+      }
+    } else {
+      // Si no hay filtro en la URL, limpiar los filtros de source
+      setFilterState((prev) => ({
+        ...prev,
+        selectedFilters: {
+          ...prev.selectedFilters,
+          source: [],
+        },
+      }));
+    }
+  }, [urlFilter]);
+
   // UI ----------------------------------------------------------------------
   return (
     <div className="w-full">
@@ -248,7 +324,7 @@ export function ActivitiesTable({
         filterGroups={filterGroups}
         filterState={filterState}
         onFilterChange={handleFilterChange}
-        searchPlaceholder="Search activities..."
+        searchPlaceholder="Search engagements..."
         resultCount={processedActivities.length}
         className="mb-4"
       />
@@ -258,7 +334,7 @@ export function ActivitiesTable({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Contact</TableHead>
+              <TableHead>Contact/Deal</TableHead>
               <TableHead>Message</TableHead>
               <TableHead>Source</TableHead>
               <TableHead>Time</TableHead>
@@ -273,10 +349,15 @@ export function ActivitiesTable({
                   <TableCell
                     className="cursor-pointer relative overflow-hidden"
                     onClick={() => {
-                      setIsModalOpen(true);
-                      setSelectedLeadId(
-                        activity?.contactsData?.[0]?.id || null
-                      );
+                      if (isDealEngagement(activity)) {
+                        setIsDealModalOpen(true);
+                        setSelectedDealId(getDealId(activity));
+                      } else {
+                        setIsModalOpen(true);
+                        setSelectedLeadId(
+                          activity?.contactsData?.[0]?.id || null
+                        );
+                      }
                     }}
                   >
                     <BorderBeam
@@ -300,10 +381,14 @@ export function ActivitiesTable({
                       </Avatar>
                       <div>
                         <div className="font-medium text-sm">
-                          {getContactName(activity)}
+                          {isDealEngagement(activity)
+                            ? getDealName(activity)
+                            : getContactName(activity)}
                         </div>
                         <div className="text-xs text-muted-foreground">
-                          {getContactEmail(activity)}
+                          {isDealEngagement(activity)
+                            ? getDealPipeline(activity)
+                            : getContactEmail(activity)}
                         </div>
                       </div>
                     </div>
@@ -323,9 +408,7 @@ export function ActivitiesTable({
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center space-x-2">
-                      {getEngagementIcon(
-                        activity.properties.hs_engagement_type
-                      )}
+                      {getEngagementIcon(activity)}
                       <span className="text-sm">
                         {getEngagementSource(activity)}
                       </span>
@@ -435,6 +518,11 @@ export function ActivitiesTable({
         activityDetailOpen={activityDetailOpen}
         setActivityDetailOpen={setActivityDetailOpen}
         selectedActivity={selectedActivity}
+      />
+      <DealModal
+        dealId={selectedDealId}
+        isOpen={isDealModalOpen}
+        onClose={() => setIsDealModalOpen(false)}
       />
     </div>
   );

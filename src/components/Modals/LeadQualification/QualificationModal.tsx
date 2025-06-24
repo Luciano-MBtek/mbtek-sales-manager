@@ -367,7 +367,7 @@ export function QualificationModal({
 
         {renderStepContent()}
 
-        <div className="mt-4 flex justify-between  bg-white pb-4">
+        <div className=" flex justify-between  bg-white">
           <div className="flex gap-2">
             {/* Only show disqualify button after step one, if we have a contact ID, and we're not in disqualification step */}
             {currentStep !== "step-one" &&
