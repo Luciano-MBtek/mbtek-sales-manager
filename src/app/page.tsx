@@ -5,6 +5,7 @@ import { authOptions } from "@/lib/authOptions";
 import QualificationButton from "@/components/Modals/LeadQualification/QualificationButton";
 import { LeadCountCard } from "@/components/LeadsQualifier/LeadsCountCard";
 import { DealsSummaryCards } from "@/components/SalesOverview/DealsSummaryCards";
+import TodayMeetingsCard from "@/components/SalesOverview/TodayMeetingsCard";
 
 async function HomePage() {
   const session = await getServerSession(authOptions);
@@ -36,6 +37,7 @@ async function HomePage() {
       {accessLevel === "sales_agent" && (
         <div className="flex flex-col w-full gap-4">
           <DealsSummaryCards />
+          <TodayMeetingsCard />
         </div>
       )}
     </div>
