@@ -1,17 +1,12 @@
 import { Suspense } from "react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Briefcase, ThumbsDown, ThumbsUp, Percent } from "lucide-react";
 import { getOwnerDealsSummary } from "@/actions/hubspot/dealsSummary";
 
 export function DealsSummaryCards() {
   return (
-    <Suspense fallback={<DealsSummarySkeleton />}> 
+    <Suspense fallback={<DealsSummarySkeleton />}>
       <DealsSummaryContent />
     </Suspense>
   );
@@ -21,33 +16,29 @@ async function DealsSummaryContent() {
   const summary = await getOwnerDealsSummary();
 
   return (
-    <div className="grid grid-cols-2 gap-4 w-full max-w-md">
+    <div className="grid grid-cols-4 gap-3 w-full pr-4">
       <StatCard
         title="Open Deals"
         value={summary.open.toString()}
-        cardClass="border-blue-300 bg-blue-50"
-        textClass="text-blue-700"
+        color="blue"
         Icon={Briefcase}
       />
       <StatCard
         title="Deals Won"
         value={summary.won.toString()}
-        cardClass="border-green-300 bg-green-50"
-        textClass="text-green-700"
+        color="green"
         Icon={ThumbsUp}
       />
       <StatCard
         title="Deals Lost"
         value={summary.lost.toString()}
-        cardClass="border-red-300 bg-red-50"
-        textClass="text-red-700"
+        color="red"
         Icon={ThumbsDown}
       />
       <StatCard
         title="Conversion Rate"
         value={`${summary.conversionRate.toFixed(1)}%`}
-        cardClass="border-purple-300 bg-purple-50"
-        textClass="text-purple-700"
+        color="purple"
         Icon={Percent}
       />
     </div>
@@ -57,20 +48,39 @@ async function DealsSummaryContent() {
 type StatCardProps = {
   title: string;
   value: string;
-  cardClass: string;
-  textClass: string;
+  color: "blue" | "green" | "red" | "purple";
   Icon: React.ComponentType<{ className?: string }>;
 };
 
-function StatCard({ title, value, cardClass, textClass, Icon }: StatCardProps) {
+function StatCard({ title, value, color, Icon }: StatCardProps) {
+  const colorMap = {
+    blue: "border-l-4 border-l-blue-500",
+    green: "border-l-4 border-l-green-500",
+    red: "border-l-4 border-l-red-500",
+    purple: "border-l-4 border-l-purple-500",
+  };
+
+  const textColorMap = {
+    blue: "text-blue-700",
+    green: "text-green-700",
+    red: "text-red-700",
+    purple: "text-purple-700",
+  };
+
   return (
-    <Card className={cardClass}>
-      <CardHeader className="flex flex-row items-center gap-2">
-        <Icon className={`h-5 w-5 ${textClass}`} />
-        <CardTitle className={textClass}>{title}</CardTitle>
+    <Card
+      className={`shadow-sm hover:shadow transition-shadow ${colorMap[color]}`}
+    >
+      <CardHeader className="flex flex-row items-center justify-between py-4 px-5">
+        <CardTitle className="text-base font-medium text-gray-700">
+          {title}
+        </CardTitle>
+        <Icon className={`h-4 w-4 ${textColorMap[color]}`} />
       </CardHeader>
-      <CardContent>
-        <div className={`text-3xl font-bold ${textClass} mb-1`}>{value}</div>
+      <CardContent className="py-3 px-5">
+        <div className={`text-2xl font-bold ${textColorMap[color]}`}>
+          {value}
+        </div>
       </CardContent>
     </Card>
   );
@@ -78,14 +88,14 @@ function StatCard({ title, value, cardClass, textClass, Icon }: StatCardProps) {
 
 function DealsSummarySkeleton() {
   return (
-    <div className="grid grid-cols-2 gap-4 w-full max-w-md">
+    <div className="grid grid-cols-4 gap-3 w-full pr-4">
       {[1, 2, 3, 4].map((i) => (
-        <Card key={i} className="bg-muted">
-          <CardHeader>
-            <Skeleton className="h-5 w-24" />
+        <Card key={i} className="shadow-sm border-l-4 border-l-gray-300">
+          <CardHeader className="py-4 px-5">
+            <Skeleton className="h-4 w-20" />
           </CardHeader>
-          <CardContent>
-            <Skeleton className="h-8 w-16 mb-1" />
+          <CardContent className="py-3 px-5">
+            <Skeleton className="h-7 w-14" />
           </CardContent>
         </Card>
       ))}

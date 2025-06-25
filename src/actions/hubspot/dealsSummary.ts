@@ -4,7 +4,7 @@ import { hsFetch } from "@/lib/hubspotFetch";
 import { getHubspotOwnerIdSession } from "@/actions/user/getHubspotOwnerId";
 import { dealStage } from "@/app/mydeals/utils";
 
-const PAGE_LIMIT = 100;
+const PAGE_LIMIT = 200;
 const OLD_PIPELINE_ID = "75e28846-ad0d-4be2-a027-5e1da6590b98";
 
 const WON_STAGES = [
@@ -25,6 +25,7 @@ export type DealsSummary = {
 
 export async function getOwnerDealsSummary(): Promise<DealsSummary> {
   const ownerId = await getHubspotOwnerIdSession();
+  //const ownerId = "719106449"; //Byron test
   let after: string | undefined;
   const summary = { open: 0, won: 0, lost: 0 };
 
@@ -33,8 +34,16 @@ export async function getOwnerDealsSummary(): Promise<DealsSummary> {
       filterGroups: [
         {
           filters: [
-            { propertyName: "hubspot_owner_id", operator: "EQ", value: ownerId },
-            { propertyName: "pipeline", operator: "NEQ", value: OLD_PIPELINE_ID },
+            {
+              propertyName: "hubspot_owner_id",
+              operator: "EQ",
+              value: ownerId,
+            },
+            {
+              propertyName: "pipeline",
+              operator: "NEQ",
+              value: OLD_PIPELINE_ID,
+            },
           ],
         },
       ],
@@ -48,6 +57,7 @@ export async function getOwnerDealsSummary(): Promise<DealsSummary> {
       results: Array<{ properties: { dealstage: string } }>;
     }>("/crm/v3/objects/deals/search", {
       method: "POST",
+      next: { tags: [`deals-summary`], revalidate: 300 },
       body: JSON.stringify(body),
     });
 

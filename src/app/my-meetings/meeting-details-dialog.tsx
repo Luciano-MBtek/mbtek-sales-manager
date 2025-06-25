@@ -166,23 +166,6 @@ export function MeetingDetailsDialog({
             </div>
           )}
 
-          {meeting.properties.hs_meeting_external_url && (
-            <div className="flex items-start gap-3">
-              <ExternalLink className="h-5 w-5 mt-0.5 text-muted-foreground" />
-              <div>
-                <p className="font-medium">Meeting Link</p>
-                <a
-                  href={meeting.properties.hs_meeting_external_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm text-blue-600 hover:underline"
-                >
-                  {meeting.properties.hs_meeting_external_url}
-                </a>
-              </div>
-            </div>
-          )}
-
           {meeting.properties.hs_video_conference_url && (
             <div className="flex items-start gap-3">
               <ExternalLink className="h-5 w-5 mt-0.5 text-muted-foreground" />
