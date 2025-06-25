@@ -16,6 +16,9 @@ import QuoteBillingContent from "./QuoteBillingContent";
 import ShippingContent, { ShippingFormValues } from "./ShippingContent";
 import { useToast } from "@/components/ui/use-toast";
 import { patchDealProperties } from "@/actions/contact/patchDealProperties";
+import { GetContactById } from "@/actions/getContactById";
+import { getDealById } from "@/actions/deals/getDealsById";
+import { getFilesById } from "@/actions/deals/getFilesById";
 
 type TechnicalStep =
   | "building-needs"
@@ -35,24 +38,69 @@ const STEPS: Array<{ id: TechnicalStep; label: string }> = [
 interface TechnicalInformationModalProps {
   isOpen: boolean;
   onClose: () => void;
-  contactData: any;
-  dealData: any;
-  files: any;
+  dealId: string;
 }
 
 export function TechnicalInformationModal({
   isOpen,
   onClose,
-  contactData,
-  dealData,
-  files,
+  dealId,
 }: TechnicalInformationModalProps) {
-  const [currentStep, setCurrentStep] = useState<TechnicalStep>(
-    dealData?.properties?.last_step || "building-needs"
-  );
+  const [currentStep, setCurrentStep] =
+    useState<TechnicalStep>("building-needs");
   const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [contactData, setContactData] = useState<any>(null);
+  const [dealData, setDealData] = useState<any>(null);
+  const [files, setFiles] = useState<any[]>([]);
   const formRef = useRef<HTMLFormElement | null>(null);
   const { toast } = useToast();
+
+  // Load data when modal opens
+  useEffect(() => {
+    if (isOpen && dealId) {
+      loadData();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, dealId]);
+
+  const loadData = async () => {
+    setIsLoading(true);
+    try {
+      const deal = await getDealById(dealId, true);
+      const contactId = deal?.associations?.contacts?.results?.[0]?.id;
+      if (contactId) {
+        const contact = await GetContactById(contactId, true);
+        setContactData(contact);
+      }
+      let filesData: any[] = [];
+
+      if (deal?.properties.complete_system_documentation) {
+        const { results } = await getFilesById(
+          deal?.properties.complete_system_documentation.split(";")
+        );
+        filesData = results;
+      }
+
+      setDealData(deal);
+      setFiles(filesData);
+
+      // Set current step based on deal data
+      if (deal?.properties?.last_step) {
+        setCurrentStep(deal.properties.last_step as TechnicalStep);
+      }
+    } catch (error) {
+      console.error("Error loading data:", error);
+      toast({
+        title: "Error",
+        description: "Could not load contact or deal information",
+        variant: "destructive",
+      });
+      onClose();
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const getInitialFormData = () => ({
     "building-needs": {
@@ -165,12 +213,6 @@ export function TechnicalInformationModal({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dealData, contactData]);
 
-  useEffect(() => {
-    if (dealData?.properties?.last_step) {
-      setCurrentStep(dealData.properties.last_step as TechnicalStep);
-    }
-  }, [dealData]);
-
   const currentStepIndex = STEPS.findIndex((step) => step.id === currentStep);
 
   const handleBack = () => {
@@ -282,6 +324,17 @@ export function TechnicalInformationModal({
   };
 
   const renderStepContent = () => {
+    if (isLoading) {
+      return (
+        <div className="flex items-center justify-center py-8">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading information...</p>
+          </div>
+        </div>
+      );
+    }
+
     switch (currentStep) {
       case "building-needs":
         return (
@@ -449,14 +502,14 @@ export function TechnicalInformationModal({
             variant="outline"
             onClick={handleBack}
             className="w-[100px]"
-            disabled={isSaving}
+            disabled={isSaving || isLoading}
           >
             {currentStepIndex === 0 ? "Cancel" : "Back"}
           </Button>
           <Button
             onClick={handleContinue}
             className="w-[100px] bg-[#0f172a]"
-            disabled={isSaving}
+            disabled={isSaving || isLoading}
           >
             {isSaving
               ? "Saving..."

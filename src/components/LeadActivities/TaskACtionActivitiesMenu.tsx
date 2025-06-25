@@ -6,13 +6,14 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, PlusCircle } from "lucide-react";
+import { FileText, MoreHorizontal, PlusCircle } from "lucide-react";
 import { useState } from "react";
 import type { Engagement } from "./utils";
 import { useRouter } from "next/navigation";
 import { TaskCreateModal } from "@/components/LeadActivities/TaskCreateModal";
 import { createTaskSchemaType } from "@/schemas/TaskSchema";
 import { createTask } from "@/actions/tasks/createTask";
+import { TechnicalInformationDropdownItem } from "@/components/Modals/TechnicalInformation/TechnicalInformationDropdownItem";
 
 export function TaskActionActivitiesMenu({
   engagement,
@@ -28,6 +29,8 @@ export function TaskActionActivitiesMenu({
 
     await createTask(taskData);
   };
+
+  console.log(engagement);
 
   return (
     <>
@@ -59,6 +62,16 @@ export function TaskActionActivitiesMenu({
               Open Contact
             </DropdownMenuItem>
           )}
+
+          {engagement?.dealsData?.[0]?.properties.pipeline === "732661879" &&
+            engagement?.dealsData?.[0]?.id && (
+              <TechnicalInformationDropdownItem
+                dealId={engagement?.dealsData?.[0]?.id}
+              >
+                <FileText className="mr-2 h-4 w-4" />
+                <span>Technical Information</span>
+              </TechnicalInformationDropdownItem>
+            )}
         </DropdownMenuContent>
       </DropdownMenu>
 

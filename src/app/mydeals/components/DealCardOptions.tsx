@@ -7,19 +7,21 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, Settings } from "lucide-react";
-import { TechnicalInformationDropdownItem } from "./TechnicalInformationDropdownItem";
+import { MoreHorizontal, Eye, FileText } from "lucide-react";
+import { TechnicalInformationDropdownItem } from "@/components/Modals/TechnicalInformation/TechnicalInformationDropdownItem";
 import { DealModal } from "@/components/Modals/Deal/DealModal";
 import { useState } from "react";
-interface TechnicalInformationDropdownExampleProps {
+interface DealCardOptions {
   contactId: string;
   dealId: string;
+  dealPipeline: string;
 }
 
-export function TechnicalInformationDropdownExample({
+export function DealCardOptions({
   contactId,
   dealId,
-}: TechnicalInformationDropdownExampleProps) {
+  dealPipeline,
+}: DealCardOptions) {
   const [isDealModalOpen, setIsDealModalOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
@@ -42,17 +44,19 @@ export function TechnicalInformationDropdownExample({
             onSelect={(e) => e.preventDefault()}
             onClick={handleOpenDealModal}
           >
-            <Settings className="mr-2 h-4 w-4" />
+            <Eye className="mr-2 h-4 w-4" />
             <span>Details</span>
           </DropdownMenuItem>
 
-          <TechnicalInformationDropdownItem
-            contactId={contactId}
-            dealId={dealId}
-          >
-            <Settings className="mr-2 h-4 w-4" />
-            <span>Technical Information</span>
-          </TechnicalInformationDropdownItem>
+          {dealPipeline === "732661879" && (
+            <TechnicalInformationDropdownItem
+              contactId={contactId}
+              dealId={dealId}
+            >
+              <FileText className="mr-2 h-4 w-4" />
+              <span>Technical Information</span>
+            </TechnicalInformationDropdownItem>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
 

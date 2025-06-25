@@ -11,6 +11,7 @@ import { Calendar, DollarSign } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { DealCardOptions } from "./components/DealCardOptions";
 
 interface DealCardProps {
   deal: Deal;
@@ -19,10 +20,12 @@ interface DealCardProps {
 
 export const DealCard = ({ deal, onSelect }: DealCardProps) => {
   const contact = deal.contacts[0];
+  const dealPipeline = deal.properties.pipeline;
+  console.log(dealPipeline);
   const amount = Number.parseFloat(deal.properties.amount || "0");
   const progress = calculateDealProgress(
     deal.properties.createdate,
-    deal.properties.closedate,
+    deal.properties.closedate
   );
 
   // Determine progress color based on percentage
@@ -52,9 +55,16 @@ export const DealCard = ({ deal, onSelect }: DealCardProps) => {
       <CardContent className="p-4">
         <div className="space-y-3">
           <div>
-            <h4 className="font-medium text-sm line-clamp-2">
-              {deal.properties.dealname}
-            </h4>
+            <div className="flex items-center justify-between">
+              <h4 className="font-medium text-sm line-clamp-2">
+                {deal.properties.dealname}
+              </h4>
+              <DealCardOptions
+                contactId={contact.id}
+                dealId={deal.id}
+                dealPipeline={dealPipeline}
+              />
+            </div>
             <div className="flex items-center gap-1 mt-1">
               <DollarSign className="h-3 w-3 text-green-600" />
               <span className="font-semibold text-green-600">
