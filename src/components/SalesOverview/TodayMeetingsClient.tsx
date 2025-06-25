@@ -25,7 +25,11 @@ function getColorForMeetingOutcome(
   }
 }
 
-export default function TodayMeetingsClient({ meetings }: { meetings: Meeting[] }) {
+export default function TodayMeetingsClient({
+  meetings,
+}: {
+  meetings: Meeting[];
+}) {
   const [open, setOpen] = useState(false);
   const [selectedMeeting, setSelectedMeeting] = useState<Meeting>();
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent>();
@@ -52,13 +56,15 @@ export default function TodayMeetingsClient({ meetings }: { meetings: Meeting[] 
 
   return (
     <>
-      <Card className="shadow-sm">
+      <Card className="shadow-sm mr-4">
         <CardHeader>
-          <CardTitle>Today's Meetings</CardTitle>
+          <CardTitle>Today&apos;s Meetings</CardTitle>
         </CardHeader>
         <CardContent>
           {meetings.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No meetings for today.</p>
+            <p className="text-sm text-muted-foreground">
+              No meetings for today.
+            </p>
           ) : (
             <ul className="space-y-2">
               {meetings.map((m) => (
@@ -69,7 +75,9 @@ export default function TodayMeetingsClient({ meetings }: { meetings: Meeting[] 
                   >
                     <span className="font-medium">
                       {m.properties.hs_meeting_start_time &&
-                        new Date(m.properties.hs_meeting_start_time).toLocaleTimeString([], {
+                        new Date(
+                          m.properties.hs_meeting_start_time
+                        ).toLocaleTimeString([], {
                           hour: "2-digit",
                           minute: "2-digit",
                         })}

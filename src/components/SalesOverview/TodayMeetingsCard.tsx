@@ -1,13 +1,16 @@
 import { getAllOwnersMeetings } from "@/actions/searchOwnerMeetings";
 import { Meeting } from "@/types/meetingTypes";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import TodayMeetingsClient from "./TodayMeetingsClient";
 
 export default async function TodayMeetingsCard() {
   const meetings = await getAllOwnersMeetings();
 
   const today = new Date();
-  const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const startOfDay = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate()
+  );
   const endOfDay = new Date(startOfDay);
   endOfDay.setDate(endOfDay.getDate() + 1);
 

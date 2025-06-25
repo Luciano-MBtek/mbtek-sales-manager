@@ -25,7 +25,7 @@ export type DealsSummary = {
 
 export async function getOwnerDealsSummary(): Promise<DealsSummary> {
   const ownerId = await getHubspotOwnerIdSession();
-  //const ownerId = "719106449"; //Byron test
+  // const ownerId = "719106449"; //Byron test
   let after: string | undefined;
   const summary = { open: 0, won: 0, lost: 0 };
 
