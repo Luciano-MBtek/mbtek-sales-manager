@@ -5,9 +5,14 @@ import { authOptions } from "@/lib/authOptions";
 import QualificationButton from "@/components/Modals/LeadQualification/QualificationButton";
 import { LeadCountCard } from "@/components/LeadsQualifier/LeadsCountCard";
 import { DealsSummaryCards } from "@/components/SalesOverview/DealsSummaryCards";
+import { DealsWonLostChart } from "@/components/SalesOverview/DealsWonLostChart";
 import TodayMeetingsCard from "@/components/SalesOverview/TodayMeetingsCard";
 
-async function HomePage() {
+type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
+
+async function HomePage({ searchParams }: { searchParams: SearchParams }) {
+  const params = await searchParams;
+  const pipeline = typeof params.pipeline === "string" ? params.pipeline : params.pipeline?.[0];
   const session = await getServerSession(authOptions);
   const userName = session?.user?.name || "User";
   const accessLevel = session?.user?.accessLevel;
@@ -37,6 +42,7 @@ async function HomePage() {
       {accessLevel === "sales_agent" && (
         <div className="flex flex-col w-full gap-4">
           <DealsSummaryCards />
+          <DealsWonLostChart pipeline={pipeline} />
           <TodayMeetingsCard />
         </div>
       )}
