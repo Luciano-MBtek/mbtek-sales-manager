@@ -76,7 +76,7 @@ export function TechnicalInformationModal({
       const contactId = deal?.associations?.contacts?.results?.[0]?.id;
       if (contactId) {
         const contact = await GetContactById(contactId, true);
-        console.log("contact", contact);
+
         setContactData(contact);
       }
       let filesData: any[] = [];
@@ -216,7 +216,7 @@ export function TechnicalInformationModal({
   const [cachedOwnerId, setCachedOwnerId] = useState<string | undefined>(
     undefined
   );
-  console.log("contactData", contactData);
+
   const effectiveOwnerId =
     contactData?.properties?.hubspot_owner_id || cachedOwnerId;
 
@@ -304,7 +304,7 @@ export function TechnicalInformationModal({
           zones_configuration: JSON.stringify(stepData.zones),
           last_step: STEPS[currentStepIndex + 1].id,
         };
-        console.log("Saving zones data to HubSpot:", zonesData);
+
         await patchDealProperties(dealData.id, zonesData);
       } else if (currentStep === "step-3") {
         setFormData((prev) => ({

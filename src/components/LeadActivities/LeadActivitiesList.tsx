@@ -19,7 +19,7 @@ export async function LeadsActivitiesList({
   const result = await getLeadsBatchActivities(timeRange);
   const activities = result.engagements;
   const nextAfter = result.nextAfter;
-  console.log("Engagement:", JSON.stringify(activities, null, 2));
+
   return (
     <ActivitiesTable
       activities={activities}

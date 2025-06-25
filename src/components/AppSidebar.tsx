@@ -58,13 +58,6 @@ const items = [
     // requireRole: ["owner", "lead_agent"],
   },
   {
-    title: "Engagements",
-    url: "/engagements",
-    icon: MessagesSquare,
-    requireAuth: true,
-    requireRole: ["owner", "lead_agent"],
-  },
-  {
     title: "My Tasks",
     url: "/tasks",
     icon: ListChecks,
@@ -83,21 +76,28 @@ const items = [
     url: "/dashboard",
     icon: LayoutDashboard,
     requireAuth: true,
-    requireRole: ["admin", "owner", "sales_agent", "manager"],
+    requireRole: ["admin", "owner"],
   },
   {
     title: "My Deals",
     url: "/mydeals",
     icon: Handshake,
     requireAuth: true,
-    // requireRole: ["admin", "owner", "sales_agent", "manager"],
+    requireRole: ["admin", "owner", "sales_agent"],
   },
   {
     title: "My Contacts",
     url: "/my-contacts",
     icon: CircleUserRound,
     requireAuth: true,
-    requireRole: ["admin", "owner", "sales_agent", "manager"],
+    requireRole: ["admin", "owner", "sales_agent"],
+  },
+  {
+    title: "Engagements",
+    url: "/engagements",
+    icon: MessagesSquare,
+    requireAuth: true,
+    requireRole: ["owner", "lead_agent", "sales_agent"],
   },
   {
     title: "Admin Dashboard",
@@ -133,7 +133,6 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-            <SidebarQualification key="Qualification" />
               {filteredItems.map((item) =>
                 item.title === "Qualification" ? (
                   session?.user?.accessLevel &&
@@ -142,7 +141,7 @@ export function AppSidebar() {
                   ) && <SidebarQualification key={item.title} />
                 ) : item.title === "Engagements" ? (
                   session?.user?.accessLevel &&
-                  ["owner", "lead_agent"].includes(
+                  ["owner", "lead_agent", "sales_agent"].includes(
                     session.user.accessLevel
                   ) && <SidebarActivities key={item.title} />
                 ) : (
@@ -158,13 +157,9 @@ export function AppSidebar() {
                 )
               )}
               {session?.user?.accessLevel &&
-                [
-                  "admin",
-                  "owner",
-                  "manager",
-                  "sales_agent",
-                  "lead_agent",
-                ].includes(session.user.accessLevel) && <SidebarResources />}
+                ["admin", "owner", "sales_agent", "lead_agent"].includes(
+                  session.user.accessLevel
+                ) && <SidebarResources />}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

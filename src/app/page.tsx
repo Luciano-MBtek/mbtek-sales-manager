@@ -15,7 +15,7 @@ async function HomePage() {
   const title =
     accessLevel === "lead_agent"
       ? "Lead Qualification Dashboard"
-      : accessLevel === "manager"
+      : accessLevel === "sales_agent"
         ? "Sales Overview"
         : "Lead Qualification Dashboard";
 

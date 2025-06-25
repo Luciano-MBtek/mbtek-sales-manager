@@ -195,7 +195,7 @@ const CreateUserForm = ({ setShowNewTeamDialog }: CreateUserFormProps) => {
                         <SelectItem value="admin">
                           <span className="font-medium">Admin</span>
                         </SelectItem>
-                        <SelectItem value="manager">
+                        <SelectItem value="sales_agent">
                           <span className="font-medium">Sales Agent</span>
                         </SelectItem>
                         <SelectItem value="lead_agent">
