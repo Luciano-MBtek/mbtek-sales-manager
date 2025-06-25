@@ -1,7 +1,5 @@
 "use client";
 
-import { TechnicalInformationDropdownExample } from "@/components/Modals/TechnicalInformation/TechnicalInformationDropdownExample";
-
 export default function TestModalPage() {
   return (
     <div className="container mx-auto p-8">
@@ -12,11 +10,6 @@ export default function TestModalPage() {
         Click on the three dots button to open the dropdown and select
         &ldquo;Technical Information&rdquo;
       </p>
-
-      <TechnicalInformationDropdownExample
-        contactId="98549658715"
-        dealId="38274671141"
-      />
     </div>
   );
 }

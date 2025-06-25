@@ -188,14 +188,7 @@ const DealsKanbanBoard = ({ deals }: DealsKanbanBoardProps) => {
 
         <div className="space-y-2 overflow-y-auto flex-grow">
           {deals.map((deal) => (
-            <DealCard
-              key={deal.id}
-              deal={deal}
-              onSelect={(id) => {
-                setSelectedDealId(id);
-                setIsModalOpen(true);
-              }}
-            />
+            <DealCard key={deal.id} deal={deal} />
           ))}
         </div>
       </div>
@@ -321,14 +314,14 @@ const DealsKanbanBoard = ({ deals }: DealsKanbanBoardProps) => {
         </div>
       )}
 
-      <DealModal
+      {/* <DealModal
         dealId={selectedDealId}
         isOpen={isModalOpen}
         onClose={() => {
           setIsModalOpen(false);
           setSelectedDealId(null);
         }}
-      />
+      /> */}
     </div>
   );
 };

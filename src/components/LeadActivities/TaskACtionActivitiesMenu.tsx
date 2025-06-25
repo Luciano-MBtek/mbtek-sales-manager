@@ -6,13 +6,14 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, PlusCircle } from "lucide-react";
+import { FileText, MoreHorizontal, PlusCircle } from "lucide-react";
 import { useState } from "react";
 import type { Engagement } from "./utils";
 import { useRouter } from "next/navigation";
 import { TaskCreateModal } from "@/components/LeadActivities/TaskCreateModal";
 import { createTaskSchemaType } from "@/schemas/TaskSchema";
 import { createTask } from "@/actions/tasks/createTask";
+import { TechnicalInformationModal } from "@/components/Modals/TechnicalInformation/TechnicalInformationModal";
 
 export function TaskActionActivitiesMenu({
   engagement,
@@ -21,6 +22,8 @@ export function TaskActionActivitiesMenu({
 }) {
   const [open, setOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isTechnicalInfoModalOpen, setIsTechnicalInfoModalOpen] =
+    useState(false);
   const router = useRouter();
 
   const handleCreateTask = async (taskData: createTaskSchemaType) => {
@@ -28,6 +31,13 @@ export function TaskActionActivitiesMenu({
 
     await createTask(taskData);
   };
+
+  const handleOpenTechnicalInfoModal = () => {
+    setOpen(false);
+    setIsTechnicalInfoModalOpen(true);
+  };
+
+  console.log(engagement);
 
   return (
     <>
@@ -59,6 +69,17 @@ export function TaskActionActivitiesMenu({
               Open Contact
             </DropdownMenuItem>
           )}
+
+          {engagement?.dealsData?.[0]?.properties.pipeline === "732661879" &&
+            engagement?.dealsData?.[0]?.id && (
+              <DropdownMenuItem
+                onSelect={(e) => e.preventDefault()}
+                onClick={handleOpenTechnicalInfoModal}
+              >
+                <FileText className="mr-2 h-4 w-4" />
+                <span>Technical Information</span>
+              </DropdownMenuItem>
+            )}
         </DropdownMenuContent>
       </DropdownMenu>
 
@@ -67,6 +88,12 @@ export function TaskActionActivitiesMenu({
         onCreateTask={handleCreateTask}
         isOpen={isCreateModalOpen}
         onOpenChange={setIsCreateModalOpen}
+      />
+
+      <TechnicalInformationModal
+        isOpen={isTechnicalInfoModalOpen}
+        onClose={() => setIsTechnicalInfoModalOpen(false)}
+        dealId={engagement?.dealsData?.[0]?.id || ""}
       />
     </>
   );
