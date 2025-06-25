@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { MoreHorizontal, Eye, FileText } from "lucide-react";
-import { TechnicalInformationDropdownItem } from "@/components/Modals/TechnicalInformation/TechnicalInformationDropdownItem";
+import { TechnicalInformationModal } from "@/components/Modals/TechnicalInformation/TechnicalInformationModal";
 import { DealModal } from "@/components/Modals/Deal/DealModal";
 import { useState } from "react";
 interface DealCardOptions {
@@ -24,10 +24,17 @@ export function DealCardOptions({
 }: DealCardOptions) {
   const [isDealModalOpen, setIsDealModalOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isTechnicalInfoModalOpen, setIsTechnicalInfoModalOpen] =
+    useState(false);
 
   const handleOpenDealModal = () => {
     setIsDropdownOpen(false);
     setIsDealModalOpen(true);
+  };
+
+  const handleOpenTechnicalInfoModal = () => {
+    setIsDropdownOpen(false);
+    setIsTechnicalInfoModalOpen(true);
   };
 
   return (
@@ -49,13 +56,13 @@ export function DealCardOptions({
           </DropdownMenuItem>
 
           {dealPipeline === "732661879" && (
-            <TechnicalInformationDropdownItem
-              contactId={contactId}
-              dealId={dealId}
+            <DropdownMenuItem
+              onSelect={(e) => e.preventDefault()}
+              onClick={handleOpenTechnicalInfoModal}
             >
               <FileText className="mr-2 h-4 w-4" />
               <span>Technical Information</span>
-            </TechnicalInformationDropdownItem>
+            </DropdownMenuItem>
           )}
         </DropdownMenuContent>
       </DropdownMenu>
@@ -64,6 +71,12 @@ export function DealCardOptions({
         dealId={dealId}
         isOpen={isDealModalOpen}
         onClose={() => setIsDealModalOpen(false)}
+      />
+
+      <TechnicalInformationModal
+        isOpen={isTechnicalInfoModalOpen}
+        onClose={() => setIsTechnicalInfoModalOpen(false)}
+        dealId={dealId}
       />
     </>
   );

@@ -55,7 +55,7 @@ const items = [
     url: "/active-qualifications",
     icon: ListTodo,
     requireAuth: true,
-    requireRole: ["owner", "lead_agent"],
+    // requireRole: ["owner", "lead_agent"],
   },
   {
     title: "Engagements",
@@ -133,6 +133,7 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
+            <SidebarQualification key="Qualification" />
               {filteredItems.map((item) =>
                 item.title === "Qualification" ? (
                   session?.user?.accessLevel &&

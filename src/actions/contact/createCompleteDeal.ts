@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-
+import { dealStage } from "@/app/mydeals/utils";
 export async function createCompleteDeal(
   contactId: string,
   firstName: string,
@@ -22,7 +22,7 @@ export async function createCompleteDeal(
     const dealProperties = {
       dealname: dealName,
       hubspot_owner_id: ownerId,
-      dealstage: "1067281267", //   Qualified to Buy
+      dealstage: dealStage["1st meet: Info collection"], //   1st meet: Info collection
       pipeline: "732661879", // Complete - System
     };
 

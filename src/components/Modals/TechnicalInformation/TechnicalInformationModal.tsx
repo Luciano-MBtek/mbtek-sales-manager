@@ -19,13 +19,17 @@ import { patchDealProperties } from "@/actions/contact/patchDealProperties";
 import { GetContactById } from "@/actions/getContactById";
 import { getDealById } from "@/actions/deals/getDealsById";
 import { getFilesById } from "@/actions/deals/getFilesById";
+import MeetingModal from "../LeadQualification/MeetingModal";
+import { useMeetingLink } from "@/hooks/useMeetingLink";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type TechnicalStep =
   | "building-needs"
   | "zones-information"
   | "step-3"
   | "step-4"
-  | "step-5";
+  | "step-5"
+  | "meeting";
 
 const STEPS: Array<{ id: TechnicalStep; label: string }> = [
   { id: "building-needs", label: "Building needs" },
@@ -33,6 +37,7 @@ const STEPS: Array<{ id: TechnicalStep; label: string }> = [
   { id: "step-3", label: "Documentation" },
   { id: "step-4", label: "Quote & Billing" },
   { id: "step-5", label: "Shipping" },
+  { id: "meeting", label: "Schedule Meeting" },
 ];
 
 interface TechnicalInformationModalProps {
@@ -71,6 +76,7 @@ export function TechnicalInformationModal({
       const contactId = deal?.associations?.contacts?.results?.[0]?.id;
       if (contactId) {
         const contact = await GetContactById(contactId, true);
+        console.log("contact", contact);
         setContactData(contact);
       }
       let filesData: any[] = [];
@@ -207,6 +213,48 @@ export function TechnicalInformationModal({
 
   const [formData, setFormData] =
     useState<Record<string, any>>(getInitialFormData());
+  const [cachedOwnerId, setCachedOwnerId] = useState<string | undefined>(
+    undefined
+  );
+  console.log("contactData", contactData);
+  const effectiveOwnerId =
+    contactData?.properties?.hubspot_owner_id || cachedOwnerId;
+
+  useEffect(() => {
+    if (contactData?.properties?.hubspot_owner_id) {
+      setCachedOwnerId(contactData.properties.hubspot_owner_id);
+    }
+  }, [
+    contactData?.properties?.hubspot_owner_id,
+    cachedOwnerId,
+    effectiveOwnerId,
+  ]);
+
+  const {
+    meetingLink,
+    isLoading: isMeetingLinkLoading,
+    refetchAll,
+  } = useMeetingLink(effectiveOwnerId);
+
+  useEffect(() => {
+    let retryTimeout: NodeJS.Timeout;
+
+    if (!isMeetingLinkLoading && !meetingLink && effectiveOwnerId) {
+      console.log(
+        "Meeting link not found, retrying with ownerId:",
+        effectiveOwnerId
+      );
+      retryTimeout = setTimeout(() => {
+        if (refetchAll) {
+          refetchAll();
+        }
+      }, 2000);
+    }
+
+    return () => {
+      if (retryTimeout) clearTimeout(retryTimeout);
+    };
+  }, [isMeetingLinkLoading, meetingLink, refetchAll, effectiveOwnerId]);
 
   useEffect(() => {
     setFormData(getInitialFormData());
@@ -224,7 +272,9 @@ export function TechnicalInformationModal({
   };
 
   const handleContinue = () => {
-    if (formRef.current) {
+    if (currentStep === "meeting") {
+      onClose();
+    } else if (formRef.current) {
       formRef.current.requestSubmit();
     }
   };
@@ -294,9 +344,14 @@ export function TechnicalInformationModal({
           shipping_zip_code: stepData.shipping_zip_code,
           delivery_type: stepData.delivery_type,
           dropoff_condition: stepData.dropoff_condition,
-          last_step: currentStep,
+          last_step: STEPS[currentStepIndex + 1].id,
         };
         await patchDealProperties(dealData.id, shippingData);
+      } else if (currentStep === "meeting") {
+        // Meeting step completed - no additional data to save
+        await patchDealProperties(dealData.id, {
+          last_step: currentStep,
+        });
       }
 
       // Show success message
@@ -466,6 +521,22 @@ export function TechnicalInformationModal({
           />
         );
       }
+      case "meeting":
+        return isMeetingLinkLoading ? (
+          <div className="w-full h-full min-h-[500px]">
+            <div className="w-full h-[700px]">
+              <Skeleton className="w-full h-full" />
+            </div>
+          </div>
+        ) : (
+          <MeetingModal
+            onComplete={handleStepComplete}
+            meetingLink={meetingLink ?? ({} as any)}
+            contactEmail={contactData?.properties?.email || ""}
+            contactFirstName={contactData?.properties?.firstname || ""}
+            contactLastName={contactData?.properties?.lastname || ""}
+          />
+        );
       default:
         return <p>Step under construction: {currentStep}</p>;
     }
@@ -513,9 +584,11 @@ export function TechnicalInformationModal({
           >
             {isSaving
               ? "Saving..."
-              : currentStepIndex === STEPS.length - 1
-                ? "Complete"
-                : "Continue"}
+              : currentStep === "meeting"
+                ? "Finish"
+                : currentStepIndex === STEPS.length - 1
+                  ? "Complete"
+                  : "Continue"}
           </Button>
         </div>
       </DialogContent>

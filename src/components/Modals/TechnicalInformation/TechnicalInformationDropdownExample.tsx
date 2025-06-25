@@ -46,10 +46,7 @@ export function TechnicalInformationDropdownExample({
             <span>Details</span>
           </DropdownMenuItem>
 
-          <TechnicalInformationDropdownItem
-            contactId={contactId}
-            dealId={dealId}
-          >
+          <TechnicalInformationDropdownItem dealId={dealId}>
             <Settings className="mr-2 h-4 w-4" />
             <span>Technical Information</span>
           </TechnicalInformationDropdownItem>
