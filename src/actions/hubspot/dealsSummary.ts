@@ -76,3 +76,48 @@ export async function getOwnerDealsSummary(): Promise<DealsSummary> {
 
   return { ...summary, conversionRate };
 }
+
+export type DealsWonLost = { won: number; lost: number };
+
+export async function getOwnerDealsWonLost(pipeline?: string): Promise<DealsWonLost> {
+  const ownerId = await getHubspotOwnerIdSession();
+  let after: string | undefined;
+  const summary = { won: 0, lost: 0 };
+
+  const filters: Array<{ propertyName: string; operator: string; value: string }> = [
+    { propertyName: "hubspot_owner_id", operator: "EQ", value: ownerId },
+    { propertyName: "pipeline", operator: "NEQ", value: OLD_PIPELINE_ID },
+  ];
+
+  if (pipeline && pipeline !== "all") {
+    filters.push({ propertyName: "pipeline", operator: "EQ", value: pipeline });
+  }
+
+  do {
+    const body = {
+      filterGroups: [{ filters }],
+      properties: ["dealstage"],
+      limit: PAGE_LIMIT,
+      ...(after ? { after } : {}),
+    };
+
+    const data = await hsFetch<{
+      paging?: { next?: { after: string } };
+      results: Array<{ properties: { dealstage: string } }>;
+    }>("/crm/v3/objects/deals/search", {
+      method: "POST",
+      next: { tags: ["deals-won-lost"], revalidate: 300 },
+      body: JSON.stringify(body),
+    });
+
+    data.results.forEach(({ properties }) => {
+      const stage = properties.dealstage;
+      if (WON_STAGES.includes(stage)) summary.won++;
+      else if (LOST_STAGES.includes(stage)) summary.lost++;
+    });
+
+    after = data.paging?.next?.after;
+  } while (after);
+
+  return summary;
+}
