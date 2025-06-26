@@ -7,13 +7,18 @@ import { LeadCountCard } from "@/components/LeadsQualifier/LeadsCountCard";
 import { DealsSummaryCards } from "@/components/SalesOverview/DealsSummaryCards";
 import { DealsWonLostChart } from "@/components/SalesOverview/DealsWonLostChart";
 import TodayMeetingsCard from "@/components/SalesOverview/TodayMeetingsCard";
+import { getDealsWonLostOverTime } from "@/actions/hubspot/dealsSummary";
 
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
 
 async function HomePage({ searchParams }: { searchParams: SearchParams }) {
   const params = await searchParams;
-  const pipeline = typeof params.pipeline === "string" ? params.pipeline : params.pipeline?.[0];
+  const pipeline =
+    typeof params.pipeline === "string"
+      ? params.pipeline
+      : params.pipeline?.[0];
   const session = await getServerSession(authOptions);
+  const summary = await getDealsWonLostOverTime(pipeline);
   const userName = session?.user?.name || "User";
   const accessLevel = session?.user?.accessLevel;
 
@@ -42,7 +47,7 @@ async function HomePage({ searchParams }: { searchParams: SearchParams }) {
       {accessLevel === "sales_agent" && (
         <div className="flex flex-col w-full gap-4">
           <DealsSummaryCards />
-          <DealsWonLostChart pipeline={pipeline} />
+          <DealsWonLostChart summary={summary} />
           <TodayMeetingsCard />
         </div>
       )}

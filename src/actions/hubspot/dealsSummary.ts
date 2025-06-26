@@ -77,14 +77,28 @@ export async function getOwnerDealsSummary(): Promise<DealsSummary> {
   return { ...summary, conversionRate };
 }
 
-export type DealsWonLost = { won: number; lost: number };
+// Add this type to your existing types
+export type DealsWonLostOverTime = {
+  date: string;
+  won: number;
+  lost: number;
+};
 
-export async function getOwnerDealsWonLost(pipeline?: string): Promise<DealsWonLost> {
-  const ownerId = await getHubspotOwnerIdSession();
+export async function getDealsWonLostOverTime(
+  pipeline?: string
+): Promise<DealsWonLostOverTime[]> {
+  const ownerId = "719106449"; // Using Byron test as in your code
   let after: string | undefined;
-  const summary = { won: 0, lost: 0 };
+  const dealsData: Array<{
+    stage: string;
+    modifiedDate: Date;
+  }> = [];
 
-  const filters: Array<{ propertyName: string; operator: string; value: string }> = [
+  const filters: Array<{
+    propertyName: string;
+    operator: string;
+    value: string;
+  }> = [
     { propertyName: "hubspot_owner_id", operator: "EQ", value: ownerId },
     { propertyName: "pipeline", operator: "NEQ", value: OLD_PIPELINE_ID },
   ];
@@ -96,28 +110,69 @@ export async function getOwnerDealsWonLost(pipeline?: string): Promise<DealsWonL
   do {
     const body = {
       filterGroups: [{ filters }],
-      properties: ["dealstage"],
+      properties: ["dealstage", "createdate"],
       limit: PAGE_LIMIT,
       ...(after ? { after } : {}),
     };
 
     const data = await hsFetch<{
       paging?: { next?: { after: string } };
-      results: Array<{ properties: { dealstage: string } }>;
+      results: Array<{
+        properties: {
+          dealstage: string;
+          createdate: string;
+        };
+      }>;
     }>("/crm/v3/objects/deals/search", {
       method: "POST",
-      next: { tags: ["deals-won-lost"], revalidate: 300 },
+      next: { tags: ["deals-over-time"], revalidate: 300 },
       body: JSON.stringify(body),
     });
 
     data.results.forEach(({ properties }) => {
       const stage = properties.dealstage;
-      if (WON_STAGES.includes(stage)) summary.won++;
-      else if (LOST_STAGES.includes(stage)) summary.lost++;
+      if (WON_STAGES.includes(stage) || LOST_STAGES.includes(stage)) {
+        dealsData.push({
+          stage: properties.dealstage,
+          modifiedDate: new Date(properties.createdate),
+        });
+      }
     });
 
     after = data.paging?.next?.after;
   } while (after);
 
-  return summary;
+  // Sort by date
+  dealsData.sort((a, b) => a.modifiedDate.getTime() - b.modifiedDate.getTime());
+
+  // Group by month
+  const monthlyData: Map<string, { won: number; lost: number }> = new Map();
+
+  for (const deal of dealsData) {
+    const monthKey = deal.modifiedDate.toISOString().substring(0, 7); // YYYY-MM format
+    const monthName = new Date(monthKey + "-01").toLocaleString("default", {
+      month: "short",
+    });
+    const yearShort = deal.modifiedDate.getFullYear().toString().slice(2);
+    const displayKey = `${monthName} '${yearShort}`;
+
+    if (!monthlyData.has(displayKey)) {
+      monthlyData.set(displayKey, { won: 0, lost: 0 });
+    }
+
+    const record = monthlyData.get(displayKey)!;
+
+    if (WON_STAGES.includes(deal.stage)) {
+      record.won++;
+    } else if (LOST_STAGES.includes(deal.stage)) {
+      record.lost++;
+    }
+  }
+
+  // Convert to array sorted by date
+  return Array.from(monthlyData.entries()).map(([date, data]) => ({
+    date,
+    won: data.won,
+    lost: data.lost,
+  }));
 }

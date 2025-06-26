@@ -1,6 +1,12 @@
 "use client";
 
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTransition } from "react";
 import { Loader2 } from "lucide-react";
@@ -11,7 +17,11 @@ const pipelines = [
   { label: "Mbtek - Instant Quote", value: "732682097" },
 ];
 
-export function PipelineSelect() {
+export function PipelineSelect({
+  onPipelineChange,
+}: {
+  onPipelineChange?: (pipeline: string) => void;
+}) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
@@ -27,9 +37,13 @@ export function PipelineSelect() {
       router.push(`?${params.toString()}`, { scroll: false });
       router.refresh();
     });
+    if (onPipelineChange) {
+      onPipelineChange(value);
+    }
   };
 
-  const display = pipelines.find((p) => p.value === selected)?.label || "Both Pipelines";
+  const display =
+    pipelines.find((p) => p.value === selected)?.label || "Both Pipelines";
 
   return (
     <Select value={selected} onValueChange={handleChange}>
