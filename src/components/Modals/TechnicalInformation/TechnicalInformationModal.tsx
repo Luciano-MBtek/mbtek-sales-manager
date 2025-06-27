@@ -231,11 +231,13 @@ export function TechnicalInformationModal({
   ]);
 
   const {
-    meetingLink,
+    meetingLinks,
     isLoading: isMeetingLinkLoading,
     refetchAll,
   } = useMeetingLink(effectiveOwnerId);
-
+  const meetingLink = meetingLinks.find((link) =>
+    link.name.includes("2nd meet: Project proposal presentation")
+  );
   useEffect(() => {
     let retryTimeout: NodeJS.Timeout;
 
