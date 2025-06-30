@@ -43,7 +43,7 @@ export const useMeetingLink = (ownerId: string | undefined) => {
     enabled: !!ownerUserId,
   });
 
-  const meetingLink = meetingLinkData?.results?.[0];
+  const meetingLinks = meetingLinkData?.results || [];
 
   const refetchAll = async () => {
     await refetchOwners();
@@ -53,7 +53,7 @@ export const useMeetingLink = (ownerId: string | undefined) => {
   };
 
   return {
-    meetingLink,
+    meetingLinks,
     isLoading: isOwnersLoading || isMeetingLinkLoading,
     leadOwner,
     refetchAll,

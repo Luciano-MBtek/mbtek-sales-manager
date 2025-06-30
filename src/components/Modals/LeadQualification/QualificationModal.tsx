@@ -80,11 +80,14 @@ export function QualificationModal({
   }, [data.ownerId, cachedOwnerId, effectiveOwnerId]);
 
   const {
-    meetingLink,
+    meetingLinks,
     isLoading: isMeetingLinkLoading,
     refetchAll,
   } = useMeetingLink(effectiveOwnerId);
-
+  console.log("meetingLinks", meetingLinks);
+  const meetingLink = meetingLinks.find((link) =>
+    link.name.includes("1st meet: Info collection")
+  );
   useEffect(() => {
     let retryTimeout: NodeJS.Timeout;
 
