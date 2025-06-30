@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidateTag } from "next/cache";
 import { revalidatePath } from "next/cache";
 
 type DealProperties = {
@@ -43,7 +44,7 @@ export async function patchDealProperties(
     }
 
     const dealData = await response.json();
-
+    revalidateTag("contact-deals");
     revalidatePath("/mydeals");
     return dealData;
   } catch (error) {

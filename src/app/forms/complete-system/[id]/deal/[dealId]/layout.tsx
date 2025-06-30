@@ -12,24 +12,29 @@ export default async function DealsLayout({ children, params }: Props) {
 
   const steps = [
     {
-      title: "Step One",
+      title: "Building needs",
       route: "step-one",
       link: `/forms/complete-system/${id}/deal/${dealId}/step-one`,
     },
     {
-      title: "Step Two",
+      title: "Zones Info",
       route: "step-two",
       link: `/forms/complete-system/${id}/deal/${dealId}/step-two`,
     },
     {
-      title: "Step Three",
+      title: "Documents",
       route: "step-three",
       link: `/forms/complete-system/${id}/deal/${dealId}/step-three`,
     },
     {
-      title: "Step Four",
+      title: "Billing",
       route: "step-four",
       link: `/forms/complete-system/${id}/deal/${dealId}/step-four`,
+    },
+    {
+      title: "Shipping",
+      route: "step-five",
+      link: `/forms/complete-system/${id}/deal/${dealId}/step-five`,
     },
 
     {
@@ -45,7 +50,7 @@ export default async function DealsLayout({ children, params }: Props) {
         title="Complete System - Quote creation"
         subtitle={`Creating quote for deal ID: ${dealId}`}
       />
-      <div className="mt-1 mb-28 flex flex-col gap-x-16 text-white lg:flex-row">
+      <div className="mt-1 mb-28 flex flex-col gap-x-16 text-primary lg:flex-row">
         <StepNavigation steps={steps} />
         <div className="w-full">{children}</div>
       </div>
