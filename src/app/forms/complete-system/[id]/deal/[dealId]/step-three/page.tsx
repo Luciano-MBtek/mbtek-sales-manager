@@ -1,5 +1,28 @@
-const page = async () => {
-  return <div className="text-primary">Step three</div>;
-};
+import { getDealById } from "@/actions/deals/getDealsById";
+import { getFilesById } from "@/actions/deals/getFilesById";
+import StepThreeForm from "./StepThreeForm";
 
-export default page;
+export default async function Page({ params }: { params: { id: string; dealId: string } }) {
+  const { id, dealId } = params;
+  const dealData = await getDealById(dealId, true);
+
+  let filesData: any[] = [];
+  if (dealData?.properties.complete_system_documentation) {
+    const { results } = await getFilesById(
+      dealData.properties.complete_system_documentation.split(";")
+    );
+    filesData = results;
+  }
+
+  const initialData = filesData.map((file: any) => ({
+    id: file.id,
+    name: file.name,
+    url: file.url,
+  }));
+
+  return (
+    <div className="p-4">
+      <StepThreeForm dealId={dealId} contactId={id} initialData={initialData} />
+    </div>
+  );
+}

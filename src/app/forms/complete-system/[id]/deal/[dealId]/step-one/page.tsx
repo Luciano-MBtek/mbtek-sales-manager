@@ -1,13 +1,27 @@
 import { getDealById } from "@/actions/deals/getDealsById";
+import { GetContactById } from "@/actions/getContactById";
+import StepOneForm from "./StepOneForm";
 
-type Props = {
-  params: Promise<{ id: string; dealId: string }>;
-};
-const page = async ({ params }: Props) => {
-  const { dealId } = await params;
-  const dealData = getDealById(dealId);
-  console.log("Deal Data:", dealData);
-  return <div className="text-primary">Step one</div>;
-};
+interface Props {
+  params: { id: string; dealId: string };
+}
 
-export default page;
+export default async function Page({ params }: { params: { id: string; dealId: string } }) {
+  const { id, dealId } = params;
+  const dealData = await getDealById(dealId, true);
+  const contactData = await GetContactById(id, true);
+
+  const initialData = {
+    yearOfConstruction: dealData?.properties?.year_of_construction || "",
+    insulationType: dealData?.properties?.insulation_type || "",
+    specificNeeds: dealData?.properties?.specific_needs?.split(";").filter(Boolean) || [],
+    otherSpecificNeed: dealData?.properties?.other_specific_need || "",
+    installationResponsible: dealData?.properties?.installation_responsible || "",
+  };
+
+  return (
+    <div className="p-4">
+      <StepOneForm dealId={dealId} contactId={id} initialData={initialData} />
+    </div>
+  );
+}
