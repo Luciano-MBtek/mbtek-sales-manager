@@ -11,6 +11,7 @@ import { MoreHorizontal, Eye, FileText } from "lucide-react";
 import { TechnicalInformationModal } from "@/components/Modals/TechnicalInformation/TechnicalInformationModal";
 import { DealModal } from "@/components/Modals/Deal/DealModal";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 interface DealCardOptions {
   contactId: string;
   dealId: string;
@@ -26,6 +27,7 @@ export function DealCardOptions({
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isTechnicalInfoModalOpen, setIsTechnicalInfoModalOpen] =
     useState(false);
+  const router = useRouter();
 
   const handleOpenDealModal = () => {
     setIsDropdownOpen(false);
@@ -64,6 +66,15 @@ export function DealCardOptions({
               <span>Technical Information</span>
             </DropdownMenuItem>
           )}
+          <DropdownMenuItem
+            className="flex items-center justify-center bg-black text-white"
+            onSelect={(e) => {
+              e.preventDefault();
+              router.push(`/contacts/${contactId}`);
+            }}
+          >
+            Open Contact
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 

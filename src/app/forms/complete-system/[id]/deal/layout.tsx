@@ -48,7 +48,7 @@ export default function DealsLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="w-full px-2 lg:px-0">
+    <div className="w-full px-2 lg:px-0 mt-2">
       <PageHeader
         title="Complete System - Data Collection"
         subtitle="Form process to collect lead's information for complete system."

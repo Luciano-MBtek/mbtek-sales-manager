@@ -87,7 +87,8 @@ export type DealsWonLostOverTime = {
 export async function getDealsWonLostOverTime(
   pipeline?: string
 ): Promise<DealsWonLostOverTime[]> {
-  const ownerId = "719106449"; // Using Byron test as in your code
+  const ownerId = await getHubspotOwnerIdSession();
+  //const ownerId = "719106449"; // Using Byron test as in your code
   let after: string | undefined;
   const dealsData: Array<{
     stage: string;

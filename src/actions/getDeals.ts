@@ -19,6 +19,7 @@ export async function checkDealsExist(contactId: string): Promise<boolean> {
     }
 
     const data = await response.json();
+
     return data.results && data.results.length > 0;
   } catch (error) {
     console.error("Error en checkDealsExist:", error);

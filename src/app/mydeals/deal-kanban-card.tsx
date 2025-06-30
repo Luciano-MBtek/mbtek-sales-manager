@@ -21,14 +21,13 @@ interface DealCardProps {
 export const DealCard = ({ deal, onSelect }: DealCardProps) => {
   const contact = deal.contacts[0];
   const dealPipeline = deal.properties.pipeline;
-  console.log(dealPipeline);
+
   const amount = Number.parseFloat(deal.properties.amount || "0");
   const progress = calculateDealProgress(
     deal.properties.createdate,
     deal.properties.closedate
   );
 
-  // Determine progress color based on percentage
   const getProgressColor = (percentage: number) => {
     if (percentage < 30) return "bg-green-500";
     if (percentage < 70) return "bg-yellow-500";

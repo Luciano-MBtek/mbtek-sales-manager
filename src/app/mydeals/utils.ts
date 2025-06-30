@@ -46,7 +46,7 @@ const dealStageColors: { [key: string]: string } = {
   "Cancelled (Shopify prior (June 2025))": "bg-red-100 text-red-800",
 };
 
-const pipelineLabels = {
+export const pipelineLabels = {
   "Mbtek - Complete System": "732661879",
   "Mbtek - Instant Quote": "732682097",
   "Shopify prior (June 2025)": "75e28846-ad0d-4be2-a027-5e1da6590b98",
