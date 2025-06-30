@@ -38,9 +38,9 @@ export default async function DealsLayout({ children, params }: Props) {
     },
 
     {
-      title: "Review",
-      route: "review",
-      link: `/forms/complete-system/${id}/deal/${dealId}/review`,
+      title: "Items",
+      route: "items",
+      link: `/forms/complete-system/${id}/deal/${dealId}/items`,
     },
   ];
 

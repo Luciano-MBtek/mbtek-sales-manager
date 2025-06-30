@@ -34,9 +34,9 @@ export default function StepFiveForm({
       shipping_zip_code: data.shipping_zip_code,
       delivery_type: data.delivery_type,
       dropoff_condition: data.dropoff_condition,
-      last_step: "review",
+      last_step: "items",
     });
-    router.push(`/forms/complete-system/${contactId}/deal/${dealId}/review`);
+    router.push(`/forms/complete-system/${contactId}/deal/${dealId}/items`);
   };
 
   const handleSubmit = () => {
