@@ -15,12 +15,12 @@ export const DealCardContainer = ({ deals }: DealCardContainerProps) => {
     );
   }
 
-  const duplicatedDeals = Array(2)
+  /*  const duplicatedDeals = Array(2)
     .fill(null)
     .map((_, index) => ({
       ...deals[0],
       id: `${deals[0].id}-${index}`, // Create unique IDs for React keys
-    }));
+    })); */
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">

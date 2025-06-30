@@ -28,7 +28,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 interface DealCardProps {
   deal: DealWithLineItems;
@@ -38,6 +38,7 @@ interface DealCardProps {
 export const DealCard = ({ deal, onSelect }: DealCardProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
+  const pathname = usePathname();
 
   const amount = Number.parseFloat(deal.properties.amount?.toString() || "0");
   const progress = calculateDealProgress(
@@ -55,6 +56,18 @@ export const DealCard = ({ deal, onSelect }: DealCardProps) => {
 
   const handleSelect = () => {
     onSelect?.(deal.id);
+  };
+
+  const handleCreateQuote = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent the card click event
+
+    // Extract the contact ID from the pathname
+    // Assuming pathname is like /forms/complete-system/[contactId]
+    const pathParts = pathname.split("/");
+    const contactId = pathParts[pathParts.length - 1];
+
+    // Navigate to the deal page with both contact ID and deal ID
+    router.push(`/forms/complete-system/${contactId}/deal/${deal.id}`);
   };
 
   const subTotal = deal.lineItems.reduce((total, lineItem) => {
@@ -83,7 +96,10 @@ export const DealCard = ({ deal, onSelect }: DealCardProps) => {
                 {deal.properties.dealname}
               </h4>
               <div>
-                <Button className="bg-mbtek hover:bg-accent hover:text-mbtek">
+                <Button
+                  className="bg-mbtek hover:bg-accent hover:text-mbtek"
+                  onClick={handleCreateQuote}
+                >
                   Create Quote
                 </Button>
               </div>
