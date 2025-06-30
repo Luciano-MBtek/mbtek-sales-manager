@@ -2,8 +2,12 @@ import { getDealById } from "@/actions/deals/getDealsById";
 import { getFilesById } from "@/actions/deals/getFilesById";
 import StepThreeForm from "./StepThreeForm";
 
-export default async function Page({ params }: { params: { id: string; dealId: string } }) {
-  const { id, dealId } = params;
+type Props = {
+  params: Promise<{ id: string; dealId: string }>;
+};
+
+export default async function Page({ params }: Props) {
+  const { id, dealId } = await params;
   const dealData = await getDealById(dealId, true);
 
   let filesData: any[] = [];

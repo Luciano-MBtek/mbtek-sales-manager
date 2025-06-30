@@ -1,8 +1,12 @@
 import { getDealById } from "@/actions/deals/getDealsById";
 import StepTwoForm from "./StepTwoForm";
 
-export default async function Page({ params }: { params: { id: string; dealId: string } }) {
-  const { id, dealId } = params;
+type Props = {
+  params: Promise<{ id: string; dealId: string }>;
+};
+
+export default async function Page({ params }: Props) {
+  const { id, dealId } = await params;
   const dealData = await getDealById(dealId, true);
 
   const initialData = {
