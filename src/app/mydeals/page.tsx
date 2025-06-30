@@ -1,7 +1,7 @@
 import { getDealsByUserId } from "@/actions/searchOwnerDeals";
 import { Metadata } from "next";
-import DealsTable from "./deals-table";
 import PageHeader from "@/components/PageHeader";
+import DealsKanbanBoard from "./deals-kanban-board";
 
 export const metadata: Metadata = {
   title: "My Deals",
@@ -12,12 +12,18 @@ const DealsPage = async () => {
   const deals = await getDealsByUserId();
 
   return (
-    <div className="container mx-auto py-10">
+    <div className="container mx-auto py-6">
       <PageHeader
         title="My Deals"
-        subtitle={`Last ${deals.length} owned deals.`}
+        subtitle={`Manage your sales pipeline - ${deals.length} active deals.`}
       />
-      {deals.length > 0 ? <DealsTable deals={deals} /> : <p>No deals yet.</p>}
+      {deals.length > 0 ? (
+        <DealsKanbanBoard deals={deals} />
+      ) : (
+        <div className="text-center py-12">
+          <p className="text-gray-500">No deals yet.</p>
+        </div>
+      )}
     </div>
   );
 };

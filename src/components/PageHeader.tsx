@@ -14,7 +14,7 @@ export default function PageHeader({
   className?: string;
 }) {
   return (
-    <div className={cn("w-full px-4 py-8", className)}>
+    <div className={cn("w-full px-4 py-8 mt-2", className)}>
       <div className="flex flex-col items-center sm:flex-row sm:items-start sm:justify-start space-y-4 sm:space-y-0 sm:space-x-6">
         {Icon && (
           <motion.div

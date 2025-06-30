@@ -16,11 +16,42 @@ export interface DealProperties {
   other_specific_need?: string;
   installation_responsible: string;
   complete_system_documentation: string;
+  last_step?: string;
+  number_of_zones?: string;
+  zones_configuration?: string;
+  billing_zip?: string;
+  billing_first_name?: string;
+  billing_last_name?: string;
+  billing_email?: string;
+  billing_phone?: string;
+  billing_address?: string;
+  billing_city?: string;
+  billing_state?: string;
+  billing_country?: string;
+  shipping_first_name?: string;
+  shipping_last_name?: string;
+  shipping_email?: string;
+  shipping_phone?: string;
+  shipping_address?: string;
+  shipping_city?: string;
+  shipping_country?: string;
+  shipping_province?: string;
+  shipping_zip_code?: string;
+  delivery_type?: string;
+  dropoff_condition?: string;
 }
 
 export interface Deal {
   id: string;
   properties: DealProperties;
+  associations: {
+    contacts: {
+      results: {
+        id: string;
+        type: string;
+      }[];
+    };
+  };
   createdAt: string;
   updatedAt: string;
   archived: boolean;

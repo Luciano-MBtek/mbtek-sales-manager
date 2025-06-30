@@ -1,0 +1,200 @@
+"use client";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  Calendar,
+  DollarSign,
+  Truck,
+  ChevronDown,
+  ChevronUp,
+} from "lucide-react";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import {
+  calculateDaysRemaining,
+  calculateDealProgress,
+  formatDate,
+  getDealStageLabel,
+  getInitials,
+} from "@/app/mydeals/utils";
+import { formatCurrency } from "@/lib/utils";
+import { DealWithLineItems } from "@/types/dealTypes";
+import { Separator } from "@/components/ui/separator";
+import LineItemCard from "@/components/LineItemCard";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { cn } from "@/lib/utils";
+import { useRouter, usePathname } from "next/navigation";
+
+interface DealCardProps {
+  deal: DealWithLineItems;
+  onSelect?: (id: string) => void;
+}
+
+export const DealCard = ({ deal, onSelect }: DealCardProps) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const amount = Number.parseFloat(deal.properties.amount?.toString() || "0");
+  const progress = calculateDealProgress(
+    deal.properties.createdate,
+    deal.properties.closedate
+  );
+
+  console.log("Deal:", deal);
+
+  const getProgressColor = (percentage: number) => {
+    if (percentage < 30) return "bg-green-500";
+    if (percentage < 70) return "bg-yellow-500";
+    return "bg-red-500";
+  };
+
+  const handleSelect = () => {
+    onSelect?.(deal.id);
+  };
+
+  const handleCreateQuote = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent the card click event
+
+    // Extract the contact ID from the pathname
+    // Assuming pathname is like /forms/complete-system/[contactId]
+    const pathParts = pathname.split("/");
+    const contactId = pathParts[pathParts.length - 1];
+
+    // Navigate to the deal page with both contact ID and deal ID
+    router.push(`/forms/complete-system/${contactId}/deal/${deal.id}`);
+  };
+
+  const subTotal = deal.lineItems.reduce((total, lineItem) => {
+    const price = parseFloat(lineItem.properties.price) || 0;
+    return total + price;
+  }, 0);
+
+  return (
+    <Card
+      className="mb-3 hover:shadow-md transition-shadow cursor-pointer w-full"
+      onClick={handleSelect}
+      tabIndex={0}
+      role="button"
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          handleSelect();
+        }
+      }}
+    >
+      <CardContent className="p-4">
+        <div className="space-y-3 w-full">
+          <div>
+            <div className="flex items-center justify-between">
+              <h4 className="font-medium text-sm line-clamp-2">
+                {deal.properties.dealname}
+              </h4>
+              <div>
+                <Button
+                  className="bg-mbtek hover:bg-accent hover:text-mbtek"
+                  onClick={handleCreateQuote}
+                >
+                  Create Quote
+                </Button>
+              </div>
+            </div>
+            <div className="flex items-center justify-between gap-6 mt-2">
+              <div className="flex items-center gap-1">
+                <DollarSign className="h-3 w-3 text-green-600" />
+                <span className="font-semibold text-green-600">
+                  {formatCurrency(amount)}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-1">
+            <Calendar className="h-3 w-3 text-gray-400" />
+            <span className="text-xs text-gray-500">
+              Expires: {formatDate(deal.properties.closedate)}
+            </span>
+          </div>
+
+          {/* Progress Bar */}
+          <div className="space-y-1">
+            <div className="flex justify-between text-xs"></div>
+            <div className="relative h-2 w-full overflow-hidden rounded-full bg-accent">
+              <div
+                className={`h-full w-full flex-1 transition-all ${getProgressColor(progress)}`}
+                style={{
+                  transform: `translateX(-${100 - progress}%)`,
+                }}
+              />
+            </div>
+            <div className="flex justify-between items-center">
+              <Badge variant="outline" className="text-xs">
+                {getDealStageLabel(deal.properties.dealstage)}
+              </Badge>
+
+              <span className="text-xs font-medium">
+                {calculateDaysRemaining(deal.properties.closedate)} days
+              </span>
+            </div>
+          </div>
+
+          <Separator className="my-2" />
+
+          <Collapsible
+            open={isOpen}
+            onOpenChange={setIsOpen}
+            className="w-full"
+          >
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-semibold">Items:</h3>
+              <CollapsibleTrigger asChild>
+                <Button variant="ghost" size="sm" className="p-1 h-6">
+                  {isOpen ? (
+                    <ChevronUp className="h-4 w-4" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4" />
+                  )}
+                  <span className="sr-only">Toggle line items</span>
+                </Button>
+              </CollapsibleTrigger>
+            </div>
+            <CollapsibleContent
+              className={cn(
+                "text-popover-foreground outline-none w-full",
+                "data-[state=open]:animate-in data-[state=closed]:animate-out",
+                "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+                "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
+                "data-[state=open]:slide-in-from-top-2",
+                "data-[state=closed]:slide-out-to-top-2"
+              )}
+            >
+              {deal.lineItems.length > 0 ? (
+                <div className="space-y-4 mt-4 w-full">
+                  {deal.lineItems.map((lineItem) => (
+                    <LineItemCard key={lineItem.id} lineItem={lineItem} />
+                  ))}
+                  <div className="flex w-full items-center justify-end gap-2">
+                    <p className="text-md text-gray-500">Subtotal:</p>
+
+                    <span className="font-bold text-sm text-green-600">
+                      {formatCurrency(subTotal)}
+                    </span>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-muted-foreground mt-4 text-sm">
+                  No line items for this deal.
+                </p>
+              )}
+            </CollapsibleContent>
+          </Collapsible>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};

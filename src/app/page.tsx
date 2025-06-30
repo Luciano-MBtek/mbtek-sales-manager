@@ -4,9 +4,21 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
 import QualificationButton from "@/components/Modals/LeadQualification/QualificationButton";
 import { LeadCountCard } from "@/components/LeadsQualifier/LeadsCountCard";
+import { DealsSummaryCards } from "@/components/SalesOverview/DealsSummaryCards";
+import { DealsWonLostChart } from "@/components/SalesOverview/DealsWonLostChart";
+import TodayMeetingsCard from "@/components/SalesOverview/TodayMeetingsCard";
+import { getDealsWonLostOverTime } from "@/actions/hubspot/dealsSummary";
 
-async function HomePage() {
+type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
+
+async function HomePage({ searchParams }: { searchParams: SearchParams }) {
+  const params = await searchParams;
+  const pipeline =
+    typeof params.pipeline === "string"
+      ? params.pipeline
+      : params.pipeline?.[0];
   const session = await getServerSession(authOptions);
+  const summary = await getDealsWonLostOverTime(pipeline);
   const userName = session?.user?.name || "User";
   const accessLevel = session?.user?.accessLevel;
 
@@ -15,7 +27,7 @@ async function HomePage() {
   const title =
     accessLevel === "lead_agent"
       ? "Lead Qualification Dashboard"
-      : accessLevel === "manager"
+      : accessLevel === "sales_agent"
         ? "Sales Overview"
         : "Lead Qualification Dashboard";
 
@@ -30,6 +42,13 @@ async function HomePage() {
           <div className="w-[250px]">
             <LeadCountCard />
           </div>
+        </div>
+      )}
+      {accessLevel === "sales_agent" && (
+        <div className="flex flex-col w-full gap-4">
+          <DealsSummaryCards />
+          <DealsWonLostChart summary={summary} />
+          <TodayMeetingsCard />
         </div>
       )}
     </div>

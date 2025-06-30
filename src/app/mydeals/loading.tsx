@@ -2,52 +2,67 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 const Loading = () => {
   return (
-    <div className="container mx-auto py-10">
+    <div className="container mx-auto py-6">
       {/* Page Header Skeleton */}
-      <div className="w-full px-4 py-8">
-        <div className="flex flex-col items-center sm:flex-row sm:items-start sm:justify-start space-y-4 sm:space-y-0 sm:space-x-6">
-          <div className="text-center sm:text-left">
-            <Skeleton className="h-12 w-48 mb-2" />
-            <Skeleton className="h-6 w-32" />
-          </div>
+      <div className="mb-6">
+        <Skeleton className="h-8 w-48 mb-2" />
+        <Skeleton className="h-5 w-64" />
+      </div>
+
+      {/* Filters Section Skeleton */}
+      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between mb-6">
+        <div className="flex flex-col sm:flex-row gap-3">
+          <Skeleton className="h-10 w-48" />
+          <Skeleton className="h-10 w-40" />
+        </div>
+        <div className="flex gap-3 items-center">
+          <Skeleton className="h-10 w-64" />
+          <Skeleton className="h-10 w-24" />
         </div>
       </div>
 
-      {/* Search Input Skeleton */}
-      <div className="flex items-center py-4">
-        <Skeleton className="h-10 w-[320px]" />
-      </div>
+      {/* Kanban Board Skeleton */}
+      <div className="flex gap-6 overflow-x-auto pb-4 h-[calc(100vh-18rem)]">
+        {/* Generate 4 columns */}
+        {[...Array(4)].map((_, i) => (
+          <div key={i} className="flex-1 min-w-80">
+            <div className="bg-gray-50 rounded-lg p-4 h-full flex flex-col">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <Skeleton className="h-5 w-32 mb-1" />
+                  <Skeleton className="h-4 w-24" />
+                </div>
+                <Skeleton className="h-6 w-24" />
+              </div>
 
-      {/* Table Skeleton */}
-      <div className="w-full">
-        <div className="border rounded-lg">
-          {/* Table Header */}
-          <div className="border-b">
-            <div className="grid grid-cols-6 gap-4 p-4">
-              {[...Array(6)].map((_, i) => (
-                <Skeleton key={i} className="h-4 w-full" />
-              ))}
-            </div>
-          </div>
-
-          {/* Table Rows */}
-          {[...Array(5)].map((_, i) => (
-            <div key={i} className="border-b">
-              <div className="grid grid-cols-6 gap-4 p-4">
-                {[...Array(6)].map((_, j) => (
-                  <Skeleton key={j} className="h-4 w-full" />
+              <div className="space-y-4 overflow-y-auto flex-grow">
+                {/* Generate 3 cards per column */}
+                {[...Array(3)].map((_, j) => (
+                  <div key={j} className="bg-white rounded-lg p-4 shadow-sm">
+                    <div className="space-y-3">
+                      <div>
+                        <Skeleton className="h-4 w-full mb-1" />
+                        <Skeleton className="h-4 w-1/2 mb-1" />
+                        <Skeleton className="h-4 w-1/4" />
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Skeleton className="h-6 w-6 rounded-full" />
+                        <Skeleton className="h-3 w-32" />
+                      </div>
+                      <Skeleton className="h-3 w-full" />
+                      <Skeleton className="h-2 w-full rounded-full" />
+                      <div className="flex justify-between">
+                        <Skeleton className="h-3 w-24" />
+                        <Skeleton className="h-3 w-16" />
+                      </div>
+                      <Skeleton className="h-5 w-20 rounded-full" />
+                    </div>
+                  </div>
                 ))}
               </div>
             </div>
-          ))}
-        </div>
-
-        {/* Pagination Skeleton */}
-        <div className="mt-4 flex justify-center gap-2">
-          {[...Array(5)].map((_, i) => (
-            <Skeleton key={i} className="h-8 w-8 rounded-lg" />
-          ))}
-        </div>
+          </div>
+        ))}
       </div>
     </div>
   );

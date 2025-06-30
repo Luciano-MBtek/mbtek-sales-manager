@@ -4,16 +4,15 @@ import {
   CircleUser,
   NotepadText,
   Table,
-  UserRoundCheck,
   Box,
   MoreHorizontal,
-  Trash,
   Proportions,
   Handshake,
   PencilRuler,
   Quote,
   MessagesSquare,
   X,
+  Boxes,
 } from "lucide-react";
 import {
   Collapsible,
@@ -89,15 +88,8 @@ const SideBarContactGroup = ({ session }: SideBarContactGroupProps) => {
 
   if (!contact) return null;
 
-  const {
-    id,
-    firstname,
-    lastname,
-    areDeals,
-    hasSchematic,
-    hasQuotes,
-    wantsCompleteSystem,
-  } = contact;
+  const { id, firstname, lastname, areDeals, hasSchematic, hasQuotes } =
+    contact;
 
   const propertiesPath = `/contacts/${id}/properties`;
   const dealsPath = `/contacts/${id}/deals`;
@@ -115,6 +107,11 @@ const SideBarContactGroup = ({ session }: SideBarContactGroupProps) => {
 
   const items = [
     {
+      title: "Complete System",
+      url: `/forms/complete-system/${id}`,
+      icon: Boxes,
+    },
+    {
       title: "Standard Quote",
       url: "/forms/single-product/step-one",
       icon: Box,
@@ -124,15 +121,6 @@ const SideBarContactGroup = ({ session }: SideBarContactGroupProps) => {
       url: "/forms/schematic-request",
       icon: Proportions,
     },
-    /* ...(wantsCompleteSystem
-      ? [
-          {
-            title: "Complete System",
-            url: "/forms/complete-system/step-one",
-            icon: MessagesSquare,
-          },
-        ]
-      : []), */
   ];
 
   const techAgentItems = [
