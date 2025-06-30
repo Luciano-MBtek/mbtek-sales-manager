@@ -3,6 +3,7 @@ import { useRef } from "react";
 import { useRouter } from "next/navigation";
 import ShippingContent from "@/components/Modals/TechnicalInformation/ShippingContent";
 import { patchDealProperties } from "@/actions/contact/patchDealProperties";
+import { Button } from "@/components/ui/button";
 
 interface StepFiveFormProps {
   dealId: string;
@@ -11,7 +12,12 @@ interface StepFiveFormProps {
   billingData: any;
 }
 
-export default function StepFiveForm({ dealId, contactId, initialData, billingData }: StepFiveFormProps) {
+export default function StepFiveForm({
+  dealId,
+  contactId,
+  initialData,
+  billingData,
+}: StepFiveFormProps) {
   const router = useRouter();
   const formRef = useRef<HTMLFormElement | null>(null);
 
@@ -33,12 +39,35 @@ export default function StepFiveForm({ dealId, contactId, initialData, billingDa
     router.push(`/forms/complete-system/${contactId}/deal/${dealId}/review`);
   };
 
+  const handleSubmit = () => {
+    if (formRef.current) {
+      formRef.current.dispatchEvent(
+        new Event("submit", { cancelable: true, bubbles: true })
+      );
+    }
+  };
+
+  const handleBack = () => {
+    router.push(`/forms/complete-system/${contactId}/deal/${dealId}/step-four`);
+  };
+
   return (
-    <ShippingContent
-      onComplete={handleComplete}
-      initialData={initialData}
-      billingData={billingData}
-      formRef={formRef}
-    />
+    <div className="space-y-6">
+      <ShippingContent
+        onComplete={handleComplete}
+        initialData={initialData}
+        billingData={billingData}
+        formRef={formRef}
+      />
+      <div className="flex justify-between mt-8 pt-4 border-t border-gray-200">
+        <Button type="button" variant="outline" onClick={handleBack}>
+          Back
+        </Button>
+
+        <Button type="button" onClick={handleSubmit}>
+          Save & Continue
+        </Button>
+      </div>
+    </div>
   );
 }

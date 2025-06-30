@@ -3,6 +3,7 @@ import { useRef } from "react";
 import { useRouter } from "next/navigation";
 import QuoteBillingContent from "@/components/Modals/TechnicalInformation/QuoteBillingContent";
 import { patchDealProperties } from "@/actions/contact/patchDealProperties";
+import { Button } from "@/components/ui/button";
 
 interface StepFourFormProps {
   dealId: string;
@@ -10,7 +11,11 @@ interface StepFourFormProps {
   initialData: any;
 }
 
-export default function StepFourForm({ dealId, contactId, initialData }: StepFourFormProps) {
+export default function StepFourForm({
+  dealId,
+  contactId,
+  initialData,
+}: StepFourFormProps) {
   const router = useRouter();
   const formRef = useRef<HTMLFormElement | null>(null);
 
@@ -30,11 +35,37 @@ export default function StepFourForm({ dealId, contactId, initialData }: StepFou
     router.push(`/forms/complete-system/${contactId}/deal/${dealId}/step-five`);
   };
 
+  const handleSubmit = () => {
+    if (formRef.current) {
+      formRef.current.dispatchEvent(
+        new Event("submit", { cancelable: true, bubbles: true })
+      );
+    }
+  };
+
+  const handleBack = () => {
+    router.push(
+      `/forms/complete-system/${contactId}/deal/${dealId}/step-three`
+    );
+  };
+
   return (
-    <QuoteBillingContent
-      onComplete={handleComplete}
-      initialData={initialData}
-      formRef={formRef}
-    />
+    <div className="space-y-6">
+      <QuoteBillingContent
+        onComplete={handleComplete}
+        initialData={initialData}
+        formRef={formRef}
+      />
+
+      <div className="flex justify-between mt-8 pt-4 border-t border-gray-200">
+        <Button type="button" variant="outline" onClick={handleBack}>
+          Back
+        </Button>
+
+        <Button type="button" onClick={handleSubmit}>
+          Save & Continue
+        </Button>
+      </div>
+    </div>
   );
 }
