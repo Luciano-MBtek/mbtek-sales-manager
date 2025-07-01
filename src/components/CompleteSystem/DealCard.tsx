@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import {
   calculateDaysRemaining,
   calculateDealProgress,
+  dealStage,
   formatDate,
   getDealStageLabel,
   getInitials,
@@ -46,7 +47,11 @@ export const DealCard = ({ deal, onSelect }: DealCardProps) => {
     deal.properties.closedate
   );
 
-  console.log("Deal:", deal);
+  const hasLineItems = deal.lineItems && deal.lineItems.length > 0;
+
+  const firstMeeting = dealStage["1st meet: Info collection"];
+
+  const isFirstMeeting = deal.properties.dealstage === firstMeeting;
 
   const getProgressColor = (percentage: number) => {
     if (percentage < 30) return "bg-green-500";
@@ -66,7 +71,20 @@ export const DealCard = ({ deal, onSelect }: DealCardProps) => {
     const pathParts = pathname.split("/");
     const contactId = pathParts[pathParts.length - 1];
 
-    // Navigate to the deal page with both contact ID and deal ID
+    // Navigate to the deal page with both contact ID and deal ID, adding the createQuote=true parameter
+    router.push(
+      `/forms/complete-system/${contactId}/deal/${deal.id}?createQuote=true`
+    );
+  };
+
+  const handleInfoCollection = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent the card click event
+
+    // Extract the contact ID from the pathname
+    const pathParts = pathname.split("/");
+    const contactId = pathParts[pathParts.length - 1];
+
+    // Navigate to the deal page without the createQuote parameter
     router.push(`/forms/complete-system/${contactId}/deal/${deal.id}`);
   };
 
@@ -96,12 +114,21 @@ export const DealCard = ({ deal, onSelect }: DealCardProps) => {
                 {deal.properties.dealname}
               </h4>
               <div>
-                <Button
-                  className="bg-mbtek hover:bg-accent hover:text-mbtek"
-                  onClick={handleCreateQuote}
-                >
-                  Create Quote
-                </Button>
+                {isFirstMeeting ? (
+                  <Button
+                    className="bg-mbtek hover:bg-accent hover:text-mbtek"
+                    onClick={handleInfoCollection}
+                  >
+                    Info Collection
+                  </Button>
+                ) : (
+                  <Button
+                    className="bg-mbtek hover:bg-accent hover:text-mbtek"
+                    onClick={handleCreateQuote}
+                  >
+                    Create Quote
+                  </Button>
+                )}
               </div>
             </div>
             <div className="flex items-center justify-between gap-6 mt-2">
@@ -173,7 +200,7 @@ export const DealCard = ({ deal, onSelect }: DealCardProps) => {
                 "data-[state=closed]:slide-out-to-top-2"
               )}
             >
-              {deal.lineItems.length > 0 ? (
+              {hasLineItems ? (
                 <div className="space-y-4 mt-4 w-full">
                   {deal.lineItems.map((lineItem) => (
                     <LineItemCard key={lineItem.id} lineItem={lineItem} />
