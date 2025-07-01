@@ -39,6 +39,7 @@ import MeetingModal from "./MeetingModal";
 import { MeetingLink } from "@/actions/hubspot/meetings/getMeetingsLink";
 import { useMeetingLink } from "@/hooks/useMeetingLink";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useContactStore } from "@/store/contact-store";
 
 // Modal component
 interface QualificationModalProps {
@@ -198,6 +199,11 @@ export function QualificationModal({
 
   const handleResetForm = () => {
     resetData();
+
+    const contactStore = useContactStore.getState();
+    if (contactStore.contact) {
+      contactStore.clear();
+    }
 
     if (formRef.current) {
       formRef.current.reset?.();

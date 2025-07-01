@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Meeting } from "@/types/meetingTypes";
 import { MeetingDetailsDialog } from "@/app/my-meetings/meeting-details-dialog";
 import { CalendarEvent } from "@/types/calendarTypes";
+import { MeetingWithContacts } from "@/actions/searchOwnerMeetings";
 
 function getColorForMeetingOutcome(
   outcome?: string
@@ -28,13 +29,13 @@ function getColorForMeetingOutcome(
 export default function TodayMeetingsClient({
   meetings,
 }: {
-  meetings: Meeting[];
+  meetings: MeetingWithContacts[];
 }) {
   const [open, setOpen] = useState(false);
-  const [selectedMeeting, setSelectedMeeting] = useState<Meeting>();
+  const [selectedMeeting, setSelectedMeeting] = useState<MeetingWithContacts>();
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent>();
 
-  const handleClick = (meeting: Meeting) => {
+  const handleClick = (meeting: MeetingWithContacts) => {
     const defaultDate = new Date("2023-01-01T00:00:00Z");
     const start = meeting.properties.hs_meeting_start_time
       ? new Date(meeting.properties.hs_meeting_start_time)

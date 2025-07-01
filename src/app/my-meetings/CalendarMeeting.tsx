@@ -18,14 +18,17 @@ import { CalendarEvent } from "@/types/calendarTypes";
 import { MeetingDetailsDialog } from "./meeting-details-dialog";
 import { AddMeetingDialog } from "./add-meeting-dialog";
 import { Button } from "@/components/ui/button";
+import { MeetingWithContacts } from "@/actions/searchOwnerMeetings";
 
 type CalendarMeetingProps = {
-  meetings: Meeting[];
+  meetings: MeetingWithContacts[];
 };
 
 const CalendarMeeting = ({ meetings = [] }: CalendarMeetingProps) => {
   const [isClient, setIsClient] = useState(false);
-  const [selectedMeeting, setSelectedMeeting] = useState<Meeting | undefined>();
+  const [selectedMeeting, setSelectedMeeting] = useState<
+    MeetingWithContacts | undefined
+  >();
   const [selectedEvent, setSelectedEvent] = useState<
     CalendarEvent | undefined
   >();
