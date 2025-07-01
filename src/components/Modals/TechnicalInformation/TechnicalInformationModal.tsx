@@ -22,6 +22,7 @@ import { getFilesById } from "@/actions/deals/getFilesById";
 import MeetingModal from "../LeadQualification/MeetingModal";
 import { useMeetingLink } from "@/hooks/useMeetingLink";
 import { Skeleton } from "@/components/ui/skeleton";
+import { dealStage } from "@/app/mydeals/utils";
 import {
   convertFormToUpdateData,
   ZonesInformationFormValues,
@@ -350,6 +351,7 @@ export function TechnicalInformationModal({
         // Meeting step completed - no additional data to save
         await patchDealProperties(dealData.id, {
           last_step: currentStep,
+          dealstage: dealStage["2nd meet: Quote Presentation & Close"],
         });
       }
 
