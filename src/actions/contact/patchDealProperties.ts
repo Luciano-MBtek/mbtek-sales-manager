@@ -1,15 +1,12 @@
 "use server";
 
+import { DealProperties } from "@/types/dealTypes";
 import { revalidateTag } from "next/cache";
 import { revalidatePath } from "next/cache";
 
-type DealProperties = {
-  [key: string]: string | number | boolean;
-};
-
 export async function patchDealProperties(
   dealId: string,
-  properties: DealProperties
+  properties: Partial<DealProperties>
 ): Promise<any> {
   try {
     const apiKey = process.env.HUBSPOT_API_KEY;

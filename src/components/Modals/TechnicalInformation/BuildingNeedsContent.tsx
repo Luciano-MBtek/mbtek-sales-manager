@@ -24,7 +24,7 @@ import { z } from "zod";
 // Validation schema
 const buildingNeedsSchema = z
   .object({
-    yearOfConstruction: z.string().min(1, "Year of construction is required"),
+    yearOfConstruction: z.number().min(1, "Year of construction is required"),
     insulationType: z.string().min(1, "Insulation type is required"),
     specificNeeds: z
       .array(z.string())
@@ -93,7 +93,7 @@ export default function BuildingNeedsContent({
   const form = useForm<BuildingNeedsFormValues>({
     resolver: zodResolver(buildingNeedsSchema),
     defaultValues: {
-      yearOfConstruction: initialData.yearOfConstruction || "",
+      yearOfConstruction: initialData.yearOfConstruction || 0,
       insulationType: initialData.insulationType || "",
       specificNeeds: initialData.specificNeeds || [],
       otherSpecificNeed: initialData.otherSpecificNeed || "",

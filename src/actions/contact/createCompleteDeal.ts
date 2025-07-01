@@ -1,7 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { dealStage } from "@/app/mydeals/utils";
+import { dealStage, pipelineLabels } from "@/app/mydeals/utils";
+import { getDatePlus30Days } from "@/lib/utils";
 export async function createCompleteDeal(
   contactId: string,
   firstName: string,
@@ -19,11 +20,14 @@ export async function createCompleteDeal(
 
     const dealName = `Complete System - ${firstName} ${lastName}`;
 
+    const closeDate = getDatePlus30Days();
+
     const dealProperties = {
       dealname: dealName,
       hubspot_owner_id: ownerId,
-      dealstage: dealStage["1st meet: Info collection"], //   1st meet: Info collection
-      pipeline: "732661879", // Complete - System
+      dealstage: dealStage["1st meet: Info collection"],
+      pipeline: pipelineLabels["Mbtek - Complete System"],
+      closedate: closeDate,
     };
 
     const associations = [

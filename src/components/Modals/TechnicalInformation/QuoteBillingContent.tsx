@@ -18,22 +18,11 @@ import React, {
   useTransition,
 } from "react";
 import { debounce } from "lodash";
-
-interface QuoteBillingFormValues {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  address: string;
-  city: string;
-  state: string;
-  country: string;
-  zipCode: string;
-}
+import { BillingFormValues } from "@/types/complete-system/billingTypes";
 
 interface QuoteBillingContentProps {
-  onComplete: (data: QuoteBillingFormValues) => void;
-  initialData?: Partial<QuoteBillingFormValues>;
+  onComplete: (data: BillingFormValues) => void;
+  initialData?: Partial<BillingFormValues>;
   formRef: React.RefObject<HTMLFormElement | null>;
 }
 
@@ -48,7 +37,7 @@ export default function QuoteBillingContent({
   );
   const [stateFullName, setStateFullName] = useState<string>("");
   const debouncedFnRef = useRef<((value: string) => void) | null>(null);
-  const form = useForm<QuoteBillingFormValues>({
+  const form = useForm<BillingFormValues>({
     defaultValues: {
       firstName: initialData.firstName || "",
       lastName: initialData.lastName || "",
@@ -62,7 +51,7 @@ export default function QuoteBillingContent({
     },
   });
 
-  const handleSubmit = async (data: QuoteBillingFormValues) => {
+  const handleSubmit = async (data: BillingFormValues) => {
     await onComplete(data);
   };
 

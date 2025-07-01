@@ -13,7 +13,7 @@ import BuildingNeedsContent from "./BuildingNeedsContent";
 import ZonesInformationContent from "./ZonesInformationContent";
 import DocumentationContent from "./DocumentationContent";
 import QuoteBillingContent from "./QuoteBillingContent";
-import ShippingContent, { ShippingFormValues } from "./ShippingContent";
+import ShippingContent from "./ShippingContent";
 import { useToast } from "@/components/ui/use-toast";
 import { patchDealProperties } from "@/actions/contact/patchDealProperties";
 import { GetContactById } from "@/actions/getContactById";
@@ -22,8 +22,25 @@ import { getFilesById } from "@/actions/deals/getFilesById";
 import MeetingModal from "../LeadQualification/MeetingModal";
 import { useMeetingLink } from "@/hooks/useMeetingLink";
 import { Skeleton } from "@/components/ui/skeleton";
+import { dealStage } from "@/app/mydeals/utils";
+import {
+  convertFormToUpdateData,
+  ZonesInformationFormValues,
+} from "@/types/complete-system/zoneTypes";
+import {
+  BuildingNeedsFormValues,
+  convertBuildingFormToUpdateData,
+} from "@/types/complete-system/buildingTypes";
+import {
+  BillingFormValues,
+  convertBillingFormToUpdateData,
+} from "@/types/complete-system/billingTypes";
+import {
+  convertShippingFormToUpdateData,
+  ShippingFormValues,
+} from "@/types/complete-system/shippingTypes";
 
-type TechnicalStep =
+export type TechnicalStep =
   | "building-needs"
   | "zones-information"
   | "step-3"
@@ -73,6 +90,7 @@ export function TechnicalInformationModal({
     setIsLoading(true);
     try {
       const deal = await getDealById(dealId, true);
+
       const contactId = deal?.associations?.contacts?.results?.[0]?.id;
       if (contactId) {
         const contact = await GetContactById(contactId, true);
@@ -292,20 +310,18 @@ export function TechnicalInformationModal({
 
       // Update deal in HubSpot based on current step
       if (currentStep === "building-needs") {
-        await patchDealProperties(dealData.id, {
-          year_of_construction: Number(stepData.yearOfConstruction),
-          insulation_type: stepData.insulationType,
-          specific_needs: stepData.specificNeeds.join(";"),
-          other_specific_need: stepData.otherSpecificNeed || "",
-          installation_responsible: stepData.installationResponsible,
-          last_step: STEPS[currentStepIndex + 1].id,
-        });
+        await patchDealProperties(
+          dealData.id,
+          convertBuildingFormToUpdateData(
+            stepData as BuildingNeedsFormValues,
+            STEPS[currentStepIndex + 1].id
+          )
+        );
       } else if (currentStep === "zones-information") {
-        const zonesData = {
-          number_of_zones: stepData.numberOfZones,
-          zones_configuration: JSON.stringify(stepData.zones),
-          last_step: STEPS[currentStepIndex + 1].id,
-        };
+        const zonesData = convertFormToUpdateData(
+          stepData as ZonesInformationFormValues,
+          STEPS[currentStepIndex + 1].id
+        );
 
         await patchDealProperties(dealData.id, zonesData);
       } else if (currentStep === "step-3") {
@@ -320,39 +336,22 @@ export function TechnicalInformationModal({
           last_step: STEPS[currentStepIndex + 1].id,
         });
       } else if (currentStep === "step-4") {
-        const billingData = {
-          billing_zip: stepData.zipCode,
-          billing_first_name: stepData.firstName,
-          billing_last_name: stepData.lastName,
-          billing_email: stepData.email,
-          billing_phone: stepData.phone,
-          billing_address: stepData.address,
-          billing_city: stepData.city,
-          billing_state: stepData.state,
-          billing_country: stepData.country,
-          last_step: STEPS[currentStepIndex + 1].id,
-        };
+        const billingData = convertBillingFormToUpdateData(
+          stepData as BillingFormValues,
+          STEPS[currentStepIndex + 1].id
+        );
         await patchDealProperties(dealData.id, billingData);
       } else if (currentStep === "step-5") {
-        const shippingData = {
-          shipping_first_name: stepData.shipping_first_name,
-          shipping_last_name: stepData.shipping_last_name,
-          shipping_email: stepData.shipping_email,
-          shipping_phone: stepData.shipping_phone,
-          shipping_address: stepData.shipping_address,
-          shipping_city: stepData.shipping_city,
-          shipping_country: stepData.shipping_country,
-          shipping_province: stepData.shipping_province,
-          shipping_zip_code: stepData.shipping_zip_code,
-          delivery_type: stepData.delivery_type,
-          dropoff_condition: stepData.dropoff_condition,
-          last_step: STEPS[currentStepIndex + 1].id,
-        };
+        const shippingData = convertShippingFormToUpdateData(
+          stepData as ShippingFormValues,
+          STEPS[currentStepIndex + 1].id
+        );
         await patchDealProperties(dealData.id, shippingData);
       } else if (currentStep === "meeting") {
         // Meeting step completed - no additional data to save
         await patchDealProperties(dealData.id, {
           last_step: currentStep,
+          dealstage: dealStage["2nd meet: Quote Presentation & Close"],
         });
       }
 

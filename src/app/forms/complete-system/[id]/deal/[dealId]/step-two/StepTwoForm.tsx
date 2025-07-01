@@ -4,11 +4,15 @@ import { useRouter } from "next/navigation";
 import ZonesInformationContent from "@/components/Modals/TechnicalInformation/ZonesInformationContent";
 import { patchDealProperties } from "@/actions/contact/patchDealProperties";
 import { Button } from "@/components/ui/button";
+import {
+  convertFormToUpdateData,
+  ZonesInformationFormValues,
+} from "@/types/complete-system/zoneTypes";
 
 interface StepTwoFormProps {
   dealId: string;
   contactId: string;
-  initialData: any;
+  initialData: Partial<ZonesInformationFormValues>;
 }
 
 export default function StepTwoForm({
@@ -19,12 +23,8 @@ export default function StepTwoForm({
   const router = useRouter();
   const formRef = useRef<HTMLFormElement | null>(null);
 
-  const handleComplete = async (data: any) => {
-    await patchDealProperties(dealId, {
-      number_of_zones: data.numberOfZones,
-      zones_configuration: JSON.stringify(data.zones),
-      last_step: "step-3",
-    });
+  const handleComplete = async (data: ZonesInformationFormValues) => {
+    await patchDealProperties(dealId, convertFormToUpdateData(data, "step-3"));
     router.push(
       `/forms/complete-system/${contactId}/deal/${dealId}/step-three`
     );

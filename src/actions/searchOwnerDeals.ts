@@ -1,6 +1,7 @@
 "use server";
 import { Deal, Contact } from "@/app/mydeals/deals";
 import { getHubspotOwnerIdSession } from "./user/getHubspotOwnerId";
+import { dealStage, pipelineLabels } from "@/app/mydeals/utils";
 
 const HS_TOKEN = process.env.HUBSPOT_API_KEY!;
 const HS_HEADERS = {
@@ -34,19 +35,19 @@ async function fetchDealsWithProperties(ownerId: string): Promise<Deal[]> {
                 {
                   propertyName: "pipeline",
                   operator: "NEQ",
-                  value: "75e28846-ad0d-4be2-a027-5e1da6590b98",
+                  value: pipelineLabels["Shopify prior (June 2025)"],
                 },
                 {
                   propertyName: "dealstage",
                   operator: "NEQ",
-                  value: "1067319843",
+                  value: dealStage["Closed Won"],
                 },
                 {
                   propertyName: "dealstage",
                   operator: "NEQ",
-                  value: "1067319844",
+                  value: dealStage["Closed Lost"],
                 },
-                //Avoid retrieve deals from old pipeline (Shopify prior (June 2025))
+                //Avoid retrieve deals from old pipeline (Shopify prior (June 2025)) , lost and won.
               ],
             },
           ],
@@ -185,6 +186,6 @@ export async function searchOwnerDeals(ownerId: string): Promise<Deal[]> {
 
 export async function getDealsByUserId() {
   const userId = await getHubspotOwnerIdSession();
-  //const userId = "80179905"; // Brian test
+  //const userId = "79900767"; // Brian test
   return searchOwnerDeals(userId);
 }
