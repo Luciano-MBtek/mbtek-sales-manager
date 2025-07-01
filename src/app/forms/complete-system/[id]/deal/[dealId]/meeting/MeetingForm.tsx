@@ -5,6 +5,7 @@ import { useMeetingLink } from "@/hooks/useMeetingLink";
 import MeetingModal from "@/components/Modals/LeadQualification/MeetingModal";
 import { Skeleton } from "@/components/ui/skeleton";
 import { patchDealProperties } from "@/actions/contact/patchDealProperties";
+import { dealStage } from "@/app/mydeals/utils";
 
 interface MeetingFormProps {
   dealId: string;
@@ -43,7 +44,10 @@ export default function MeetingForm({
 
   const handleComplete = async () => {
     try {
-      await patchDealProperties(dealId, { last_step: "meeting" });
+      await patchDealProperties(dealId, {
+        last_step: "meeting",
+        dealstage: dealStage["2nd meet: Quote Presentation & Close"],
+      });
     } catch (error) {
       console.error("Error updating deal after meeting:", error);
     }
