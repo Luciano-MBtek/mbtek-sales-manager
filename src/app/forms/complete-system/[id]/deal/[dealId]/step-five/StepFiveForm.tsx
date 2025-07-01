@@ -31,7 +31,7 @@ export default function StepFiveForm({
       dealId,
       convertShippingFormToUpdateData(data, "meeting")
     );
-    router.push(`/forms/complete-system/${contactId}/deal/${dealId}/review`);
+    router.push(`/forms/complete-system/${contactId}/deal/${dealId}/meeting`);
   };
 
   const handleSubmit = () => {
