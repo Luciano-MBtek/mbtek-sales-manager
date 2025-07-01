@@ -12,7 +12,7 @@ export default async function Page({ params }: Props) {
   const contactData = await GetContactById(id, true);
 
   const initialData = {
-    yearOfConstruction: dealData?.properties?.year_of_construction || "",
+    yearOfConstruction: dealData?.properties?.year_of_construction || 0,
     insulationType: dealData?.properties?.insulation_type || "",
     specificNeeds:
       dealData?.properties?.specific_needs?.split(";").filter(Boolean) || [],

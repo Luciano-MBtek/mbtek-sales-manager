@@ -24,6 +24,8 @@ import React, {
   useTransition,
 } from "react";
 import { debounce } from "lodash";
+import { BillingFormValues } from "@/types/complete-system/billingTypes";
+import { ShippingFormValues } from "@/types/complete-system/shippingTypes";
 
 const deliveryTypes = [
   { value: "residential", label: "Residential (requires a liftgate)" },
@@ -36,25 +38,10 @@ const dropoffConditions = [
   { value: "van_only", label: "Access for a Delivery Van only" },
 ];
 
-export interface ShippingFormValues {
-  sameAsBilling: boolean;
-  delivery_type: string;
-  dropoff_condition: string;
-  shipping_first_name: string;
-  shipping_last_name: string;
-  shipping_email: string;
-  shipping_phone: string;
-  shipping_address: string;
-  shipping_city: string;
-  shipping_province: string;
-  shipping_country: string;
-  shipping_zip_code: string;
-}
-
 interface ShippingContentProps {
   onComplete: (data: ShippingFormValues) => void;
   initialData?: Partial<ShippingFormValues>;
-  billingData?: any;
+  billingData?: Partial<BillingFormValues>;
   formRef: React.RefObject<HTMLFormElement | null>;
 }
 
@@ -163,10 +150,7 @@ export default function ShippingContent({
 
   useEffect(() => {
     const subscription = form.watch((value, { name }) => {
-      if (
-        name === "shipping_zip_code" &&
-        !form.getValues("sameAsBilling") 
-      ) {
+      if (name === "shipping_zip_code" && !form.getValues("sameAsBilling")) {
         debouncedZipCodeChange(value.shipping_zip_code || "");
       }
     });

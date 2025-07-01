@@ -206,16 +206,6 @@ export interface FormErrors {
   [key: string]: string | undefined;
 }
 
-export enum completeSystemRoutes {
-  GENERAL_SYSTEM_DATA = "/forms/complete-system/step-one",
-  MARKET_DATA = "/forms/complete-system/step-two",
-  BUILDING_DATA = "/forms/complete-system/step-three",
-  PROJECT_PLANS = "/forms/complete-system/step-four",
-  SHIPPING_DATA = "/forms/complete-system/step-five",
-  BOOKING_DATA = "/forms/complete-system/step-six",
-  REVIEW_COMPLETE_SYSTEM = "/forms/complete-system/review",
-}
-
 export enum singleProductRoutes {
   SHIPPING_DATA = "/forms/single-product/step-one",
   PRODUCT_DATA = "/forms/single-product/step-two",
