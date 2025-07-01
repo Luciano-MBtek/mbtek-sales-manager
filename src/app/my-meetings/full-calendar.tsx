@@ -81,8 +81,6 @@ const Calendar = ({
   const [date, setDate] = useState(defaultDate);
   const [events, setEvents] = useState<CalendarEvent[]>(defaultEvents);
 
-  console.log("Events:", events);
-
   const changeView = (view: View) => {
     setView(view);
     onChangeView?.(view);
