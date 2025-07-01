@@ -1,7 +1,8 @@
 "use server";
 
-import { getDatePlus30Days } from "@/lib/utils";
+import { getDatePlus7Days } from "@/lib/utils";
 import { revalidatePath } from "next/cache";
+import { dealStage, pipelineLabels } from "@/app/mydeals/utils";
 
 export async function createDeal(
   contactId: string,
@@ -21,13 +22,13 @@ export async function createDeal(
     }
 
     const dealName = `Standard quote ${firstName} ${lastName}`;
-    const closeDate = getDatePlus30Days();
+    const closeDate = getDatePlus7Days();
 
     const dealProperties = {
       dealname: dealName,
       hubspot_owner_id: ownerId,
-      dealstage: "1067319842", //   Quote sent (Mbtek - Single Product)
-      pipeline: "732682097", // Mbtek - Single Product
+      dealstage: dealStage["Quote sent"],
+      pipeline: pipelineLabels["Mbtek - Instant Quote"],
       amount: amount,
       shipping_cost: shippingCost,
       closedate: closeDate,

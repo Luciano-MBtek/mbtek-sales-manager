@@ -26,6 +26,12 @@ export function getDatePlus30Days(): string {
 
   return futureDate.toISOString().split("T")[0];
 }
+export function getDatePlus7Days(): string {
+  const today = new Date();
+  const futureDate = new Date(today.setDate(today.getDate() + 7));
+
+  return futureDate.toISOString().split("T")[0];
+}
 
 export function getDate(): string {
   const today = new Date();

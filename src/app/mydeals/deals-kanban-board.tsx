@@ -22,7 +22,6 @@ import {
 } from "./utils";
 import { Deal } from "./deals";
 import { DealCard } from "./deal-kanban-card";
-import DealModal from "@/components/Modals/Deal/DealModal";
 
 interface DealsKanbanBoardProps {
   deals: Deal[];
