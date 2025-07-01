@@ -16,12 +16,16 @@ interface DealCardOptions {
   contactId: string;
   dealId: string;
   dealPipeline: string;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 export function DealCardOptions({
   contactId,
   dealId,
   dealPipeline,
+  open,
+  onOpenChange,
 }: DealCardOptions) {
   const [isDealModalOpen, setIsDealModalOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -30,18 +34,23 @@ export function DealCardOptions({
   const router = useRouter();
 
   const handleOpenDealModal = () => {
-    setIsDropdownOpen(false);
+    const closeMenu = onOpenChange ?? setIsDropdownOpen;
+    closeMenu(false);
     setIsDealModalOpen(true);
   };
 
   const handleOpenTechnicalInfoModal = () => {
-    setIsDropdownOpen(false);
+    const closeMenu = onOpenChange ?? setIsDropdownOpen;
+    closeMenu(false);
     setIsTechnicalInfoModalOpen(true);
   };
 
   return (
     <>
-      <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
+      <DropdownMenu
+        open={open !== undefined ? open : isDropdownOpen}
+        onOpenChange={onOpenChange ?? setIsDropdownOpen}
+      >
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="h-8 w-8 p-0">
             <span className="sr-only">Open menu</span>

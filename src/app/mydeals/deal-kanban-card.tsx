@@ -1,5 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Deal } from "./deals";
+import { useState } from "react";
 import {
   calculateDaysRemaining,
   calculateDealProgress,
@@ -15,10 +16,9 @@ import { DealCardOptions } from "./components/DealCardOptions";
 
 interface DealCardProps {
   deal: Deal;
-  onSelect?: (id: string) => void;
 }
 
-export const DealCard = ({ deal, onSelect }: DealCardProps) => {
+export const DealCard = ({ deal }: DealCardProps) => {
   const contact = deal.contacts[0];
   const dealPipeline = deal.properties.pipeline;
 
@@ -34,20 +34,21 @@ export const DealCard = ({ deal, onSelect }: DealCardProps) => {
     return "bg-red-500";
   };
 
-  const handleSelect = () => {
-    onSelect?.(deal.id);
+  const [optionsOpen, setOptionsOpen] = useState(false);
+  const handleCardClick = () => {
+    setOptionsOpen(true);
   };
 
   return (
     <Card
       className="mb-3 hover:shadow-md transition-shadow cursor-pointer"
-      onClick={handleSelect}
+      onClick={handleCardClick}
       tabIndex={0}
       role="button"
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
-          handleSelect();
+          handleCardClick();
         }
       }}
     >
@@ -62,6 +63,8 @@ export const DealCard = ({ deal, onSelect }: DealCardProps) => {
                 contactId={contact.id}
                 dealId={deal.id}
                 dealPipeline={dealPipeline}
+                open={optionsOpen}
+                onOpenChange={setOptionsOpen}
               />
             </div>
             <div className="flex items-center gap-1 mt-1">

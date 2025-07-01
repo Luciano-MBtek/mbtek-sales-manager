@@ -53,8 +53,6 @@ const DealsKanbanBoard = ({ deals }: DealsKanbanBoardProps) => {
     useState<string>(mostDealsPipeline);
   const [timeFilter, setTimeFilter] = useState<string>("all");
   const [viewMode, setViewMode] = useState<"column" | "list">("column");
-  const [selectedDealId, setSelectedDealId] = useState<string | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Define the order of deal stages
   const dealStageOrder = useMemo(() => {
@@ -301,26 +299,10 @@ const DealsKanbanBoard = ({ deals }: DealsKanbanBoardProps) => {
       {viewMode === "list" && (
         <div className="grid gap-4">
           {filteredDeals.map((deal) => (
-            <DealCard
-              key={deal.id}
-              deal={deal}
-              onSelect={(id) => {
-                setSelectedDealId(id);
-                setIsModalOpen(true);
-              }}
-            />
+            <DealCard key={deal.id} deal={deal} />
           ))}
         </div>
       )}
-
-      {/* <DealModal
-        dealId={selectedDealId}
-        isOpen={isModalOpen}
-        onClose={() => {
-          setIsModalOpen(false);
-          setSelectedDealId(null);
-        }}
-      /> */}
     </div>
   );
 };
