@@ -84,7 +84,7 @@ async function getDealsByContactId(contactId: string): Promise<string[]> {
 
 async function getDealDetails(dealId: string): Promise<Deal | null> {
   const apiKey = process.env.HUBSPOT_API_KEY;
-  const url = `https://api.hubapi.com/crm/v3/objects/deals/${dealId}?properties=dealname,createdate,amount,shipping_cost,dealstage,pipeline,closedate,shopify_draft_order_url`;
+  const url = `https://api.hubapi.com/crm/v3/objects/deals/${dealId}?properties=dealname,createdate,amount,shipping_cost,dealstage,pipeline,closedate,shopify_draft_order_url,split_payment`;
 
   try {
     const response = await fetch(url, {

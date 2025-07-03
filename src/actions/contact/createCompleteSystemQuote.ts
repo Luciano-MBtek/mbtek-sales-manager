@@ -6,7 +6,7 @@ import { createAIDescription } from "@/actions/openAi/createAIresponse";
 import { getHubspotOwnerId } from "../getOwnerId";
 import { getOwnerExtraData } from "../getOwnerExtraData";
 import { buildSimpleQuote } from "../quote/buildSimpleQuote";
-import { getDate } from "@/lib/utils";
+import { getDate, sleep } from "@/lib/utils";
 import { fetchShopifyVariants } from "./fetchShopifyVariants";
 import { createDraftOrder } from "./createDraftOrder";
 import { createDownpayCart } from "./createDownpayCart";
@@ -202,8 +202,6 @@ export const createCompleteSystemQuote = async ({
 
     const dealLineItems = await getDealLineItems(dealId, true);
 
-    console.log("Deal Line Items:", dealLineItems);
-
     onProgress?.("Building quote...", 95);
     // Build the quote with the payment URL
     const quoteBuilded = await buildSimpleQuote(
@@ -220,6 +218,8 @@ export const createCompleteSystemQuote = async ({
       true,
       dealLineItems
     );
+
+    sleep(3000);
 
     return {
       success: true,

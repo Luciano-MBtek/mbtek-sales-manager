@@ -8,7 +8,7 @@ import { ExternalLink, Download, Trash, Edit } from "lucide-react";
 import { Quote } from "@/types/quoteTypes";
 import { toast } from "./ui/use-toast";
 import { Quote as QuoteIcon } from "lucide-react";
-import { deleteQuote } from "@/actions/quote/deleteQuote";
+import { deleteQuoteWithDeal } from "@/actions/quote/deleteQuoteWithDeal";
 import Shopify from "./Icons/Shopify";
 import TemplateModal from "./Email/TemplateModal";
 import { useRouter, usePathname } from "next/navigation";
@@ -23,7 +23,7 @@ export function QuoteItem({ quote }: { quote: Quote }) {
   const deleteQuoteAndDeal = (id: string) => {
     setIsPending(true);
     startTransition(() => {
-      deleteQuote(id)
+      deleteQuoteWithDeal(id)
         .then(() => {
           toast({
             title: `Quote deleted`,

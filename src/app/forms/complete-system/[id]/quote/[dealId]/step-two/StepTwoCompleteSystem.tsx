@@ -148,6 +148,19 @@ const StepTwoCompleteSystem = ({
     shipmentCost: selectedShipment?.costLoaded || null,
   });
 
+  const contactData = {
+    firstname: contact?.firstname || "",
+    lastname: contact?.lastname || "",
+    email: contact?.email || "",
+    phone: contact?.phone || "",
+    country_us_ca: contact?.country || "",
+    city: contact?.city || "",
+    zip: contact?.zip || "",
+    address: contact?.address || "",
+    state_usa: contact?.state || "",
+    province: contact?.province || "",
+  };
+
   useEffect(() => {
     setFormData((prevData) => ({
       ...prevData,
@@ -200,6 +213,11 @@ const StepTwoCompleteSystem = ({
               quoteLineItems,
               newMainProduct,
               products,
+              splitPayment,
+              purchaseOptionId,
+              contactData,
+              shipmentCost: selectedShipment?.costLoaded || null,
+              dealOwnerId,
             });
           } else {
             handleFormSubmit(e, formData);
@@ -399,10 +417,7 @@ const StepTwoCompleteSystem = ({
               <Button
                 onClick={() => {
                   if (redirectOptions?.redirect1) {
-                    window.open(
-                      "http://" + redirectOptions.redirect1,
-                      "_blank"
-                    );
+                    window.open(redirectOptions.redirect1, "_blank");
                   }
                 }}
               >

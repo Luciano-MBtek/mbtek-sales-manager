@@ -9,7 +9,10 @@ const quoteExpiration = getDatePlus30Days();
 
 type LineItem = {
   id: string;
-  properties: Object;
+  properties: {
+    hs_object_id?: string;
+    [key: string]: any;
+  };
   createdAt: string;
   updatedAt: string;
   archived: boolean;
@@ -41,7 +44,7 @@ export async function buildSimpleQuote(
     const lineItemAssociations = lineItems?.length
       ? lineItems.map((item) => ({
           to: {
-            id: item.id,
+            id: item.id || item.properties.hs_object_id,
           },
           types: [
             {
