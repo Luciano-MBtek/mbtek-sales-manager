@@ -112,6 +112,11 @@ const SideBarContactGroup = ({ session }: SideBarContactGroupProps) => {
       icon: Boxes,
     },
     {
+      title: "Quick quote",
+      url: `/forms/quick-quote/${id}`,
+      icon: Box,
+    },
+    {
       title: "Standard Quote",
       url: "/forms/single-product/step-one",
       icon: Box,
