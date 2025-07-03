@@ -26,7 +26,8 @@ export async function buildSimpleQuote(
   ownerPhone: string,
   ownerJob: string,
   cartOrderUrl: string,
-  lineItems: LineItem[]
+  completeSystem: boolean,
+  lineItems?: LineItem[]
 ): Promise<any> {
   try {
     const apiKey = process.env.HUBSPOT_API_KEY;
@@ -36,20 +37,23 @@ export async function buildSimpleQuote(
         "HUBSPOT_API_KEY is not defined in the environment variables."
       );
     }
-    const lineItemAssociations = lineItems.map((item) => ({
-      to: {
-        id: item.id,
-      },
-      types: [
-        {
-          associationCategory: "HUBSPOT_DEFINED",
-          associationTypeId: 67,
-        },
-      ],
-    }));
+
+    const lineItemAssociations = lineItems?.length
+      ? lineItems.map((item) => ({
+          to: {
+            id: item.id,
+          },
+          types: [
+            {
+              associationCategory: "HUBSPOT_DEFINED",
+              associationTypeId: 67,
+            },
+          ],
+        }))
+      : [];
 
     const quoteProperties = {
-      hs_title: `${firstName + " " + lastName} - Standard quote`,
+      hs_title: `${firstName + " " + lastName} -  ${completeSystem ? "Complete System" : "Standard quote"}`,
       hs_expiration_date: quoteExpiration,
       hs_status: "APPROVED",
       hs_sender_email: ownerEmail,
@@ -95,7 +99,7 @@ export async function buildSimpleQuote(
           },
         ],
       },
-      ...lineItemAssociations,
+      ...(lineItems?.length ? lineItemAssociations : []),
     ];
 
     const body = {

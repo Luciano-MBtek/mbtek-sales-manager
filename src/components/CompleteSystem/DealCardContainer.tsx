@@ -3,9 +3,13 @@ import { DealWithLineItems } from "@/types/dealTypes";
 
 interface DealCardContainerProps {
   deals: DealWithLineItems[];
+  quotesMap: Map<string, string[]>;
 }
 
-export const DealCardContainer = ({ deals }: DealCardContainerProps) => {
+export const DealCardContainer = ({
+  deals,
+  quotesMap,
+}: DealCardContainerProps) => {
   if (!deals || deals.length === 0) {
     return (
       <div className="p-4 text-center text-muted-foreground">
@@ -15,9 +19,15 @@ export const DealCardContainer = ({ deals }: DealCardContainerProps) => {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
+    <div className="flex flex-col items-center">
       {deals.map((deal) => (
-        <DealCard key={deal.id} deal={deal} />
+        <DealCard
+          key={deal.id}
+          deal={deal}
+          hasQuote={
+            quotesMap.has(deal.id) && quotesMap.get(deal.id)!.length > 0
+          }
+        />
       ))}
     </div>
   );

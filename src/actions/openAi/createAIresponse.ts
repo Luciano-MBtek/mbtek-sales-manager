@@ -7,7 +7,7 @@ const openai = new OpenAI({
   apiKey: apiKey,
 });
 
-export async function createSingleProductData(description: string) {
+export async function createAIDescription(description: string) {
   try {
     const thread = await openai.beta.threads.createAndRun({
       assistant_id: assistantID!,
@@ -22,13 +22,11 @@ export async function createSingleProductData(description: string) {
       },
     });
 
-    // Esperar a que el asistente complete la tarea
     let runStatus = await openai.beta.threads.runs.retrieve(
       thread.thread_id,
       thread.id
     );
 
-    // Esperar hasta que el run esté completado
     while (runStatus.status !== "completed") {
       await new Promise((resolve) => setTimeout(resolve, 1000));
       runStatus = await openai.beta.threads.runs.retrieve(
@@ -45,7 +43,7 @@ export async function createSingleProductData(description: string) {
     }
     throw new Error("Expected text response from assistant");
   } catch (error) {
-    console.error("Error in createSingleProductData:", error);
+    console.error("Error in create AI description for quote:", error);
     throw error;
   }
 }

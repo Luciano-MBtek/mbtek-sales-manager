@@ -236,12 +236,22 @@ const shippingData = {
   },
 };
 
+const quoteProperties = [
+  {
+    main_product_sku: {
+      friendlyName: "Main Product Sku",
+      step: 4,
+    },
+  },
+];
+
 export const propertyNameMap: Record<
   string,
   { friendlyName: string; step: number }
 > = {
   ...leadQualificationProperties[0],
   ...locationData[0],
+  ...quoteProperties[0],
   ...shippingData,
   /* installation_type: {
     friendlyName: "Installation type:",
