@@ -102,9 +102,22 @@ export const DealCard = ({ deal, hasQuote, onSelect }: DealCardProps) => {
         <div className="space-y-3 w-full">
           <div>
             <div className="flex items-center justify-between">
-              <h4 className="font-medium text-sm line-clamp-2">
-                {deal.properties.dealname}
-              </h4>
+              <div className="flex flex-col gap-2">
+                <h4 className="font-medium text-sm line-clamp-2">
+                  {deal.properties.dealname}
+                </h4>
+                <div>
+                  {deal.properties.split_payment === "Yes" ? (
+                    <Badge className="ml-2 bg-green-100 text-green-800 hover:bg-green-200 border-green-200">
+                      Split Payment: {deal.properties.split_payment}
+                    </Badge>
+                  ) : (
+                    <Badge className="ml-2 bg-blue-100 text-blue-800 hover:bg-blue-200 border-blue-200">
+                      Single Payment
+                    </Badge>
+                  )}
+                </div>
+              </div>
               <div>
                 {isFirstMeeting ? (
                   <Button

@@ -1,5 +1,7 @@
 "use server";
 
+import { revalidateTag } from "next/cache";
+
 export async function deleteLineItems(lineItemIds: string[]) {
   try {
     const apiKey = process.env.HUBSPOT_API_KEY;
@@ -26,6 +28,8 @@ export async function deleteLineItems(lineItemIds: string[]) {
     });
 
     const deleted = await Promise.all(deletePromises);
+
+    revalidateTag("contact-deals");
 
     return {
       deleted: deleted.length,

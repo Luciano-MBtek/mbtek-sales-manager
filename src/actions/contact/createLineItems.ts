@@ -1,6 +1,7 @@
 "use server";
 
 import { Product } from "@/types";
+import { revalidateTag } from "next/cache";
 
 export async function createLineItems(dealId: string, products: Product[]) {
   const mapped = products.map((product) => ({
@@ -47,6 +48,8 @@ export async function createLineItems(dealId: string, products: Product[]) {
         `HubSpot API error: ${response.status} - ${response.statusText}`
       );
     }
+
+    revalidateTag("contact-deals");
 
     const data = await response.json();
 
