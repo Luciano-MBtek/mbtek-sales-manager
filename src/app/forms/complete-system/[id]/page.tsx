@@ -3,6 +3,7 @@ import PageHeader from "@/components/PageHeader";
 import React from "react";
 import { pipelineLabels } from "@/app/mydeals/utils";
 import { DealCardContainer } from "@/components/CompleteSystem/DealCardContainer";
+import { getQuotesByDealIdBatch } from "@/actions/quote/getDealQuoteAssociations";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -14,6 +15,9 @@ const CompleteSystemPage = async (props: Props) => {
   const { id } = params;
 
   const deals = await getAllDealsDataWithLineItems(id);
+
+  const dealIds = deals.map((deal) => deal.id);
+  const quotesMap = await getQuotesByDealIdBatch(dealIds);
 
   const completeSystemPipeline = pipelineLabels["Mbtek - Complete System"];
 
@@ -34,7 +38,12 @@ const CompleteSystemPage = async (props: Props) => {
         }
       />
       <div className="">
-        {hasCompleteSystem && <DealCardContainer deals={completeSystemDeals} />}
+        {hasCompleteSystem && (
+          <DealCardContainer
+            deals={completeSystemDeals}
+            quotesMap={quotesMap}
+          />
+        )}
       </div>
     </div>
   );

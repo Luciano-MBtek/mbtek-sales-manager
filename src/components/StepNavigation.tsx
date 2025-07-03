@@ -50,7 +50,7 @@ export default function StepNavigation({ steps }: StepNavigationProps<string>) {
   };
 
   return (
-    <div className="mb-12 lg:mb-0 min-w-80 p-4 bg-white rounded-lg shadow-md">
+    <div className="mb-12 lg:mb-0 min-w-60 p-4 bg-white rounded-lg shadow-md">
       <Link
         href={getStepLink(steps[currentStep - 1] || steps[0])}
         className="mb-4 inline-flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-gray-800 transition-colors duration-200 lg:mb-8"

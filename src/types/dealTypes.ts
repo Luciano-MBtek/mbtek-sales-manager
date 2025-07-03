@@ -39,6 +39,10 @@ export interface DealProperties {
   shipping_zip_code?: string;
   delivery_type?: string;
   dropoff_condition?: string;
+  main_product?: string;
+  split_payment?: string;
+  purchase_option_id?: string;
+  hubspot_owner_id?: string;
 }
 
 export interface Deal {

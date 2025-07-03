@@ -1,13 +1,6 @@
 "use client";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  Calendar,
-  DollarSign,
-  Truck,
-  ChevronDown,
-  ChevronUp,
-} from "lucide-react";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Calendar, DollarSign, ChevronDown, ChevronUp } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
   calculateDaysRemaining,
@@ -15,13 +8,12 @@ import {
   dealStage,
   formatDate,
   getDealStageLabel,
-  getInitials,
 } from "@/app/mydeals/utils";
 import { formatCurrency } from "@/lib/utils";
 import { DealWithLineItems } from "@/types/dealTypes";
 import { Separator } from "@/components/ui/separator";
 import LineItemCard from "@/components/LineItemCard";
-import { useState } from "react";
+import { useState } from "react"; // Remove useEffect
 import { Button } from "@/components/ui/button";
 import {
   Collapsible,
@@ -33,11 +25,13 @@ import { useRouter, usePathname } from "next/navigation";
 
 interface DealCardProps {
   deal: DealWithLineItems;
+  hasQuote: boolean; // Add this prop
   onSelect?: (id: string) => void;
 }
 
-export const DealCard = ({ deal, onSelect }: DealCardProps) => {
+export const DealCard = ({ deal, hasQuote, onSelect }: DealCardProps) => {
   const [isOpen, setIsOpen] = useState(false);
+
   const router = useRouter();
   const pathname = usePathname();
 
@@ -72,9 +66,7 @@ export const DealCard = ({ deal, onSelect }: DealCardProps) => {
     const contactId = pathParts[pathParts.length - 1];
 
     // Navigate to the deal page with both contact ID and deal ID, adding the createQuote=true parameter
-    router.push(
-      `/forms/complete-system/${contactId}/deal/${deal.id}?createQuote=true`
-    );
+    router.push(`/forms/complete-system/${contactId}/quote/${deal.id}`);
   };
 
   const handleInfoCollection = (e: React.MouseEvent) => {
@@ -95,7 +87,7 @@ export const DealCard = ({ deal, onSelect }: DealCardProps) => {
 
   return (
     <Card
-      className="mb-3 hover:shadow-md transition-shadow cursor-pointer w-full"
+      className="mb-3 hover:shadow-md transition-shadow cursor-pointer w-[70%]"
       onClick={handleSelect}
       tabIndex={0}
       role="button"
@@ -116,7 +108,7 @@ export const DealCard = ({ deal, onSelect }: DealCardProps) => {
               <div>
                 {isFirstMeeting ? (
                   <Button
-                    className="bg-mbtek hover:bg-accent hover:text-mbtek"
+                    className="bg-color-3 hover:bg-accent hover:text-color-3"
                     onClick={handleInfoCollection}
                   >
                     Info Collection
@@ -126,7 +118,7 @@ export const DealCard = ({ deal, onSelect }: DealCardProps) => {
                     className="bg-mbtek hover:bg-accent hover:text-mbtek"
                     onClick={handleCreateQuote}
                   >
-                    Create Quote
+                    {hasQuote ? "Update Quote" : "Create Quote"}
                   </Button>
                 )}
               </div>
@@ -149,7 +141,7 @@ export const DealCard = ({ deal, onSelect }: DealCardProps) => {
           </div>
 
           {/* Progress Bar */}
-          <div className="space-y-1">
+          <div className="space-y-1 max-w-[300px]">
             <div className="flex justify-between text-xs"></div>
             <div className="relative h-2 w-full overflow-hidden rounded-full bg-accent">
               <div
@@ -178,7 +170,10 @@ export const DealCard = ({ deal, onSelect }: DealCardProps) => {
             className="w-full"
           >
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-semibold">Items:</h3>
+              <h3 className="text-sm font-semibold">
+                {deal.lineItems.length} Item
+                {deal.lineItems.length > 1 ? "s" : ""}:
+              </h3>
               <CollapsibleTrigger asChild>
                 <Button variant="ghost" size="sm" className="p-1 h-6">
                   {isOpen ? (

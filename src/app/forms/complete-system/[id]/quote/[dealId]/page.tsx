@@ -4,12 +4,12 @@ type Props = {
   params: Promise<{ id: string; dealId: string }>;
 };
 
-const DealDetailPage = async ({ params }: Props) => {
+const QuoteCreationPage = async ({ params }: Props) => {
   const { dealId, id } = await params;
 
-  const stepOne = `/forms/complete-system/${id}/deal/${dealId}/step-one`;
+  const stepOne = `/forms/complete-system/${id}/quote/${dealId}/step-one`;
 
   redirect(stepOne);
 };
 
-export default DealDetailPage;
+export default QuoteCreationPage;

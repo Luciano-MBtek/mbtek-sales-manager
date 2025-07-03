@@ -47,8 +47,8 @@ export default async function DealsLayout({ children, params }: Props) {
   return (
     <div className="w-full px-2 lg:px-0 mt-[--header-height]">
       <PageHeader
-        title="Complete System - Quote creation"
-        subtitle={`Creating quote for deal ID: ${dealId}`}
+        title="Complete System - Info Collection"
+        subtitle={`Collecting technical information for deal ID: ${dealId}`}
       />
       <div className="mt-1 mb-28 flex flex-col gap-x-16 text-primary lg:flex-row">
         <StepNavigation steps={steps} />

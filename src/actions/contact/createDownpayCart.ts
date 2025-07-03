@@ -26,11 +26,27 @@ interface BuyerIdentity {
   }>;
 }
 
-export async function getPurchaseOptions() {
+export interface PurchaseOption {
+  id: string;
+  createdAt: string;
+  lineItemDescriptor: string;
+  merchantCode: string;
+  productCount: number;
+  productVariantCount: number;
+  products: Array<{ id: string }>;
+  productsRequirePurchaseOption: boolean;
+  purchaseOptions: Array<any>;
+  resourceAssignmentType: string;
+  tags: string[];
+  variants: any[];
+}
+
+export async function getPurchaseOptions(): Promise<PurchaseOption[]> {
   try {
     const response = await fetch(OPTIONS_URL, {
       method: "GET",
       headers: { "Content-Type": "application/json" },
+      cache: "force-cache",
     });
 
     if (!response.ok) {

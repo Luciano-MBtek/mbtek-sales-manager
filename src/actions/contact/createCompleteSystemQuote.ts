@@ -1,35 +1,35 @@
 "use server";
 
-import { newSingleProductType } from "@/schemas/singleProductSchema";
 import { patchContactProperties } from "../patchContactProperties";
-import { createDeal } from "./createDeal";
-import { getHubspotOwnerIdSession } from "../user/getHubspotOwnerId";
-import { createLineItems } from "./createLineItems";
 import getShopifyMainProduct from "./getShopifyMainProduct";
-import { createAIDescription } from "../openAi/createAIresponse";
+import { createAIDescription } from "@/actions/openAi/createAIresponse";
 import { getHubspotOwnerId } from "../getOwnerId";
 import { getOwnerExtraData } from "../getOwnerExtraData";
 import { buildSimpleQuote } from "../quote/buildSimpleQuote";
 import { getDate } from "@/lib/utils";
 import { fetchShopifyVariants } from "./fetchShopifyVariants";
 import { createDraftOrder } from "./createDraftOrder";
-import { createDownpayCart, getPurchaseOptions } from "./createDownpayCart";
+import { createDownpayCart } from "./createDownpayCart";
 import { patchDealProperties } from "./patchDealProperties";
+import { newCompleteSystemType } from "@/schemas/completeSystemSchema";
+import { getDealLineItems } from "../deals/getDealLineItems";
 
-interface SingleProductQuote {
-  singleProduct: newSingleProductType;
+interface CompleteSystemQuote {
+  completeSystem: newCompleteSystemType;
   onProgress?: (step: string, percentage: number) => void;
 }
 
 const today = getDate();
 
-export const createSingleProductQuote = async ({
-  singleProduct,
+export const createCompleteSystemQuote = async ({
+  completeSystem,
   onProgress,
-}: SingleProductQuote) => {
+}: CompleteSystemQuote) => {
   try {
     const {
-      id,
+      contactId,
+      dealId,
+      dealOwnerId,
       name,
       email,
       lastname,
@@ -42,17 +42,16 @@ export const createSingleProductQuote = async ({
       products,
       shipmentCost,
       purchaseOptionId,
-    } = singleProduct;
+    } = completeSystem;
 
     let province;
     let state;
     if (country === "USA") {
-      state = singleProduct.state;
+      state = completeSystem.state;
     } else if (country === "Canada") {
-      province = singleProduct.province;
+      province = completeSystem.province;
     }
     const sellingPlanId = purchaseOptionId;
-    const userId = await getHubspotOwnerIdSession();
     const totalProducts = products.reduce(
       (sum, product) => sum + product.price * product.quantity,
       0
@@ -60,7 +59,7 @@ export const createSingleProductQuote = async ({
     const totalAmount = totalProducts + (Number(shipmentCost) || 0);
 
     onProgress?.("Getting owner information...", 15);
-    const ownerData = await getHubspotOwnerId(userId);
+    const ownerData = await getHubspotOwnerId(dealOwnerId);
     const { phone, jobtitle } = await getOwnerExtraData(ownerData.email);
     onProgress?.("Processing product information...", 20);
 
@@ -77,18 +76,6 @@ export const createSingleProductQuote = async ({
       : /boiler/i.test(mainProduct[0].name)
         ? singleSchematicBoiler
         : singleSchematicBoiler;
-    onProgress?.("Creating deal...", 25);
-
-    const dealData = await createDeal(
-      id,
-      name,
-      lastname,
-      userId,
-      totalAmount,
-      Number(shipmentCost)
-    );
-    onProgress?.("Creating line items...", 35);
-    const lineItemsData = await createLineItems(dealData.id, products);
 
     onProgress?.("Getting product details...", 40);
 
@@ -129,11 +116,12 @@ export const createSingleProductQuote = async ({
       single_product_name: mainProduct[0].name,
       single_slogan_inline: aiResponse.data.slogan,
       single_product_description: aiResponse.data.description,
+      main_product_sku: mainProduct[0].sku,
       filled_form_date: today,
     };
-    onProgress?.("Updating contact properties...", 85);
+    onProgress?.("Updating contact properties...", 75);
 
-    await patchContactProperties(id, properties);
+    await patchContactProperties(contactId, properties);
 
     const shopifyItems = products.map((product) => ({
       sku: product.sku,
@@ -159,7 +147,7 @@ export const createSingleProductQuote = async ({
       },
     };
 
-    const quoteTitle = `${name} ${lastname} - Standard quote`;
+    const quoteTitle = `${name} ${lastname} - Complete System`;
     // Create Draft order and pass the url later , instead of the shipment cost to buildSimpleQuote.
 
     let paymentUrl = "";
@@ -205,26 +193,32 @@ export const createSingleProductQuote = async ({
     const dealProperty = {
       shopify_draft_order_url: paymentUrl,
       shopify_draft_order_id: orderId || "",
+      amount: totalAmount,
+      shipping_cost: Number(shipmentCost),
     };
 
     // PatchDeal with paymentURL
-    patchDealProperties(dealData.id, dealProperty);
+    patchDealProperties(dealId, dealProperty);
+
+    const dealLineItems = await getDealLineItems(dealId, true);
+
+    console.log("Deal Line Items:", dealLineItems);
 
     onProgress?.("Building quote...", 95);
     // Build the quote with the payment URL
     const quoteBuilded = await buildSimpleQuote(
-      id,
+      contactId,
       name,
       lastname,
-      dealData.id,
+      dealId,
       ownerData.email,
       ownerData.firstName,
       ownerData.lastName,
       phone,
       jobtitle,
       paymentUrl,
-      false, // Pass the payment URL (either invoice URL or checkout URL)
-      lineItemsData.results
+      true,
+      dealLineItems
     );
 
     return {

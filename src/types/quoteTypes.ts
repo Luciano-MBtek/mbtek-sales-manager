@@ -26,6 +26,7 @@ export interface QuoteProperties {
   hs_title: string;
   hs_expiration_date: string;
   hs_terms: string;
+  hs_createdate: string;
 }
 
 export interface LineItemAssociation {
