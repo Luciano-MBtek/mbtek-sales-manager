@@ -206,7 +206,7 @@ export const processStepData = async (
 
         onClose();
         router.push(
-          `/contacts/${contactId}?redirect=/forms/single-product/step-one`
+          `/contacts/${contactId}?redirect=/deals/single-product/step-one`
         );
         return false;
       }

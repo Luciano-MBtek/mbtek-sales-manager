@@ -1,20 +1,13 @@
-import { SearchContactTab } from "@/components/Search-contact-tab";
-import { SingleProductContextProvider } from "@/contexts/singleProductContext";
-import { Metadata } from "next";
+import { redirect } from "next/navigation";
 
-export const metadata: Metadata = {
-  title: "Contacts",
-  description: "Search contacts in hubspot.",
+type Props = {
+  params: Promise<{ id: string; dealId: string }>;
 };
 
-const Contacts = () => {
-  return (
-    <div className="flex w-full justify-center mt-[--header-height] ">
-      <SingleProductContextProvider>
-        <SearchContactTab />
-      </SingleProductContextProvider>
-    </div>
-  );
+const ContactsPage = async ({ params }: Props) => {
+  const Overview = "/";
+
+  redirect(Overview);
 };
 
-export default Contacts;
+export default ContactsPage;

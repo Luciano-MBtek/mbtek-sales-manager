@@ -68,12 +68,12 @@ export const DealCard = ({
     e.stopPropagation(); // Prevent the card click event
 
     // Extract the contact ID from the pathname
-    // Assuming pathname is like /forms/complete-system/[contactId]
+    // Assuming pathname is like /deals/complete-system/[contactId]
     const pathParts = pathname.split("/");
     const contactId = pathParts[pathParts.length - 1];
 
     // Navigate to the deal page with both contact ID and deal ID, adding the createQuote=true parameter
-    router.push(`/forms/complete-system/${contactId}/quote/${deal.id}`);
+    router.push(`/deals/complete-system/${contactId}/quote/${deal.id}`);
   };
 
   const handleInfoCollection = (e: React.MouseEvent) => {
@@ -84,7 +84,7 @@ export const DealCard = ({
     const contactId = pathParts[pathParts.length - 1];
 
     // Navigate to the deal page without the createQuote parameter
-    router.push(`/forms/complete-system/${contactId}/deal/${deal.id}`);
+    router.push(`/deals/complete-system/${contactId}/deal/${deal.id}`);
   };
 
   const subTotal = deal.lineItems.reduce((total, lineItem) => {

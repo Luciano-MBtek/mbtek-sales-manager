@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import FileInput from "@/components/FileInput";
-import { uploadCompleteSystemDocumentation } from "@/app/forms/complete-system-documentation/actions";
+import { uploadCompleteSystemDocumentation } from "@/app/deals/complete-system-documentation/actions";
 import { useToast } from "@/components/ui/use-toast";
 import { Badge } from "@/components/ui/badge";
 import { X } from "lucide-react";

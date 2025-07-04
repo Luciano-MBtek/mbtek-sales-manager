@@ -56,9 +56,9 @@ export type ProgressProperties = {
   emptyProperties: number;
   createDate: string;
   lastModifiedDate: string;
-  areDeals: boolean;
+
   hasSchematic: boolean;
-  hasQuotes: boolean;
+
   // New properties to add
   additional_comments?: string;
   aware_of_available_financial_incentives?: string;
@@ -204,12 +204,6 @@ export interface LeadProps {
 }
 export interface FormErrors {
   [key: string]: string | undefined;
-}
-
-export enum singleProductRoutes {
-  SHIPPING_DATA = "/forms/single-product/step-one",
-  PRODUCT_DATA = "/forms/single-product/step-two",
-  REVIEW_SINGLE_PRODUCT = "/forms/single-product/review",
 }
 
 export enum mainRoutes {

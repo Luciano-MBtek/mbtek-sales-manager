@@ -63,12 +63,12 @@ export const DealCard = ({
     e.stopPropagation(); // Prevent the card click event
 
     // Extract the contact ID from the pathname
-    // Assuming pathname is like /forms/complete-system/[contactId]
+    // Assuming pathname is like /deals/complete-system/[contactId]
     const pathParts = pathname.split("/");
     const contactId = pathParts[pathParts.length - 1];
 
     // Navigate to the deal page with both contact ID and deal ID, adding the createQuote=true parameter
-    router.push(`/forms/quick-quote/${contactId}/quote/${deal.id}`);
+    router.push(`/deals/quick-quote/${contactId}/quote/${deal.id}`);
   };
 
   const subTotal = deal.lineItems.reduce((total, lineItem) => {
