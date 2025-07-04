@@ -21,14 +21,21 @@ import {
 } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
 import { useRouter, usePathname } from "next/navigation";
+import QuoteDetailsCard from "../Quote/QuoteDetailsCard";
 
 interface DealCardProps {
   deal: DealWithLineItems;
-  hasQuote: boolean; // Add this prop
+  hasQuote: boolean;
+  quoteDetails?: any;
   onSelect?: (id: string) => void;
 }
 
-export const DealCard = ({ deal, hasQuote, onSelect }: DealCardProps) => {
+export const DealCard = ({
+  deal,
+  hasQuote,
+  onSelect,
+  quoteDetails,
+}: DealCardProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const router = useRouter();
@@ -83,12 +90,13 @@ export const DealCard = ({ deal, hasQuote, onSelect }: DealCardProps) => {
       }}
     >
       <CardContent className="p-4">
+        {quoteDetails && <QuoteDetailsCard quoteDetails={quoteDetails} />}
         <div className="space-y-3 w-full">
           <div>
             <div className="flex items-center justify-between">
               <div className="flex flex-col gap-2">
                 <h4 className="font-medium text-sm line-clamp-2">
-                  {deal.properties.dealname}
+                  Deal: {deal.properties.dealname}
                 </h4>
                 <div>
                   {deal.properties.split_payment === "Yes" ? (

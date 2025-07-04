@@ -31,9 +31,9 @@ export default function QuoteDetailsCard({
   return (
     <Card className="mb-6">
       <CardHeader>
-        <CardTitle className="text-xl font-semibold flex items-center gap-2">
+        <CardTitle className="text-md font-semibold flex items-center gap-2">
           <FileText className="h-5 w-5" />
-          Previous Quote Details: {properties.hs_title}
+          Quote Details: {properties.hs_title}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -66,12 +66,12 @@ export default function QuoteDetailsCard({
           {lineItems && lineItems.length > 0 && (
             <div className="mt-4">
               <h3 className="text-sm font-medium mb-2">
-                Quote contains {lineItems.length} line items
+                Quote contains {lineItems.length} items
               </h3>
               <ul className="space-y-2">
                 {lineItems.map((item) => (
                   <li key={item.id} className="text-sm">
-                    • Line item ID: {item.id}
+                    • Item: {item.properties.name}
                   </li>
                 ))}
               </ul>

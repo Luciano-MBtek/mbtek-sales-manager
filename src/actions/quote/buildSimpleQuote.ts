@@ -2,8 +2,8 @@
 
 import { getDatePlus30Days } from "@/lib/utils";
 
-const currentQuote = "364369694331";
-const backupQuote = "360901336075";
+const completeSystemTemplate = "364369694331";
+const quickQuoteTemplate = "360901336075";
 
 const quoteExpiration = getDatePlus30Days();
 
@@ -56,7 +56,7 @@ export async function buildSimpleQuote(
       : [];
 
     const quoteProperties = {
-      hs_title: `${firstName + " " + lastName} -  ${completeSystem ? "Complete System" : "Standard quote"}`,
+      hs_title: `${firstName + " " + lastName} -  ${completeSystem ? "Complete System" : "Quick quote"}`,
       hs_expiration_date: quoteExpiration,
       hs_status: "APPROVED",
       hs_sender_email: ownerEmail,
@@ -82,7 +82,7 @@ export async function buildSimpleQuote(
       },
       {
         to: {
-          id: currentQuote, // CHANGE THIS TO TEST WITH BACKUP QUOTE
+          id: completeSystem ? completeSystemTemplate : quickQuoteTemplate, // CHANGE THIS TO TEST WITH BACKUP QUOTE
         },
         types: [
           {
