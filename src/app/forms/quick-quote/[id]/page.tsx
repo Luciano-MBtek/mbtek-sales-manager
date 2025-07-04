@@ -4,6 +4,8 @@ import React from "react";
 import { pipelineLabels } from "@/app/mydeals/utils";
 import { getQuotesByDealIdBatch } from "@/actions/quote/getDealQuoteAssociations";
 import { DealCardContainer } from "@/components/QuickQuote/DealCardContainer";
+import { CreateDealButton } from "@/components/Modals/Deal/CreateDealButton";
+import { getHubspotOwnerIdSession } from "@/actions/user/getHubspotOwnerId";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -13,7 +15,7 @@ const QuickQuotePage = async (props: Props) => {
   const params = await props.params;
 
   const { id } = params;
-
+  const ownerId = await getHubspotOwnerIdSession();
   const deals = await getAllDealsDataWithLineItems(id);
 
   const dealIds = deals.map((deal) => deal.id);
@@ -38,6 +40,7 @@ const QuickQuotePage = async (props: Props) => {
         }
       />
       <div className="">
+        <CreateDealButton contactId={id} ownerId={ownerId} />
         {hasQuickQuoteDeals && (
           <DealCardContainer deals={quickQuoteDeals} quotesMap={quotesMap} />
         )}

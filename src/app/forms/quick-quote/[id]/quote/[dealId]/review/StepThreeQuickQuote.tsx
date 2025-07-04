@@ -2,16 +2,47 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import SubmitButton from "@/components/SubmitButton";
 import InfoItem from "@/components/InfoItem";
-import { User, Mail, MapPin, Home, Map, Hash, CreditCard, Truck, Globe, Building, ArrowRight, Phone } from "lucide-react";
+import {
+  User,
+  Mail,
+  MapPin,
+  Home,
+  Map,
+  Hash,
+  CreditCard,
+  Truck,
+  Globe,
+  Building,
+  ArrowRight,
+  Phone,
+} from "lucide-react";
 import { HubspotIcon } from "@/components/HubspotIcon";
 import ProductReviewCard from "@/components/ProductReviewCard";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Rate } from "@/types";
 import Shopify from "@/components/Icons/Shopify";
 import { WheelProgress } from "@/components/ui/wheel-progress";
@@ -48,7 +79,10 @@ const StepThreeQuickQuote = ({
   quoteId,
   quoteDetails,
 }: StepThreeQuickQuoteProps) => {
-  const [redirectOptions, setRedirectOptions] = useState<{ redirect1?: string; redirect2?: string } | null>(null);
+  const [redirectOptions, setRedirectOptions] = useState<{
+    redirect1?: string;
+    redirect2?: string;
+  } | null>(null);
   const [showDialog, setShowDialog] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
@@ -65,17 +99,21 @@ const StepThreeQuickQuote = ({
   const hasQuote = quoteId !== undefined;
   const quoteLink = quoteDetails?.properties.hs_quote_link;
   const quoteLineItems = quoteDetails?.lineItems;
-  const newMainProductSku = products.find((product) => product.isMain === true)?.sku || "";
+  const newMainProductSku =
+    products.find((product) => product.isMain === true)?.sku || "";
 
   const updateMainProduct = mainProduct !== newMainProductSku;
   const newMainProduct = updateMainProduct ? newMainProductSku : undefined;
 
   const decodedRates = useMemo(() => {
-    const parsedRates = ratesParam ? JSON.parse(decodeURIComponent(ratesParam || "[]")) : [];
+    const parsedRates = ratesParam
+      ? JSON.parse(decodeURIComponent(ratesParam || "[]"))
+      : [];
     return parsedRates.length > 0
       ? parsedRates.map((rate: Rate) => ({
           ...rate,
-          costLoaded: rate.costLoaded === 0 ? 0 : Math.ceil(rate.costLoaded * 1.1) + 65,
+          costLoaded:
+            rate.costLoaded === 0 ? 0 : Math.ceil(rate.costLoaded * 1.1) + 65,
         }))
       : [];
   }, [ratesParam]);
@@ -120,22 +158,28 @@ const StepThreeQuickQuote = ({
   };
 
   useEffect(() => {
-    setFormData((prev) => ({ ...prev, shipmentCost: selectedShipment?.costLoaded || null }));
+    setFormData((prev) => ({
+      ...prev,
+      shipmentCost: selectedShipment?.costLoaded || null,
+    }));
   }, [selectedShipment]);
 
-  const handleFormSubmit = createFormSubmitHandler("/api/generate", {
-    setIsSubmitting,
-    setHasError,
-    setIsComplete,
-    setCurrentProgress,
-    setCurrentStep,
-    setShowDialog,
-    setRedirectOptions,
-    toast,
-    resetLocalStorage: () => {},
-  });
+  const handleFormSubmit = createFormSubmitHandler(
+    "/api/generate-quick-quote",
+    {
+      setIsSubmitting,
+      setHasError,
+      setIsComplete,
+      setCurrentProgress,
+      setCurrentStep,
+      setShowDialog,
+      setRedirectOptions,
+      toast,
+      resetLocalStorage: () => {},
+    }
+  );
 
-  const handleFormUpdate = createFormSubmitHandler("/api/update-single-quote", {
+  const handleFormUpdate = createFormSubmitHandler("/api/update-quick-quote", {
     setIsSubmitting,
     setHasError,
     setIsComplete,
@@ -175,39 +219,98 @@ const StepThreeQuickQuote = ({
       >
         <Card className="shadow-lg">
           <CardHeader>
-            <CardTitle className="text-2xl font-bold">Quick Quote Review</CardTitle>
+            <CardTitle className="text-2xl font-bold">
+              Quick Quote Review
+            </CardTitle>
           </CardHeader>
           <CardContent className="grid gap-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <InfoItem icon={<HubspotIcon color="primary" />} label="Hubspot Id" value={contactId} />
-              <InfoItem icon={<User className="h-5 w-5" />} label="Name" value={`${formData.name} ${formData.lastname}`} />
-              <InfoItem icon={<Mail className="h-5 w-5" />} label="Email" value={formData.email} />
-              <InfoItem icon={<Phone className="h-5 w-5" />} label="Phone" value={formData.phone} />
-              <InfoItem icon={<Globe className="h-5 w-5" />} label="Country" value={formData.country} />
-              {formData.state && <InfoItem icon={<Map className="h-5 w-5" />} label="State" value={formData.state} />}
-              {formData.province && <InfoItem icon={<MapPin className="h-5 w-5" />} label="Province" value={formData.province} />}
-              <InfoItem icon={<Building className="h-5 w-5" />} label="City" value={formData.city} />
-              <InfoItem icon={<Home className="h-5 w-5" />} label="Address" value={formData.address} />
-              <InfoItem icon={<Hash className="h-5 w-5" />} label="ZIP Code" value={formData.zip} />
-              <InfoItem icon={<CreditCard className="h-5 w-5" />} label="Split Payment" value={formData.splitPayment === "Yes" ? "Yes" : "No"} />
+              <InfoItem
+                icon={<HubspotIcon color="primary" />}
+                label="Hubspot Id"
+                value={contactId}
+              />
+              <InfoItem
+                icon={<User className="h-5 w-5" />}
+                label="Name"
+                value={`${formData.name} ${formData.lastname}`}
+              />
+              <InfoItem
+                icon={<Mail className="h-5 w-5" />}
+                label="Email"
+                value={formData.email}
+              />
+              <InfoItem
+                icon={<Phone className="h-5 w-5" />}
+                label="Phone"
+                value={formData.phone}
+              />
+              <InfoItem
+                icon={<Globe className="h-5 w-5" />}
+                label="Country"
+                value={formData.country}
+              />
+              {formData.state && (
+                <InfoItem
+                  icon={<Map className="h-5 w-5" />}
+                  label="State"
+                  value={formData.state}
+                />
+              )}
+              {formData.province && (
+                <InfoItem
+                  icon={<MapPin className="h-5 w-5" />}
+                  label="Province"
+                  value={formData.province}
+                />
+              )}
+              <InfoItem
+                icon={<Building className="h-5 w-5" />}
+                label="City"
+                value={formData.city}
+              />
+              <InfoItem
+                icon={<Home className="h-5 w-5" />}
+                label="Address"
+                value={formData.address}
+              />
+              <InfoItem
+                icon={<Hash className="h-5 w-5" />}
+                label="ZIP Code"
+                value={formData.zip}
+              />
+              <InfoItem
+                icon={<CreditCard className="h-5 w-5" />}
+                label="Split Payment"
+                value={formData.splitPayment === "Yes" ? "Yes" : "No"}
+              />
               {formData.splitPayment === "Yes" && (
                 <InfoItem
                   icon={<CreditCard className="h-5 w-5" />}
                   label="Purchase Option"
-                  value={purchaseOptions.find((option) => option.value === purchaseOptionId)?.label || ""}
+                  value={
+                    purchaseOptions.find(
+                      (option) => option.value === purchaseOptionId
+                    )?.label || ""
+                  }
                 />
               )}
 
               {decodedRates && decodedRates.length > 0 ? (
                 <div className="space-y-3">
-                  <Label htmlFor="shipping-options" className="flex items-center gap-2">
+                  <Label
+                    htmlFor="shipping-options"
+                    className="flex items-center gap-2"
+                  >
                     <Truck className="h-5 w-5" />
                     <span>Shipping Options</span>
                   </Label>
                   <Select
                     value={selectedShipment?.carrierScac || ""}
                     onValueChange={(value) => {
-                      const selectedOption = decodedRates.find((rate: Rate) => rate.carrierScac === value);
+                      const selectedOption = decodedRates.find(
+                        (rate: Rate) => rate.carrierScac === value
+                      );
                       setSelectedShipment(selectedOption || null);
                     }}
                   >
@@ -248,7 +351,10 @@ const StepThreeQuickQuote = ({
             {quoteDetails && <QuoteDetailsCard quoteDetails={quoteDetails} />}
 
             {products && products.length > 0 ? (
-              <ProductReviewCard products={products} customShipment={selectedShipment?.costLoaded} />
+              <ProductReviewCard
+                products={products}
+                customShipment={selectedShipment?.costLoaded}
+              />
             ) : (
               <p>No selected products.</p>
             )}
@@ -257,7 +363,13 @@ const StepThreeQuickQuote = ({
           <CardFooter>
             <SubmitButton
               width="100%"
-              text={isSubmitting ? "Processing..." : hasQuote ? "Update Quote" : "Publish Quote"}
+              text={
+                isSubmitting
+                  ? "Processing..."
+                  : hasQuote
+                    ? "Update Quote"
+                    : "Publish Quote"
+              }
               disabled={isSubmitting}
             />
           </CardFooter>
@@ -267,11 +379,21 @@ const StepThreeQuickQuote = ({
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {!isComplete ? "Processing Quote" : hasError ? "Error Processing Quote" : "The quote is ready and published"}
+              {!isComplete
+                ? "Processing Quote"
+                : hasError
+                  ? "Error Processing Quote"
+                  : "The quote is ready and published"}
             </DialogTitle>
-            {!isComplete && <DialogDescription>Please wait while we process your quote...</DialogDescription>}
+            {!isComplete && (
+              <DialogDescription>
+                Please wait while we process your quote...
+              </DialogDescription>
+            )}
             {isComplete && !hasError && (
-              <DialogDescription>Select an option to continue with the process</DialogDescription>
+              <DialogDescription>
+                Select an option to continue with the process
+              </DialogDescription>
             )}
           </DialogHeader>
 
@@ -287,7 +409,10 @@ const StepThreeQuickQuote = ({
               <Button
                 onClick={() => {
                   if (redirectOptions?.redirect1) {
-                    window.open(redirectOptions.redirect1, "_blank");
+                    const url = redirectOptions.redirect1.startsWith("http")
+                      ? redirectOptions.redirect1
+                      : `https://${redirectOptions.redirect1}`;
+                    window.open(url, "_blank");
                   }
                 }}
               >

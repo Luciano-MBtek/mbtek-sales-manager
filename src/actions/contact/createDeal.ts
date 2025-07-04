@@ -21,7 +21,7 @@ export async function createDeal(
       );
     }
 
-    const dealName = `Standard quote ${firstName} ${lastName}`;
+    const dealName = `Quick quote ${firstName} ${lastName}`;
     const closeDate = getDatePlus7Days();
 
     const dealProperties = {

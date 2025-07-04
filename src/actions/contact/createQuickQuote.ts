@@ -1,35 +1,35 @@
 "use server";
 
-import { newSingleProductType } from "@/schemas/singleProductSchema";
 import { patchContactProperties } from "../patchContactProperties";
-import { createDeal } from "./createDeal";
-import { getHubspotOwnerIdSession } from "../user/getHubspotOwnerId";
-import { createLineItems } from "./createLineItems";
 import getShopifyMainProduct from "./getShopifyMainProduct";
-import { createAIDescription } from "../openAi/createAIresponse";
+import { createAIDescription } from "@/actions/openAi/createAIresponse";
 import { getHubspotOwnerId } from "../getOwnerId";
 import { getOwnerExtraData } from "../getOwnerExtraData";
 import { buildSimpleQuote } from "../quote/buildSimpleQuote";
-import { getDate } from "@/lib/utils";
+import { getDate, sleep } from "@/lib/utils";
 import { fetchShopifyVariants } from "./fetchShopifyVariants";
 import { createDraftOrder } from "./createDraftOrder";
-import { createDownpayCart, getPurchaseOptions } from "./createDownpayCart";
+import { createDownpayCart } from "./createDownpayCart";
 import { patchDealProperties } from "./patchDealProperties";
+import { getDealLineItems } from "../deals/getDealLineItems";
+import { newQuickQuoteType } from "@/schemas/quickQuoteSchema";
 
-interface SingleProductQuote {
-  singleProduct: newSingleProductType;
+interface QuickQuote {
+  quickQuote: newQuickQuoteType;
   onProgress?: (step: string, percentage: number) => void;
 }
 
 const today = getDate();
 
-export const createSingleProductQuote = async ({
-  singleProduct,
+export const createQuickQuote = async ({
+  quickQuote,
   onProgress,
-}: SingleProductQuote) => {
+}: QuickQuote) => {
   try {
     const {
-      id,
+      contactId,
+      dealId,
+      dealOwnerId,
       name,
       email,
       lastname,
@@ -42,17 +42,16 @@ export const createSingleProductQuote = async ({
       products,
       shipmentCost,
       purchaseOptionId,
-    } = singleProduct;
+    } = quickQuote;
 
     let province;
     let state;
     if (country === "USA") {
-      state = singleProduct.state;
+      state = quickQuote.state;
     } else if (country === "Canada") {
-      province = singleProduct.province;
+      province = quickQuote.province;
     }
     const sellingPlanId = purchaseOptionId;
-    const userId = await getHubspotOwnerIdSession();
     const totalProducts = products.reduce(
       (sum, product) => sum + product.price * product.quantity,
       0
@@ -60,7 +59,7 @@ export const createSingleProductQuote = async ({
     const totalAmount = totalProducts + (Number(shipmentCost) || 0);
 
     onProgress?.("Getting owner information...", 15);
-    const ownerData = await getHubspotOwnerId(userId);
+    const ownerData = await getHubspotOwnerId(dealOwnerId);
     const { phone, jobtitle } = await getOwnerExtraData(ownerData.email);
     onProgress?.("Processing product information...", 20);
 
@@ -77,18 +76,6 @@ export const createSingleProductQuote = async ({
       : /boiler/i.test(mainProduct[0].name)
         ? singleSchematicBoiler
         : singleSchematicBoiler;
-    onProgress?.("Creating deal...", 25);
-
-    const dealData = await createDeal(
-      id,
-      name,
-      lastname,
-      userId,
-      totalAmount,
-      Number(shipmentCost)
-    );
-    onProgress?.("Creating line items...", 35);
-    const lineItemsData = await createLineItems(dealData.id, products);
 
     onProgress?.("Getting product details...", 40);
 
@@ -129,11 +116,12 @@ export const createSingleProductQuote = async ({
       single_product_name: mainProduct[0].name,
       single_slogan_inline: aiResponse.data.slogan,
       single_product_description: aiResponse.data.description,
+      main_product_sku: mainProduct[0].sku,
       filled_form_date: today,
     };
-    onProgress?.("Updating contact properties...", 85);
+    onProgress?.("Updating contact properties...", 75);
 
-    await patchContactProperties(id, properties);
+    await patchContactProperties(contactId, properties);
 
     const shopifyItems = products.map((product) => ({
       sku: product.sku,
@@ -159,8 +147,7 @@ export const createSingleProductQuote = async ({
       },
     };
 
-    const quoteTitle = `${name} ${lastname} - Standard quote`;
-    // Create Draft order and pass the url later , instead of the shipment cost to buildSimpleQuote.
+    const quoteTitle = `${name} ${lastname} - Quote`;
 
     let paymentUrl = "";
     let paymentType = "";
@@ -168,7 +155,7 @@ export const createSingleProductQuote = async ({
 
     // Create either draft order or downpay cart based on splitPayment
     if (splitPayment === "No") {
-      // Create regular draft order for full payment
+      /* Draft Order payment */
       onProgress?.("Creating Shopify draft order...", 85);
       const draftOrderResult = await createDraftOrder(
         variantLineItems,
@@ -180,10 +167,8 @@ export const createSingleProductQuote = async ({
       orderId = draftOrderResult.draftOrderId;
       paymentType = "draft";
     } else {
-      // Create downpay cart with financing options
+      /* Downpay checkout */
       onProgress?.("Creating downpayment cart...", 85);
-
-      // Get the first purchase option by default
 
       // Get the first option's first purchase option ID
 
@@ -194,7 +179,6 @@ export const createSingleProductQuote = async ({
         sellingPlanId: `gid://shopify/SellingPlan/${sellingPlanId}`,
       }));
 
-      // Create the cart
       const cartResult = await createDownpayCart(cartLines, contactData);
       paymentUrl = cartResult.checkoutUrl;
       paymentType = "cart";
@@ -205,27 +189,32 @@ export const createSingleProductQuote = async ({
     const dealProperty = {
       shopify_draft_order_url: paymentUrl,
       shopify_draft_order_id: orderId || "",
+      amount: totalAmount,
+      shipping_cost: Number(shipmentCost),
     };
 
-    // PatchDeal with paymentURL
-    patchDealProperties(dealData.id, dealProperty);
+    patchDealProperties(dealId, dealProperty);
+
+    const dealLineItems = await getDealLineItems(dealId, true);
 
     onProgress?.("Building quote...", 95);
-    // Build the quote with the payment URL
+
     const quoteBuilded = await buildSimpleQuote(
-      id,
+      contactId,
       name,
       lastname,
-      dealData.id,
+      dealId,
       ownerData.email,
       ownerData.firstName,
       ownerData.lastName,
-      phone,
+      phone, // This is the phone from the Sales Agent
       jobtitle,
       paymentUrl,
-      false, // Pass the payment URL (either invoice URL or checkout URL)
-      lineItemsData.results
+      false, // Builds Quick quote
+      dealLineItems
     );
+
+    sleep(3000);
 
     return {
       success: true,

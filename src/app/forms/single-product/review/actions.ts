@@ -1,5 +1,5 @@
 "use server";
-import { createSingleProductQuote } from "@/actions/contact/createSingleProductQuote";
+import { createQuickQuote } from "@/actions/contact/createQuickQuote";
 import {
   stepTwoSingleProductSchema,
   stepOneProductSchema,
@@ -17,7 +17,7 @@ interface SubmitLeadActionReturnType {
 
 export const submitSingleProductAction = async (
   singleProduct: newSingleProductType
-): Promise<SubmitLeadActionReturnType> => {
+) => {
   try {
     const stepOneValidated = stepOneProductSchema.safeParse(singleProduct);
 
@@ -38,20 +38,20 @@ export const submitSingleProductAction = async (
       };
     }
 
-    const createQuote = await createSingleProductQuote({
-      singleProduct,
-    });
+    /*  const createQuote = await createQuickQuote({
+      quickQuote: singleProduct,
+    }); */
 
     revalidatePath(`/contacts/${singleProduct.id}`);
     revalidatePath(`/contacts/${singleProduct.id}/properties`);
     revalidatePath(`/contacts/${singleProduct.id}/deals`);
     revalidatePath(`/contacts/${singleProduct.id}/quotes`);
 
-    return {
+    /*  return {
       success: true,
       redirect1: createQuote.quoteUrl,
       redirect2: mainRoutes.CONTACTS + `/${singleProduct.id}`,
-    };
+    }; */
   } catch (error) {
     throw error;
   }
