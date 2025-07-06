@@ -43,7 +43,24 @@ export interface DealProperties {
   split_payment?: string;
   purchase_option_id?: string;
   hubspot_owner_id?: string;
+  closed_lost_reason: CloseLost;
+  lost_reason_detail: string;
 }
+
+export type CloseLost = {
+  "Too High Pricing": string;
+  "Budget Constraints": string;
+  "Product Unfit": string;
+  Competition: string;
+  "Decision Delay": string;
+  "Poor Timing": string;
+  "Ineffective Sales Process": string;
+  "Customer Service Issues": string;
+  "Lost Contact": string;
+  "External Factors": string;
+  "Cancelled Abandoned Checkout": string;
+  Other: string;
+};
 
 export interface Deal {
   id: string;

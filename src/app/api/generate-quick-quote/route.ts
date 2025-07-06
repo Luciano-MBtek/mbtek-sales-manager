@@ -2,13 +2,10 @@ import { NextResponse } from "next/server";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { newQuickQuoteType } from "@/schemas/quickQuoteSchema";
 import { createQuickQuote } from "@/actions/contact/createQuickQuote";
-import { sleep } from "openai/core.mjs";
 
 export async function POST(request: Request) {
   const body = (await request.json()) as newQuickQuoteType;
   const encoder = new TextEncoder();
-
-  console.log("Body:", body);
 
   const readable = new ReadableStream({
     async start(controller) {
@@ -27,11 +24,7 @@ export async function POST(request: Request) {
             sendProgress("progress", { step, percentage });
           },
         });
-        sleep(2000);
-        sendProgress("progress", { step: "Creating quote...", percentage: 40 });
-        /*   const createQuote = {
-          quoteUrl: `/contects/${body.contactId}`,
-        }; */
+
         sendProgress("progress", {
           step: "Quote created",
           quoteUrl: createQuote.quoteUrl,

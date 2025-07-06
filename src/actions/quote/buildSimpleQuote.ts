@@ -138,7 +138,7 @@ export async function buildSimpleQuote(
       return { message: "Quote successfully created", data: quoteUrl };
     }
   } catch (error) {
-    console.error("Error in Standard Quote Creation:", error);
+    console.error("Error in Quote Creation:", error);
     throw new Error(
       `Failed to create the Quote: ${error instanceof Error ? error.message : "Unknown error"}`
     );
