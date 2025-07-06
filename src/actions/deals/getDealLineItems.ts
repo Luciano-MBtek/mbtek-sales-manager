@@ -17,9 +17,7 @@ export async function getDealLineItems(
     );
     const lineItemsData = await Promise.all(lineItemsPromises);
 
-    return lineItemsData.filter(
-      (item): item is LineItem => item !== null
-    );
+    return lineItemsData.filter((item): item is LineItem => item !== null);
   } catch (error) {
     console.error(`Error in getDealLineItems for deal ${dealId}:`, error);
     throw new Error("Could not retrieve the line items for the deal.");

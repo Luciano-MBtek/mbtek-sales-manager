@@ -2,14 +2,17 @@
 
 import { getDatePlus30Days } from "@/lib/utils";
 
-const currentQuote = "364369694331";
-const backupQuote = "360901336075";
+const completeSystemTemplate = "364369694331";
+const quickQuoteTemplate = "360901336075";
 
 const quoteExpiration = getDatePlus30Days();
 
 type LineItem = {
   id: string;
-  properties: Object;
+  properties: {
+    hs_object_id?: string;
+    [key: string]: any;
+  };
   createdAt: string;
   updatedAt: string;
   archived: boolean;
@@ -26,7 +29,8 @@ export async function buildSimpleQuote(
   ownerPhone: string,
   ownerJob: string,
   cartOrderUrl: string,
-  lineItems: LineItem[]
+  completeSystem: boolean,
+  lineItems?: LineItem[]
 ): Promise<any> {
   try {
     const apiKey = process.env.HUBSPOT_API_KEY;
@@ -36,20 +40,23 @@ export async function buildSimpleQuote(
         "HUBSPOT_API_KEY is not defined in the environment variables."
       );
     }
-    const lineItemAssociations = lineItems.map((item) => ({
-      to: {
-        id: item.id,
-      },
-      types: [
-        {
-          associationCategory: "HUBSPOT_DEFINED",
-          associationTypeId: 67,
-        },
-      ],
-    }));
+
+    const lineItemAssociations = lineItems?.length
+      ? lineItems.map((item) => ({
+          to: {
+            id: item.id || item.properties.hs_object_id,
+          },
+          types: [
+            {
+              associationCategory: "HUBSPOT_DEFINED",
+              associationTypeId: 67,
+            },
+          ],
+        }))
+      : [];
 
     const quoteProperties = {
-      hs_title: `${firstName + " " + lastName} - Standard quote`,
+      hs_title: `${firstName + " " + lastName} -  ${completeSystem ? "Complete System" : "Quick quote"}`,
       hs_expiration_date: quoteExpiration,
       hs_status: "APPROVED",
       hs_sender_email: ownerEmail,
@@ -75,7 +82,7 @@ export async function buildSimpleQuote(
       },
       {
         to: {
-          id: currentQuote, // CHANGE THIS TO TEST WITH BACKUP QUOTE
+          id: completeSystem ? completeSystemTemplate : quickQuoteTemplate, // CHANGE THIS TO TEST WITH BACKUP QUOTE
         },
         types: [
           {
@@ -95,7 +102,7 @@ export async function buildSimpleQuote(
           },
         ],
       },
-      ...lineItemAssociations,
+      ...(lineItems?.length ? lineItemAssociations : []),
     ];
 
     const body = {
@@ -131,7 +138,7 @@ export async function buildSimpleQuote(
       return { message: "Quote successfully created", data: quoteUrl };
     }
   } catch (error) {
-    console.error("Error in Standard Quote Creation:", error);
+    console.error("Error in Quote Creation:", error);
     throw new Error(
       `Failed to create the Quote: ${error instanceof Error ? error.message : "Unknown error"}`
     );

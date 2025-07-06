@@ -1,13 +1,6 @@
 "use client";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  Calendar,
-  DollarSign,
-  Truck,
-  ChevronDown,
-  ChevronUp,
-} from "lucide-react";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Calendar, DollarSign, ChevronDown, ChevronUp } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
   calculateDaysRemaining,
@@ -15,7 +8,6 @@ import {
   dealStage,
   formatDate,
   getDealStageLabel,
-  getInitials,
 } from "@/app/mydeals/utils";
 import { formatCurrency } from "@/lib/utils";
 import { DealWithLineItems } from "@/types/dealTypes";
@@ -30,14 +22,23 @@ import {
 } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
 import { useRouter, usePathname } from "next/navigation";
+import QuoteDetailsCard from "../Quote/QuoteDetailsCard";
 
 interface DealCardProps {
   deal: DealWithLineItems;
+  hasQuote: boolean;
+  quoteDetails?: any;
   onSelect?: (id: string) => void;
 }
 
-export const DealCard = ({ deal, onSelect }: DealCardProps) => {
+export const DealCard = ({
+  deal,
+  hasQuote,
+  onSelect,
+  quoteDetails,
+}: DealCardProps) => {
   const [isOpen, setIsOpen] = useState(false);
+
   const router = useRouter();
   const pathname = usePathname();
 
@@ -67,14 +68,12 @@ export const DealCard = ({ deal, onSelect }: DealCardProps) => {
     e.stopPropagation(); // Prevent the card click event
 
     // Extract the contact ID from the pathname
-    // Assuming pathname is like /forms/complete-system/[contactId]
+    // Assuming pathname is like /deals/complete-system/[contactId]
     const pathParts = pathname.split("/");
     const contactId = pathParts[pathParts.length - 1];
 
     // Navigate to the deal page with both contact ID and deal ID, adding the createQuote=true parameter
-    router.push(
-      `/forms/complete-system/${contactId}/deal/${deal.id}?createQuote=true`
-    );
+    router.push(`/deals/complete-system/${contactId}/quote/${deal.id}`);
   };
 
   const handleInfoCollection = (e: React.MouseEvent) => {
@@ -85,7 +84,7 @@ export const DealCard = ({ deal, onSelect }: DealCardProps) => {
     const contactId = pathParts[pathParts.length - 1];
 
     // Navigate to the deal page without the createQuote parameter
-    router.push(`/forms/complete-system/${contactId}/deal/${deal.id}`);
+    router.push(`/deals/complete-system/${contactId}/deal/${deal.id}`);
   };
 
   const subTotal = deal.lineItems.reduce((total, lineItem) => {
@@ -95,7 +94,7 @@ export const DealCard = ({ deal, onSelect }: DealCardProps) => {
 
   return (
     <Card
-      className="mb-3 hover:shadow-md transition-shadow cursor-pointer w-full"
+      className="mb-3 hover:shadow-md transition-shadow cursor-pointer w-[70%]"
       onClick={handleSelect}
       tabIndex={0}
       role="button"
@@ -107,16 +106,30 @@ export const DealCard = ({ deal, onSelect }: DealCardProps) => {
       }}
     >
       <CardContent className="p-4">
+        {quoteDetails && <QuoteDetailsCard quoteDetails={quoteDetails} />}
         <div className="space-y-3 w-full">
           <div>
             <div className="flex items-center justify-between">
-              <h4 className="font-medium text-sm line-clamp-2">
-                {deal.properties.dealname}
-              </h4>
+              <div className="flex flex-col gap-2">
+                <h4 className="font-medium text-sm line-clamp-2">
+                  Deal: {deal.properties.dealname}
+                </h4>
+                <div>
+                  {deal.properties.split_payment === "Yes" ? (
+                    <Badge className="ml-2 bg-green-100 text-green-800 hover:bg-green-200 border-green-200">
+                      Split Payment: {deal.properties.split_payment}
+                    </Badge>
+                  ) : (
+                    <Badge className="ml-2 bg-blue-100 text-blue-800 hover:bg-blue-200 border-blue-200">
+                      Single Payment
+                    </Badge>
+                  )}
+                </div>
+              </div>
               <div>
                 {isFirstMeeting ? (
                   <Button
-                    className="bg-mbtek hover:bg-accent hover:text-mbtek"
+                    className="bg-color-3 hover:bg-accent hover:text-color-3"
                     onClick={handleInfoCollection}
                   >
                     Info Collection
@@ -126,7 +139,7 @@ export const DealCard = ({ deal, onSelect }: DealCardProps) => {
                     className="bg-mbtek hover:bg-accent hover:text-mbtek"
                     onClick={handleCreateQuote}
                   >
-                    Create Quote
+                    {hasQuote ? "Update Quote" : "Create Quote"}
                   </Button>
                 )}
               </div>
@@ -149,7 +162,7 @@ export const DealCard = ({ deal, onSelect }: DealCardProps) => {
           </div>
 
           {/* Progress Bar */}
-          <div className="space-y-1">
+          <div className="space-y-1 max-w-[300px]">
             <div className="flex justify-between text-xs"></div>
             <div className="relative h-2 w-full overflow-hidden rounded-full bg-accent">
               <div
@@ -178,7 +191,10 @@ export const DealCard = ({ deal, onSelect }: DealCardProps) => {
             className="w-full"
           >
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-semibold">Items:</h3>
+              <h3 className="text-sm font-semibold">
+                {deal.lineItems.length} Item
+                {deal.lineItems.length > 1 ? "s" : ""}:
+              </h3>
               <CollapsibleTrigger asChild>
                 <Button variant="ghost" size="sm" className="p-1 h-6">
                   {isOpen ? (

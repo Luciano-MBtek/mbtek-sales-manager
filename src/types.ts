@@ -56,9 +56,9 @@ export type ProgressProperties = {
   emptyProperties: number;
   createDate: string;
   lastModifiedDate: string;
-  areDeals: boolean;
+
   hasSchematic: boolean;
-  hasQuotes: boolean;
+
   // New properties to add
   additional_comments?: string;
   aware_of_available_financial_incentives?: string;
@@ -204,12 +204,6 @@ export interface LeadProps {
 }
 export interface FormErrors {
   [key: string]: string | undefined;
-}
-
-export enum singleProductRoutes {
-  SHIPPING_DATA = "/forms/single-product/step-one",
-  PRODUCT_DATA = "/forms/single-product/step-two",
-  REVIEW_SINGLE_PRODUCT = "/forms/single-product/review",
 }
 
 export enum mainRoutes {
@@ -558,3 +552,20 @@ export const disqualificationReason = [
 export const disqualificationReasonValues = disqualificationReason.map(
   (type) => type.value
 );
+
+export const closeLostReasons = [
+  { label: "Too High Pricing", value: "Too High Pricing" },
+  { label: "Budget Constraints", value: "Budget Constraints" },
+  { label: "Product Unfit", value: "Product Unfit" },
+  { label: "Competition", value: "Competition" },
+  { label: "Decision Delay", value: "Decision Delay" },
+  { label: "Poor Timing", value: "Poor Timing" },
+  { label: "Ineffective Sales Process", value: "Ineffective Sales Process" },
+  { label: "Customer Service Issues", value: "Customer Service Issues" },
+  { label: "Lost Contact", value: "Lost Contact" },
+  { label: "External Factors", value: "External Factors" },
+  { label: "Cancelled Abandoned Checkout", value: "Cancelled Abandoned Checkout" },
+  { label: "Other", value: "Other" },
+];
+
+export const closeLostReasonValues = closeLostReasons.map((reason) => reason.value);

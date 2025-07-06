@@ -6,7 +6,7 @@ import {
   countryOptions,
   stateOptions,
   provinceOptions,
-} from "@/app/forms/utils/options";
+} from "@/app/deals/utils/options";
 import {
   FormField,
   FormItem,

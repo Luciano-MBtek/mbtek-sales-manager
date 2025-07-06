@@ -234,6 +234,6 @@ export async function searchOwnerMeetings(ownerId: string) {
 // ---------------------------------------------------------------------------
 export async function getAllOwnersMeetings() {
   const ownerId = await getHubspotOwnerIdSession();
-  //const ownerId = "79900767";
+  // const ownerId = "79900767";
   return searchOwnerMeetings(ownerId);
 }

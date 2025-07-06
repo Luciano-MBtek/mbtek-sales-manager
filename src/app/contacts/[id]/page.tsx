@@ -2,9 +2,6 @@ import { GetContactById } from "@/actions/getContactById";
 import ContactStepProgress from "@/components/ContactStepProgress";
 import { ProgressProperties } from "@/types";
 import { getOwnerById } from "@/actions/getOwnerById";
-
-import { checkDealsExist } from "@/actions/getDeals";
-import { getQuoteById } from "@/actions/quote/getQuoteById";
 import ContactOwnerCard from "@/components/ContactOwnerCard";
 import ContactSummary from "@/components/ContactSummary";
 import { getTicketsFromContacts } from "@/actions/getTicketsFromContact";
@@ -21,10 +18,6 @@ const ContactFullData = async (props: Props) => {
 
   const contact = await GetContactById(id);
 
-  const deals = await checkDealsExist(id);
-
-  const quotes = await getQuoteById(id);
-
   const tickets = await getTicketsFromContacts(id);
 
   const contactOwner = await getOwnerById(
@@ -35,7 +28,6 @@ const ContactFullData = async (props: Props) => {
   const hasSchematicRequest = Boolean(
     contact.properties.total_area_house && contact.properties.number_of_zones
   );
-  const hasQuotes = quotes.length > 0;
 
   const contactSummary = contact.properties.project_summary_user;
 
@@ -58,9 +50,9 @@ const ContactFullData = async (props: Props) => {
     province: contact.properties.province_territory,
     city: contact.properties.city || "N/A",
     zip: contact.properties.zip || "N/A",
-    areDeals: deals,
+
     hasSchematic: hasSchematicRequest,
-    hasQuotes: hasQuotes,
+
     // New properties
     additional_comments: contact.properties.additional_comments,
     aware_of_available_financial_incentives:
