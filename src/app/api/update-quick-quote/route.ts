@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-
 import { revalidatePath, revalidateTag } from "next/cache";
 import setQuote from "@/actions/quote/setQuote";
 import { deleteLineItems } from "@/actions/deals/deleteLineItems";
@@ -73,17 +72,19 @@ export async function POST(request: Request) {
             step: "Preparing line items...",
             percentage: 25,
           });
-          if (newMainProduct) {
+          /*  if (newMainProduct) {
             sendProgress("progress", {
               step: "Processing main product information...",
               percentage: 30,
             });
             await generateQuoteProperties(newMainProduct, products, contactId);
-          }
+          } */
           sendProgress("progress", {
             step: "Creating new Downpay Cart checkout...",
             percentage: 35,
           });
+
+          console.log("New Line items:", newLineItems);
 
           const shopifyItems = newLineItems.map((product) => ({
             sku: product.properties.hs_sku,
@@ -190,19 +191,18 @@ export async function POST(request: Request) {
             percentage: 35,
           });
 
-          // Use the extracted function for main product handling
-          if (newMainProduct) {
+          /*  if (newMainProduct) {
             sendProgress("progress", {
               step: "Processing main product information...",
               percentage: 40,
             });
             await generateQuoteProperties(newMainProduct, products, contactId);
-          }
+          } */
 
           // Step 4
           sendProgress("progress", {
             step: "Updating deal total amount...",
-            percentage: 70,
+            percentage: 50,
           });
 
           await patchDealProperties(dealId, {
@@ -260,13 +260,13 @@ export async function POST(request: Request) {
             quoteUrl: quoteLink,
           });
 
-          console.log("Revalidating paths for contactId:", contactId);
           revalidatePath(`/contacts/${contactId}`);
           revalidatePath(`/contacts/${contactId}/properties`);
           revalidatePath(`/contacts/${contactId}/deals`);
           revalidatePath(`/contacts/${contactId}/quotes`);
           revalidateTag("quotes");
           revalidateTag("contact-deals");
+          sleep(1500);
 
           sendProgress("complete", {
             success: true,

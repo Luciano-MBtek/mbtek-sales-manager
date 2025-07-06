@@ -113,7 +113,7 @@ export function CreateDealButton({
 
   const startProcess = () => {
     if (dealCreated) {
-      router.push(`/forms/quick-quote/${contactId}/quote/${dealCreated}`);
+      router.push(`/deals/quick-quote/${contactId}/quote/${dealCreated}`);
     }
   };
 

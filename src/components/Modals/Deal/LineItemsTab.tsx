@@ -5,13 +5,7 @@ import { TabsContent } from "@/components/ui/tabs";
 import { LineItem } from "@/types/dealTypes";
 
 import { Loader2, Package } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import LineItemCard from "@/components/LineItemCard";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { getDealLineItems } from "@/actions/deals/getDealLineItems";
 
@@ -19,14 +13,6 @@ interface LineItemsTabProps {
   dealId: string;
 }
 
-const formatCurrency = (value: string | number | undefined) => {
-  if (!value) return "$0.00";
-  const num = typeof value === "string" ? parseFloat(value) : value;
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-  }).format(num);
-};
 
 const LineItemsTab = ({ dealId }: LineItemsTabProps) => {
   const [items, setItems] = useState<LineItem[]>([]);
@@ -68,37 +54,7 @@ const LineItemsTab = ({ dealId }: LineItemsTabProps) => {
         <ScrollArea className="h-[390px] pr-2">
           <div className="space-y-4">
             {items.map((item) => (
-              <Card key={item.id} className="overflow-hidden">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    {item.properties.name}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="pb-2">
-                  <div className="grid grid-cols-3 gap-4 text-sm">
-                    <div>
-                      <span className="text-muted-foreground">Qty:</span>{" "}
-                      {item.properties.quantity}
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">Price:</span>{" "}
-                      {formatCurrency(item.properties.price)}
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">Total:</span>{" "}
-                      {formatCurrency(
-                        parseFloat(item.properties.price) *
-                          parseFloat(item.properties.quantity)
-                      )}
-                    </div>
-                  </div>
-                </CardContent>
-                <CardFooter className="bg-muted/30 py-2 flex justify-between">
-                  <span className="text-xs text-muted-foreground">
-                    ID: {item.id}
-                  </span>
-                </CardFooter>
-              </Card>
+              <LineItemCard key={item.id} lineItem={item} />
             ))}
           </div>
         </ScrollArea>

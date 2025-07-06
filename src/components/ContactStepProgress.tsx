@@ -55,9 +55,7 @@ const ContactStepProgress = ({
     city,
     zip,
     address,
-    areDeals,
     hasSchematic,
-    hasQuotes,
   } = properties;
 
   const fullName = `${firstname} ${lastname}`;
@@ -87,9 +85,8 @@ const ContactStepProgress = ({
       zip,
       phone,
       address,
-      areDeals,
+
       hasSchematic,
-      hasQuotes,
     };
 
     // Filtrar los valores que son "N/A"
@@ -121,9 +118,9 @@ const ContactStepProgress = ({
     city,
     zip,
     address,
-    areDeals,
+
     hasSchematic,
-    hasQuotes,
+
     phone,
   ]);
 
@@ -235,7 +232,7 @@ const ContactStepProgress = ({
                 <div className="flex items-center justify-between w-full">
                   <p className="font-semibold">Request Schematic</p>
                   <Button
-                    onClick={() => router.push("/forms/schematic-request")}
+                    onClick={() => router.push("/deals/schematic-request")}
                   >
                     Request
                   </Button>
@@ -248,18 +245,6 @@ const ContactStepProgress = ({
               </div>
             )}
           </div>
-
-          {hasQuotes && (
-            <div className="col-span-2 flex items-center space-x-4">
-              <Quote className="w-6 h-6 text-primary" />
-              <div className="flex items-center justify-between w-full">
-                <p className="font-semibold">Quotes available</p>
-                <Button onClick={() => router.push(`/contacts/${id}/quotes`)}>
-                  Go to Quotes
-                </Button>
-              </div>
-            </div>
-          )}
         </CardContent>
       </Card>
       <ContactQualificationCard properties={properties} />

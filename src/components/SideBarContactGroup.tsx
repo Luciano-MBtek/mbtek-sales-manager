@@ -2,14 +2,12 @@
 import {
   ChevronRight,
   CircleUser,
-  NotepadText,
   Table,
   Box,
   MoreHorizontal,
   Proportions,
   Handshake,
   PencilRuler,
-  Quote,
   MessagesSquare,
   X,
   Boxes,
@@ -39,9 +37,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import SideBarAddToFavourite from "./SideBarAddToFavourite";
-import { useEffect, useState } from "react";
-import { checkContactFav } from "@/actions/contact/checkContactFav";
+
+import { useEffect } from "react";
+
 import { Session } from "next-auth";
 import {
   Tooltip,
@@ -56,29 +54,9 @@ interface SideBarContactGroupProps {
 }
 
 const SideBarContactGroup = ({ session }: SideBarContactGroupProps) => {
-  const { contact, update, clear } = useContactStore();
-  const [isFavorite, setIsFavorite] = useState(false);
-  const [isCheckingFav, setIsCheckingFav] = useState(true);
+  const { contact, clear } = useContactStore();
   const pathname = usePathname();
   const router = useRouter();
-
-  useEffect(() => {
-    const checkFavorite = async () => {
-      if (contact?.id && session) {
-        setIsCheckingFav(true);
-        try {
-          const isContactFav = await checkContactFav(contact.id);
-          setIsFavorite(isContactFav);
-        } catch (error) {
-          console.error("Error checking favorite:", error);
-          setIsFavorite(false);
-        } finally {
-          setIsCheckingFav(false);
-        }
-      }
-    };
-    checkFavorite();
-  }, [contact?.id, session]);
 
   useEffect(() => {
     if (!session) {
@@ -88,38 +66,33 @@ const SideBarContactGroup = ({ session }: SideBarContactGroupProps) => {
 
   if (!contact) return null;
 
-  const { id, firstname, lastname, areDeals, hasSchematic, hasQuotes } =
-    contact;
+  const { id, firstname, lastname, hasSchematic } = contact;
 
   const propertiesPath = `/contacts/${id}/properties`;
-  const dealsPath = `/contacts/${id}/deals`;
   const schematicPath = `/contacts/${id}/schematic`;
-  const quotesPath = `/contacts/${id}/quotes`;
   const engagementsPath = `/contacts/${id}/engagements`;
   const mainPath = `/contacts/${id}`;
   const isPropertiesActive = pathname === propertiesPath;
   const isMainActive = pathname === mainPath;
-  const isDealsActive = pathname === dealsPath;
   const isSchematicActive = pathname === schematicPath;
-  const isQuotesPathActive = pathname === quotesPath;
   const isEngagementsPathActive = pathname === engagementsPath;
   const isTechAgent = session?.user?.accessLevel === "schematic_team";
 
   const items = [
     {
       title: "Complete System",
-      url: `/forms/complete-system/${id}`,
+      url: `/deals/complete-system/${id}`,
       icon: Boxes,
     },
     {
       title: "Quick quote",
-      url: `/forms/quick-quote/${id}`,
+      url: `/deals/quick-quote/${id}`,
       icon: Box,
     },
 
     {
       title: "Schematic Request",
-      url: "/forms/schematic-request",
+      url: "/deals/schematic-request",
       icon: Proportions,
     },
   ];
@@ -127,7 +100,7 @@ const SideBarContactGroup = ({ session }: SideBarContactGroupProps) => {
   const techAgentItems = [
     {
       title: "Schematic Upload",
-      url: "/forms/schematic-upload",
+      url: "/deals/schematic-upload",
       icon: Proportions,
     },
   ];
@@ -191,13 +164,6 @@ const SideBarContactGroup = ({ session }: SideBarContactGroupProps) => {
                   </SidebarMenuAction>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent side="right" align="start">
-                  <SideBarAddToFavourite
-                    contact={contact}
-                    isFavorite={isFavorite}
-                    setIsFavorite={setIsFavorite}
-                    isLoading={isCheckingFav}
-                  />
-
                   <EmailModal isSideBar={true} />
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -240,27 +206,7 @@ const SideBarContactGroup = ({ session }: SideBarContactGroupProps) => {
                 </SidebarMenuButton>
               )}
             </SidebarMenuItem>
-            {areDeals && (
-              <SidebarMenuItem>
-                {isDealsActive ? (
-                  <SidebarMenuButton isActive={true}>
-                    <Handshake />
-                    <span>Deals</span>
-                  </SidebarMenuButton>
-                ) : (
-                  <SidebarMenuButton asChild>
-                    <Link
-                      href={{
-                        pathname: dealsPath,
-                      }}
-                    >
-                      <Handshake />
-                      <span>Deals</span>
-                    </Link>
-                  </SidebarMenuButton>
-                )}
-              </SidebarMenuItem>
-            )}
+
             {hasSchematic && (
               <SidebarMenuItem>
                 {isSchematicActive ? (
@@ -283,38 +229,16 @@ const SideBarContactGroup = ({ session }: SideBarContactGroupProps) => {
               </SidebarMenuItem>
             )}
 
-            {hasQuotes && (
-              <SidebarMenuItem>
-                {isQuotesPathActive ? (
-                  <SidebarMenuButton isActive={true}>
-                    <Quote />
-                    <span>Quotes</span>
-                  </SidebarMenuButton>
-                ) : (
-                  <SidebarMenuButton asChild>
-                    <Link
-                      href={{
-                        pathname: quotesPath,
-                      }}
-                    >
-                      <Quote />
-                      <span>Quotes</span>
-                    </Link>
-                  </SidebarMenuButton>
-                )}
-              </SidebarMenuItem>
-            )}
-
             <Collapsible defaultOpen={true}>
               <CollapsibleTrigger asChild>
                 <SidebarMenuItem>
                   <SidebarMenuButton>
-                    <NotepadText />
-                    Forms
+                    <Handshake />
+                    Deals
                   </SidebarMenuButton>
                   <SidebarMenuAction className="transition-transform duration-200 data-[state=open]:rotate-90">
                     <ChevronRight />
-                    <span className="sr-only">Toggle Forms</span>
+                    <span className="sr-only">Toggle deals</span>
                   </SidebarMenuAction>
                 </SidebarMenuItem>
               </CollapsibleTrigger>

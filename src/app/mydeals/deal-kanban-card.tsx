@@ -34,22 +34,11 @@ export const DealCard = ({ deal, onSelect }: DealCardProps) => {
     return "bg-red-500";
   };
 
-  const handleSelect = () => {
-    onSelect?.(deal.id);
-  };
-
   return (
     <Card
       className="mb-3 hover:shadow-md transition-shadow cursor-pointer"
-      onClick={handleSelect}
       tabIndex={0}
       role="button"
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          handleSelect();
-        }
-      }}
     >
       <CardContent className="p-4">
         <div className="space-y-3">

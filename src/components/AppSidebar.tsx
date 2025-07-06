@@ -11,10 +11,7 @@ import {
   ListChecks,
   ChartLine,
   MessagesSquare,
-  PlusCircle,
 } from "lucide-react";
-import { Fragment } from "react";
-import Shopify from "./Icons/Shopify";
 
 import {
   Sidebar,
@@ -22,7 +19,6 @@ import {
   SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
