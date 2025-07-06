@@ -12,7 +12,14 @@ import { createDealNote } from "@/actions/deals/createDealNote";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Form, FormField, FormItem, FormControl, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormControl,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useSession } from "next-auth/react";
@@ -89,19 +96,21 @@ const EngagementsTab = ({ dealId }: EngagementsTabProps) => {
         <FormField
           control={form.control}
           name="content"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>New Note</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder="Add a note about this deal..."
-                  className="min-h-[80px] resize-none"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          render={({ field }) => {
+            return (
+              <FormItem>
+                <FormLabel>New Note</FormLabel>
+                <FormControl>
+                  <Textarea
+                    placeholder="Add a note about this deal..."
+                    className="min-h-[80px] resize-none"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            );
+          }}
         />
         <Button
           type="button"
