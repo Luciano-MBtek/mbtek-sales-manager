@@ -7,7 +7,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, Eye, FileText } from "lucide-react";
+import { MoreHorizontal, Eye, FileText, Delete, UserRound } from "lucide-react";
 import { TechnicalInformationModal } from "@/components/Modals/TechnicalInformation/TechnicalInformationModal";
 import { DealModal } from "@/components/Modals/Deal/DealModal";
 import DealLostModal from "@/components/Modals/Deal/DealLostModal";
@@ -74,19 +74,21 @@ export function DealCardOptions({
             </DropdownMenuItem>
           )}
           <DropdownMenuItem
-            onSelect={(e) => e.preventDefault()}
-            onClick={handleOpenLostModal}
-          >
-            <span>Mark as Lost</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            className="flex items-center justify-center bg-black text-white"
             onSelect={(e) => {
               e.preventDefault();
               router.push(`/contacts/${contactId}`);
             }}
           >
-            Open Contact
+            <UserRound className="mr-2 h-4 w-4" />
+            <span>Contact</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onSelect={(e) => e.preventDefault()}
+            onClick={handleOpenLostModal}
+            className=""
+          >
+            <Delete className=" mr-2 h-4 w-4" color="red" />
+            <span>Set Lost</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

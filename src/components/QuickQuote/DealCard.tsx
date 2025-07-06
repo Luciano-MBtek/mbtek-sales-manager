@@ -47,6 +47,11 @@ export const DealCard = ({
     deal.properties.closedate
   );
 
+  const isDealLost = (dealStageValue: string) => {
+    const dealStageName = getDealStageLabel(dealStageValue);
+    return dealStageName.includes("Closed Lost");
+  };
+
   const hasLineItems = deal.lineItems && deal.lineItems.length > 0;
 
   const getProgressColor = (percentage: number) => {
@@ -111,12 +116,14 @@ export const DealCard = ({
                 </div>
               </div>
               <div>
-                <Button
-                  className="bg-mbtek hover:bg-accent hover:text-mbtek"
-                  onClick={handleCreateQuote}
-                >
-                  {hasQuote ? "Update Quote" : "Create Quote"}
-                </Button>
+                {!isDealLost(deal.properties.dealstage) && (
+                  <Button
+                    className="bg-mbtek hover:bg-accent hover:text-mbtek"
+                    onClick={handleCreateQuote}
+                  >
+                    {hasQuote ? "Update Quote" : "Create Quote"}
+                  </Button>
+                )}
               </div>
             </div>
             <div className="flex items-center justify-between gap-6 mt-2">
