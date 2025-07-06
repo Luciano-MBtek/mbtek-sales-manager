@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { MoreHorizontal, Eye, FileText } from "lucide-react";
 import { TechnicalInformationModal } from "@/components/Modals/TechnicalInformation/TechnicalInformationModal";
 import { DealModal } from "@/components/Modals/Deal/DealModal";
+import DealLostModal from "@/components/Modals/Deal/DealLostModal";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 interface DealCardOptions {
@@ -27,6 +28,7 @@ export function DealCardOptions({
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isTechnicalInfoModalOpen, setIsTechnicalInfoModalOpen] =
     useState(false);
+  const [isLostModalOpen, setIsLostModalOpen] = useState(false);
   const router = useRouter();
 
   const handleOpenDealModal = () => {
@@ -37,6 +39,11 @@ export function DealCardOptions({
   const handleOpenTechnicalInfoModal = () => {
     setIsDropdownOpen(false);
     setIsTechnicalInfoModalOpen(true);
+  };
+
+  const handleOpenLostModal = () => {
+    setIsDropdownOpen(false);
+    setIsLostModalOpen(true);
   };
 
   return (
@@ -67,6 +74,12 @@ export function DealCardOptions({
             </DropdownMenuItem>
           )}
           <DropdownMenuItem
+            onSelect={(e) => e.preventDefault()}
+            onClick={handleOpenLostModal}
+          >
+            <span>Mark as Lost</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem
             className="flex items-center justify-center bg-black text-white"
             onSelect={(e) => {
               e.preventDefault();
@@ -88,6 +101,13 @@ export function DealCardOptions({
         isOpen={isTechnicalInfoModalOpen}
         onClose={() => setIsTechnicalInfoModalOpen(false)}
         dealId={dealId}
+      />
+
+      <DealLostModal
+        isOpen={isLostModalOpen}
+        onClose={() => setIsLostModalOpen(false)}
+        dealId={dealId}
+        pipeline={dealPipeline}
       />
     </>
   );
