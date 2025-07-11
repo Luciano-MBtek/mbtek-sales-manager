@@ -1,5 +1,5 @@
 "use client";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import BuildingNeedsContent from "@/components/Modals/TechnicalInformation/BuildingNeedsContent";
 import { patchDealProperties } from "@/actions/contact/patchDealProperties";
@@ -8,6 +8,7 @@ import {
   BuildingNeedsFormValues,
   convertBuildingFormToUpdateData,
 } from "@/types/complete-system/buildingTypes";
+import { Loader2 } from "lucide-react";
 
 interface StepOneFormProps {
   dealId: string;
@@ -22,12 +23,15 @@ export default function StepOneForm({
 }: StepOneFormProps) {
   const router = useRouter();
   const formRef = useRef<HTMLFormElement | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const handleComplete = async (data: BuildingNeedsFormValues) => {
+    setLoading(true);
     await patchDealProperties(
       dealId,
       convertBuildingFormToUpdateData(data, "zones-information")
     );
+    setLoading(false);
     router.push(`/deals/complete-system/${contactId}/deal/${dealId}/step-two`);
   };
   const handleSubmit = () => {
@@ -48,7 +52,8 @@ export default function StepOneForm({
 
       {/* Botones de navegación */}
       <div className="flex items-center justify-end mt-8 pt-4 border-t border-gray-200">
-        <Button type="button" onClick={handleSubmit}>
+        <Button type="button" onClick={handleSubmit} disabled={loading}>
+          {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
           Save & Continue
         </Button>
       </div>
