@@ -8,6 +8,7 @@ type Props = {
 
 export default async function Page({ params }: Props) {
   const { id, dealId } = await params;
+
   const dealData = await getDealById(dealId, true);
   const contactData = await GetContactById(id, true);
 
