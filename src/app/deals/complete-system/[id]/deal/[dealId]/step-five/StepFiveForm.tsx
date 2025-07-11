@@ -1,8 +1,9 @@
 "use client";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { patchDealProperties } from "@/actions/contact/patchDealProperties";
 import { Button } from "@/components/ui/button";
+import { Loader2 } from "lucide-react";
 import { BillingFormValues } from "@/types/complete-system/billingTypes";
 import {
   convertShippingFormToUpdateData,
@@ -25,12 +26,15 @@ export default function StepFiveForm({
 }: StepFiveFormProps) {
   const router = useRouter();
   const formRef = useRef<HTMLFormElement | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const handleComplete = async (data: ShippingFormValues) => {
+    setLoading(true);
     await patchDealProperties(
       dealId,
       convertShippingFormToUpdateData(data, "meeting")
     );
+    setLoading(false);
     router.push(`/deals/complete-system/${contactId}/deal/${dealId}/meeting`);
   };
 
@@ -59,7 +63,8 @@ export default function StepFiveForm({
           Back
         </Button>
 
-        <Button type="button" onClick={handleSubmit}>
+        <Button type="button" onClick={handleSubmit} disabled={loading}>
+          {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
           Save & Continue
         </Button>
       </div>

@@ -93,7 +93,7 @@ export default function BuildingNeedsContent({
   const form = useForm<BuildingNeedsFormValues>({
     resolver: zodResolver(buildingNeedsSchema),
     defaultValues: {
-      yearOfConstruction: initialData.yearOfConstruction || 0,
+      yearOfConstruction: Number(initialData.yearOfConstruction) || 0,
       insulationType: initialData.insulationType || "",
       specificNeeds: initialData.specificNeeds || [],
       otherSpecificNeed: initialData.otherSpecificNeed || "",
