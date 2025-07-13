@@ -23,10 +23,12 @@ const hubFetch = (url: string, init: RequestInit = {}) =>
 
 const taskProperties = ["hs_task_subject", "hs_task_status"];
 
-export async function getIncompleteTasks(): Promise<Task[]> {
+export async function getIncompleteTasks(
+  hubspotOwnerId?: string
+): Promise<Task[]> {
   if (!process.env.HUBSPOT_API_KEY) throw new Error("Missing HUBSPOT_API_KEY");
 
-  const ownerId = await getHubspotOwnerIdSession();
+  const ownerId = hubspotOwnerId ?? (await getHubspotOwnerIdSession());
 
   const searchBody = {
     properties: taskProperties,

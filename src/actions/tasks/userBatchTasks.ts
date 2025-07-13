@@ -204,10 +204,11 @@ export async function getUserBatchTasks(
   timeRange: "daily" | "weekly" | "monthly" = "weekly",
   after?: string,
   fromDate?: string,
-  toDate?: string
+  toDate?: string,
+  hubspotOwnerId?: string
 ) {
   try {
-    const ownerId = await getHubspotOwnerIdSession();
+    const ownerId = hubspotOwnerId ?? (await getHubspotOwnerIdSession());
     //const ownerId = "719106449"; // Byron
     return getOwnerTasks(ownerId, timeRange, after, fromDate, toDate);
   } catch (error) {

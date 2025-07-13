@@ -51,8 +51,12 @@ async function leadsCount(
   }
 }
 
-export async function getLeadsCount(fromDate?: string, toDate?: string) {
-  const userId = await getHubspotOwnerIdSession();
+export async function getLeadsCount(
+  fromDate?: string,
+  toDate?: string,
+  hubspotOwnerId?: string
+) {
+  const userId = hubspotOwnerId ?? (await getHubspotOwnerIdSession());
   // const managerIdTest = "719106449"; // Byron
   return leadsCount(userId, fromDate, toDate);
 }

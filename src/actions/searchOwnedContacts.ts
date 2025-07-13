@@ -127,8 +127,11 @@ async function getContactsBatch(contactIds: string[]) {
   }
 }
 
-export async function getContactsByOwnerId(after?: string) {
-  const userId = await getHubspotOwnerIdSession();
+export async function getContactsByOwnerId(
+  after?: string,
+  hubspotOwnerId?: string
+) {
+  const userId = hubspotOwnerId ?? (await getHubspotOwnerIdSession());
   //const managerIdTest = "719106449";
 
   // Step 1: Get contact IDs

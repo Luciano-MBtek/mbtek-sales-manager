@@ -42,10 +42,12 @@ async function AnalyticsPage({ searchParams }: { searchParams: SearchParams }) {
   const fullFrom = previousFrom.toISOString();
   const fullTo = dateRange.toISO;
 
+  const hubspotId = typeof params.hubspotId === "string" ? params.hubspotId : undefined;
+
   const [contactsLeads, dealsData, qtimes] = await Promise.all([
-    getContactsAndLeadsInRange(fullFrom, fullTo),
-    getDealsInRange(fullFrom, fullTo),
-    getQualificationTimesInRange(fullFrom, fullTo),
+    getContactsAndLeadsInRange(fullFrom, fullTo, hubspotId),
+    getDealsInRange(fullFrom, fullTo, hubspotId),
+    getQualificationTimesInRange(fullFrom, fullTo, hubspotId),
   ]);
 
   const isCurrent = (d: string) =>

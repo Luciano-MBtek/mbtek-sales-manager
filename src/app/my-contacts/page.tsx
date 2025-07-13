@@ -8,8 +8,15 @@ export const metadata: Metadata = {
   description: "Contacts associated with sales representative.",
 };
 
-const OwnedContactPage = async () => {
-  const ownedContacts = await getContactsByOwnerId();
+const OwnedContactPage = async ({
+  searchParams,
+}: {
+  searchParams: { hubspotId?: string };
+}) => {
+  const ownedContacts = await getContactsByOwnerId(
+    undefined,
+    searchParams?.hubspotId
+  );
 
   const contacts = ownedContacts.results;
   const total = ownedContacts.total;
@@ -26,6 +33,7 @@ const OwnedContactPage = async () => {
           contacts={contacts}
           initialTotal={total}
           after={after}
+          hubspotId={searchParams?.hubspotId}
         />
       ) : (
         <p>No contacts yet.</p>

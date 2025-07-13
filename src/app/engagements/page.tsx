@@ -4,6 +4,7 @@ import PageHeader from "@/components/PageHeader";
 type SearchParams = {
   timeRange?: "weekly" | "monthly" | "allTime";
   filter?: string;
+  hubspotId?: string;
 };
 
 export default async function Page({
@@ -19,7 +20,10 @@ export default async function Page({
         subtitle="Manage your lead's engagements and activities"
       />
       <div className="w-full pr-4">
-        <LeadsActivitiesList searchParams={params} />
+        <LeadsActivitiesList
+          searchParams={params}
+          hubspotId={params.hubspotId}
+        />
       </div>
     </div>
   );

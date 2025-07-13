@@ -9,8 +9,12 @@ export const metadata: Metadata = {
   description: "Deals associated with contact owner.",
 };
 
-const MeetingsPage = async () => {
-  const meetings = await getAllOwnersMeetings();
+const MeetingsPage = async ({
+  searchParams,
+}: {
+  searchParams: { hubspotId?: string };
+}) => {
+  const meetings = await getAllOwnersMeetings(searchParams?.hubspotId);
 
   return (
     <div className="container mx-auto py-10">
