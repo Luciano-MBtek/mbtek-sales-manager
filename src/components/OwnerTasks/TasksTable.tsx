@@ -49,6 +49,7 @@ interface TasksTableProps {
   timeRange: "weekly" | "monthly" | "daily";
   initialNextAfter?: string;
   initialTaskId?: string;
+  hubspotId?: string;
 }
 
 export function TasksTable({
@@ -56,6 +57,7 @@ export function TasksTable({
   timeRange,
   initialNextAfter,
   initialTaskId,
+  hubspotId,
 }: TasksTableProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
@@ -112,7 +114,13 @@ export function TasksTable({
 
     setIsLoading(true);
     try {
-      const result = await getUserBatchTasks(timeRange, nextAfter);
+      const result = await getUserBatchTasks(
+        timeRange,
+        nextAfter,
+        undefined,
+        undefined,
+        hubspotId
+      );
 
       if (result.tasks && result.tasks.length > 0) {
         setTasks((prev) => [...prev, ...result.tasks]);
@@ -127,7 +135,7 @@ export function TasksTable({
     } finally {
       setIsLoading(false);
     }
-  }, [timeRange, nextAfter, isLoading, hasMore]);
+  }, [timeRange, nextAfter, isLoading, hasMore, hubspotId]);
 
   const filterGroups = useMemo<FilterGroup[]>(() => {
     const statuses = new Set<string>();

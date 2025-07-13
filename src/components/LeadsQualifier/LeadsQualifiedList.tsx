@@ -10,14 +10,16 @@ type SearchParams = { timeRange?: "weekly" | "monthly" | "allTime" };
 
 export async function LeadsQualifiedList({
   searchParams,
+  hubspotId,
 }: {
   searchParams: SearchParams;
+  hubspotId?: string;
 }) {
   const timeRange = (searchParams.timeRange ?? "monthly") as
     | "weekly"
     | "monthly"
     | "allTime";
-  const leads = await getQualifiedLeads(timeRange);
+  const leads = await getQualifiedLeads(timeRange, hubspotId);
 
   const leadsIds = leads.map((lead: LeadProps) => lead.id);
 
