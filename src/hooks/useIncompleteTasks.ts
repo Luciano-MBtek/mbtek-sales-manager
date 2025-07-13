@@ -4,10 +4,10 @@ import { Task } from "@/types/Tasks";
 
 const ONE_HOUR = 1000 * 60 * 60;
 
-export function useIncompleteTasks() {
+export function useIncompleteTasks(hubspotOwnerId?: string) {
   return useQuery<Task[]>({
-    queryKey: ["incompleteTasks"],
-    queryFn: getIncompleteTasks,
+    queryKey: ["incompleteTasks", hubspotOwnerId],
+    queryFn: () => getIncompleteTasks(hubspotOwnerId),
     staleTime: ONE_HOUR,
     gcTime: ONE_HOUR,
     refetchInterval: ONE_HOUR,

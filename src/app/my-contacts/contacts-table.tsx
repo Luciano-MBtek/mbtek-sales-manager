@@ -88,7 +88,7 @@ const OwnedContactsTable = ({
     } finally {
       setIsLoading(false);
     }
-  }, [currentAfter, isLoading, hasMore]);
+  }, [currentAfter, isLoading, hasMore, hubspotId]);
 
   const filteredContacts = contacts.filter((contact) => {
     const searchLower = searchQuery.toLowerCase().trim();

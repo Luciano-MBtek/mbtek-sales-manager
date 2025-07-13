@@ -114,7 +114,13 @@ export function TasksTable({
 
     setIsLoading(true);
     try {
-      const result = await getUserBatchTasks(timeRange, nextAfter, undefined, undefined, hubspotId);
+      const result = await getUserBatchTasks(
+        timeRange,
+        nextAfter,
+        undefined,
+        undefined,
+        hubspotId
+      );
 
       if (result.tasks && result.tasks.length > 0) {
         setTasks((prev) => [...prev, ...result.tasks]);
@@ -129,7 +135,7 @@ export function TasksTable({
     } finally {
       setIsLoading(false);
     }
-  }, [timeRange, nextAfter, isLoading, hasMore]);
+  }, [timeRange, nextAfter, isLoading, hasMore, hubspotId]);
 
   const filterGroups = useMemo<FilterGroup[]>(() => {
     const statuses = new Set<string>();
