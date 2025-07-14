@@ -27,14 +27,7 @@ import { PopoverTriggerProps } from "@radix-ui/react-popover";
 import { useState } from "react";
 import CreateUserForm from "./createUserForm";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  accessLevel: string;
-  hubspotId: string;
-}
+import { User } from "@prisma/client";
 
 // Update TeamSwitcherProps to include users
 interface TeamSwitcherProps extends PopoverTriggerProps {
@@ -45,31 +38,30 @@ interface TeamSwitcherProps extends PopoverTriggerProps {
 function transformUsersToGroups(users: User[]) {
   const groupedUsers = users.reduce(
     (acc, user) => {
-      const group = acc.find(
-        (g) => g.label.toLowerCase() === user.accessLevel + "s"
-      );
+      // Usar una clave normalizada para la comparación
+      const normalizedAccessLevel = user.accessLevel.toLowerCase() + "s";
+      const group = acc.find((g) => g.normalizedKey === normalizedAccessLevel);
+
       if (group) {
         group.teams.push({
           label: user.name,
-          value: user.id,
+          value: user.id.toString(),
           email: user.email,
-          hubspotId: user.hubspotId,
+          hubspotId: user.hubspotId || undefined,
         });
       } else {
         acc.push({
           label:
-            user.accessLevel
-              .replace(/_/g, " ") // Reemplaza todos los guiones bajos por espacios
-              .charAt(0)
-              .toUpperCase() +
+            user.accessLevel.replace(/_/g, " ").charAt(0).toUpperCase() +
             user.accessLevel.replace(/_/g, " ").slice(1) +
             "s",
+          normalizedKey: normalizedAccessLevel,
           teams: [
             {
               label: user.name,
-              value: user.id,
+              value: user.id.toString(),
               email: user.email,
-              hubspotId: user.hubspotId,
+              hubspotId: user.hubspotId || undefined,
             },
           ],
         });
@@ -78,6 +70,7 @@ function transformUsersToGroups(users: User[]) {
     },
     [] as {
       label: string;
+      normalizedKey: string;
       teams: {
         label: string;
         value: string;
@@ -94,9 +87,11 @@ export default function TeamSwitcher({ users }: TeamSwitcherProps) {
   const groups = transformUsersToGroups(users);
   const [open, setOpen] = useState(false);
   const [showNewTeamDialog, setShowNewTeamDialog] = useState(false);
-  const [selectedTeam, setSelectedTeam] = useState(
-    groups[0]?.teams[0] || { label: "", value: "", email: "" }
-  );
+  const [selectedTeam, setSelectedTeam] = useState({
+    label: "Select a user",
+    value: "all",
+    email: "",
+  });
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -138,11 +133,11 @@ export default function TeamSwitcher({ users }: TeamSwitcherProps) {
             <CommandInput placeholder="Search team..." />
             <CommandList>
               <CommandEmpty>No team found.</CommandEmpty>
-              <CommandGroup heading="General">
+              <CommandGroup heading="">
                 <CommandItem
                   onSelect={() => {
                     setSelectedTeam({
-                      label: "All Users",
+                      label: "Select a user",
                       value: "all",
                       email: "",
                     });
@@ -159,7 +154,7 @@ export default function TeamSwitcher({ users }: TeamSwitcherProps) {
                     />
                     <AvatarFallback>ALL</AvatarFallback>
                   </Avatar>
-                  All Users
+                  You
                   <Check
                     className={cn(
                       "ml-auto",

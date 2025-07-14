@@ -51,7 +51,7 @@ const items = [
     url: "/active-qualifications",
     icon: ListTodo,
     requireAuth: true,
-    // requireRole: ["owner", "lead_agent"],
+    requireRole: ["owner", "lead_agent", "admin"],
   },
   {
     title: "My Tasks",
@@ -64,16 +64,16 @@ const items = [
     url: "/analytics",
     icon: ChartLine,
     requireAuth: true,
-    requireRole: ["owner", "lead_agent"],
+    requireRole: ["owner", "lead_agent", "admin"],
   },
 
-  {
+  /* {
     title: "User Dashboard",
     url: "/dashboard",
     icon: LayoutDashboard,
     requireAuth: true,
     requireRole: ["admin", "owner"],
-  },
+  }, */
   {
     title: "My Deals",
     url: "/mydeals",
@@ -93,15 +93,15 @@ const items = [
     url: "/engagements",
     icon: MessagesSquare,
     requireAuth: true,
-    requireRole: ["owner", "lead_agent", "sales_agent"],
+    requireRole: ["owner", "lead_agent", "sales_agent", "admin"],
   },
-  {
+  /*  {
     title: "Admin Dashboard",
     url: "/admin-dashboard",
     icon: MonitorCog,
     requireAuth: true,
     requireRole: ["admin", "owner"],
-  },
+  }, */
 ];
 
 export function AppSidebar() {
@@ -132,12 +132,12 @@ export function AppSidebar() {
               {filteredItems.map((item) =>
                 item.title === "Qualification" ? (
                   session?.user?.accessLevel &&
-                  ["owner", "lead_agent"].includes(
+                  ["owner", "lead_agent", "admin"].includes(
                     session.user.accessLevel
                   ) && <SidebarQualification key={item.title} />
                 ) : item.title === "Engagements" ? (
                   session?.user?.accessLevel &&
-                  ["owner", "lead_agent", "sales_agent"].includes(
+                  ["owner", "lead_agent", "sales_agent", "admin"].includes(
                     session.user.accessLevel
                   ) && <SidebarActivities key={item.title} />
                 ) : (
@@ -152,10 +152,7 @@ export function AppSidebar() {
                   </SidebarMenuItem>
                 )
               )}
-              {session?.user?.accessLevel &&
-                ["admin", "owner", "sales_agent", "lead_agent"].includes(
-                  session.user.accessLevel
-                ) && <SidebarResources />}
+              <SidebarResources />
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

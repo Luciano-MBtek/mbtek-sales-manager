@@ -10,9 +10,10 @@ export type ContactLeadInfo = {
 
 export async function getContactsAndLeadsInRange(
   fromISO: string,
-  toISO: string
+  toISO: string,
+  hubspotOwnerId?: string
 ) {
-  const ownerId = await getHubspotOwnerIdSession();
+  const ownerId = hubspotOwnerId ?? (await getHubspotOwnerIdSession());
   const contacts: ContactLeadInfo[] = [];
   let after: string | undefined;
   do {
@@ -55,8 +56,12 @@ export async function getContactsAndLeadsInRange(
 
 export type DealInfo = { createdate: string };
 
-export async function getDealsInRange(fromISO: string, toISO: string) {
-  const ownerId = await getHubspotOwnerIdSession();
+export async function getDealsInRange(
+  fromISO: string,
+  toISO: string,
+  hubspotOwnerId?: string
+) {
+  const ownerId = hubspotOwnerId ?? (await getHubspotOwnerIdSession());
   const deals: DealInfo[] = [];
   let after: string | undefined;
 
@@ -106,9 +111,10 @@ export type QualificationInfo = { createdate: string; diffMs: number };
 
 export async function getQualificationTimesInRange(
   fromISO: string,
-  toISO: string
+  toISO: string,
+  hubspotOwnerId?: string
 ) {
-  const ownerId = await getHubspotOwnerIdSession();
+  const ownerId = hubspotOwnerId ?? (await getHubspotOwnerIdSession());
   const ids: string[] = [];
   let after: string | undefined;
 

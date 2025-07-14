@@ -29,7 +29,9 @@ async function HomePage({ searchParams }: { searchParams: SearchParams }) {
       ? "Lead Qualification Dashboard"
       : accessLevel === "sales_agent"
         ? "Sales Overview"
-        : "Lead Qualification Dashboard";
+        : accessLevel === "admin" || accessLevel === "owner"
+          ? "Admin Dashboard"
+          : "Lead Qualification Dashboard";
 
   return (
     <div className="flex flex-col w-full h-full mt-[--header-height]">

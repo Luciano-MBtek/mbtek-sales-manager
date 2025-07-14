@@ -12,8 +12,10 @@ type SearchParams = {
 
 export async function OwnerTasksList({
   searchParams,
+  hubspotId,
 }: {
   searchParams: SearchParams;
+  hubspotId?: string;
 }) {
   let timeRange: "daily" | "weekly" | "monthly" = "monthly";
 
@@ -33,7 +35,8 @@ export async function OwnerTasksList({
     timeRange,
     undefined,
     searchParams.from,
-    searchParams.to
+    searchParams.to,
+    hubspotId
   );
 
   const tasks = result.tasks || [];
@@ -46,6 +49,7 @@ export async function OwnerTasksList({
         timeRange={timeRange}
         initialNextAfter={nextAfter}
         initialTaskId={searchParams.taskId}
+        hubspotId={hubspotId}
       />
     </Suspense>
   );

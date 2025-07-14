@@ -308,9 +308,10 @@ async function getOwnerEngagements(
 // PUBLIC WRAPPER -----------------------------------------------------------
 export async function getLeadsBatchActivities(
   timeRange: "weekly" | "monthly" | "allTime" = "weekly",
-  after?: string
+  after?: string,
+  hubspotOwnerId?: string
 ) {
-  const ownerId = await getHubspotOwnerIdSession();
+  const ownerId = hubspotOwnerId ?? (await getHubspotOwnerIdSession());
   //const ownerId = "719106449"; // Byron (test)
   return getOwnerEngagements(ownerId, timeRange, after);
 }
