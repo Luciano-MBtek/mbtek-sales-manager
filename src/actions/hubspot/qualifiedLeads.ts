@@ -148,8 +148,11 @@ async function leadsQualified(userId: string, timeRange: string = "weekly") {
   }
 }
 
-export async function getQualifiedLeads(timeRange: string = "weekly") {
-  const userId = await getHubspotOwnerIdSession();
+export async function getQualifiedLeads(
+  timeRange: string = "weekly",
+  hubspotOwnerId?: string
+) {
+  const userId = hubspotOwnerId ?? (await getHubspotOwnerIdSession());
   console.log("userId", userId);
   // const userId = "719106449"; // Byron
   const leads = await leadsQualified(userId, timeRange);

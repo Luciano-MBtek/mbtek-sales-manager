@@ -14,6 +14,9 @@ import { FloatingChatWrapper } from "@/components/ChatBot/FloatingChatWrapper";
 import { AppHeader } from "@/components/AppHeader";
 import { AppHeaderSkeleton } from "@/components/Skeletons/AppHeaderSkeleton";
 import { Suspense } from "react";
+import { getAllUsers } from "@/actions/user/getAllUsers";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/authOptions";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -45,6 +48,9 @@ export default async function RootLayout({
     queryFn: getAllOwners,
   });
 
+  const userData = await getAllUsers();
+  const session = await getServerSession(authOptions);
+
   return (
     <html lang="en">
       <body className={inter.className}>
@@ -53,7 +59,7 @@ export default async function RootLayout({
             <AccessDeniedToast />
             <div className="flex flex-col w-full">
               <Suspense fallback={<AppHeaderSkeleton />}>
-                <AppHeader />
+                <AppHeader users={userData} session={session} />
               </Suspense>
               <div className="flex w-full">
                 <AppSidebar />

@@ -5,6 +5,7 @@ import StartQualificationModal from "@/components/LeadsQualifier/StartQualificat
 type SearchParams = {
   timeRange?: "weekly" | "monthly" | "allTime";
   startQualification?: string;
+  hubspotId?: string;
 };
 
 export default async function Page({
@@ -22,7 +23,10 @@ export default async function Page({
       {/* Trigger modal when URL contains startQualification */}
       <StartQualificationModal />
       <div className="w-full pr-4">
-        <LeadsQualifiedList searchParams={params} />
+        <LeadsQualifiedList
+          searchParams={params}
+          hubspotId={params.hubspotId}
+        />
       </div>
     </div>
   );

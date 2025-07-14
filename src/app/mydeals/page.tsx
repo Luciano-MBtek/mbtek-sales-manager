@@ -7,9 +7,17 @@ export const metadata: Metadata = {
   title: "My Deals",
   description: "Deals associated with contact owner.",
 };
+type SearchParams = {
+  hubspotId?: string;
+};
 
-const DealsPage = async () => {
-  const deals = await getDealsByUserId();
+const DealsPage = async ({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>;
+}) => {
+  const params = await searchParams;
+  const deals = await getDealsByUserId(params.hubspotId);
 
   return (
     <div className="container mx-auto py-6">

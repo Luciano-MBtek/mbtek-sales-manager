@@ -1,9 +1,10 @@
 "use client";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import DocumentationContent from "@/components/Modals/TechnicalInformation/DocumentationContent";
 import { patchDealProperties } from "@/actions/contact/patchDealProperties";
 import { Button } from "@/components/ui/button";
+import { Loader2 } from "lucide-react";
 
 interface StepThreeFormProps {
   dealId: string;
@@ -18,11 +19,14 @@ export default function StepThreeForm({
 }: StepThreeFormProps) {
   const router = useRouter();
   const formRef = useRef<HTMLFormElement | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const handleComplete = async (_data: any) => {
+    setLoading(true);
     await patchDealProperties(dealId, {
       last_step: "step-4",
     });
+    setLoading(false);
     router.push(`/deals/complete-system/${contactId}/deal/${dealId}/step-four`);
   };
 
@@ -51,7 +55,8 @@ export default function StepThreeForm({
           Back
         </Button>
 
-        <Button type="button" onClick={handleSubmit}>
+        <Button type="button" onClick={handleSubmit} disabled={loading}>
+          {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
           Save & Continue
         </Button>
       </div>

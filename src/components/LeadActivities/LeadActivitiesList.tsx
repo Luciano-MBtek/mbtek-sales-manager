@@ -8,15 +8,17 @@ type SearchParams = {
 
 export async function LeadsActivitiesList({
   searchParams,
+  hubspotId,
 }: {
   searchParams: SearchParams;
+  hubspotId?: string;
 }) {
   const timeRange = (searchParams.timeRange ?? "monthly") as
     | "weekly"
     | "monthly"
     | "allTime";
 
-  const result = await getLeadsBatchActivities(timeRange);
+  const result = await getLeadsBatchActivities(timeRange, undefined, hubspotId);
   const activities = result.engagements;
   const nextAfter = result.nextAfter;
 

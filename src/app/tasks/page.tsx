@@ -5,6 +5,7 @@ import PageHeader from "@/components/PageHeader";
 type SearchParams = {
   timeRange?: "weekly" | "monthly" | "daily";
   taskId?: string;
+  hubspotId?: string;
 };
 
 export default async function Page({
@@ -24,7 +25,10 @@ export default async function Page({
         <DateRangeSelect />
       </div>
       <div className="w-full pr-4">
-        <OwnerTasksList searchParams={params} />
+        <OwnerTasksList
+          searchParams={params}
+          hubspotId={params.hubspotId}
+        />
       </div>
     </div>
   );

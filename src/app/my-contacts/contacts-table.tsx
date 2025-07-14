@@ -33,12 +33,14 @@ interface DealsTableProps {
   contacts: OwnedContacts[];
   initialTotal: number;
   after: string;
+  hubspotId?: string;
 }
 
 const OwnedContactsTable = ({
   contacts: initialContacts,
   initialTotal,
   after: initialAfter,
+  hubspotId,
 }: DealsTableProps) => {
   const router = useRouter();
   const [currentPage, setCurrentPage] = useState(1);
@@ -70,7 +72,7 @@ const OwnedContactsTable = ({
 
     setIsLoading(true);
     try {
-      const newData = await getContactsByOwnerId(currentAfter);
+      const newData = await getContactsByOwnerId(currentAfter, hubspotId);
 
       if (newData.results.length > 0) {
         setContacts((prev) => [...prev, ...newData.results]);
@@ -86,7 +88,7 @@ const OwnedContactsTable = ({
     } finally {
       setIsLoading(false);
     }
-  }, [currentAfter, isLoading, hasMore]);
+  }, [currentAfter, isLoading, hasMore, hubspotId]);
 
   const filteredContacts = contacts.filter((contact) => {
     const searchLower = searchQuery.toLowerCase().trim();

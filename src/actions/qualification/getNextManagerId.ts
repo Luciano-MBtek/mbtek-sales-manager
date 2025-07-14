@@ -23,7 +23,7 @@ export async function getNextManagerId(): Promise<string> {
 
           let nextManager = await tx.user.findFirst({
             where: {
-              accessLevel: Role.manager,
+              accessLevel: Role.sales_agent,
               id: { gt: lastId },
             },
             orderBy: { id: "asc" },
@@ -32,7 +32,7 @@ export async function getNextManagerId(): Promise<string> {
 
           if (!nextManager) {
             nextManager = await tx.user.findFirst({
-              where: { accessLevel: Role.manager },
+              where: { accessLevel: Role.sales_agent },
               orderBy: { id: "asc" },
               select: { id: true, email: true },
             });

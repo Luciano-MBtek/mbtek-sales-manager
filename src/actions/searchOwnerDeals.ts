@@ -184,8 +184,8 @@ export async function searchOwnerDeals(ownerId: string): Promise<Deal[]> {
   }
 }
 
-export async function getDealsByUserId() {
-  const userId = await getHubspotOwnerIdSession();
+export async function getDealsByUserId(hubspotOwnerId?: string) {
+  const userId = hubspotOwnerId ?? (await getHubspotOwnerIdSession());
   //const userId = "79900767"; // Brian test
   return searchOwnerDeals(userId);
 }

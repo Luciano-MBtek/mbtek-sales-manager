@@ -232,8 +232,8 @@ export async function searchOwnerMeetings(ownerId: string) {
 // ---------------------------------------------------------------------------
 // Utility: same wrapper you already expose
 // ---------------------------------------------------------------------------
-export async function getAllOwnersMeetings() {
-  const ownerId = await getHubspotOwnerIdSession();
+export async function getAllOwnersMeetings(hubspotOwnerId?: string) {
+  const ownerId = hubspotOwnerId ?? (await getHubspotOwnerIdSession());
   // const ownerId = "79900767";
   return searchOwnerMeetings(ownerId);
 }

@@ -5,6 +5,7 @@ import { format } from "date-fns";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Quote } from "@/types/quoteTypes";
+import TemplateModal from "../Email/TemplateModal";
 
 interface QuoteDetailsCardProps {
   quoteDetails: Quote & { lineItems?: LineItem[] };
@@ -119,6 +120,8 @@ export default function QuoteDetailsCard({
                 View Terms
               </Button>
             )}
+
+            <TemplateModal quote={quoteDetails} />
           </div>
         </div>
       </CardContent>

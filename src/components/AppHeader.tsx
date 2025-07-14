@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import { useSession } from "next-auth/react";
 import { TaskNotifications } from "@/components/TaskNotifications";
 
 import { SearchInput } from "@/components/SearchInput";
@@ -16,21 +15,32 @@ import {
 } from "./ui/tooltip";
 import { useState } from "react";
 import BugModal from "./BugReport/BugModal";
+import { User } from "@prisma/client";
+import TeamSwitcher from "@/app/admin-dashboard/components/team-switcher";
+import { Session } from "next-auth";
 
-export function AppHeader() {
-  const { data: session } = useSession();
-
+export function AppHeader({
+  users,
+  session,
+}: {
+  users: User[];
+  session: Session | null;
+}) {
   const [isBugModalOpen, setIsBugModalOpen] = useState(false);
 
+  const accessLevel = session?.user?.accessLevel;
+
   const title =
-    session?.user?.accessLevel === "sales_agent" ||
-    session?.user?.accessLevel === "manager"
+    accessLevel === "sales_agent" || accessLevel === "manager"
       ? "Sales Closer Dashboard"
-      : "Lead Qualification Dashboard";
+      : accessLevel === "admin" || accessLevel === "owner"
+        ? "Admin View"
+        : "Lead Qualification Dashboard";
 
   const handleAIClick = () => {
     window.open("/agent-ai", "_blank", "noopener,noreferrer");
   };
+
   return (
     <>
       <header className="flex fixed items-center justify-between w-full border-b bg-background/80 backdrop-blur-sm p-8 max-h-[--header-height] z-[9998]">
@@ -40,6 +50,9 @@ export function AppHeader() {
           <h1 className="text-lg font-semibold whitespace-nowrap">{title}</h1>
         </div>
         <div className="flex items-center gap-4">
+          {accessLevel === "admin" || accessLevel === "owner" ? (
+            <TeamSwitcher users={users} />
+          ) : null}
           {/* button that opens new tab to  /agent-ai */}
           <TooltipProvider>
             <Tooltip>
