@@ -73,9 +73,23 @@ export const stepTwoQuickQuoteAction = async (
         operator: "HAS_PROPERTY",
       };
 
-      const productDetails = await Promise.all(
-        products.map((product) => searchProducts(product.id, [tagFilter]))
-      );
+      // Helper function to add delay between requests
+      const delay = (ms: number) =>
+        new Promise((resolve) => setTimeout(resolve, ms));
+
+      // Process products sequentially with delay to avoid rate limiting
+      const productDetails = [];
+      for (const product of products) {
+        try {
+          const result = await searchProducts(product.id, [tagFilter]);
+          productDetails.push(result);
+          // Add 100ms delay between requests to avoid rate limiting
+          await delay(100);
+        } catch (error) {
+          console.error(`Error fetching product ${product.id}:`, error);
+          productDetails.push(0); // Add 0 to maintain array structure
+        }
+      }
 
       const flattenedProducts = productDetails.flat();
 
@@ -100,11 +114,27 @@ export const stepTwoQuickQuoteAction = async (
           },
         ];
       } else if (lead.country === "USA") {
-        const productDetails = await Promise.all(
-          products.map((product) => searchProducts(product.id))
+        // Process products sequentially again for the second search
+        const productDetailsForRates = [];
+        for (const product of products) {
+          try {
+            const result = await searchProducts(product.id);
+            productDetailsForRates.push(result);
+            // Add 100ms delay between requests to avoid rate limiting
+            await delay(100);
+          } catch (error) {
+            console.error(
+              `Error fetching product ${product.id} for rates:`,
+              error
+            );
+            productDetailsForRates.push(0); // Add 0 to maintain array structure
+          }
+        }
+
+        const flattenedProducts = productDetailsForRates.flat();
+        const validProducts = productDetailsForRates.some(
+          (result) => result !== 0
         );
-        const flattenedProducts = productDetails.flat();
-        const validProducts = productDetails.some((result) => result !== 0);
         if (validProducts) {
           const { firstname, lastname, address, city, state, zip, country } =
             lead;

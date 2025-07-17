@@ -2,18 +2,19 @@
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import QuoteBillingContent from "@/components/Modals/TechnicalInformation/QuoteBillingContent";
-import { patchDealProperties } from "@/actions/contact/patchDealProperties";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import {
-  BillingFormValues,
-  convertBillingFormToUpdateData,
-} from "@/types/complete-system/billingTypes";
+  ContactFormValues,
+  convertContactFormToUpdateData,
+} from "@/types/quick-quote/contactTypes";
+import { patchContactProperties } from "@/actions/patchContactProperties";
+import { useToast } from "@/components/ui/use-toast";
 
 interface StepOneQuickQuoteFormProps {
   dealId: string;
   contactId: string;
-  initialData: Partial<BillingFormValues>;
+  initialData: Partial<ContactFormValues>;
 }
 
 export default function StepOneQuickQuoteForm({
@@ -24,15 +25,30 @@ export default function StepOneQuickQuoteForm({
   const router = useRouter();
   const formRef = useRef<HTMLFormElement | null>(null);
   const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
 
-  const handleComplete = async (data: BillingFormValues) => {
+  const handleComplete = async (data: ContactFormValues) => {
     setLoading(true);
-    await patchDealProperties(
-      dealId,
-      convertBillingFormToUpdateData(data, "step-two")
-    );
-    setLoading(false);
-    router.push(`/deals/quick-quote/${contactId}/quote/${dealId}/step-two`);
+    try {
+      await patchContactProperties(
+        contactId,
+        convertContactFormToUpdateData(data)
+      );
+      toast({
+        title: "Contact Updated",
+        description: "The contact was updated successfully.",
+        variant: "default",
+      });
+      router.push(`/deals/quick-quote/${contactId}/quote/${dealId}/step-two`);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "There was an error updating the contact.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSubmit = () => {
