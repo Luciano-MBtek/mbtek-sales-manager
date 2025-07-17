@@ -1,10 +1,16 @@
-import { getPurchaseOptions, PurchaseOption } from "@/actions/contact/createDownpayCart";
+import {
+  getPurchaseOptions,
+  PurchaseOption,
+} from "@/actions/contact/createDownpayCart";
 import { getDealLineItems } from "@/actions/deals/getDealLineItems";
 import { getDealById } from "@/actions/deals/getDealsById";
 import StepTwoQuickQuote from "./StepTwoQuickQuote";
 import { LineItem } from "@/types/dealTypes";
 
-export const metadata = { title: "Quick Quote - Step Two", description: "Add products" };
+export const metadata = {
+  title: "Quick Quote - Step Two",
+  description: "Add products",
+};
 
 type Props = { params: Promise<{ id: string; dealId: string }> };
 
