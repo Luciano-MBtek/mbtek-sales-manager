@@ -564,8 +564,13 @@ export const closeLostReasons = [
   { label: "Customer Service Issues", value: "Customer Service Issues" },
   { label: "Lost Contact", value: "Lost Contact" },
   { label: "External Factors", value: "External Factors" },
-  { label: "Cancelled Abandoned Checkout", value: "Cancelled Abandoned Checkout" },
+  {
+    label: "Cancelled Abandoned Checkout",
+    value: "Cancelled Abandoned Checkout",
+  },
   { label: "Other", value: "Other" },
 ];
 
-export const closeLostReasonValues = closeLostReasons.map((reason) => reason.value);
+export const closeLostReasonValues = closeLostReasons.map(
+  (reason) => reason.value
+);

@@ -10,6 +10,12 @@ const nextConfig = {
       },
       {
         protocol: "https",
+        hostname: "www.mbtek.com",
+        port: "",
+        pathname: "/cdn/shop/files/**",
+      },
+      {
+        protocol: "https",
         hostname: "api-na1.hubspot.com",
         port: "",
         pathname: "/**",

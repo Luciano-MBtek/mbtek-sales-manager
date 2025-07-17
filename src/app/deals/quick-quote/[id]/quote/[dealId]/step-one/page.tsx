@@ -12,37 +12,15 @@ export default async function Page({ params }: Props) {
   const contactData = await GetContactById(id, true);
 
   const initialData = {
-    zipCode: dealData?.properties?.billing_zip || contactData?.properties?.zip || "",
-    firstName:
-      dealData?.properties?.billing_first_name ||
-      contactData?.properties?.firstname ||
-      "",
-    lastName:
-      dealData?.properties?.billing_last_name ||
-      contactData?.properties?.lastname ||
-      "",
-    email:
-      dealData?.properties?.billing_email ||
-      contactData?.properties?.email ||
-      "",
-    phone:
-      dealData?.properties?.billing_phone ||
-      contactData?.properties?.phone ||
-      "",
-    address:
-      dealData?.properties?.billing_address ||
-      contactData?.properties?.address ||
-      "",
-    city:
-      dealData?.properties?.billing_city || contactData?.properties?.city || "",
-    state:
-      dealData?.properties?.billing_state ||
-      contactData?.properties?.state ||
-      "",
-    country:
-      dealData?.properties?.billing_country ||
-      contactData?.properties?.country ||
-      "",
+    zipCode: contactData?.properties?.zip || "",
+    firstName: contactData?.properties?.firstname || "",
+    lastName: contactData?.properties?.lastname || "",
+    email: contactData?.properties?.email || "",
+    phone: contactData?.properties?.phone || "",
+    address: contactData?.properties?.address || "",
+    city: contactData?.properties?.city || "",
+    state: contactData?.properties?.state || "",
+    country: contactData?.properties?.country || "",
   };
 
   return (
