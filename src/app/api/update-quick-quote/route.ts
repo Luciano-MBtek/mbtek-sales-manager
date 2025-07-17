@@ -39,11 +39,6 @@ export async function POST(request: Request) {
     dealOwnerId,
   } = body;
 
-  console.log("dealId:", dealId);
-  console.log("contactId:", contactId);
-  console.log("quoteId:", quoteId);
-  console.log("Draft Order Id:", draftOrderId);
-
   const encoder = new TextEncoder();
 
   const readable = new ReadableStream({

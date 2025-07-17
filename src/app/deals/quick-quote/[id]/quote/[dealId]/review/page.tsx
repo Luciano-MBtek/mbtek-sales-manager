@@ -3,7 +3,10 @@ import { getDealById } from "@/actions/deals/getDealsById";
 import StepThreeQuickQuote from "./StepThreeQuickQuote";
 import { Metadata } from "next";
 import { LineItem } from "@/types/dealTypes";
-import { getPurchaseOptions, PurchaseOption } from "@/actions/contact/createDownpayCart";
+import {
+  getPurchaseOptions,
+  PurchaseOption,
+} from "@/actions/contact/createDownpayCart";
 import { getQuoteByDealId } from "@/actions/quote/getQuoteByDealId";
 import { getQuoteFullDetail } from "@/actions/quote/getQuoteFullDetail";
 import { GetContactById } from "@/actions/getContactById";
@@ -53,6 +56,7 @@ const page = async ({ params }: Props) => {
     <StepThreeQuickQuote
       dealId={dealId}
       contactId={id}
+      contact={contact}
       products={products}
       splitPayment={splitPayment}
       purchaseOptionId={purchaseOptionId}

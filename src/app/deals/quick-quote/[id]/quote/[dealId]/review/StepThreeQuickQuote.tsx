@@ -47,7 +47,6 @@ import { Rate } from "@/types";
 import Shopify from "@/components/Icons/Shopify";
 import { WheelProgress } from "@/components/ui/wheel-progress";
 import { createFormSubmitHandler } from "@/lib/sse";
-import { useContactStore } from "@/store/contact-store";
 import { Quote } from "@/types/quoteTypes";
 import { LineItem } from "@/types/dealTypes";
 import QuoteDetailsCard from "@/components/Quote/QuoteDetailsCard";
@@ -56,6 +55,7 @@ interface StepThreeQuickQuoteProps {
   dealId: string;
   contactId: string;
   dealOwnerId: string;
+  contact: any;
   products: any[];
   splitPayment: string;
   purchaseOptionId: string;
@@ -69,6 +69,7 @@ interface StepThreeQuickQuoteProps {
 const StepThreeQuickQuote = ({
   dealId,
   contactId,
+  contact,
   dealOwnerId,
   products,
   splitPayment,
@@ -93,7 +94,7 @@ const StepThreeQuickQuote = ({
   const searchParams = useSearchParams();
   const { toast } = useToast();
   const router = useRouter();
-  const { contact } = useContactStore();
+
   const ratesParam = searchParams.get("rates");
 
   const hasQuote = quoteId !== undefined;
@@ -128,16 +129,16 @@ const StepThreeQuickQuote = ({
     dealId,
     contactId,
     dealOwnerId,
-    name: contact?.firstname || "",
-    lastname: contact?.lastname || "",
-    email: contact?.email || "",
-    phone: contact?.phone || "",
-    country: contact?.country || "",
-    city: contact?.city || "",
-    zip: contact?.zip || "",
-    address: contact?.address || "",
-    state: contact?.state || "",
-    province: contact?.province || "",
+    name: contact.properties.firstname,
+    lastname: contact.properties.lastname,
+    email: contact.properties.email,
+    phone: contact.properties.phone,
+    country: contact.properties.country_us_ca,
+    city: contact.properties.city,
+    zip: contact.properties.zip,
+    address: contact.properties.address,
+    state: contact.properties.state,
+    province: contact.properties.province,
     splitPayment,
     purchaseOptionId,
     products,
@@ -145,16 +146,16 @@ const StepThreeQuickQuote = ({
   });
 
   const contactData = {
-    firstname: contact?.firstname || "",
-    lastname: contact?.lastname || "",
-    email: contact?.email || "",
-    phone: contact?.phone || "",
-    country_us_ca: contact?.country || "",
-    city: contact?.city || "",
-    zip: contact?.zip || "",
-    address: contact?.address || "",
-    state_usa: contact?.state || "",
-    province: contact?.province || "",
+    firstname: contact.properties.firstname,
+    lastname: contact.properties.lastname,
+    email: contact.properties.email,
+    phone: contact.properties.phone,
+    country_us_ca: contact.properties.country_us_ca,
+    city: contact.properties.city,
+    zip: contact.properties.zip,
+    address: contact.properties.address,
+    state_usa: contact.properties.state,
+    province: contact.properties.province,
   };
 
   useEffect(() => {
