@@ -1,3 +1,4 @@
+import { canadaProvinces } from "@/types";
 export interface ContactFormValues {
   firstName: string;
   lastName: string;
@@ -26,6 +27,11 @@ export interface ContactUpdateData {
 export function convertContactFormToUpdateData(
   data: ContactFormValues
 ): ContactUpdateData {
+  // Create a map of province labels to values for quick lookup
+  const provinceMap = Object.fromEntries(
+    canadaProvinces.map((p) => [p.label, p.value])
+  );
+
   return {
     firstname: data.firstName,
     lastname: data.lastName,
@@ -37,6 +43,6 @@ export function convertContactFormToUpdateData(
     country_us_ca: data.country,
     ...(data.country === "USA"
       ? { state: data.state }
-      : { province: data.state }),
+      : { province_territory: provinceMap[data.state] || data.state }),
   };
 }
