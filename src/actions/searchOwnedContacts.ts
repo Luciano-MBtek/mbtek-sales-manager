@@ -149,3 +149,140 @@ export async function getContactsByOwnerId(
     results: contactsData.results,
   };
 }
+
+// New function to search contacts by term
+export async function searchContactsByTerm(
+  searchTerm: string,
+  hubspotOwnerId?: string
+) {
+  try {
+    const apiKey = process.env.HUBSPOT_API_KEY;
+    const userId = hubspotOwnerId ?? (await getHubspotOwnerIdSession());
+
+    if (!apiKey) {
+      throw new Error("HUBSPOT_API_KEY is not defined");
+    }
+
+    // Build owner filter
+    const ownerFilter = {
+      propertyName: "hubspot_owner_id",
+      operator: "EQ",
+      value: userId,
+    };
+
+    // Define the filter type
+    type PropertyFilter = {
+      propertyName: string;
+      operator: string;
+      value: string;
+    };
+
+    // Determine search type based on input pattern
+    const trimmedSearch = searchTerm.trim();
+    let searchFilters: PropertyFilter[] = [];
+
+    // Check if search includes @ symbol (email search)
+    if (trimmedSearch.includes("@")) {
+      searchFilters = [
+        {
+          propertyName: "email",
+          operator: "CONTAINS_TOKEN",
+          value: trimmedSearch,
+        },
+      ];
+    }
+    // Check if search contains only digits (phone search)
+    else if (/^\d+$/.test(trimmedSearch.replace(/[-()\s]/g, ""))) {
+      searchFilters = [
+        {
+          propertyName: "phone",
+          operator: "CONTAINS_TOKEN",
+          value: trimmedSearch,
+        },
+      ];
+    }
+    // Check if search contains space (first name + last name)
+    else if (trimmedSearch.includes(" ")) {
+      const [firstName, lastName] = trimmedSearch.split(" ").filter(Boolean);
+      if (firstName && lastName) {
+        searchFilters = [
+          {
+            propertyName: "firstname",
+            operator: "CONTAINS_TOKEN",
+            value: firstName,
+          },
+          {
+            propertyName: "lastname",
+            operator: "CONTAINS_TOKEN",
+            value: lastName,
+          },
+        ];
+      }
+    }
+    // Default case - search across multiple fields
+    else {
+      searchFilters = [
+        {
+          propertyName: "firstname",
+          operator: "CONTAINS_TOKEN",
+          value: trimmedSearch,
+        },
+      ];
+    }
+
+    // Create filter groups based on the search type
+    let filterGroups = [];
+
+    // For first name + last name search, we need AND logic between firstname and lastname
+    if (trimmedSearch.includes(" ") && searchFilters.length === 2) {
+      filterGroups = [
+        {
+          filters: [ownerFilter, ...searchFilters],
+        },
+      ];
+    }
+    // For other searches, use OR logic between different property searches
+    else {
+      filterGroups = searchFilters.map((filter) => ({
+        filters: [ownerFilter, filter],
+      }));
+    }
+
+    const response = await fetch(
+      `https://api.hubapi.com/crm/v3/objects/contacts/search`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          properties: [
+            "createdate",
+            "email",
+            "firstname",
+            "hs_object_id",
+            "address",
+            "lastmodifieddate",
+            "lastname",
+            "phone",
+            "company",
+            "lead_type",
+            "total_revenue",
+          ],
+          filterGroups: filterGroups,
+          limit: 100,
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`HubSpot API error: ${response.statusText}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error searching contacts:", error);
+    throw new Error("Failed to search contacts");
+  }
+}
