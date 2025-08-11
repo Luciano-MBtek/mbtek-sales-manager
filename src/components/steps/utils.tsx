@@ -46,6 +46,10 @@ const leadQualificationProperties = [
       step: 1,
     },
     state_usa: {
+      friendlyName: "State Select",
+      step: 1,
+    },
+    state: {
       friendlyName: "State",
       step: 1,
     },
