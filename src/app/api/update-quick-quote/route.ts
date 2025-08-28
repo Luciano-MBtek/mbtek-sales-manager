@@ -39,6 +39,8 @@ export async function POST(request: Request) {
     dealOwnerId,
   } = body;
 
+  // Keep validation errors; remove noisy debug output
+
   const encoder = new TextEncoder();
 
   const readable = new ReadableStream({
@@ -50,6 +52,15 @@ export async function POST(request: Request) {
       }
 
       try {
+        // 🚨 VALIDATION: Check if draftOrderId exists before proceeding
+        if (!draftOrderId || draftOrderId === "") {
+          throw new Error(
+            `❌ Cannot update quote: Missing or invalid draft order ID. ` +
+              `Draft order ID: "${draftOrderId}". ` +
+              `This usually means the initial quote creation failed or the draft order was deleted.`
+          );
+        }
+
         const totalProducts = products.reduce(
           (sum: number, product: { price: number; quantity: number }) =>
             sum + product.price * product.quantity,
@@ -79,7 +90,7 @@ export async function POST(request: Request) {
             percentage: 35,
           });
 
-          console.log("New Line items:", newLineItems);
+          // Removed verbose debug logging
 
           const shopifyItems = newLineItems.map((product) => ({
             sku: product.properties.hs_sku,
@@ -237,10 +248,14 @@ export async function POST(request: Request) {
 
           const variantLineItems = await fetchShopifyVariants(shopifyProducts);
 
+          // No verbose logging here; rely on thrown errors for failures
+
           const updateResult = await updateDraftOrder(
             draftOrderId,
             variantLineItems
           );
+
+          // No verbose logging here; rely on thrown errors for failures
 
           // Step 7
           sendProgress("progress", {
@@ -273,7 +288,7 @@ export async function POST(request: Request) {
           return;
         }
       } catch (error) {
-        console.error("Error updating quote:", error);
+        console.error("❌ [update-quick-quote] Error updating quote:", error);
         sendProgress("error", {
           error: error instanceof Error ? error.message : "Unknown error",
         });
