@@ -28,6 +28,8 @@ const QuoteUpdate = async (props: Props) => {
   const draftOrderId = dealData?.properties.shopify_draft_order_id;
   const draftOrderInvoice = dealData?.properties.shopify_draft_order_url;
 
+  // Removed development-only logs
+
   return (
     <div className="flex flex-col w-full items-center">
       <PageHeader
@@ -50,10 +52,11 @@ const QuoteUpdate = async (props: Props) => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-gray-600 text-center">
+              <p className="gray-600 text-center">
                 Split payments cannot be updated. Delete the quote and create a
                 new one if necessary.
               </p>
+              {/* Debug panel removed in cleanup */}
             </CardContent>
           </Card>
         </div>

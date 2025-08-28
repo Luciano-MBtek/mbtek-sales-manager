@@ -48,31 +48,43 @@ export async function fetchShopifyVariants(
 
     const variantsData: ShopifyVariantResponse = await response.json();
 
-    // Map the variants to the format needed for line items
-    const lineItems: ShopifyVariantLineItem[] = variantsData.data.map(
-      (variant, index) => {
-        const item: ShopifyVariantLineItem = {
-          variant_id: variant.variantId,
-          quantity: items[index].quantity,
-        };
+    // ✅ FIXED: Build SKU → variant map for safe lookup
+    const skuToVariantMap = new Map<string, ShopifyVariant>();
+    variantsData.data.forEach((variant) => {
+      skuToVariantMap.set(variant.sku, variant);
+    });
 
-        // Add discount if it exists and is greater than 0
-        if (items[index].unitDiscount && items[index].unitDiscount > 0) {
-          item.applied_discount = {
-            value: items[index].unitDiscount,
-            value_type: "percentage",
-            description: `${items[index].unitDiscount}% off`,
-            title: "Discount",
-          };
-        }
+    // ✅ FIXED: Row-based mapping that maintains order and validates all SKUs
+    const lineItems: ShopifyVariantLineItem[] = items.map((item, index) => {
+      const variant = skuToVariantMap.get(item.sku);
 
-        return item;
+      if (!variant?.variantId) {
+        throw new Error(
+          `❌ SKU "${item.sku}" (index ${index}) could not resolve to a valid Shopify variant. ` +
+            `This will cause quantity misalignment. Please verify the SKU exists in Shopify.`
+        );
       }
-    );
+
+      const lineItem: ShopifyVariantLineItem = {
+        variant_id: variant.variantId,
+        quantity: item.quantity,
+      };
+
+      // Add discount if it exists and is greater than 0
+      if (item.unitDiscount && item.unitDiscount > 0) {
+        lineItem.applied_discount = {
+          value: item.unitDiscount,
+          value_type: "percentage",
+          description: `${item.unitDiscount}% off`,
+          title: "Discount",
+        };
+      }
+
+      return lineItem;
+    });
 
     return lineItems;
   } catch (error) {
-    console.error("Error fetching Shopify variants:", error);
     throw new Error(
       "Failed to fetch variants: " +
         (error instanceof Error ? error.message : "Unknown error")
