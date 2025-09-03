@@ -51,7 +51,7 @@ const items = [
     url: "/active-qualifications",
     icon: ListTodo,
     requireAuth: true,
-    requireRole: ["owner", "lead_agent", "admin"],
+    requireRole: ["owner", "lead_agent", "admin", "sales_agent"],
   },
   {
     title: "My Tasks",
