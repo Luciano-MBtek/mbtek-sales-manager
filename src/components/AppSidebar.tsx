@@ -132,7 +132,7 @@ export function AppSidebar() {
               {filteredItems.map((item) =>
                 item.title === "Qualification" ? (
                   session?.user?.accessLevel &&
-                  ["owner", "lead_agent", "admin"].includes(
+                  ["owner", "lead_agent", "admin", "sales_agent"].includes(
                     session.user.accessLevel
                   ) && <SidebarQualification key={item.title} />
                 ) : item.title === "Engagements" ? (
