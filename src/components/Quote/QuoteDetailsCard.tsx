@@ -93,13 +93,13 @@ export default function QuoteDetailsCard({
               </Button>
             )}
 
-            {properties.hs_pdf_download_link && (
+            {properties.hs_object_id && (
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
                 onClick={() =>
-                  window.open(properties.hs_pdf_download_link, "_blank")
+                  window.open(`/api/quotes/${properties.hs_object_id}/pdf`, "_blank")
                 }
                 className="flex items-center gap-1"
               >
