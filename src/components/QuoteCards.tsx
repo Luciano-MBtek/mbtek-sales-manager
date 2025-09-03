@@ -107,7 +107,7 @@ export function QuoteItem({ quote }: { quote: Quote }) {
             <Button
               variant="outline"
               onClick={() =>
-                window.open(`/api/quotes/${quote.id}/pdf`, "_blank")
+                window.open(quote.properties.hs_pdf_download_link, "_blank")
               }
             >
               <Download className="mr-2 h-4 w-4" /> Download PDF

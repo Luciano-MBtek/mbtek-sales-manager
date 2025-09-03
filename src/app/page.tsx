@@ -20,7 +20,7 @@ async function HomePage({ searchParams }: { searchParams: SearchParams }) {
   const session = await getServerSession(authOptions);
   const summary = await getDealsWonLostOverTime(pipeline);
   const userName = session?.user?.name || "User";
-  const accessLevel = session?.user?.accessLevel;
+    const accessLevel = session?.user?.accessLevel;
 
   const firstname = userName.split(" ")[0];
 

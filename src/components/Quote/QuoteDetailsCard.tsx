@@ -99,7 +99,7 @@ export default function QuoteDetailsCard({
                 variant="outline"
                 size="sm"
                 onClick={() =>
-                  window.open(`/api/quotes/${properties.hs_object_id}/pdf`, "_blank")
+                  window.open(properties.hs_pdf_download_link, "_blank")
                 }
                 className="flex items-center gap-1"
               >
