@@ -93,7 +93,7 @@ export default function QuoteDetailsCard({
               </Button>
             )}
 
-            {properties.hs_pdf_download_link && (
+            {properties.hs_object_id && (
               <Button
                 type="button"
                 variant="outline"

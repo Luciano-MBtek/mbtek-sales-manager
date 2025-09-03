@@ -20,7 +20,7 @@ async function HomePage({ searchParams }: { searchParams: SearchParams }) {
   const session = await getServerSession(authOptions);
   const summary = await getDealsWonLostOverTime(pipeline);
   const userName = session?.user?.name || "User";
-  const accessLevel = session?.user?.accessLevel;
+    const accessLevel = session?.user?.accessLevel;
 
   const firstname = userName.split(" ")[0];
 
@@ -48,6 +48,9 @@ async function HomePage({ searchParams }: { searchParams: SearchParams }) {
       )}
       {accessLevel === "sales_agent" && (
         <div className="flex flex-col w-full gap-4">
+          <div>
+            <QualificationButton />
+          </div>
           <DealsSummaryCards />
           <DealsWonLostChart summary={summary} />
           <TodayMeetingsCard />
