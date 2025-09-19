@@ -8,6 +8,7 @@ import {
   MapPin,
   CreditCard,
   Wrench,
+  Table2,
 } from "lucide-react";
 import {
   SidebarMenuItem,
@@ -60,6 +61,11 @@ const toolsItems: ResourceItem[] = [
     title: "Payment Info",
     icon: CreditCard,
     path: "/resources/payment",
+  },
+  {
+    title: "Orders",
+    icon: Table2,
+    path: "/resources/orders",
   },
 ];
 

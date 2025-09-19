@@ -8,6 +8,7 @@ import {
   FileText,
   ClipboardList,
   Check,
+  Table2,
 } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
@@ -54,6 +55,15 @@ export default function ResourcesGrid() {
       ],
       onClick: () => {
         router.push("/resources/payment");
+      },
+    },
+    {
+      icon: <Table2 className="h-6 w-6" />,
+      title: "Orders",
+      subtitle: "Order management",
+      items: ["View order status", "Track shipments", "Order history"],
+      onClick: () => {
+        router.push("/resources/orders");
       },
     },
     /* {
