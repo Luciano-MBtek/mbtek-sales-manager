@@ -108,44 +108,45 @@ export default function StepOneContent({
           console.log("Intentando obtener datos de ubicación...");
           const isCanada = /[a-zA-Z]/.test(zipCode);
           const country = isCanada ? "CA" : "US";
-          const postalCode = isCanada
-            ? zipCode.slice(0, 3).toUpperCase()
-            : zipCode;
+          
           const response = await fetch(
-            `https://api.zippopotam.us/${country}/${postalCode}`
+            `/api/geo/zip-to-address?zip=${encodeURIComponent(zipCode)}&country=${country}`
           );
+
           if (!response.ok) {
-            console.error("Código postal inválido");
+            if (process.env.NODE_ENV === "development") {
+              console.debug(
+                `[zip-to-address] Server returned ${response.status}`
+              );
+            }
             return;
           }
 
           const data = await response.json();
-          if (!data.places || !data.places[0]) {
-            console.error("No information found for this postal code");
+          
+          // If all values are null, lookup failed - do nothing (no toasts)
+          if (!data.country || !data.province || !data.city) {
+            if (process.env.NODE_ENV === "development") {
+              console.debug(
+                `[zip-to-address] No data returned for zip: ${zipCode}`
+              );
+            }
             return;
           }
 
-          const placeName = data.places[0]["place name"];
-          const locationData = {
-            city: placeName.includes("(")
-              ? placeName.split("(")[0].trim()
-              : placeName,
-            state: isCanada ? data.places[0]["state"] : data.places[0]["state"],
-            stateAbbreviation: data.places[0]["state abbreviation"],
-            country: isCanada ? "Canada" : "USA",
-          };
-
-          form.setValue("country", locationData.country);
+          // Set form values with normalized response
+          form.setValue("country", data.country);
           if (isCanada) {
-            form.setValue("province", locationData.stateAbbreviation);
+            form.setValue("province", data.province);
             form.setValue("state", "");
           } else {
-            form.setValue("state", locationData.state);
+            form.setValue("state", data.province);
             form.setValue("province", "");
           }
-          form.setValue("city", locationData.city);
-          setSelectedCountry(locationData.country);
-          setStateFullName(locationData.state);
+          form.setValue("city", data.city);
+          setSelectedCountry(data.country);
+          // Use full state name from response (or province if state not available for backward compat)
+          setStateFullName(data.state || data.province);
         } catch (error) {
           console.error("Error fetching the postal code:", error);
         }
