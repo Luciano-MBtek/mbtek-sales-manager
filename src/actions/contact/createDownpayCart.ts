@@ -46,7 +46,7 @@ export async function getPurchaseOptions(): Promise<PurchaseOption[]> {
     const response = await fetch(OPTIONS_URL, {
       method: "GET",
       headers: { "Content-Type": "application/json" },
-      cache: "force-cache",
+      cache: "no-store",
     });
 
     if (!response.ok) {
@@ -81,6 +81,15 @@ export async function createDownpayCart(
   }
 ) {
   try {
+    // Validate required fields
+    if (!contactData.address || contactData.address.trim() === "") {
+      throw new Error("Address is required to create a downpayment cart");
+    }
+
+    if (!contactData.email || contactData.email.trim() === "") {
+      throw new Error("Email is required to create a downpayment cart");
+    }
+
     const countryCode = contactData.country_us_ca === "USA" ? "US" : "CA";
 
     const createOrderPayload = {
@@ -113,7 +122,25 @@ export async function createDownpayCart(
     });
 
     if (!response.ok) {
-      throw new Error(`Failed to create cart: ${response.statusText}`);
+      // Try to get the error response body for better debugging
+      let errorMessage = `Failed to create cart: ${response.statusText}`;
+      try {
+        const errorData = await response.json();
+        if (errorData.message) {
+          errorMessage = `Failed to create cart: ${errorData.message}`;
+        } else if (errorData.error) {
+          errorMessage = `Failed to create cart: ${errorData.error}`;
+        }
+        console.error("API Error Response:", errorData);
+      } catch (parseError) {
+        // If we can't parse the error response, use the status text
+        console.error("Failed to parse error response:", parseError);
+      }
+      console.error(
+        "Request payload:",
+        JSON.stringify(createOrderPayload, null, 2)
+      );
+      throw new Error(errorMessage);
     }
 
     const cartOrderData = await response.json();
